@@ -1,0 +1,12 @@
+{
+    "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
+    "powershell.codeFormatting.useCorrectCasing": true,
+    "powershell.codeFormatting.whitespaceBetweenParameters": true,
+    "powershell.codeFormatting.pipelineIndentationStyle": "IncreaseIndentationForFirstPipeline",
+    "markdownlint.config": {
+        "MD007": {
+            "indent": 4
+        }
+    },
+    "redhat.telemetry.enabled": false
+}
