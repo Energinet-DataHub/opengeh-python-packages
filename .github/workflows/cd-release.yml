@@ -1,0 +1,19 @@
+name: CD Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  changes:
+    uses: ./.github/workflows/detect-changes.yml
+
+  #
+  # Automatic Release (create release tag)
+  #
+  create_release:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark-sql-migrations == 'true' }}
+    uses: ./.github/workflows/create-release-tag.yml
+    secrets: inherit # Needed for organization scope GH_TOKEN
