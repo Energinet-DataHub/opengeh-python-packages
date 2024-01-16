@@ -14,10 +14,19 @@ jobs:
     secrets:
       pat_token: ${{ secrets.internal_github_pat }}
 
+  changes:
+    uses: ./.github/workflows/detect-changes.yml
+
+  create_release:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark-sql-migrations == 'true' }}
+    uses: ./.github/workflows/create-release-tag.yml
+    secrets: inherit
+
   # Branch policy status check
   allow_merge_ci_orchestrator:
     runs-on: ubuntu-latest
-    needs: [ci_base]
+    needs: [ci_base, create_release]
     if: |
       always()
     steps:
