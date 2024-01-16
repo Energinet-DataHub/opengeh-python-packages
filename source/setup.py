@@ -9,7 +9,4 @@ setup(
     long_description_content_type="text/markdown",
     license="MIT",
     packages=find_packages(),
-    install_requires=[
-        "ConfigArgParse==1.5.3",
-    ],
 )
