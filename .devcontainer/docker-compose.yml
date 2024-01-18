@@ -1,7 +1,7 @@
 version: "3.9"
 services:
-  migration:
-    image: ghcr.io/energinet-datahub/opengeh-python-packages/python-unit-test:latest
+  opengeh-python-packages:
+    image: ghcr.io/energinet-datahub/opengeh-python-packages/python-unit-test:pre-release-pr5
     volumes:
       # Forwards the local Docker socket to the container.
       - /var/run/docker.sock:/var/run/docker-host.sock

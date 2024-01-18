@@ -23,6 +23,17 @@ jobs:
     uses: ./.github/workflows/create-release-tag.yml
     secrets: inherit
 
+  spark_sql_migrations:
+    needs: [changes]
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark-sql-migrations == 'true' }}
+    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v12
+    with:
+      operating_system: dh3-ubuntu-20.04-4core
+      path_static_checks: ./source
+      # documented here https://github.com/Energinet-DataHub/opengeh-migration/tree/main/source/MigrationTools#styling-and-formatting
+      ignore_errors_and_warning_flake8: E501,F401,E402,E203,W503
+      test_report_path: ./source/spark_sql_migrations/tests
+
   # Branch policy status check
   allow_merge_ci_orchestrator:
     runs-on: ubuntu-latest
