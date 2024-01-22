@@ -18,8 +18,6 @@ def pytest_runtest_setup():
     os.environ["DATALAKE_STORAGE_ACCOUNT"] = "storage_account"
     os.environ["DATALAKE_SHARED_STORAGE_ACCOUNT"] = "shared_storage_account"
 
-    create_and_configure_container(WidgetStoreStub)
-
 
 @pytest.fixture(scope="session")
 def spark() -> Generator[SparkSession, None, None]:
