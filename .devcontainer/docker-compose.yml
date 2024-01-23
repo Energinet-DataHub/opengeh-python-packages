@@ -1,6 +1,6 @@
 version: "3.9"
 services:
-  opengeh-python-packages:
+  packages:
     image: ghcr.io/energinet-datahub/opengeh-python-packages/python-unit-test:latest
     volumes:
       # Forwards the local Docker socket to the container.
