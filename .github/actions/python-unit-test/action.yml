@@ -1,18 +1,16 @@
 name: PySpark execution
 description: This action allows you to execute code, written for Spark, Databricks or other similar engines.
 
+inputs:
+  tests_filter_expression:
+    description: Filter expression to use with pytest. Read description in 'entrypoint.sh'.
+    required: true
+
 runs:
   using: composite
   steps:
-    - name: Log in to the Container registry
-      uses: docker/login-action@v2
-      with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ github.token }}
-
     - name: Execute python tests
       shell: bash
       run: |
         chmod +x ./.docker/entrypoint.sh
-        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages python-unit-test ./.docker/entrypoint.sh
+        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages opengeh-python-packages ./.docker/entrypoint.sh "${{ inputs.tests_filter_expression }}"

@@ -14,6 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# $1: (Optional) Can be set to specify a filter for running python tests by using 'keyword expressions'.
+# See use of '-k' and 'keyword expressions' here: https://docs.pytest.org/en/7.4.x/how-to/usage.html#specifying-which-tests-to-run
+echo "Filter (keyword expression): $1"
+
 # Exit immediately with failure status if any command fails
 set -e
 cd source/telemetry/tests/
