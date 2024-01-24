@@ -5,6 +5,9 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 USER root
 
+# This replaces the default spark configuration in the docker image with the ones defined in the sibling file
+COPY spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
+
 # Install Azurite (support wasb-protocol storage for Delta tables in integration tests)
 RUN apt-get update; \
     apt-get install -y npm && npm install -g n && n lts && hash -r && npm install -g azurite
@@ -27,6 +30,9 @@ RUN fix-permissions "${CONDA_DIR}"
 ENV PATH=$SPARK_HOME/bin:$HADOOP_HOME/bin:$PATH \
     PYTHONPATH="${SPARK_HOME}/python:${SPARK_HOME}/python/lib/py4j-0.10.9.5-src.zip" \
     SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info"
+
+# Dynamically downloading spark dependencies. This is done to save time in the build pipeline so that we don't need to download on every build.
+RUN spark-shell -conf spark-defaults.conf
 
 # Make $HOME owned by the root, which is the user used in the container
 # This is needed for e.g. commands that create files or folders in $HOME
