@@ -4,9 +4,9 @@ FROM jupyter/pyspark-notebook:spark-3.3.0
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 USER root
-
 # This replaces the default spark configuration in the docker image with the ones defined in the sibling file
 COPY spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
+
 
 # Install Azurite (support wasb-protocol storage for Delta tables in integration tests)
 RUN apt-get update; \
@@ -15,7 +15,7 @@ RUN apt-get update; \
 # Install spark packages with mamba
 RUN mamba install --quiet --yes --satisfied-skip-solve \
     'rope=1.6.*' 'pytest=7.2.*' 'configargparse=1.5.3'  \
-    'coverage=7.0.*' 'pytest-mock=3.10.*' \
+    'coverage=7.0.*' 'azure-storage-blob=12.14.1' 'pytest-mock=3.10.*' \
     'virtualenv=20.*'
 
 # Install python packages used in pyspark development
