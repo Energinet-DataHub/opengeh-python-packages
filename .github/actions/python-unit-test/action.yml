@@ -1,11 +1,6 @@
 name: PySpark execution
 description: This action allows you to execute code, written for Spark, Databricks or other similar engines.
 
-inputs:
-  tests_filter_expression:
-    description: Filter expression to use with pytest. Read description in 'entrypoint.sh'.
-    required: true
-
 runs:
   using: composite
   steps:
