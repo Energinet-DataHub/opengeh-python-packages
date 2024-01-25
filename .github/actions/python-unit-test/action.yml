@@ -8,4 +8,4 @@ runs:
       shell: bash
       run: |
         chmod +x ./.docker/entrypoint.sh
-        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages packages ./.docker/entrypoint.sh "${{ inputs.tests_filter_expression }}"
+        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages packages ./.docker/entrypoint.sh
