@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-
+import telemetry
 
 setup(
     name="opengeh-telemetry",
@@ -8,7 +8,7 @@ setup(
     long_description="",
     long_description_content_type="text/markdown",
     license="MIT",
-    packages=find_packages(),
+    packages=find_packages(telemetry),
     install_requires=[
         "ConfigArgParse==1.5.3",
         "pyspark==3.3.2",
