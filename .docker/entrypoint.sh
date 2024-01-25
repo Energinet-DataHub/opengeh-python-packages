@@ -16,7 +16,7 @@
 
 # Exit immediately with failure status if any command fails
 set -e
-cd source/telemetry/tests/
+cd source/
 
 # There env vars are important to ensure that the driver and worker nodes in spark are alligned
 export PYSPARK_PYTHON=/opt/conda/bin/python
