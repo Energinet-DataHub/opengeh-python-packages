@@ -47,7 +47,5 @@ jobs:
         id: docker_changed
         uses: tj-actions/changed-files@v41
         with:
-          base_sha: ${{ github.sha }}
-          since_last_remote_commit: true
-          fetch_depth: 1
+          sha: ${{ github.sha }}
           files: .docker/**
