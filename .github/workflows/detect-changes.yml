@@ -44,16 +44,16 @@ jobs:
               - .github/workflows/cd-docker-test-image.yml
 
 
-      - name: Detect file changes in commit
-        uses: dorny/paths-filter@v2
-        id: filter_commit
-        with:
-          base: ${{ github.ref }}
-          filters: |
-            telemetry:
-              - 'source/telemetry/**'
-            spark_sql_migrations:
-              - 'source/spark-sql-migrations/**'
-            docker:
-              - .docker/**
-              - .github/workflows/cd-docker-test-image.yml
+      - name: Get changed files
+        id: getfile
+        run: |
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r $(git rev-parse HEAD))"
+      - name: Check for changes
+        run: |
+          changed_files="${{ steps.getfile.outputs.files }}"
+          folders=(".docker" ".github/workflows/cd-docker-test-image.yml") # list your folders here
+          for folder in ${folders[@]}; do
+            if echo "${changed_files}" | grep -qE "$folder"; then
+              echo "Changes were made in $folder"
+            fi
+          done
