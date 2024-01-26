@@ -48,4 +48,6 @@ jobs:
         uses: tj-actions/changed-files@v41
         with:
           sha: ${{ github.sha }}
+          since_last_remote_commit: true
+          fetch_depth: 1
           files: .docker/**
