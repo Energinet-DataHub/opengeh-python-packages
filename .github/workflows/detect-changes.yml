@@ -29,8 +29,6 @@ jobs:
       - name: Checkout repository
         if: ${{ github.event_name != 'pull_request' }}
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: Detect file changes
         uses: dorny/paths-filter@v2
@@ -49,6 +47,7 @@ jobs:
         id: docker_changed
         uses: tj-actions/changed-files@v41
         with:
+          base_sha: ${{ github.sha }}
           files: |
             .docker/**
             .github/workflows/cd-docker-test-image.yml
