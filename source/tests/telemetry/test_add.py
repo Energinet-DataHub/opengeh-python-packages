@@ -1,4 +1,4 @@
-from telemetry.math.add import add
+from telemetry.add.add import add
 
 
 def test_add() -> None:
