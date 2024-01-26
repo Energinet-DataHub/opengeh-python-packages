@@ -43,11 +43,9 @@ jobs:
               - .docker/**
               - .github/workflows/cd-docker-test-image.yml
 
-      - name: Package content or build has changed
-        id: docker_changed
-        uses: tj-actions/changed-files@v41
-        with:
-          since_last_remote_commit: true
-          files: |
-            .docker/**
-            .github/workflows/cd-docker-test-image.yml
+      - name: Get changed files
+        id: getfile
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-only -r ${{ github.event.pull_request.head.sha }} $(git merge-base ${{ github.event.pull_request.head.sha }} FETCH_HEAD))"
+
