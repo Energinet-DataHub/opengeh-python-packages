@@ -23,7 +23,7 @@ jobs:
     outputs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
-      docker: ${{ steps.filter_commit.outputs.docker }}
+      docker: ${{ steps.docker_changed.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
@@ -43,20 +43,10 @@ jobs:
               - .docker/**
               - .github/workflows/cd-docker-test-image.yml
 
-      - name: Get changed files
-        id: getfile
-        run: |
-          echo "::set-output name=files::$(git diff-tree --no-commit-id --name-status -r ${{ github.sha }})"
-
-      - name: Check for changes
-        run: |
-          changed_files="${{ steps.getfile.outputs.files }}"
-          folders=(".docker" ".github/workflows/cd-docker-test-image.yml") # list your folders here
-          for folder in ${folders[@]}; do
-            if echo "${changed_files}" | grep -qE "$folder";
-              then
-                echo "Detected changes"
-              else
-                echo "No changes"
-            fi
-          done
+      - name: Package content or build has changed
+        id: docker_changed
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            .docker/**
+            .github/workflows/cd-docker-test-image.yml
