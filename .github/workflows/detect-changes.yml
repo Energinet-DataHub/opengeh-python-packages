@@ -23,7 +23,7 @@ jobs:
     outputs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
-      docker: ${{ steps.filter.outputs.docker }}
+      docker: ${{ steps.filter_commit.outputs.docker }}
 
     steps:
       - name: Checkout repository
@@ -34,6 +34,21 @@ jobs:
         uses: dorny/paths-filter@v2
         id: filter
         with:
+          filters: |
+            telemetry:
+              - 'source/telemetry/**'
+            spark_sql_migrations:
+              - 'source/spark-sql-migrations/**'
+            docker:
+              - .docker/**
+              - .github/workflows/cd-docker-test-image.yml
+
+
+      - name: Detect file changes in commit
+        uses: dorny/paths-filter@v2
+        id: filter_commit
+        with:
+          base: ${{ github.ref }}
           filters: |
             telemetry:
               - 'source/telemetry/**'
