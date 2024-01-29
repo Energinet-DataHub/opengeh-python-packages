@@ -4,9 +4,7 @@ on:
   pull_request:
     branches:
       - main
-env:
-  TAG: "pre-release-pr6"
-  
+
 jobs:
   # License and Markdown Check
   ci_base:
