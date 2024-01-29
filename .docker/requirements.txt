@@ -4,12 +4,11 @@
 #
 # PYTHON TOOLS
 #
-black
-build
-coverage-threshold
-flake8
-mypy
-ptvsd
-pyspelling
-pytest-asyncio
-pytest-xdist
+black == 23.12.1
+build == 1.0.0
+coverage-threshold == 0.4.4
+flake8 == 7.0.0
+mypy == 1.8.0
+pyspelling == 2.10
+pytest-asyncio == 0.23.4
+pytest-xdist == 3.5.0
