@@ -42,7 +42,7 @@ jobs:
       # documented here https://github.com/Energinet-DataHub/opengeh-migration/tree/main/source/MigrationTools#styling-and-formatting
       ignore_errors_and_warning_flake8: E501,F401,E402,E203,W503
       test_report_path: ./source
-      image_tag: ci_docker.outputs.image_tag
+      image_tag: ${{ needs.ci_docker.outputs.image_tag }}
 
   # Branch policy status check
   allow_merge_ci_orchestrator:
