@@ -50,8 +50,3 @@ jobs:
         with:
           since_last_remote_commit: true
           files: .docker/**
-
-      - name: Set environment variable
-        run: |
-          export TAG="pre-release-pr6"
-          echo $TAG
