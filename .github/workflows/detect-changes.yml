@@ -42,7 +42,7 @@ jobs:
               - 'source/spark-sql-migrations/**'
             docker:
               - .docker/**
-              - .github/workflows/cd-docker-test-image.yml
+              - .github/workflows/python-build-and-push-docker-image.yml
 
       - name: Package content or build has changed
         id: docker_changed
@@ -50,3 +50,8 @@ jobs:
         with:
           since_last_remote_commit: true
           files: .docker/**
+
+      - name: Set environment variable
+        run: |
+          export TAG="pre-release-pr6"
+          echo $TAG
