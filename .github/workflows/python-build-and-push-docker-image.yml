@@ -25,6 +25,7 @@ on:
       image_tag:
         description: The tag of the docker image to use
         type: string
+        value: ${{ steps.determine_build.outputs.image_tag }}
 
 env:
   REGISTRY: ghcr.io
@@ -44,10 +45,8 @@ jobs:
         id: set_image_tag
         run: |
           if [[ ${{ env.IS_PULL_REQUEST_TRIGGERED }} == true ]]; then
-            echo "image_tag=:pre-release-pr${{ github.event.pull_request.number }}" >> "$GITHUB_ENV"
             echo "image_tag=:pre-release-pr${{ github.event.pull_request.number }}" >> ::set-output name=image_tag::
           else
-            echo "image_tag=:latest" >> "$GITHUB_ENV"
             echo "image_tag=:latest" >> ::set-output name=image_tag::
           fi
 
