@@ -7,7 +7,6 @@ USER root
 # This replaces the default spark configuration in the docker image with the ones defined in the sibling file
 COPY spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 
-
 # Install Azurite (support wasb-protocol storage for Delta tables in integration tests)
 RUN apt-get update; \
     apt-get install -y npm && npm install -g n && n lts && hash -r && npm install -g azurite
