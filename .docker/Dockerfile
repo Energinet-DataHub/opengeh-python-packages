@@ -24,7 +24,6 @@ RUN pip --no-cache-dir install -r requirements.txt
 # Below will make everything in the directory owned by the group ${NB_GID}
 RUN fix-permissions "${CONDA_DIR}"
 
-
 # Set misc environment variables required for properly run spark
 # note the amount of memory used on the driver is adjusted here
 ENV PATH=$SPARK_HOME/bin:$HADOOP_HOME/bin:$PATH \
