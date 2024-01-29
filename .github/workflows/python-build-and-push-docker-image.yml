@@ -24,7 +24,6 @@ on:
     outputs:
       image_tag:
         description: The tag of the docker image to use
-        type: string
         value: ${{ jobs.determine_build.outputs.image_tag }}
 
 env:
