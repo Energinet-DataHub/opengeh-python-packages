@@ -13,5 +13,4 @@ runs:
       shell: bash
       run: |
         chmod +x ./.docker/entrypoint.sh
-        IMAGE_TAG=${{ inputs.image_tag }}
-        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages opengeh-python-packages ./.docker/entrypoint.sh
+        IMAGE_TAG=${{ inputs.image_tag }} docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages opengeh-python-packages ./.docker/entrypoint.sh
