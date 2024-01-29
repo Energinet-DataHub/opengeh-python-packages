@@ -18,9 +18,9 @@ on:
   workflow_call:
     inputs:
       docker_changed:
-        description: Tells if the docker image should be built and pushed
+        description: Tells if the docker image should be built and pushed. Should be 'true' or 'false'
         required: true
-        type: string # Should be 'true' or 'false'
+        type: string
     outputs:
       image_tag:
         description: The tag of the docker image to use
