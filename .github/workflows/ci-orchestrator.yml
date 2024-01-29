@@ -21,7 +21,7 @@ jobs:
     needs: changes
     uses: ./.github/workflows/python-build-and-push-docker-image.yml
     with:
-      docker_changed: ${{ needs.changes.outputs.docker }}
+      docker_changed: ${{ needs.changes.outputs.docker_in_commit }}
 
   create_release:
     needs: changes
