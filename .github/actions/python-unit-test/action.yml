@@ -1,11 +1,6 @@
 name: PySpark execution
 description: This action allows you to execute code, written for Spark, Databricks or other similar engines.
 
-inputs:
-  image_tag:
-    description: The tag of the docker image to use
-    required: true
-
 runs:
   using: composite
   steps:
@@ -13,4 +8,4 @@ runs:
       shell: bash
       run: |
         chmod +x ./.docker/entrypoint.sh
-        IMAGE_TAG=${{ inputs.image_tag }} docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages opengeh-python-packages ./.docker/entrypoint.sh
+        docker-compose -f .devcontainer/docker-compose.yml run --rm -u root -w //workspaces/opengeh-python-packages opengeh-python-packages ./.docker/entrypoint.sh
