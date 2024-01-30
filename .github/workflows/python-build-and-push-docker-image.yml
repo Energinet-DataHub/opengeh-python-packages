@@ -43,7 +43,7 @@ jobs:
       - name: Set tag environmental variable
         id: set_image_tag
         run: |
-          if [[ ${{ env.IS_PULL_REQUEST_TRIGGERED }} == true ]]; then
+          if [[ ${{ env.IS_PULL_REQUEST_TRIGGERED }} == true && ${{ inputs.docker_changed }} == true ]]; then
             echo "image_tag=pre-release-pr${{ github.event.pull_request.number }}" >>$GITHUB_OUTPUT
           else
             echo "image_tag=latest" >>$GITHUB_OUTPUT
