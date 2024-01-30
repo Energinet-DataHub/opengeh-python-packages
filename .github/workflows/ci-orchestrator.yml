@@ -31,7 +31,7 @@ jobs:
     secrets: inherit
 
   #
-  # Run Python unit tests
+  # Run Python  unit tests
   #
   python_ci_test:
     needs: [ci_base, ci_docker]
