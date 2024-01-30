@@ -18,7 +18,11 @@ on:
   workflow_call:
     inputs:
       docker_changed:
-        description: Tells if the docker image should be built and pushed. Should be 'true' or 'false'
+        description: Is docker changed in the pull request.
+        required: true
+        type: boolean
+      docker_changed_in_commit:
+        description: Is docker changed in the commit.
         required: true
         type: boolean
     outputs:
@@ -51,7 +55,7 @@ jobs:
 
   build_and_push_image:
     needs: determine_build
-    if: ${{ inputs.docker_changed == 'true' }}
+    if: ${{ inputs.docker_changed_in_commit == 'true' }}
     runs-on: ubuntu-latest
 
     permissions:
