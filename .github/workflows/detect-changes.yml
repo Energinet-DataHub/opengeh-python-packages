@@ -26,7 +26,7 @@ jobs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
       docker: ${{ steps.filter.outputs.docker }}
-      docker_in_commit: ${{ steps.docker_changed.outputs.any_changed == 'true' }}
+      docker_in_commit: ${{ steps.docker_changed.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
