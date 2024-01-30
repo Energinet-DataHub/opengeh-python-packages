@@ -20,7 +20,7 @@ on:
       docker_changed:
         description: Tells if the docker image should be built and pushed. Should be 'true' or 'false'
         required: true
-        type: string
+        type: boolean
     outputs:
       image_tag:
         description: The tag of the docker image to use

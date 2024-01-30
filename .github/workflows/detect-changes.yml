@@ -45,7 +45,6 @@ jobs:
               - 'source/spark-sql-migrations/**'
             docker:
               - .docker/**
-              - .github/workflows/python-build-and-push-docker-image.yml
 
       - name: Package content or build has changed
         id: docker_changed
