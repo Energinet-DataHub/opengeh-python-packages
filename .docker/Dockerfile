@@ -11,7 +11,7 @@ COPY spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 RUN apt-get update; \
     apt-get install -y npm && npm install -g n && n lts && hash -r && npm install -g azurite
 
-# Install spark packages with mamba  (packages has to be updated according to spark version)
+# Install spark packages with mamba (packages has to be updated according to spark version)
 COPY mamba_requirements.txt mamba_requirements.txt
 RUN mamba install --quiet --yes --satisfied-skip-solve --file mamba_requirements.txt
 
