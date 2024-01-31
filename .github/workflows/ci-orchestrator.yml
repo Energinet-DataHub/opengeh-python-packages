@@ -36,7 +36,7 @@ jobs:
   python_ci_test:
     needs: [ci_base, ci_docker]
     if: always()
-    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@mkq/python_ci
+    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v12
     with:
       operating_system: dh3-ubuntu-20.04-4core
       path_static_checks: ./source
