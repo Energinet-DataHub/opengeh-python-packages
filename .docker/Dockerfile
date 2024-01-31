@@ -11,11 +11,9 @@ COPY spark-defaults.conf $SPARK_HOME/conf/spark-defaults.conf
 RUN apt-get update; \
     apt-get install -y npm && npm install -g n && n lts && hash -r && npm install -g azurite
 
-# Install spark packages with mamba
-RUN mamba install --quiet --yes --satisfied-skip-solve \
-    'rope=1.6.*' 'pytest=7.2.*' 'configargparse=1.5.3'  \
-    'coverage=7.0.*' 'azure-storage-blob=12.14.1' 'pytest-mock=3.10.*' \
-    'virtualenv=20.*'
+# Install spark packages with mamba (packages has to be updated according to spark version)
+COPY mamba_requirements.txt mamba_requirements.txt
+RUN mamba install --quiet --yes --satisfied-skip-solve --file mamba_requirements.txt
 
 # Install python packages used in pyspark development
 COPY requirements.txt requirements.txt
