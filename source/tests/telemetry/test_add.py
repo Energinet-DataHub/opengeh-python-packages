@@ -1,4 +1,4 @@
-from spark_sql_migrations.add import add
+from telemetry.add.add import add
 
 
 def test_add() -> None:

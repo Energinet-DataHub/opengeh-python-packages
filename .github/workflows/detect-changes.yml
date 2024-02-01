@@ -15,6 +15,8 @@ on:
         value: ${{ jobs.changes.outputs.spark_sql_migrations }}
       docker:
         value: ${{ jobs.changes.outputs.docker }}
+      docker_in_commit:
+        value: ${{ jobs.changes.outputs.docker_in_commit }}
 
 jobs:
   changes:
@@ -24,11 +26,13 @@ jobs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
       docker: ${{ steps.filter.outputs.docker }}
+      docker_in_commit: ${{ steps.docker_changed.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
-        if: ${{ github.event_name != 'pull_request' }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Detect file changes
         uses: dorny/paths-filter@v2
@@ -41,4 +45,10 @@ jobs:
               - 'source/spark-sql-migrations/**'
             docker:
               - .docker/**
-              - .github/workflows/cd-docker-test-image.yml
+
+      - name: Package content or build has changed
+        id: docker_changed
+        uses: tj-actions/changed-files@v41
+        with:
+          since_last_remote_commit: true
+          files: .docker/**
