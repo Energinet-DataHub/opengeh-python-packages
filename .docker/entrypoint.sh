@@ -25,16 +25,21 @@ export PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
 
 for dir in */ ;
 do
-    echo "Running tests in $dir"
+  echo "Running tests in $dir"
 
-    cd $dir
+  cd "$dir"
 
-    coverage run --branch -m pytest --junitxml=pytest-results.xml
-    # Create data for threshold evaluation
-    coverage json
-    # Create human reader friendly HTML report
-    coverage html
-    coverage-threshold --line-coverage-min 25
+  # Build wheel
+  # python ../setup.py install
+  # python coverage-threshold install
+  # pip install coverage-threshold
 
-    cd ..
+  coverage run --branch -m pytest --junitxml=pytest-results.xml
+  # Create data for threshold evaluation
+  coverage json
+  # Create human reader friendly HTML report
+  coverage html
+  coverage-threshold --line-coverage-min 25
+
+  cd ..
 done
