@@ -22,7 +22,6 @@ cd source/
 export PYSPARK_PYTHON=/opt/conda/bin/python
 export PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
 
-
 for dir in */ ;
 do
   echo "Running tests in $dir"
