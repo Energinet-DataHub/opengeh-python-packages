@@ -28,11 +28,6 @@ do
 
   cd "$dir"
 
-  # Build wheel
-  # python ../setup.py install
-  # python coverage-threshold install
-  # pip install coverage-threshold
-
   coverage run --branch -m pytest --junitxml=pytest-results.xml
   # Create data for threshold evaluation
   coverage json
