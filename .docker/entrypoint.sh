@@ -16,13 +16,14 @@
 
 # Exit immediately with failure status if any command fails
 set -e
-cd source/
 
 # There env vars are important to ensure that the driver and worker nodes in spark are alligned
 export PYSPARK_PYTHON=/opt/conda/bin/python
 export PYSPARK_DRIVER_PYTHON=/opt/conda/bin/python
 
-for dir in $(find . -maxdepth 1 -type d);
+cd source/
+
+for dir in */ ;
 do
     echo "Running tests in $dir"
 
