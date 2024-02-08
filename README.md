@@ -58,8 +58,6 @@ Documentation folder should contain all necessary documentation to onboard devel
 
 ### source
 
-Source folder should contain all sourcecode in this repository.
-
 The source folder contains all the packages that are part of the repository.
 Each package should have its own folder and inside that folder,
 there should be a folder for the package and a folder for tests.
