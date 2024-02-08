@@ -28,4 +28,3 @@ class SparkSqlMigrationsConfiguration:
         self.current_state_tables_folder_path = current_state_tables_folder_path
         self.schema_config = schema_config
         self.substitution_variables = substitution_variables
-
