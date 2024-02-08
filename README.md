@@ -18,7 +18,12 @@ Product teams should avoid the temptation to define their own structure but alig
 ├── docs/
 │
 ├── source/
-│   └── dotnet/
+│   ├── spark_sql_migrations/
+│   │   ├── spark_sql_migrations/
+│   │   └── tests/
+│   └── telemetry/
+│       ├── spark_sql_migrations/
+│       └── tests/
 │
 ├── .gitignore
 ├── LICENSE.md
