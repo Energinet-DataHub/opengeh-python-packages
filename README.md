@@ -18,7 +18,12 @@ Product teams should avoid the temptation to define their own structure but alig
 ├── docs/
 │
 ├── source/
-│   └── dotnet/
+│   ├── spark_sql_migrations/
+│   │   ├── spark_sql_migrations/
+│   │   └── tests/
+│   └── telemetry/
+│       ├── telemetry/
+│       └── tests/
 │
 ├── .gitignore
 ├── LICENSE.md
@@ -53,4 +58,6 @@ Documentation folder should contain all necessary documentation to onboard devel
 
 ### source
 
-Source folder should contain all sourcecode in this repository.
+The source folder contains all the packages that are part of the repository.
+Each package should have its own folder and inside that folder,
+there should be a folder for the package and a folder for tests.

@@ -14,7 +14,7 @@ jobs:
           # See https://github.com/Energinet-DataHub/.github#release-procedure for details
           major_version: 1
           minor_version: 1
-          patch_version: 2
+          patch_version: 3
           repository_path: Energinet-DataHub/opengeh-python-packages
         env:
           GH_TOKEN: ${{ secrets.internal_github_pat }} # Organization level token needed for github code search to target all repositories
