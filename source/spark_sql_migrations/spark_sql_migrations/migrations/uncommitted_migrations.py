@@ -5,6 +5,7 @@ from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from spark_sql_migrations.constants.migrations_constants import ColNames
 from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
+from spark_sql_migrations.models.configuration import Configuration
 
 
 def get_uncommitted_migrations() -> list[str]:
@@ -17,8 +18,11 @@ def get_uncommitted_migrations() -> list[str]:
     return uncommitted_migrations
 
 
-def get_all_migrations() -> list[str]:
-    migration_files = list(contents("package.schema_migration.migration_scripts"))
+@inject
+def get_all_migrations(
+        config: str = Provide[SparkSqlMigrationsContainer.configuration],
+) -> list[str]:
+    migration_files = list(contents(config.migration_scripts_folder_path))
 
     migration_files.sort()
     return [file.removesuffix(".sql") for file in migration_files if file.endswith(".sql")]
@@ -33,7 +37,7 @@ def _get_committed_migrations(
 ) -> list[str]:
     table_name = f"{table_prefix}{migration_table_name}"
     if not delta_table_helper.delta_table_exists(spark, migration_schema_name, table_name):
-        _create_schema_migration_table(spark, migration_schema_name, table_name)
+        _create_schema_migration_table(migration_schema_name, table_name)
 
     schema_table = spark.table(f"{migration_schema_name}.{table_name}")
     return [row.migration_name for row in schema_table.select(ColNames.migration_name).collect()]
@@ -41,14 +45,13 @@ def _get_committed_migrations(
 
 @inject
 def _create_schema_migration_table(
-    spark: SparkSession,
     schema_name: str,
     table_name: str,
-    schema_location: str = Provide[SparkSqlMigrationsContainer.config.migration_schema_location],
-    table_location: str = Provide[SparkSqlMigrationsContainer.config.migration_table_location],
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
 ) -> None:
     delta_table_helper.create_schema(
-        spark, schema_name, "Contains executed SQL migration_scripts", schema_location
+        spark, schema_name, "Contains executed SQL migration_scripts", config.migration_schema_location
     )
 
     delta_table_helper.create_table_from_schema(
@@ -56,5 +59,5 @@ def _create_schema_migration_table(
         schema_name,
         table_name,
         schema_migration_schema,
-        location=table_location,
+        location=config.migration_table_location,
     )

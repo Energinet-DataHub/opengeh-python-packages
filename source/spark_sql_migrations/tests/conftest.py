@@ -18,8 +18,8 @@ def pytest_runtest_setup() -> None:
     This function is called before each test function is executed.
     """
     config = SparkSqlMigrationsConfiguration(
-        current_state_schemas_folder_path="current_state_schemas_folder_path",
-        current_state_tables_folder_path="current_state_tables_folder_path",
+        current_state_schemas_folder_path="tests.test_scripts",
+        current_state_tables_folder_path="tests.test_scripts",
         migration_schema_name="migration_schema_name",
         migration_table_name="migration_table_name",
         table_prefix="table_prefix",
@@ -27,7 +27,7 @@ def pytest_runtest_setup() -> None:
         migration_table_location="migration_table_location",
         db_folder="db_folder",
         schema_config=[Schema(name="schema_name", tables=[])],
-        migration_scripts_folder_path="migration_scripts_folder_path",
+        migration_scripts_folder_path="tests.test_scripts",
         substitution_variables={"substitution_variables": "substitution_variables"},
     )
 

@@ -1,7 +1,7 @@
 import pyspark.sql.functions as F
-import spark_sql_migrations.sql_file_executor as sql_file_executor
+import spark_sql_migrations.migrations.sql_file_executor as sql_file_executor
 from pyspark.sql import SparkSession
-from spark_sql_migrations.table_version import TableVersion
+from spark_sql_migrations.migrations.table_version import TableVersion
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from typing import List
@@ -28,10 +28,10 @@ def apply_uncommitted_migrations(uncommitted_migrations: list[str]) -> None:
 
 @inject
 def _get_table_versions(
-        schemas: List[Schema] = Provide[SparkSqlMigrationsContainer.config.schema_config],
+        config: any = Provide[SparkSqlMigrationsContainer.configuration],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]) -> list[TableVersion]:
     tables = []
-    for schema in schemas:
+    for schema in config.schema_config:
         if spark.catalog.databaseExists(schema.name) is True:
             for table in schema.tables:
                 if spark.catalog.tableExists(table.name, schema.name) is False:

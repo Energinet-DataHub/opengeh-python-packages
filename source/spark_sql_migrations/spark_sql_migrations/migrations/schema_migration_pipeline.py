@@ -1,11 +1,10 @@
-import spark_sql_migrations.uncommitted_migrations as uncommitted_migrations
-import spark_sql_migrations.apply_migrations as apply_migrations
+import spark_sql_migrations.migrations.uncommitted_migrations as uncommitted_migrations
+import spark_sql_migrations.migrations.apply_migrations as apply_migrations
 import spark_sql_migrations.current_state.create_current_state as create_current_state
-from typing import List
 from pyspark.sql import SparkSession
-from spark_sql_migrations.models.schema import Schema
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
+from spark_sql_migrations.models.configuration import Configuration
 
 
 def migrate() -> None:
@@ -34,12 +33,12 @@ def migrate() -> None:
 
 @inject
 def _get_tables(
-        schema_config: List[Schema] = Provide[SparkSqlMigrationsContainer.config.schema_config],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> list[str]:
     tables = []
 
-    for schema in schema_config:
+    for schema in config.schema_config:
         if spark.catalog.databaseExists(schema.name) is True:
             for table in schema.tables:
                 table_name = f"{schema.name}.{table.name}"
@@ -51,7 +50,7 @@ def _get_tables(
 
 @inject
 def _get_missing_tables(
-        schema_config: List[Schema] = Provide[SparkSqlMigrationsContainer.config.schema_config],
+        schema_config: any = Provide[SparkSqlMigrationsContainer.config.schema_config],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> list[str]:
     missing_tables = []

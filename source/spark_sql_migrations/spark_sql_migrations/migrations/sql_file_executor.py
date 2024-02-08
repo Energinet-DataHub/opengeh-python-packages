@@ -2,6 +2,7 @@
 from importlib import resources
 from pyspark.sql import SparkSession
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
+from spark_sql_migrations.models.configuration import Configuration
 
 
 def execute(sql_file_name: str) -> None:
@@ -11,10 +12,10 @@ def execute(sql_file_name: str) -> None:
 @inject
 def _execute(
     sql_file_name: str,
-    folder_path: str = Provide[SparkSqlMigrationsContainer.config.migration_scripts_folder_path],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> None:
-    sql_content = resources.read_text(folder_path, f"{sql_file_name}.sql")
+    sql_content = resources.read_text(config.migration_scripts_folder_path, f"{sql_file_name}.sql")
 
     queries = _split_string_by_go(sql_content)
 
@@ -26,9 +27,9 @@ def _execute(
 @inject
 def _substitute_placeholders(
         query: str,
-        substitution: dict[str, str] = Provide[SparkSqlMigrationsContainer.config.substitution_variables]
+        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
 ) -> str:
-    for key, value in substitution.items():
+    for key, value in config.substitution_variables.items():
         query = query.replace(key, value)
 
     return query

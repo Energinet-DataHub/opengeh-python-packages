@@ -1,4 +1,4 @@
-﻿import spark_sql_migrations.sql_file_executor as sql_file_executor
+﻿import spark_sql_migrations.migrations.sql_file_executor as sql_file_executor
 from importlib.resources import contents
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer

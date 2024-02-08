@@ -14,7 +14,7 @@ class SparkSqlMigrationsConfiguration:
             table_prefix: str,
             current_state_schemas_folder_path: str,
             current_state_tables_folder_path: str,
-            schema_config: List[Schema],
+            schema_config: any,
             substitution_variables: dict[str, str],
     ) -> None:
         self.migration_scripts_folder_path = migration_scripts_folder_path
