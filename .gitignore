@@ -409,3 +409,6 @@ FodyWeavers.xsd
 
 # Exclude test reports
 **/pytest-results.xml
+
+# Spark-warehouse files
+spark-warehouse/
