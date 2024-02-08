@@ -5,17 +5,17 @@ from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from spark_sql_migrations.models.configuration import Configuration
 
 
-def execute(sql_file_name: str) -> None:
-    _execute(sql_file_name)
+def execute(sql_file_name: str, folder_path: str) -> None:
+    _execute(sql_file_name, folder_path)
 
 
 @inject
 def _execute(
     sql_file_name: str,
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+    folder_path: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> None:
-    sql_content = resources.read_text(config.migration_scripts_folder_path, f"{sql_file_name}.sql")
+    sql_content = resources.read_text(folder_path, f"{sql_file_name}.sql")
 
     queries = _split_string_by_go(sql_content)
 

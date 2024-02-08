@@ -5,15 +5,27 @@ from spark_sql_migrations.migrations.table_version import TableVersion
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from typing import List
+
+from spark_sql_migrations.models.configuration import Configuration
 from spark_sql_migrations.models.schema import Schema
 
 
-def apply_uncommitted_migrations(uncommitted_migrations: list[str]) -> None:
+def apply_uncommitted_migrations(
+        uncommitted_migrations: List[str]
+) -> None:
+    _apply_uncommitted_migrations(uncommitted_migrations)
+
+
+@inject
+def _apply_uncommitted_migrations(
+        uncommitted_migrations: list[str],
+        config: any = Provide[SparkSqlMigrationsContainer.configuration]
+) -> None:
     for migration in uncommitted_migrations:
         table_versions = _get_table_versions()
         try:
             sql_file_executor.execute(
-                migration
+                migration, config.migration_scripts_folder_path
             )
             _insert_executed_sql_script(migration)
 
@@ -56,17 +68,14 @@ def _restore_table(
 def _insert_executed_sql_script(
     migration_name: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
-    db_folder: str = Provide[SparkSqlMigrationsContainer.config.db_folder],
-    table_prefix: str = Provide[SparkSqlMigrationsContainer.config.table_prefix],
-    migration_schema_name: str = Provide[SparkSqlMigrationsContainer.config.schema_migration_schema],
-    migration_table_name: str = Provide[SparkSqlMigrationsContainer.config.schema_migration_table_name],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
 ) -> None:
     schema_name = (
-        db_folder
-        if db_folder
-        else migration_schema_name
+        config.db_folder
+        if config.db_folder
+        else config.migration_schema_name
     )
-    table_name = f"{table_prefix}{migration_table_name}"
+    table_name = f"{config.table_prefix}{config.migration_table_name}"
     sql_query = f"""
         INSERT INTO {schema_name}.{table_name}
         VALUES ('{migration_name}', current_timestamp())

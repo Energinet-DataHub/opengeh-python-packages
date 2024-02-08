@@ -9,29 +9,15 @@ from pyspark.sql import SparkSession
 from shutil import rmtree
 from typing import Generator
 from spark_sql_migrations.container import create_and_configure_container
-from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
-from spark_sql_migrations.models.schema import Schema
+import tests.helpers.mocked_spark_sql_migrations_configuration as mock_config
 
 
 def pytest_runtest_setup() -> None:
     """
     This function is called before each test function is executed.
     """
-    config = SparkSqlMigrationsConfiguration(
-        current_state_schemas_folder_path="tests.test_scripts",
-        current_state_tables_folder_path="tests.test_scripts",
-        migration_schema_name="migration_schema_name",
-        migration_table_name="migration_table_name",
-        table_prefix="table_prefix",
-        migration_schema_location="migration_schema_location",
-        migration_table_location="migration_table_location",
-        db_folder="db_folder",
-        schema_config=[Schema(name="schema_name", tables=[])],
-        migration_scripts_folder_path="tests.test_scripts",
-        substitution_variables={"substitution_variables": "substitution_variables"},
-    )
 
-    create_and_configure_container(config)
+    create_and_configure_container(mock_config.config)
 
 
 @pytest.fixture(scope="session")

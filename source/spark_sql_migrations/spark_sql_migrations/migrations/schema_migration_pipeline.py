@@ -50,12 +50,12 @@ def _get_tables(
 
 @inject
 def _get_missing_tables(
-        schema_config: any = Provide[SparkSqlMigrationsContainer.config.schema_config],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> list[str]:
     missing_tables = []
 
-    for schema in schema_config:
+    for schema in config.schema_config:
         for table in schema.tables:
             table_name = f"{schema.name}.{table.name}"
             if spark.catalog.tableExists(table_name) is False:

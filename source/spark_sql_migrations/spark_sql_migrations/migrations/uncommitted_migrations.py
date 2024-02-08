@@ -30,16 +30,14 @@ def get_all_migrations(
 
 @inject
 def _get_committed_migrations(
-    migration_schema_name: str = Provide[SparkSqlMigrationsContainer.config.migration_schema_name],
-    migration_table_name: str = Provide[SparkSqlMigrationsContainer.config.migration_table_name],
-    table_prefix: str = Provide[SparkSqlMigrationsContainer.config.table_prefix],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
-    table_name = f"{table_prefix}{migration_table_name}"
-    if not delta_table_helper.delta_table_exists(spark, migration_schema_name, table_name):
-        _create_schema_migration_table(migration_schema_name, table_name)
+    table_name = f"{config.table_prefix}{config.migration_table_name}"
+    if not delta_table_helper.delta_table_exists(spark, config.migration_schema_name, table_name):
+        _create_schema_migration_table(config.migration_schema_name, table_name)
 
-    schema_table = spark.table(f"{migration_schema_name}.{table_name}")
+    schema_table = spark.table(f"{config.migration_schema_name}.{table_name}")
     return [row.migration_name for row in schema_table.select(ColNames.migration_name).collect()]
 
 
