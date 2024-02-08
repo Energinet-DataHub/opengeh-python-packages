@@ -22,7 +22,7 @@ Product teams should avoid the temptation to define their own structure but alig
 │   │   ├── spark_sql_migrations/
 │   │   └── tests/
 │   └── telemetry/
-│       ├── spark_sql_migrations/
+│       ├── telemetry/
 │       └── tests/
 │
 ├── .gitignore
@@ -59,3 +59,7 @@ Documentation folder should contain all necessary documentation to onboard devel
 ### source
 
 Source folder should contain all sourcecode in this repository.
+
+The source folder contains all the packages that are part of the repository.
+Each package should have its own folder and inside that folder,
+there should be a folder for the package and a folder for tests.
