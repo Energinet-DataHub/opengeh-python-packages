@@ -6,7 +6,6 @@ from pyspark.sql.types import (
 
 from spark_sql_migrations.models.table import Table
 from spark_sql_migrations.models.schema import Schema
-from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
 
 
 schema = StructType(
