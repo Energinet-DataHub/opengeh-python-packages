@@ -1,8 +1,22 @@
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+)
+
 from spark_sql_migrations.models.table import Table
 from spark_sql_migrations.models.schema import Schema
 from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
 
-schema_config = [Schema(name="test_schema", tables=[Table(name="test_table", schema="test_schema")])]
+
+schema = StructType(
+    [
+        StructField("column1", StringType(), False),
+        StructField("column2", StringType(), False)
+    ]
+)
+
+schema_config = [Schema(name="test_schema", tables=[Table(name="test_table", schema=schema)])]
 
 config = SparkSqlMigrationsConfiguration(
     current_state_schemas_folder_path="tests.test_scripts.schema_scripts",

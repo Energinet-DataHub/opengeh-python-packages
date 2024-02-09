@@ -1,40 +1,56 @@
 import pytest
 import pyspark.sql.functions as F
-import package.schema_migration.apply_migrations as sut
+import spark_sql_migrations.migrations.apply_migrations as sut
+import tests.helpers.table_helper as table_helper
 from pyspark.sql import SparkSession
 from unittest.mock import patch, Mock
-from tests.schema_migration.schema_migration_helper import reset_migration_table
-from package.constants.schema_migration import SchemaMigrationConstants
-from package.schemas.schemas_config import schemas
-from package.schema_migration.table_version import TableVersion
+from spark_sql_migrations.constants.migrations_constants import SchemaMigrationConstants
+from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
+from spark_sql_migrations.models.table_version import TableVersion
+from tests.helpers.spark_helper import reset_spark_catalog
+from tests.helpers.mocked_spark_sql_migrations_configuration import schema_config
+import tests.builders.spark_sql_migrations_configuration_builder as configuration_builder
+from spark_sql_migrations.container import create_and_configure_container
+import tests.helpers.table_helper as table_helper
+from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
+
 
 storage_account = "storage_account"
 shared_storage_account = "shared_storage_account"
 
 
-def _get_table_version(spark: SparkSession, schema: str, table: str) -> int:
-    if not spark.catalog.tableExists(table, schema):
-        return 0
+def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
+    configuration = configuration_builder.build(
+        migration_scripts_folder_path="tests.test_scripts",
+    )
+    create_and_configure_container(configuration)
 
-    version = spark.sql(f"DESCRIBE HISTORY {schema}.{table}")
-    current_version = version.orderBy(F.desc("version")).limit(1)
-    return current_version.select("version").first()[0]
+    table_helper.create_schema_and_table(
+        spark,
+        configuration.migration_schema_name,
+        configuration.migration_table_name,
+        schema_migration_schema
+    )
+
+    return configuration
 
 
-@patch.object(sut, sut._get_table_versions.__name__)
-@patch.object(
-    sut.SchemaMigrationConstants, "migration_scripts_folder_path", "tests.schema_migration.scripts"
-)
 def test_apply_uncommitted_migrations_applies_all(
-    mock_table_versions: Mock, spark: SparkSession
+    mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    reset_migration_table(spark)
-    mock_table_versions.return_value = [TableVersion("test_schema.test_table", 0)]
+    reset_spark_catalog(spark)
+    mocker.patch.object(
+        sut, sut._get_table_versions.__name__,
+        return_value=[TableVersion("test_schema.test_table", 0)]
+    )
+
     migrations = ["migration_step_1", "migration_step_2"]
 
+    configuration = _test_configuration(spark)
+
     # Act
-    sut.apply_uncommitted_migrations(migrations)
+    sut._apply_uncommitted_migrations(migrations)
 
     # Assert
     assert spark.catalog.databaseExists("test_schema")
@@ -45,26 +61,27 @@ def test_apply_uncommitted_migrations_applies_all(
     assert actual.column2 == "test2"
 
     actual = spark.table(
-        f"{SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}"
+        f"{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 2
 
 
-@patch.object(sut, sut._get_table_versions.__name__)
-@patch.object(
-    sut.SchemaMigrationConstants, "migration_scripts_folder_path", "tests.schema_migration.scripts"
-)
 def test_apply_uncommitted_migrations_with_sql_file_with_error_should_rollback_table_and_raise_exception(
-    mock_table_versions: Mock, spark: SparkSession
+    mocker: Mock, spark: SparkSession
 ) -> None:
     # Test case:
     #   - Script 1 succeeds.
     #   - Script 2: Adds a column and change type on another, which would fail
     # The added column in script 2 should not be added because 2nd statement fails.
     # Arrange
-    reset_migration_table(spark)
-    mock_table_versions.return_value = [TableVersion("test_schema.test_table_fail", 0)]
+    reset_spark_catalog(spark)
+
+    mocker.patch.object(
+        sut, sut._get_table_versions.__name__,
+        return_value=[TableVersion("test_schema.test_table_fail", 0)]
+    )
     migrations = ["fail_migration_step_1", "fail_migration_step_2"]
+    _test_configuration(spark)
 
     # Act
     with pytest.raises(Exception):
@@ -78,19 +95,21 @@ def test_apply_uncommitted_migrations_with_sql_file_with_error_should_rollback_t
     assert len(cols) == 2
 
 
-@patch.object(sut, sut._insert_executed_sql_script.__name__)
-@patch.object(sut, sut._get_table_versions.__name__)
-@patch.object(
-    sut.SchemaMigrationConstants, "migration_scripts_folder_path", "tests.schema_migration.scripts"
-)
 def test_apply_uncommitted_migrations_with_schema_migration_insert_fail_rollback_table(
-    mock_table_version: Mock, mock_insert: Mock, spark: SparkSession
+    mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    spark.sql("DROP TABLE IF EXISTS test_schema.test_table")
-    mock_insert.side_effect = Exception("mocked error")
-    mock_table_version.return_value = [TableVersion("test_schema.test_table", 0)]
+    reset_spark_catalog(spark)
+    mocker.patch.object(
+        sut, sut._insert_executed_sql_script.__name__,
+        side_effect=Exception("mocked error")
+    )
+    mocker.patch.object(
+        sut, sut._get_table_versions.__name__,
+        return_value=[TableVersion("test_schema.test_table", 0)]
+    )
     migrations = ["migration_test_version"]
+    _test_configuration(spark)
 
     # Act
     with pytest.raises(Exception):
@@ -103,55 +122,59 @@ def test_apply_uncommitted_migrations_with_schema_migration_insert_fail_rollback
     assert current_version.select("operation").first()[0] == "RESTORE"
 
 
-@patch.object(sut, sut._get_table_versions.__name__)
-@patch.object(
-    sut.SchemaMigrationConstants, "migration_scripts_folder_path", "tests.schema_migration.scripts"
-)
 def test_apply_uncommitted_migrations_version_is_bumped(
-    mock_table_version: Mock, spark: SparkSession
+    mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    reset_migration_table(spark)
-    current_version = _get_table_version(spark, "test_schema", "test_table")
-    mock_table_version.return_value = [TableVersion("test_schema.test_table", current_version)]
+    reset_spark_catalog(spark)
+    current_version = table_helper.get_table_version(spark, "test_schema", "test_table")
+
+    mocker.patch.object(
+        sut, sut._get_table_versions.__name__,
+        return_value=[TableVersion("test_schema.test_table", current_version)]
+    )
+
     migrations = ["migration_test_version"]
     expected_version = current_version + 1
+    _test_configuration(spark)
 
     # Act
     sut.apply_uncommitted_migrations(migrations)
 
     # Assert
-    actual_version = _get_table_version(spark, "test_schema", "test_table")
+    actual_version = table_helper.get_table_version(spark, "test_schema", "test_table")
     assert expected_version == actual_version
 
 
 def test_insert_executed_sql_script(spark: SparkSession) -> None:
     # Arrange
-    reset_migration_table(spark)
+    reset_spark_catalog(spark)
     migration_name = "test_name"
+    configuration = _test_configuration(spark)
 
     # Act
     sut._insert_executed_sql_script(migration_name)
 
     # Assert
     actual = spark.table(
-        f"{SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}"
+        f"{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 1
     assert actual[0].migration_name == migration_name
 
 
-@patch.object(sut, sut._get_table_versions.__name__)
-@patch.object(
-    sut.SchemaMigrationConstants, "migration_scripts_folder_path", "tests.schema_migration.scripts"
-)
 def test_apply_uncommitted_migrations_with_table_containing_go_in_column_name(
-    mock_table_version: Mock, spark: SparkSession
+    mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    reset_migration_table(spark)
-    mock_table_version.return_value = [TableVersion("test_schema.test_table", 0)]
+    reset_spark_catalog(spark)
+    mocker.patch.object(
+        sut, sut._get_table_versions.__name__,
+        return_value=[TableVersion("test_schema.test_table", 0)]
+    )
+
     migrations = ["migration_test_go"]
+    _test_configuration(spark)
 
     # Act
     sut.apply_uncommitted_migrations(migrations)
@@ -163,10 +186,10 @@ def test_apply_uncommitted_migrations_with_table_containing_go_in_column_name(
 
 def test_get_table_versions_containing_all_tables(spark: SparkSession) -> None:
     # Arrange
-    reset_migration_table(spark)
+    reset_spark_catalog(spark)
     location = test_get_table_versions_containing_all_tables.__name__
 
-    for schema in schemas:
+    for schema in schema_config:
         spark.sql(f"CREATE SCHEMA IF NOT EXISTS {schema.name} LOCATION '{location}'")
         for table in schema.tables:
             schema_df = spark.createDataFrame([], schema=table.schema)
@@ -179,7 +202,7 @@ def test_get_table_versions_containing_all_tables(spark: SparkSession) -> None:
     actual = sut._get_table_versions()
 
     # Assert
-    for schema in schemas:
+    for schema in schema_config:
         for table in schema.tables:
             table_version = TableVersion(f"{schema.name}.{table.name}", 0)
             assert any(

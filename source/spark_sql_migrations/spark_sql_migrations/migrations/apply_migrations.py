@@ -1,13 +1,11 @@
 import pyspark.sql.functions as F
 import spark_sql_migrations.migrations.sql_file_executor as sql_file_executor
 from pyspark.sql import SparkSession
-from spark_sql_migrations.migrations.table_version import TableVersion
+from spark_sql_migrations.models.table_version import TableVersion
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from typing import List
-
 from spark_sql_migrations.models.configuration import Configuration
-from spark_sql_migrations.models.schema import Schema
 
 
 def apply_uncommitted_migrations(
@@ -19,7 +17,7 @@ def apply_uncommitted_migrations(
 @inject
 def _apply_uncommitted_migrations(
         uncommitted_migrations: list[str],
-        config: any = Provide[SparkSqlMigrationsContainer.configuration]
+        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
 ) -> None:
     for migration in uncommitted_migrations:
         table_versions = _get_table_versions()
