@@ -1,27 +1,27 @@
-from spark_sql_migrations.models.table import Table
 from spark_sql_migrations.models.schema import Schema
 from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
+from tests.helpers.schema_migration_costants import SchemaMigrationConstants
+import tests.helpers.test_schemas as test_schemas
 
 
 substitution_variables = {"substitution_variables": "substitution_variables"}
-schema_configuration = [Schema(name="test_schema", tables=[Table(name="test_table", schema="test_schema")])]
 
 
 def build(
         current_state_schemas_folder_path: str = "tests.test_scripts.schema_scripts",
         current_state_tables_folder_path: str = "tests.test_scripts.table_scripts",
         migration_scripts_folder_path: str = "tests.test_scripts.migration_scripts",
-        migration_schema_name: str = "migration_schema_name",
-        migration_table_name: str = "migration_table_name",
+        migration_schema_name: str = SchemaMigrationConstants.schema_name,
+        migration_table_name: str = SchemaMigrationConstants.table_name,
         table_prefix: str = "",
-        migration_schema_location: str = "migration_schema_location",
-        migration_table_location: str = "migration_table_location",
+        migration_schema_location: str = "schema_migration",
+        migration_table_location: str = "schema_migration",
         db_folder: str = "",
         schema_config: list[Schema] | None = None,
         substitutions: dict[str, str] | None = None
 ) -> SparkSqlMigrationsConfiguration:
     if schema_config is None:
-        schema_config = schema_configuration
+        schema_config = test_schemas.schema_config
 
     if substitutions is None:
         substitutions = substitution_variables

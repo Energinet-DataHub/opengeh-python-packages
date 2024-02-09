@@ -3,7 +3,7 @@ import spark_sql_migrations.current_state.create_current_state as sut
 
 from pyspark.sql import SparkSession
 from unittest.mock import Mock
-from tests.helpers.mocked_spark_sql_migrations_configuration import schema_config
+from tests.helpers.test_schemas import schema_config
 from tests.helpers.spark_helper import reset_spark_catalog
 
 

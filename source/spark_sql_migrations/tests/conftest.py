@@ -9,7 +9,7 @@ from pyspark.sql import SparkSession
 from shutil import rmtree
 from typing import Generator
 from spark_sql_migrations.container import create_and_configure_container
-import tests.helpers.mocked_spark_sql_migrations_configuration as mock_config
+from tests.builders.spark_sql_migrations_configuration_builder import build as build_configuration
 
 
 def pytest_runtest_setup() -> None:
@@ -17,7 +17,7 @@ def pytest_runtest_setup() -> None:
     This function is called before each test function is executed.
     """
 
-    create_and_configure_container(mock_config.config)
+    create_and_configure_container(build_configuration())
 
 
 @pytest.fixture(scope="session")

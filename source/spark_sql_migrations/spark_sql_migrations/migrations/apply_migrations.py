@@ -38,7 +38,7 @@ def _apply_uncommitted_migrations(
 
 @inject
 def _get_table_versions(
-        config: any = Provide[SparkSqlMigrationsContainer.configuration],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]) -> list[TableVersion]:
     tables = []
     for schema in config.schema_config:
