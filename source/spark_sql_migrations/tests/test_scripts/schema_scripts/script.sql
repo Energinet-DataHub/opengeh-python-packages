@@ -1,1 +1,1 @@
-CREATE SCHEMA test_schema;
+CREATE SCHEMA IF NOT EXISTS test_schema;

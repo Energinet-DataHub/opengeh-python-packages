@@ -16,7 +16,15 @@ schema = StructType(
     ]
 )
 
-schema_config = [Schema(name="test_schema", tables=[Table(name="test_table", schema=schema)])]
+schema_config = [
+    Schema(
+        name="test_schema",
+        tables=[
+            Table(name="test_table", schema=schema),
+            Table(name="test_table_2", schema=schema)
+        ]
+    )
+]
 
 config = SparkSqlMigrationsConfiguration(
     current_state_schemas_folder_path="tests.test_scripts.schema_scripts",
