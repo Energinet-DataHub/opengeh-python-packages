@@ -1,18 +1,17 @@
 import pytest
 import pyspark.sql.functions as F
+import tests.helpers.table_helper as table_helper
 import spark_sql_migrations.migrations.apply_migrations as sut
-import tests.helpers.table_helper as table_helper
+
+from unittest.mock import Mock
 from pyspark.sql import SparkSession
-from unittest.mock import patch, Mock
-from spark_sql_migrations.constants.migrations_constants import SchemaMigrationConstants
-from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
-from spark_sql_migrations.models.table_version import TableVersion
 from tests.helpers.spark_helper import reset_spark_catalog
-from tests.helpers.mocked_spark_sql_migrations_configuration import schema_config
-import tests.builders.spark_sql_migrations_configuration_builder as configuration_builder
+from spark_sql_migrations.models.table_version import TableVersion
 from spark_sql_migrations.container import create_and_configure_container
-import tests.helpers.table_helper as table_helper
+from tests.helpers.mocked_spark_sql_migrations_configuration import schema_config
 from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
+import tests.builders.spark_sql_migrations_configuration_builder as configuration_builder
+from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
 
 
 storage_account = "storage_account"

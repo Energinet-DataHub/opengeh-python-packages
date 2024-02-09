@@ -3,7 +3,6 @@ from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from tests.helpers import spark_helper
 import spark_sql_migrations.migrations.schema_migration_pipeline as sut
-import tests.helpers.mocked_spark_sql_migrations_configuration as mock_config
 import tests.helpers.mock_helper as mock_helper
 
 
