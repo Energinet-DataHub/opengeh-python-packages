@@ -22,7 +22,3 @@ def create_schema_and_table(spark: SparkSession, schema_name: str, table_name: s
         f"{schema_name}.{table_name}",
         schema=schema,
     )
-
-
-
-
