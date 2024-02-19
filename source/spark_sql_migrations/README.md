@@ -4,13 +4,13 @@
 
 ```python
 
-import spark_sql_migrations.migrations.schema_migration_pipeline as schema_migration_pipeline
-from spark_sql_migrations.container import create_and_configure_container
-from spark_sql_migrations.models.spark_sql_migrations_configuration import (
+from spark_sql_migrations import (
+    create_and_configure_container,
+    schema_migration_pipeline,
     SparkSqlMigrationsConfiguration,
+    Table,
+    Schema
 )
-from spark_sql_migrations.models.table import Table
-from spark_sql_migrations.models.schema import Schema
 
 from pyspark.sql.types import (
     StructType,
@@ -20,7 +20,7 @@ from pyspark.sql.types import (
 
 def migrate() -> None:
     _configure_spark_sql_migration()
-    _migrate()
+    schema_migration_pipeline.migrate()
 
 
 def _configure_spark_sql_migration() -> None:
@@ -58,10 +58,6 @@ def _configure_spark_sql_migration() -> None:
     )
 
     create_and_configure_container(spark_config)
-
-
-def _migrate() -> None:
-    schema_migration_pipeline.migrate()
 
 
 ```
