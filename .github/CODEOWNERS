@@ -3,5 +3,5 @@
 * @Energinet-DataHub/volt @Energinet-DataHub/Mandalorian
 /.github/actions @Energinet-DataHub/TheOutlaws
 /.github/workflows @Energinet-DataHub/TheOutlaws
-/.github/workflows/create-release-tag.yml @Energinet-DataHub/volt
+/.github/workflows/create-release-tag.yml @Energinet-DataHub/volt @Energinet-DataHub/Mandalorian
 
