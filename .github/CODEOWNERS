@@ -1,5 +1,7 @@
 # Reference: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-*                   @Energinet-DataHub/volt @Energinet-DataHub/Mandalorian
-/.github/actions    @Energinet-DataHub/TheOutlaws
-/.github/workflows  @Energinet-DataHub/TheOutlaws
+* @Energinet-DataHub/volt @Energinet-DataHub/Mandalorian
+/.github/actions @Energinet-DataHub/TheOutlaws
+/.github/workflows @Energinet-DataHub/TheOutlaws
+/.github/workflows/create-release-tag.yml @Energinet-DataHub/volt
+
