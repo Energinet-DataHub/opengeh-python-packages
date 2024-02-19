@@ -1,30 +1,27 @@
-from typing import List
-from spark_sql_migrations.models.schema import Schema
+from dataclasses import dataclass
 
 
+@dataclass
 class SparkSqlMigrationsConfiguration:
-    def __init__(
-            self,
-            migration_schema_name: str,
-            migration_schema_location: str,
-            migration_table_name: str,
-            migration_table_location: str,
-            migration_scripts_folder_path: str,
-            db_folder: str,
-            table_prefix: str,
-            current_state_schemas_folder_path: str,
-            current_state_tables_folder_path: str,
-            schema_config: any,
-            substitution_variables: dict[str, str],
-    ) -> None:
-        self.migration_scripts_folder_path = migration_scripts_folder_path
-        self.migration_schema_name = migration_schema_name
-        self.migration_schema_location = migration_schema_location
-        self.migration_table_name = migration_table_name
-        self.migration_table_location = migration_table_location
-        self.db_folder = db_folder
-        self.table_prefix = table_prefix
-        self.current_state_schemas_folder_path = current_state_schemas_folder_path
-        self.current_state_tables_folder_path = current_state_tables_folder_path
-        self.schema_config = schema_config
-        self.substitution_variables = substitution_variables
+    migration_schema_name: str
+    """The name of the schema that contains the migration table"""
+    migration_schema_location: str
+    """The location of the schema that contains the migration table"""
+    migration_table_name: str
+    """The name of the table that contains the migration scripts"""
+    migration_table_location: str
+    """The location of the table that contains the migration scripts"""
+    migration_scripts_folder_path: str
+    """The folder path of the migration scripts"""
+    current_state_schemas_folder_path: str
+    """The folder path to the schema files"""
+    current_state_tables_folder_path: str
+    """The folder path to the table files"""
+    schema_config: any
+    """The schema configuration, telling the migration tool which schemas and tables to check."""
+    substitution_variables: dict[str, str]
+    """The substitution variables. These are used to replace variables in the migration scripts"""
+    db_folder: str = ""
+    """(Optional) An extra folder to use for the database"""
+    table_prefix: str = ""
+    """(Optional) A prefix to use for the table name"""

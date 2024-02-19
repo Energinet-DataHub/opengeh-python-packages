@@ -1,5 +1,5 @@
 # Exclude directory created by wheel creation
-GEHMigrationPackage.egg-info
+*.egg-info
 dist
 build
 

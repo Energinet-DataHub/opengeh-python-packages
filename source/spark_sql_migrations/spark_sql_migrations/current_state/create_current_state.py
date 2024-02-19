@@ -18,19 +18,11 @@ def _create_all_tables(
     schema_scripts = _get_schema_scripts()
     table_scripts = _get_table_scripts()
 
-    try:
-        for script in schema_scripts:
-            sql_file_executor.execute(
-                script, config.current_state_schemas_folder_path
-            )
+    for script in schema_scripts:
+        sql_file_executor.execute(script, config.current_state_schemas_folder_path)
 
-        for script in table_scripts:
-            sql_file_executor.execute(
-                script, config.current_state_tables_folder_path
-            )
-    except Exception as exception:
-        print(f"Schema migration failed with exception: {exception}")
-        raise exception
+    for script in table_scripts:
+        sql_file_executor.execute(script, config.current_state_tables_folder_path)
 
     print("Successfully created all tables")
 

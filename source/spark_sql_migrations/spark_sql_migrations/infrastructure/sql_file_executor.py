@@ -19,9 +19,13 @@ def _execute(
 
     queries = _split_string_by_go(sql_content)
 
-    for query in queries:
-        query = _substitute_placeholders(query)
-        spark.sql(query)
+    try:
+        for query in queries:
+            query = _substitute_placeholders(query)
+            spark.sql(query)
+    except Exception as exception:
+        print(f"SQL file '{sql_file_name}.sql' failed with exception: {exception}")
+        raise exception
 
 
 @inject
