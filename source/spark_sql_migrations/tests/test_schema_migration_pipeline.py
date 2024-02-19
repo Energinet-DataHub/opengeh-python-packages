@@ -2,7 +2,7 @@
 from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from tests.helpers import spark_helper
-import spark_sql_migrations.migrations.schema_migration_pipeline as sut
+import spark_sql_migrations.schema_migration_pipeline as sut
 import tests.helpers.mock_helper as mock_helper
 from tests.helpers.test_schemas import schema_config
 
@@ -52,7 +52,7 @@ def test_migrate_with_0_tables_and_0_migrations_should_call_create_tables(
     # Arrange
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=[])
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=[]
     )
     mock_create_all_tables = mocker.patch.object(
@@ -77,17 +77,17 @@ def test_migrate_with_0_tables_and_all_migrations_should_call_apply_migrations(
     # Arrange
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=[])
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=["migration1", "migration2"]
     )
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migration_scripts.__name__,
         return_value=["migration1", "migration2"]
     )
 
     mocked_apply_uncommitted_migrations = mocker.patch.object(
         sut.apply_migrations,
-        sut.apply_migrations.apply_uncommitted_migrations.__name__,
+        sut.apply_migrations.apply_migration_scripts.__name__,
         side_effect=mock_helper.do_nothing
     )
 
@@ -107,11 +107,11 @@ def test_migrate_with_0_tables_and_1_migration_should_throw_exception(
     # Arrange
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=[])
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=["migration1"]
     )
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migration_scripts.__name__,
         return_value=["migration1", "migration2", "migration3"]
     )
 
@@ -130,12 +130,12 @@ def test_migrate_with_0_tables_and_almost_all_migrations_should_throw_exception(
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=mock_helper.do_nothing)
 
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=["migration1", "migration2", "migration3"]
     )
 
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migration_scripts.__name__,
         return_value=["migration1", "migration2", "migration3", "migration4"]
     )
 
@@ -153,11 +153,11 @@ def test_migrate_with_all_tables_when_one_uncommitted_migration_should_run_migra
     # Arrange
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=["table1"])
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=["migration1"]
     )
     mocker.patch.object(
-        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migrations.__name__,
+        sut.uncommitted_migrations, sut.uncommitted_migrations.get_all_migration_scripts.__name__,
         return_value=["migration1", "migration2"]
     )
     mocker.patch.object(
@@ -170,7 +170,7 @@ def test_migrate_with_all_tables_when_one_uncommitted_migration_should_run_migra
     )
 
     mocked_apply_uncommitted_migrations = mocker.patch.object(
-        sut.apply_migrations, sut.apply_migrations.apply_uncommitted_migrations.__name__,
+        sut.apply_migrations, sut.apply_migrations.apply_migration_scripts.__name__,
         side_effect=mock_helper.do_nothing
     )
 
@@ -191,12 +191,12 @@ def test_migrate_when_one_table_missing_and_no_migrations_should_call_create_tab
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=["table1"])
     mocker.patch.object(
         sut.uncommitted_migrations,
-        sut.uncommitted_migrations.get_uncommitted_migrations.__name__,
+        sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=[]
     )
     mocker.patch.object(
         sut.uncommitted_migrations,
-        sut.uncommitted_migrations.get_all_migrations.__name__,
+        sut.uncommitted_migrations.get_all_migration_scripts.__name__,
         return_value=["migration1", "migration2"]
     )
 

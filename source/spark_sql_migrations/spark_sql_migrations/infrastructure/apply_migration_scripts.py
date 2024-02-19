@@ -1,21 +1,22 @@
 import pyspark.sql.functions as F
-import spark_sql_migrations.migrations.sql_file_executor as sql_file_executor
-from pyspark.sql import SparkSession
-from spark_sql_migrations.models.table_version import TableVersion
-from dependency_injector.wiring import Provide, inject
-from spark_sql_migrations.container import SparkSqlMigrationsContainer
+import spark_sql_migrations.utility.delta_table_helper as delta_table_helper
+import spark_sql_migrations.infrastructure.sql_file_executor as sql_file_executor
 from typing import List
+from pyspark.sql import SparkSession
+from dependency_injector.wiring import Provide, inject
+from spark_sql_migrations.models.table_version import TableVersion
 from spark_sql_migrations.models.configuration import Configuration
+from spark_sql_migrations.container import SparkSqlMigrationsContainer
 
 
-def apply_uncommitted_migrations(
+def apply_migration_scripts(
         uncommitted_migrations: List[str]
 ) -> None:
-    _apply_uncommitted_migrations(uncommitted_migrations)
+    _apply_migration_scripts(uncommitted_migrations)
 
 
 @inject
-def _apply_uncommitted_migrations(
+def _apply_migration_scripts(
         uncommitted_migrations: list[str],
         config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
 ) -> None:
@@ -31,7 +32,7 @@ def _apply_uncommitted_migrations(
             print(f"Schema migration failed with exception: {exception}")
 
             for table_version in table_versions:
-                _restore_table(table_version)
+                delta_table_helper.restore_table(table_version)
 
             raise exception
 
@@ -53,13 +54,6 @@ def _get_table_versions(
                 tables.append(table_version)
 
     return tables
-
-
-@inject
-def _restore_table(
-    table_version: TableVersion, spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
-) -> None:
-    spark.sql(f"RESTORE TABLE {table_version.table_name} TO VERSION AS OF {table_version.version}")
 
 
 @inject

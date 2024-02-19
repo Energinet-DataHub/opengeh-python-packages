@@ -1,5 +1,5 @@
 import tests.helpers.table_helper as table_helper
-import spark_sql_migrations.migrations.uncommitted_migrations as sut
+import spark_sql_migrations.infrastructure.uncommitted_migration_scripts as sut
 from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from importlib.resources import contents
@@ -17,7 +17,7 @@ def test_get_committed_migrations_when_no_table_exists_returns_empty_list(
     reset_spark_catalog(spark)
 
     # Act
-    actual = sut._get_committed_migrations()
+    actual = sut._get_committed_migration_scripts()
 
     # Assert
     assert len(actual) == 0
@@ -30,7 +30,7 @@ def test_get_committed_migrations_when_no_table_exists_creates_schema_migration_
     reset_spark_catalog(spark)
 
     # Act
-    sut._get_committed_migrations()
+    sut._get_committed_migration_scripts()
 
     # Assert
     assert spark.catalog.tableExists(
@@ -56,7 +56,7 @@ def test_get_committed_migration_when_table_exists_returns_rows(
     )
 
     # Act
-    actual = sut._get_committed_migrations()
+    actual = sut._get_committed_migration_scripts()
 
     # Assert
     assert len(actual) == 1
@@ -72,7 +72,7 @@ def test_get_all_migrations_returns_expected_migrations(mocker: Mock) -> None:
     expected_migrations = ["migration1", "migration2"]
 
     # Act
-    actual = sut.get_all_migrations()
+    actual = sut.get_all_migration_scripts()
 
     # Assert
     assert actual == expected_migrations
@@ -85,11 +85,11 @@ def test_get_uncommitted_migrations_when_no_migrations_needed_return_zero(
     migration1 = "migration1"
     migration2 = "migration2"
 
-    mocker.patch.object(sut, sut.get_all_migrations.__name__, return_value=[migration1, migration2])
-    mocker.patch.object(sut, sut._get_committed_migrations.__name__, return_value=[migration1, migration2])
+    mocker.patch.object(sut, sut.get_all_migration_scripts.__name__, return_value=[migration1, migration2])
+    mocker.patch.object(sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1, migration2])
 
     # Act
-    actual = sut.get_uncommitted_migrations()
+    actual = sut.get_uncommitted_migration_scripts()
 
     # Assert
     assert len(actual) == 0
@@ -102,11 +102,11 @@ def test_get_uncommitted_migrations_when_one_migrations_needed_return_one(
     migration1 = "migration1"
     migration2 = "migration2"
 
-    mocker.patch.object(sut, sut.get_all_migrations.__name__, return_value=[migration1, migration2])
-    mocker.patch.object(sut, sut._get_committed_migrations.__name__, return_value=[migration1])
+    mocker.patch.object(sut, sut.get_all_migration_scripts.__name__, return_value=[migration1, migration2])
+    mocker.patch.object(sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1])
 
     # Act
-    actual = sut.get_uncommitted_migrations()
+    actual = sut.get_uncommitted_migration_scripts()
 
     # Assert
     assert len(actual) == 1
@@ -119,11 +119,11 @@ def test_get_uncommitted_migrations_when_multiple_migrations_return_in_correct_o
     migration1 = "202311100900_migration_1"
     migration2 = "202311200900_migration_2"
 
-    mocker.patch.object(sut, sut.get_all_migrations.__name__, return_value=[migration1, migration2])
-    mocker.patch.object(sut, sut._get_committed_migrations.__name__, return_value=[])
+    mocker.patch.object(sut, sut.get_all_migration_scripts.__name__, return_value=[migration1, migration2])
+    mocker.patch.object(sut, sut._get_committed_migration_scripts.__name__, return_value=[])
 
     # Act
-    actual = sut.get_uncommitted_migrations()
+    actual = sut.get_uncommitted_migration_scripts()
 
     # Assert
     assert actual[0] == migration1

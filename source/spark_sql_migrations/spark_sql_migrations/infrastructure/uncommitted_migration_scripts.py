@@ -2,15 +2,15 @@ import spark_sql_migrations.utility.delta_table_helper as delta_table_helper
 from pyspark.sql import SparkSession
 from importlib.resources import contents
 from dependency_injector.wiring import Provide, inject
+from spark_sql_migrations.models.configuration import Configuration
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from spark_sql_migrations.constants.migrations_constants import ColNames
 from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
-from spark_sql_migrations.models.configuration import Configuration
 
 
-def get_uncommitted_migrations() -> list[str]:
-    all_migrations = get_all_migrations()
-    committed_migrations = _get_committed_migrations()
+def get_uncommitted_migration_scripts() -> list[str]:
+    all_migrations = get_all_migration_scripts()
+    committed_migrations = _get_committed_migration_scripts()
 
     uncommitted_migrations = [m for m in all_migrations if m not in committed_migrations]
 
@@ -18,8 +18,12 @@ def get_uncommitted_migrations() -> list[str]:
     return uncommitted_migrations
 
 
+def get_all_migration_scripts() -> list[str]:
+    return _get_all_migration_scripts()
+
+
 @inject
-def get_all_migrations(
+def _get_all_migration_scripts(
         config: str = Provide[SparkSqlMigrationsContainer.configuration],
 ) -> list[str]:
     migration_files = list(contents(config.migration_scripts_folder_path))
@@ -29,7 +33,7 @@ def get_all_migrations(
 
 
 @inject
-def _get_committed_migrations(
+def _get_committed_migration_scripts(
     config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:

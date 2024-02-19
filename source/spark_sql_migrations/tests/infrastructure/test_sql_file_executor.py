@@ -1,5 +1,5 @@
 ﻿import pytest
-import spark_sql_migrations.migrations.sql_file_executor as sut
+import spark_sql_migrations.infrastructure.sql_file_executor as sut
 import tests.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
 from pyspark.sql import SparkSession
 from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration

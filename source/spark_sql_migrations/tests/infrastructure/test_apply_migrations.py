@@ -1,7 +1,7 @@
 import pytest
 import pyspark.sql.functions as F
 import tests.helpers.table_helper as table_helper
-import spark_sql_migrations.migrations.apply_migrations as sut
+import spark_sql_migrations.infrastructure.apply_migration_scripts as sut
 
 from unittest.mock import Mock
 from pyspark.sql import SparkSession
@@ -49,7 +49,7 @@ def test_apply_uncommitted_migrations_applies_all(
     configuration = _test_configuration(spark)
 
     # Act
-    sut._apply_uncommitted_migrations(migrations)
+    sut.apply_migration_scripts(migrations)
 
     # Assert
     assert spark.catalog.databaseExists("test_schema")
@@ -84,7 +84,7 @@ def test_apply_uncommitted_migrations_with_sql_file_with_error_should_rollback_t
 
     # Act
     with pytest.raises(Exception):
-        sut.apply_uncommitted_migrations(migrations)
+        sut.apply_migration_scripts(migrations)
 
     # Assert
     assert spark.catalog.databaseExists("test_schema") is True
@@ -112,7 +112,7 @@ def test_apply_uncommitted_migrations_with_schema_migration_insert_fail_rollback
 
     # Act
     with pytest.raises(Exception):
-        sut.apply_uncommitted_migrations(migrations)
+        sut.apply_migration_scripts(migrations)
 
     # Assert
     history = spark.sql("DESCRIBE HISTORY test_schema.test_table")
@@ -138,7 +138,7 @@ def test_apply_uncommitted_migrations_version_is_bumped(
     _test_configuration(spark)
 
     # Act
-    sut.apply_uncommitted_migrations(migrations)
+    sut.apply_migration_scripts(migrations)
 
     # Assert
     actual_version = table_helper.get_table_version(spark, "test_schema", "test_table")
@@ -176,7 +176,7 @@ def test_apply_uncommitted_migrations_with_table_containing_go_in_column_name(
     _test_configuration(spark)
 
     # Act
-    sut.apply_uncommitted_migrations(migrations)
+    sut.apply_migration_scripts(migrations)
 
     # Assert
     assert spark.catalog.databaseExists("test_schema")

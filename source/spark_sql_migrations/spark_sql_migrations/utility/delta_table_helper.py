@@ -1,6 +1,9 @@
 from typing import List
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
+from dependency_injector.wiring import Provide, inject
+from spark_sql_migrations.models.table_version import TableVersion
+from spark_sql_migrations.container import SparkSqlMigrationsContainer
 
 
 def delta_table_exists(spark: SparkSession, schema_name: str, table_name: str) -> bool:
@@ -58,3 +61,14 @@ def create_table_from_schema(
     if location:
         sql_command += f" LOCATION '{location}'"
     spark.sql(sql_command)
+
+
+def restore_table(table_version: TableVersion) -> None:
+    _restore_table(table_version)
+
+
+@inject
+def _restore_table(
+    table_version: TableVersion, spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
+) -> None:
+    spark.sql(f"RESTORE TABLE {table_version.table_name} TO VERSION AS OF {table_version.version}")

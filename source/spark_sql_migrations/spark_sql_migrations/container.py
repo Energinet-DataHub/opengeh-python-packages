@@ -8,10 +8,6 @@ from spark_sql_migrations.models.schema import Schema
 from typing import List
 
 
-class TestSchema:
-    schema_config: List[Schema]
-
-
 class SparkSqlMigrationsContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
     spark = providers.Singleton(SparkSession.builder.getOrCreate)
