@@ -10,8 +10,8 @@ from spark_sql_migrations.models.schema import Schema
 
 schema = StructType(
     [
-        StructField("column1", StringType(), False),
-        StructField("column2", StringType(), False)
+        StructField("column1", StringType(), True),
+        StructField("column2", StringType(), True)
     ]
 )
 

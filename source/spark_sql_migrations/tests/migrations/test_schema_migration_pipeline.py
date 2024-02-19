@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession
 from tests.helpers import spark_helper
 import spark_sql_migrations.migrations.schema_migration_pipeline as sut
 import tests.helpers.mock_helper as mock_helper
+from tests.helpers.test_schemas import schema_config
 
 
 def test_migrate_with_schema_migration_scripts_compare_schemas(spark: SparkSession) -> None:
@@ -17,32 +18,31 @@ def test_migrate_with_schema_migration_scripts_compare_schemas(spark: SparkSessi
     assert True
 
 
-# def test_migrate_with_schema_migration_scripts_compare_result_with_schema_config(
-#     spark: SparkSession
-# ) -> None:
-#     """If this test fails, it indicates that a SQL script is creating something that the Schema Config does not know
-#     about"""
-#     # Arrange
-#     spark_helper.reset_spark_catalog(spark)
-#
-#     # Act
-#     sut.migrate()
-#
-#     # Assert
-#     schemas = mock_config.schema_config
-#     actual_schemas = spark.catalog.listDatabases()
-#     for db in actual_schemas:
-#         if db.name == "default" or db.name == "schema_migration":
-#             continue
-#
-#         schema = next((x for x in schemas if x.name == db.name), None)
-#         assert schema is not None, f"Schema {db.name} is not in the schema config"
-#         tables = spark.catalog.listTables(db.name)
-#         for table in tables:
-#             table_config = next((x for x in schema.tables if x.name == table.name), None)
-#             assert table_config is not None, f"Table {table.name} is not in the schema config"
-#             actual_table = spark.table(f"{db.name}.{table.name}")
-#             assert actual_table.schema == table_config.schema
+def test_migrate_with_schema_migration_scripts_compare_result_with_schema_config(
+    spark: SparkSession
+) -> None:
+    """If this test fails, it indicates that a SQL script is creating something that the Schema Config does not know
+    about"""
+    # Arrange
+    spark_helper.reset_spark_catalog(spark)
+
+    # Act
+    sut.migrate()
+
+    # Assert5
+    actual_schemas = spark.catalog.listDatabases()
+    for db in actual_schemas:
+        if db.name == "default" or db.name == "schema_migration":
+            continue
+
+        actual_schema = next((x for x in schema_config if x.name == db.name), None)
+        assert actual_schema is not None, f"Schema {db.name} is not in the schema config"
+        tables = spark.catalog.listTables(db.name)
+        for table in tables:
+            table_config = next((x for x in actual_schema.tables if x.name == table.name), None)
+            assert table_config is not None, f"Table {table.name} is not in the schema config"
+            actual_table = spark.table(f"{db.name}.{table.name}")
+            assert actual_table.schema == table_config.schema
 
 
 def test_migrate_with_0_tables_and_0_migrations_should_call_create_tables(
