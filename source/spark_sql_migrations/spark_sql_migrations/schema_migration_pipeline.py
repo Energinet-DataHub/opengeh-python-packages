@@ -33,7 +33,7 @@ def migrate() -> None:
 
 @inject
 def _get_tables(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> list[str]:
     tables = []
@@ -50,7 +50,7 @@ def _get_tables(
 
 @inject
 def _get_missing_tables(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
 ) -> list[str]:
     missing_tables = []

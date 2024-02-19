@@ -11,7 +11,7 @@ def create_all_tables() -> None:
 
 @inject
 def _create_all_tables(
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> None:
     """Executes schema and table scripts to create all tables"""
     print("Creating all tables")
@@ -29,7 +29,7 @@ def _create_all_tables(
 
 @inject
 def _get_schema_scripts(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> list[str]:
     migration_files = list(contents(config.current_state_schemas_folder_path))
     return [file.removesuffix(".sql") for file in migration_files if file.endswith(".sql")]
@@ -37,7 +37,7 @@ def _get_schema_scripts(
 
 @inject
 def _get_table_scripts(
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> list[str]:
     migration_files = list(contents(config.current_state_tables_folder_path))
     return [file.removesuffix(".sql") for file in migration_files if file.endswith(".sql")]

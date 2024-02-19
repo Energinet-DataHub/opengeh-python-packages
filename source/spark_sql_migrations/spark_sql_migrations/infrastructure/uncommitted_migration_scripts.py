@@ -24,7 +24,7 @@ def get_all_migration_scripts() -> list[str]:
 
 @inject
 def _get_all_migration_scripts(
-        config: str = Provide[SparkSqlMigrationsContainer.configuration],
+        config: str = Provide[SparkSqlMigrationsContainer.config],
 ) -> list[str]:
     migration_files = list(contents(config.migration_scripts_folder_path))
 
@@ -34,7 +34,7 @@ def _get_all_migration_scripts(
 
 @inject
 def _get_committed_migration_scripts(
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     table_name = f"{config.table_prefix}{config.migration_table_name}"
@@ -50,7 +50,7 @@ def _create_schema_migration_table(
     schema_name: str,
     table_name: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
     delta_table_helper.create_schema(
         spark, schema_name, "Contains executed SQL migration_scripts", config.migration_schema_location

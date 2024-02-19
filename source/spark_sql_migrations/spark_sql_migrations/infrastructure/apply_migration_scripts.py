@@ -18,7 +18,7 @@ def apply_migration_scripts(
 @inject
 def _apply_migration_scripts(
         uncommitted_migrations: list[str],
-        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> None:
     for migration in uncommitted_migrations:
         table_versions = _get_table_versions()
@@ -39,7 +39,7 @@ def _apply_migration_scripts(
 
 @inject
 def _get_table_versions(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.configuration],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
         spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]) -> list[TableVersion]:
     tables = []
     for schema in config.schema_config:
@@ -60,7 +60,7 @@ def _get_table_versions(
 def _insert_executed_sql_script(
     migration_name: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
-    config: Configuration = Provide[SparkSqlMigrationsContainer.configuration]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> None:
     schema_name = (
         config.db_folder
