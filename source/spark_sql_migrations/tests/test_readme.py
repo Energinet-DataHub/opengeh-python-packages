@@ -59,4 +59,3 @@ def test_read_me_python_code_example(mocker: Mock) -> None:
                 continue
             if in_code_block:  # Currently inside a code block
                 code_block += line
-
