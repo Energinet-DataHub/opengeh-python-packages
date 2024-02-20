@@ -18,46 +18,43 @@ from pyspark.sql.types import (
     StringType,
 )
 
-def migrate() -> None:
-    _configure_spark_sql_migration()
-    schema_migration_pipeline.migrate()
 
+schema = StructType(
+    [
+        StructField("column1", StringType(), False),
+        StructField("column2", StringType(), False)
+    ]
+)
 
-def _configure_spark_sql_migration() -> None:
-    schema = StructType(
-        [
-            StructField("column1", StringType(), False),
-            StructField("column2", StringType(), False)
+schema_config = [
+    Schema(
+        name="test_schema",
+        tables=[
+            Table(name="test_table", schema=schema),
+            Table(name="test_table_2", schema=schema)
         ]
     )
+]
 
-    schema_config = [
-        Schema(
-            name="test_schema",
-            tables=[
-                Table(name="test_table", schema=schema),
-                Table(name="test_table_2", schema=schema)
-            ]
-        )
-    ]
+substitutions = {"{location}": "some_location"}
 
-    substitutions = {"{location}": "some_location"}
+spark_config = SparkSqlMigrationsConfiguration(
+    migration_schema_name="schema_name",
+    migration_schema_location="schema_location",
+    migration_table_name="table_name",
+    migration_table_location="table_location",
+    migration_scripts_folder_path="migration_scripts_folder_path",
+    db_folder="db_folder",
+    table_prefix="table_prefix",
+    current_state_schemas_folder_path="current_state_schemas_folder_path",
+    current_state_tables_folder_path="current_state_tables_folder_path",
+    schema_config=schema_config,
+    substitution_variables=substitutions,
+)
 
-    spark_config = SparkSqlMigrationsConfiguration(
-        migration_schema_name= "schema_name",
-        migration_schema_location="schema_location",
-        migration_table_name="table_name",
-        migration_table_location="table_location",
-        migration_scripts_folder_path="migration_scripts_folder_path",
-        db_folder="db_folder",
-        table_prefix="table_prefix",
-        current_state_schemas_folder_path="current_state_schemas_folder_path",
-        current_state_tables_folder_path="current_state_tables_folder_path",
-        schema_config=schema_config,
-        substitution_variables=substitutions,
-    )
+create_and_configure_container(spark_config)
+schema_migration_pipeline.migrate()
 
-    create_and_configure_container(spark_config)
 
 ```
 
