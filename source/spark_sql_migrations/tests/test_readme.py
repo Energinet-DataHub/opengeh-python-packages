@@ -6,15 +6,15 @@ import spark_sql_migrations.container as container
 import spark_sql_migrations.schema_migration_pipeline as schema_migration_pipeline
 
 
-def get_source_path() -> str:
+def _get_source_path() -> str:
     working_directory = os.getcwd()
     source_path = re.match(r"(.+?source)", working_directory).group(1)
     return source_path
 
 
-def check_code_syntax(code: str):
+def _check_code_syntax(code: str):
     try:
-        byte_code = compile(code, "string", "exec")
+        byte_code = compile(code, "<string/>", "exec")
         exec(byte_code)
     except Exception as e:
         raise e
@@ -35,7 +35,7 @@ def test_read_me_python_code_example(mocker: Mock) -> None:
         side_effect=mock_helper.do_nothing
     )
 
-    source_path = get_source_path()
+    source_path = _get_source_path()
     readme_path = f"{source_path}/spark_sql_migrations/README.md"
 
     # Act
@@ -53,7 +53,7 @@ def test_read_me_python_code_example(mocker: Mock) -> None:
 
                 # Assert
                 print(f"Asserting code block: {code_block}")
-                assert check_code_syntax(code_block)
+                assert _check_code_syntax(code_block)
 
                 code_block = ""
                 continue
