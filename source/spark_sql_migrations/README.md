@@ -61,7 +61,6 @@ def _configure_spark_sql_migration() -> None:
 
 ```
 
-
 ## Current State
 
 The purpose of the `current step` concept is to be able to create schemas and tables that might have been
