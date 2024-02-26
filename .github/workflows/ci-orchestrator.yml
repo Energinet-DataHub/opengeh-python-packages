@@ -8,18 +8,18 @@ on:
 jobs:
   # License and Markdown Check
   ci_base:
-    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v12
+    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v13
     with:
       skip_license_check: true
     secrets:
-      pat_token: ${{ secrets.internal_github_pat }}
+      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
   changes:
     uses: ./.github/workflows/detect-changes.yml
 
   ci_docker:
     needs: changes
-    uses: Energinet-DataHub/.github/.github/workflows/python-build-and-push-docker-image.yml@v12
+    uses: Energinet-DataHub/.github/.github/workflows/python-build-and-push-docker-image.yml@v13
     with:
       docker_changed: ${{ needs.changes.outputs.docker == 'true' }}
       docker_changed_in_commit: ${{ needs.changes.outputs.docker_in_commit == 'true' }}
@@ -36,7 +36,7 @@ jobs:
   python_ci_test:
     needs: [ci_base, ci_docker]
     if: always()
-    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v12
+    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v13
     with:
       operating_system: dh3-ubuntu-20.04-4core
       path_static_checks: ./source
