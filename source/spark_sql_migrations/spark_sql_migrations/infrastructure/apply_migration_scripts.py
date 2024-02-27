@@ -73,3 +73,5 @@ def _insert_executed_sql_script(
         VALUES ('{migration_name}', current_timestamp())
     """
     spark.sql(sql_query)
+
+    spark.sql("DESCRIBE HISTORY schema_migration.executed_migrations")
