@@ -7,6 +7,13 @@ jobs:
   create_release:
     runs-on: ubuntu-latest
     steps:
+      - uses: Energinet-DataHub/.github/.github/actions/github-create-token@v13
+        name: Generate Github token
+        id: generate_token
+        with:
+          app_id: ${{ vars.dh3serviceaccount_appid }}
+          private_key: ${{ secrets.dh3serviceaccount_privatekey }}
+
       - name: Create release
         uses: Energinet-DataHub/.github/.github/actions/create-release-tag@v13
         with:
@@ -14,7 +21,7 @@ jobs:
           # See https://github.com/Energinet-DataHub/.github#release-procedure for details
           major_version: 1
           minor_version: 2
-          patch_version: 1
+          patch_version: 2
           repository_path: Energinet-DataHub/opengeh-python-packages
         env:
-          GH_TOKEN: ${{ secrets.internal_github_pat }} # Organization level token needed for github code search to target all repositories
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
