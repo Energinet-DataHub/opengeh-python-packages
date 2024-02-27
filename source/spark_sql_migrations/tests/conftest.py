@@ -43,7 +43,7 @@ def spark() -> Generator[SparkSession, None, None]:
         .config("spark.shuffle.spill.compress", False)
         .config("spark.sql.shuffle.partitions", 1)
         .config("spark.databricks.delta.allowArbitraryProperties.enabled", True)
-        .config("spark.jars.packages", "io.delta:delta-core_2.12:3.1.0")
+        .config("spark.jars.packages", "io.delta:delta-core_2.12:2.4.0")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(
             "spark.sql.catalog.spark_catalog",
