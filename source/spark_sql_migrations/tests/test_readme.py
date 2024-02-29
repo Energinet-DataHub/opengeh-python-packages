@@ -11,22 +11,31 @@ def test_read_me_python_code_example(mocker: Mock) -> None:
     mocker.patch.object(
         container,
         container.create_and_configure_container.__name__,
-        side_effect=mock_helper.do_nothing
+        side_effect=mock_helper.do_nothing,
     )
 
     mocker.patch.object(
         schema_migration_pipeline,
         schema_migration_pipeline.migrate.__name__,
-        side_effect=mock_helper.do_nothing
+        side_effect=mock_helper.do_nothing,
     )
 
     source_path = _get_source_path()
     readme_path = f"{source_path}/spark_sql_migrations/README.md"
 
     # Act
+    code_blocks = _get_code_blocks_from_readme(readme_path)
+
+    # Assert
+    for code_block in code_blocks:
+        assert _check_code_syntax(code_block)
+
+
+def _get_code_blocks_from_readme(readme_path: str) -> list[str]:
     with open(readme_path, "r") as file:
         lines = file.readlines()
-        code_block = ""
+        code_blocks = []
+        current_block = ""
         in_code_block = False
 
         for line in lines:
@@ -35,15 +44,13 @@ def test_read_me_python_code_example(mocker: Mock) -> None:
                 continue
             if "```" in line and in_code_block:  # End of current code block found
                 in_code_block = False
-
-                # Assert
-                print(f"Asserting code block: {code_block}")
-                assert _check_code_syntax(code_block)
-
-                code_block = ""
+                code_blocks.append(current_block)
+                current_block = ""
                 continue
             if in_code_block:  # Currently inside a code block
-                code_block += line
+                current_block += line
+
+    return code_blocks
 
 
 def _get_source_path() -> str:
