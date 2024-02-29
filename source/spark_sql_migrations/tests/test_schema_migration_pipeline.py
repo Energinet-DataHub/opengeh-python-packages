@@ -117,7 +117,7 @@ def test_migrate_with_0_tables_and_1_migration_should_throw_exception(
 
     spark_helper.reset_spark_catalog(spark)
 
-    # Act
+    # Act / Assert
     with pytest.raises(Exception):
         sut.migrate()
 
@@ -141,7 +141,7 @@ def test_migrate_with_0_tables_and_almost_all_migrations_should_throw_exception(
 
     spark_helper.reset_spark_catalog(spark)
 
-    # Act
+    # Act / Assert
     with pytest.raises(Exception):
         sut.migrate()
 

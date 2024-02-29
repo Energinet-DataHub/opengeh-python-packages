@@ -11,8 +11,8 @@ def get_table_version(spark: SparkSession, schema: str, table: str) -> int:
     if not spark.catalog.tableExists(table, schema):
         return 0
 
-    version = spark.sql(f"DESCRIBE HISTORY {schema}.{table}")
-    current_version = version.orderBy(F.desc("version")).limit(1)
+    history = spark.sql(f"DESCRIBE HISTORY {schema}.{table}")
+    current_version = history.orderBy(F.desc("version")).limit(1)
     return current_version.select("version").first()[0]
 
 
