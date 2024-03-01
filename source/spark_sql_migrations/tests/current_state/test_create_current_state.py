@@ -7,7 +7,7 @@ from tests.helpers.test_schemas import schema_config
 from tests.helpers.spark_helper import reset_spark_catalog
 
 
-def test_get_schema_scripts_matches_schema_config() -> None:
+def test__get_schema_scripts__should_match_schema_config() -> None:
     # Arrange
     schemas = []
     for schema in schema_config:
@@ -20,7 +20,7 @@ def test_get_schema_scripts_matches_schema_config() -> None:
     assert len(actual) == len(schemas)
 
 
-def test_get_table_scripts_matches_schema_config() -> None:
+def test__get_table_scripts__should_match_schema_config() -> None:
     # Arrange
     tables = []
     for schema in schema_config:
@@ -34,7 +34,7 @@ def test_get_table_scripts_matches_schema_config() -> None:
     assert len(actual) == len(tables)
 
 
-def test_create_all_tables_creates_all_tables(spark: SparkSession) -> None:
+def test__create_all_tables__should_create_all_tables(spark: SparkSession) -> None:
     # Arrange
     reset_spark_catalog(spark)
 
@@ -47,8 +47,8 @@ def test_create_all_tables_creates_all_tables(spark: SparkSession) -> None:
             assert spark.catalog.tableExists(table.name, schema.name)
 
 
-def test_create_all_tables_when_table_is_missing_it_should_create_the_missing_tables(
-    spark: SparkSession
+def test__create_all_tables__when_table_is_missing__it_should_create_the_missing_tables(
+    spark: SparkSession,
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
@@ -65,7 +65,7 @@ def test_create_all_tables_when_table_is_missing_it_should_create_the_missing_ta
             assert spark.catalog.tableExists(table.name, schema.name)
 
 
-def test_create_all_table_when_an_error_occurs_it_should_throw_an_exception(
+def test__create_all_table__when_an_error_occurs__it_should_throw_an_exception(
     mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
@@ -73,7 +73,7 @@ def test_create_all_table_when_an_error_occurs_it_should_throw_an_exception(
     mocker.patch.object(
         sut.sql_file_executor,
         sut.sql_file_executor.execute.__name__,
-        side_effect=raise_exception
+        side_effect=raise_exception,
     )
 
     # Act

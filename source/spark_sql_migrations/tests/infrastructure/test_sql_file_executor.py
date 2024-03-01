@@ -2,7 +2,9 @@
 import spark_sql_migrations.infrastructure.sql_file_executor as sut
 import tests.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
 from pyspark.sql import SparkSession
-from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
+from spark_sql_migrations.models.spark_sql_migrations_configuration import (
+    SparkSqlMigrationsConfiguration,
+)
 from spark_sql_migrations.container import create_and_configure_container
 
 
@@ -27,7 +29,7 @@ def _test_configuration() -> SparkSqlMigrationsConfiguration:
     return configuration
 
 
-def test_execute_creates_schema(spark: SparkSession) -> None:
+def test__execute__should_creates_schema(spark: SparkSession) -> None:
     # Arrange
     _test_configuration()
     migration_name = "create_schema"
@@ -39,7 +41,9 @@ def test_execute_creates_schema(spark: SparkSession) -> None:
     assert spark.catalog.databaseExists("test_schema")
 
 
-def test_execute_with_multiple_queries(spark: SparkSession) -> None:
+def test__execute__when_multiple_queries__should_create_all_queries(
+    spark: SparkSession,
+) -> None:
     # Arrange
     _test_configuration()
     migration_name = "multiple_queries"
@@ -52,7 +56,9 @@ def test_execute_with_multiple_queries(spark: SparkSession) -> None:
     assert spark.catalog.tableExists("test_table", "test_schema")
 
 
-def test_execute_with_multiline_query(spark: SparkSession) -> None:
+def test__execute__when_multiline_query__should_execute_query(
+    spark: SparkSession,
+) -> None:
     # Arrange
     _test_configuration()
     migration_name = "multiline_query"
@@ -74,8 +80,11 @@ def test_execute_with_multiline_query(spark: SparkSession) -> None:
         pytest.param("{wholesale_location}", "wholesale", shared_storage_account),
     ],
 )
-def test__substitute_placeholders_replace_placeholders(
-    placeholder: str, expected_table: str, expected_storage_account: str, spark: SparkSession
+def test__substitute_placeholders__should_replace_placeholders_in_query(
+    placeholder: str,
+    expected_table: str,
+    expected_storage_account: str,
+    spark: SparkSession,
 ) -> None:
     # Arrange
     _test_configuration()
