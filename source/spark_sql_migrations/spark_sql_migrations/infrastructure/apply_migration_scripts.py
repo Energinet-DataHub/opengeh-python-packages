@@ -9,23 +9,20 @@ from spark_sql_migrations.models.configuration import Configuration
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 
 
-def apply_migration_scripts(
-        uncommitted_migrations: List[str]
-) -> None:
+def apply_migration_scripts(uncommitted_migrations: List[str]) -> None:
     _apply_migration_scripts(uncommitted_migrations)
 
 
 @inject
 def _apply_migration_scripts(
-        uncommitted_migrations: list[str],
-        config: Configuration = Provide[SparkSqlMigrationsContainer.config]
+    uncommitted_migrations: list[str],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
+    table_versions = _get_table_versions()
+
     for migration in uncommitted_migrations:
-        table_versions = _get_table_versions()
         try:
-            sql_file_executor.execute(
-                migration, config.migration_scripts_folder_path
-            )
+            sql_file_executor.execute(migration, config.migration_scripts_folder_path)
             _insert_executed_sql_script(migration)
 
         except Exception as exception:
@@ -39,8 +36,9 @@ def _apply_migration_scripts(
 
 @inject
 def _get_table_versions(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
-        spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]) -> list[TableVersion]:
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
+) -> list[TableVersion]:
     tables = []
     for schema in config.schema_config:
         if spark.catalog.databaseExists(schema.name) is True:
@@ -60,13 +58,9 @@ def _get_table_versions(
 def _insert_executed_sql_script(
     migration_name: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
-    config: Configuration = Provide[SparkSqlMigrationsContainer.config]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
-    schema_name = (
-        config.db_folder
-        if config.db_folder
-        else config.migration_schema_name
-    )
+    schema_name = config.db_folder if config.db_folder else config.migration_schema_name
     table_name = f"{config.table_prefix}{config.migration_table_name}"
     sql_query = f"""
         INSERT INTO {schema_name}.{table_name}
