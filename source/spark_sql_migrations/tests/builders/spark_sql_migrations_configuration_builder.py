@@ -16,7 +16,6 @@ def build(
         table_prefix: str = "",
         migration_schema_location: str = "schema_migration",
         migration_table_location: str = "schema_migration",
-        db_folder: str = "",
         schema_config: list[Schema] | None = None,
         substitutions: dict[str, str] | None = None
 ) -> SparkSqlMigrationsConfiguration:
@@ -35,7 +34,6 @@ def build(
         table_prefix=table_prefix,
         migration_schema_location=migration_schema_location,
         migration_table_location=migration_table_location,
-        db_folder=db_folder,
         schema_config=schema_config,
         substitution_variables=substitutions,
     )

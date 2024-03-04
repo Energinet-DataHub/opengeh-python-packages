@@ -60,10 +60,9 @@ def _insert_executed_sql_script(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
-    schema_name = config.db_folder if config.db_folder else config.migration_schema_name
     table_name = f"{config.table_prefix}{config.migration_table_name}"
     sql_query = f"""
-        INSERT INTO {schema_name}.{table_name}
+        INSERT INTO {config.migration_schema_name}.{table_name}
         VALUES ('{migration_name}', current_timestamp())
     """
     spark.sql(sql_query)

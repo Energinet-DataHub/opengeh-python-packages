@@ -44,7 +44,6 @@ spark_config = SparkSqlMigrationsConfiguration(
     migration_table_name="table_name",
     migration_table_location="table_location",
     migration_scripts_folder_path="migration_scripts_folder_path",
-    db_folder="db_folder",
     table_prefix="table_prefix",
     current_state_schemas_folder_path="current_state_schemas_folder_path",
     current_state_tables_folder_path="current_state_tables_folder_path",

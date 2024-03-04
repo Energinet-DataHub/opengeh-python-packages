@@ -21,7 +21,5 @@ class SparkSqlMigrationsConfiguration:
     """The schema configuration, telling the migration tool which schemas and tables to check."""
     substitution_variables: dict[str, str]
     """The substitution variables. These are used to replace variables in the migration scripts"""
-    db_folder: str = ""
-    """(Optional) An extra folder to use for the database"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
