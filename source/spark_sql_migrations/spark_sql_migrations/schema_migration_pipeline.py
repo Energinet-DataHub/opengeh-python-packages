@@ -8,18 +8,13 @@ from spark_sql_migrations.models.configuration import Configuration
 
 
 def migrate() -> None:
-    _migrate(
-        len(_get_tables()),
-        uncommitted_migrations.get_uncommitted_migration_scripts(),
-        len(uncommitted_migrations.get_all_migration_scripts()),
-    )
+    _migrate(len(_get_tables()))
 
 
-def _migrate(
-    existing_tables_count: int,
-    migrations: list[str],
-    all_migrations_count: int,
-) -> None:
+def _migrate(existing_tables_count: int) -> None:
+    all_migrations_count: int = len(uncommitted_migrations.get_all_migration_scripts())
+    migrations: list[str] = uncommitted_migrations.get_uncommitted_migration_scripts()
+
     print(f"Existing table count: {existing_tables_count}")
     print(f"Uncommitted migrations count: {len(migrations)}")
     print(f"All migrations count: {all_migrations_count}")
