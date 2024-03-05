@@ -8,10 +8,18 @@ from spark_sql_migrations.models.configuration import Configuration
 
 
 def migrate() -> None:
-    existing_tables_count = len(_get_tables())
-    migrations = uncommitted_migrations.get_uncommitted_migration_scripts()
-    all_migrations_count = len(uncommitted_migrations.get_all_migration_scripts())
+    _migrate(
+        len(_get_tables()),
+        uncommitted_migrations.get_uncommitted_migration_scripts(),
+        len(uncommitted_migrations.get_all_migration_scripts()),
+    )
 
+
+def _migrate(
+    existing_tables_count: int,
+    migrations: list[str],
+    all_migrations_count: int,
+) -> None:
     print(f"Existing table count: {existing_tables_count}")
     print(f"Uncommitted migrations count: {len(migrations)}")
     print(f"All migrations count: {all_migrations_count}")
@@ -22,7 +30,9 @@ def migrate() -> None:
         elif len(migrations) == all_migrations_count:
             (apply_migrations.apply_migration_scripts(migrations))
         else:
-            raise Exception("Uncommitted migrations are not in sync with all migrations")
+            raise Exception(
+                "Uncommitted migrations are not in sync with all migrations"
+            )
     else:
         if len(migrations) != 0:
             apply_migrations.apply_migration_scripts(migrations)
@@ -33,8 +43,8 @@ def migrate() -> None:
 
 @inject
 def _get_tables(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
-        spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     tables = []
 
@@ -50,8 +60,8 @@ def _get_tables(
 
 @inject
 def _get_missing_tables(
-        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
-        spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     missing_tables = []
 
