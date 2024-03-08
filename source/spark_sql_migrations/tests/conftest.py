@@ -8,8 +8,11 @@ import pytest
 from pyspark.sql import SparkSession
 from shutil import rmtree
 from typing import Generator
+from delta import configure_spark_with_delta_pip
 from spark_sql_migrations.container import create_and_configure_container
-from tests.builders.spark_sql_migrations_configuration_builder import build as build_configuration
+from tests.builders.spark_sql_migrations_configuration_builder import (
+    build as build_configuration,
+)
 
 
 def pytest_runtest_setup() -> None:
@@ -26,7 +29,7 @@ def spark() -> Generator[SparkSession, None, None]:
     if os.path.exists(warehouse_location):
         rmtree(warehouse_location)
 
-    session = (
+    session = configure_spark_with_delta_pip(
         SparkSession.builder.config("spark.sql.streaming.schemaInference", True)
         .config("spark.ui.showConsoleProgress", "false")
         .config("spark.ui.enabled", "false")
@@ -43,8 +46,6 @@ def spark() -> Generator[SparkSession, None, None]:
         .config("spark.shuffle.spill.compress", False)
         .config("spark.sql.shuffle.partitions", 1)
         .config("spark.databricks.delta.allowArbitraryProperties.enabled", True)
-        .config("spark.jars.packages", "io.delta:delta-core_2.12:2.4.0")
-        .config("spark.jars.packages", "io.delta:delta-spark_2.12:3.1.0")
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(
             "spark.sql.catalog.spark_catalog",
