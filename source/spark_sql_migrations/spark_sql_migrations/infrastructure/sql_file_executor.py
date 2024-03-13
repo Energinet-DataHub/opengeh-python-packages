@@ -13,8 +13,9 @@ def execute(sql_file_name: str, folder_path: str) -> None:
 def _execute(
     sql_file_name: str,
     folder_path: str,
-    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark]
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> None:
+    print(f"Executing SQL file '{sql_file_name}.sql'")
     sql_content = resources.read_text(folder_path, f"{sql_file_name}.sql")
 
     queries = _split_string_by_go(sql_content)
@@ -30,8 +31,7 @@ def _execute(
 
 @inject
 def _substitute_placeholders(
-        query: str,
-        config: Configuration = Provide[SparkSqlMigrationsContainer.config]
+    query: str, config: Configuration = Provide[SparkSqlMigrationsContainer.config]
 ) -> str:
     for key, value in config.substitution_variables.items():
         query = query.replace(key, value)
