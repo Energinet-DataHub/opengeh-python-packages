@@ -21,7 +21,7 @@ jobs:
           # See https://github.com/Energinet-DataHub/.github#release-procedure for details
           major_version: 1
           minor_version: 4
-          patch_version: 0
+          patch_version: 1
           repository_path: Energinet-DataHub/opengeh-python-packages
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
