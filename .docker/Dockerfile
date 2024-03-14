@@ -1,5 +1,5 @@
 # The spark version should should follow the spark version in databricks.
-FROM quay.io/jupyter/pyspark-notebook:spark-3.5.0
+FROM jupyter/pyspark-notebook:spark-3.5.0
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
