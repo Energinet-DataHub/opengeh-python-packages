@@ -42,7 +42,7 @@ jobs:
             telemetry:
               - 'source/telemetry/**'
             spark_sql_migrations:
-              - 'source/spark-sql-migrations/**'
+              - 'source/spark_sql_migrations/**'
             docker:
               - .docker/**
 
