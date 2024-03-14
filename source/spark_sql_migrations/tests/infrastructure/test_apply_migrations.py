@@ -16,8 +16,8 @@ from spark_sql_migrations.models.spark_sql_migrations_configuration import (
 )
 
 
-storage_account = "storage_account"
 shared_storage_account = "shared_storage_account"
+storage_account = "storage_account"
 
 
 def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
