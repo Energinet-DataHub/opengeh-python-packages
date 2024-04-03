@@ -79,7 +79,7 @@ schema_migration_pipeline.migrate()
     └── ...
 ```
 
-The `current_state_scripts` folder contains SQL script files that are used to create the initial schema and tables for the application.
+The `current_state_scripts` folder contains SQL script files that are used to create the initial schema, tables and views for the application.
 
 The core of the Schema Migration functionality relies on a designated folder named `migration_scripts` and a Databricks table named `executed_migrations`.
 The `migration_scripts` folder serves as the repository for SQL script files, and ensures chronological execution order by their filenames
