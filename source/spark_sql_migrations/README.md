@@ -1,5 +1,7 @@
 # Spark SQL Migrations
 
+![image](./../../docs/images/spark_sql_migrations.drawio.svg)
+
 ## Usage
 
 ```python
