@@ -162,7 +162,8 @@ There is some known scenarios that the schema migration functionality should be 
 
 When there are no tables but new migrations, it means that not all migrations are uncommitted, but some are.
 This should not be possible, which is why an exception is thrown. However, it can be possible if the metadata
-has been deleted and new migration scripts have been pushed to main.
+has been deleted and new migration scripts have been pushed to main. Then it will see that there are 0 tables in the metadata
+but there is 1 uncommitted migration (when more than 1 exist) which does not make sense.
 
 In this case, the user should do the following:
 
