@@ -119,7 +119,6 @@ When creating SQL scripts for the Schema Migration functionality, it is crucial 
     - Use comments to provide context, especially for complex or critical queries.
 4. **Substitutions**
     - Use substitutions sparingly, limiting them to dynamic values that require flexibility, such as schema, prefix and file storage locations.
-    - [Current substitutions](./apply_migrations.py#_substitutions)
 
 ### Example SQL Script
 
