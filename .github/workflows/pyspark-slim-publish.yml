@@ -65,11 +65,6 @@ jobs:
             echo "image_tag=latest" >>$GITHUB_OUTPUT
           fi
 
-      - name: Add shebang to build script
-        shell: bash
-        run: |
-          sed -i "1s/^/\#\!\/usr\/bin\/env python\n/" source/Images/pyspark-slim/setup_spark.py
-
       - name: Read versions from yaml
         uses: pietrobolcato/action-read-yaml@1.0.0
         id: build_config
