@@ -11,7 +11,8 @@ from spark_sql_migrations import (
     schema_migration_pipeline,
     SparkSqlMigrationsConfiguration,
     Table,
-    Schema
+    Schema,
+    View
 )
 
 from pyspark.sql.types import (
@@ -34,6 +35,9 @@ schema_config = [
         tables=[
             Table(name="test_table", schema=schema),
             Table(name="test_table_2", schema=schema)
+        ],
+        views=[
+            View(name="test_view")
         ]
     )
 ]
@@ -49,6 +53,7 @@ spark_config = SparkSqlMigrationsConfiguration(
     table_prefix="table_prefix",
     current_state_schemas_folder_path="current_state_schemas_folder_path",
     current_state_tables_folder_path="current_state_tables_folder_path",
+    current_state_views_folder_path="current_state_views_folder_path",
     schema_config=schema_config,
     substitution_variables=substitutions,
 )

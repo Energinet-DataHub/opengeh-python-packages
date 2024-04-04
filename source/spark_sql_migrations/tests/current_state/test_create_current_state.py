@@ -46,6 +46,9 @@ def test__create_all_tables__should_create_all_tables(spark: SparkSession) -> No
         for table in schema.tables:
             assert spark.catalog.tableExists(table.name, schema.name)
 
+        for view in schema.views:
+            assert spark.catalog.tableExists(view.name, schema.name)
+
 
 def test__create_all_tables__when_table_is_missing__it_should_create_the_missing_tables(
     spark: SparkSession,

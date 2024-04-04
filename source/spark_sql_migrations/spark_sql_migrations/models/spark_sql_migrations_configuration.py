@@ -17,6 +17,8 @@ class SparkSqlMigrationsConfiguration:
     """The folder path to the schema files"""
     current_state_tables_folder_path: str
     """The folder path to the table files"""
+    current_state_views_folder_path: str
+    """The folder path to the view files"""
     schema_config: any
     """The schema configuration, telling the migration tool which schemas and tables to check."""
     substitution_variables: dict[str, str]
