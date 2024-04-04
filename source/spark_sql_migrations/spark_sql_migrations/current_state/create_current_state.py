@@ -13,11 +13,12 @@ def create_all_tables() -> None:
 def _create_all_tables(
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
-    """Executes schema and table scripts to create all tables"""
+    """Executes schema, table and view scripts to create all tables"""
     print("Creating all tables")
 
     schema_scripts = _get_schema_scripts()
     table_scripts = _get_table_scripts()
+    view_scripts = _get_view_scripts()
 
     print(
         f"Found {len(schema_scripts)} schema scripts in {config.current_state_schemas_folder_path}"
@@ -25,12 +26,18 @@ def _create_all_tables(
     print(
         f"Found {len(table_scripts)} table scripts in {config.current_state_tables_folder_path}"
     )
+    print(
+        f"Found {len(view_scripts)} view scripts in {config.current_state_views_folder_path}"
+    )
 
     for script in schema_scripts:
         sql_file_executor.execute(script, config.current_state_schemas_folder_path)
 
     for script in table_scripts:
         sql_file_executor.execute(script, config.current_state_tables_folder_path)
+
+    for script in view_scripts:
+        sql_file_executor.execute(script, config.current_state_views_folder_path)
 
     print("Successfully created all tables")
 
@@ -52,4 +59,16 @@ def _get_table_scripts(
     migration_files = contents(config.current_state_tables_folder_path)
     return [
         file.removesuffix(".sql") for file in migration_files if file.endswith(".sql")
+    ]
+
+
+@inject
+def _get_view_scripts(
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+) -> list[str]:
+    view_script_files = contents(config.current_state_views_folder_path)
+    return [
+        view_script_file.removesuffix(".sql")
+        for view_script_file in view_script_files
+        if view_script_file.endswith(".sql")
     ]

@@ -12,6 +12,7 @@ substitution_variables = {"substitution_variables": "substitution_variables"}
 def build(
     current_state_schemas_folder_path: str = "tests.test_scripts.schema_scripts",
     current_state_tables_folder_path: str = "tests.test_scripts.table_scripts",
+    current_state_views_folder_path: str = "tests.test_scripts.view_scripts",
     migration_scripts_folder_path: str = "tests.test_scripts.migration_scripts",
     migration_schema_name: str = SchemaMigrationConstants.schema_name,
     migration_table_name: str = SchemaMigrationConstants.table_name,
@@ -30,6 +31,7 @@ def build(
     return SparkSqlMigrationsConfiguration(
         current_state_schemas_folder_path=current_state_schemas_folder_path,
         current_state_tables_folder_path=current_state_tables_folder_path,
+        current_state_views_folder_path=current_state_views_folder_path,
         migration_scripts_folder_path=migration_scripts_folder_path,
         migration_schema_name=migration_schema_name,
         migration_table_name=migration_table_name,
