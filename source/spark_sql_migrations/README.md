@@ -76,6 +76,10 @@ schema_migration_pipeline.migrate()
         ├── create_table_1.sql
         ├── create_table_2.sql
         └── ...
+    └── views
+        ├── create_view_1.sql
+        ├── create_view_2.sql
+        └── ...
 
 └── migration_scripts/
     ├── 202001021700_migration_1.sql
@@ -95,10 +99,11 @@ The paths should be provided in the `SparkSqlMigrationsConfiguration`:
 - `migration_scripts_folder_path`
 - `current_state_schemas_folder_path`
 - `current_state_tables_folder_path`
+- `current_state_views_folder_path`
 
 ## Current State
 
-The purpose of the `current step` concept is to be able to create schemas and tables that might have been
+The purpose of the `current step` concept is to be able to create schemas, tables and views that might have been
 deleted for some reason, even though they have been created by the normal migration process.
 
 In the `SparkSqlMigrationsConfiguration` class, there are two fields that are used to define the folder path of the
@@ -106,6 +111,7 @@ schemas and tables that are part of the `current step`:
 
 - `current_state_schemas_folder_path`: The folder path to SQL scripts that creates all schemas.
 - `current_state_tables_folder_path`: The folder path to SQL scripts that creates all tables.
+- `current_state_views_folder_path`: The folder path to SQL scripts that creates all views.
 
 The `current step` is executed when there are missing schemas or tables in the Catalog, based on the `schema_config` field in the
 `SparkSqlMigrationsConfiguration` class.
@@ -173,6 +179,6 @@ but there is 1 uncommitted migration (when more than 1 exist) which does not mak
 In this case, the user should do the following:
 
 1. Go to the `Schema_Migration` job
-2. Change the Github Tag to the previous release git tag (before the new migration(s) were added)
+2. Change the GitHub Tag to the previous release git tag (before the new migration(s) were added)
 3. In `Tasks` change the `Dependant libraries` to the previous python wheel.
 The Python wheel contains the pull request number just like the Git tag.
