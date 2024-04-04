@@ -49,7 +49,7 @@ jobs:
             docker:
               - .docker/**
             pyspark_slim:
-              - 'source/pyspark_slim/**'
+              - 'source/pyspark-slim/**'
 
       - name: Package content or build has changed
         id: docker_changed
