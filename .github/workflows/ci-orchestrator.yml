@@ -26,8 +26,14 @@ jobs:
 
   create_release:
     needs: changes
-    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' }}
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' || needs.changes.outputs.pyspark_slim == 'true'}}
     uses: ./.github/workflows/create-release-tag.yml
+    secrets: inherit
+
+  ci_pyspark_slim:
+    needs: changes
+    if: ${{ needs.changes.outputs.pyspark_slim == 'true' }}
+    uses: ./.github/workflows/pyspark-slim-publish.yml
     secrets: inherit
 
   #
