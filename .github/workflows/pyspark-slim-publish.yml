@@ -48,7 +48,7 @@ jobs:
           config: container-images/pyspark-slim/build-config.yml
 
       - name: Compose image
-        uses: ./actions/pyspark-slim-builder
+        uses: ./.github/actions/pyspark-slim-builder
         with:
           pyspark_download_url: ${{ steps.build_config.outputs.spark_download_url }}
           pyspark_version: ${{ steps.build_config.outputs.spark_version }}
