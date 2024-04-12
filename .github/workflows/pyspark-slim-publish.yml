@@ -61,9 +61,9 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           build-args: |
-            spark_download_url=${{ steps.build_config.outputs.pyspark_download_url }}
-            spark_version=${{ steps.build_config.outputs.pyspark_version }}
+            spark_download_url=${{ steps.build_config.outputs.spark_download_url }}
+            spark_version=${{ steps.build_config.outputs.spark_version }}
           context: container-images/pyspark-slim
           push: ${{ github.event.pull_request.merged }}
           tags: |
-            ghcr.io/energinet-datahub/pyspark-slim:${{ steps.build_config.outputs.pyspark_version }}-${{ steps.build_config.outputs.image_postfix }}
+            ghcr.io/energinet-datahub/pyspark-slim:${{ steps.build_config.outputs.spark_version }}-${{ steps.build_config.outputs.image_postfix }}
