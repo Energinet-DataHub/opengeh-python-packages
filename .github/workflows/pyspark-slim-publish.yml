@@ -50,6 +50,6 @@ jobs:
       - name: Compose image
         uses: ./actions/pyspark-slim-builder
         with:
-          pySparkDownloadUrl: ${{ steps.build_config.outputs.spark_download_url }}
-          pySparkVersion: ${{ steps.build_config.outputs.spark_version }}
-          imagePostFix: ${{ steps.build_config.outputs.image_postfix }}
+          pyspark_download_url: ${{ steps.build_config.outputs.spark_download_url }}
+          pyspark_version: ${{ steps.build_config.outputs.spark_version }}
+          image_postfix: ${{ steps.build_config.outputs.image_postfix }}

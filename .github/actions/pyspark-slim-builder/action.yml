@@ -1,16 +1,16 @@
 name: PySpark-slim image builder
 description: Builds and optional publish a container image to GitHub Packages
 inputs:
-  pySparkDownloadUrl:
+  pyspark_download_url:
     required: true
     description: url from where pyspark can be downloaded
-  pySparkVersion:
+  pyspark_version:
     required: true
     description: Version of PySpark - becomes part of the image tag
-  imagePostFix:
+  image_postfix:
     required: true
     description: Post for the image tag
-  publishToGitHubPackages:
+  publish_to_github_packages:
     required: false
     default: "false"
     description: if 'true' the image is published to GitHub Packages - default is 'false'
@@ -32,9 +32,9 @@ runs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          spark_download_url=${{ inputs.pySparkDownloadUrl }}
-          spark_version=${{ inputs.pySparkVersion }}
+          spark_download_url=${{ inputs.pyspark_download_url }}
+          spark_version=${{ inputs.pyspark_version }}
         context: container-images/pyspark-slim
-        push: ${{ inputs.publishToGitHubPackages }}
+        push: ${{ inputs.publish_to_github_packages }}
         tags: |
-          ghcr.io/energinet-datahub/pyspark-slim:${{ inputs.pySparkVersion }}-${{ inputs.imagePostFix }}
+          ghcr.io/energinet-datahub/pyspark-slim:${{ inputs.pyspark_version }}-${{ inputs.image_postfix }}
