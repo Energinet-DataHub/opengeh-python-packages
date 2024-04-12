@@ -12,12 +12,12 @@ inputs:
     description: Post for the image tag
   publishToGitHubPackages:
     required: false
-    default: false
+    default: 'false'
     description: if 'true' the image is published to GitHub Packages - default is 'false'
 
-runs: 
+runs:
   using: composite
-  steps:    
+  steps:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -27,7 +27,7 @@ runs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-          
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
