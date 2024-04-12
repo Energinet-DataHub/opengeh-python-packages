@@ -12,7 +12,7 @@ inputs:
     description: Post for the image tag
   publishToGitHubPackages:
     required: false
-    default: 'false'
+    default: "false"
     description: if 'true' the image is published to GitHub Packages - default is 'false'
 
 runs:
