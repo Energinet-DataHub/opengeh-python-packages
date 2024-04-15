@@ -47,6 +47,15 @@ jobs:
         with:
           config: container-images/pyspark-slim/build-config.yml
 
+      - name: Get Pull request info
+        id: pr
+        run: |
+          echo "push_image=TRUE" >> $GITHUB_OUTPUT
+          if [[ "${{ github.event.pull_request.merged }}" == "false" ]]
+          then
+            echo "push_image=FALSE" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -64,6 +73,6 @@ jobs:
             spark_download_url=${{ steps.build_config.outputs.spark_download_url }}
             spark_version=${{ steps.build_config.outputs.spark_version }}
           context: container-images/pyspark-slim
-          push: ${{ github.event.pull_request.merged }}
+          push: ${{ steps.pr.outputs.push_image }}
           tags: |
             ghcr.io/energinet-datahub/pyspark-slim:${{ steps.build_config.outputs.spark_version }}-${{ steps.build_config.outputs.image_postfix }}
