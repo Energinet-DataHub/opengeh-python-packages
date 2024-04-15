@@ -1,18 +1,4 @@
-#! /usr/bin/env python
-# Copyright 2020 Energinet DataHub A/S
-#
-# Licensed under the Apache License, Version 2.0 (the "License2");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+#!/usr/bin/env python3
 # Copyright (c) Jupyter Development Team.
 # Distributed under the terms of the Modified BSD License.
 
@@ -24,6 +10,7 @@ import argparse
 import logging
 import os
 import subprocess
+import urllib.request
 from pathlib import Path
 
 import requests
@@ -64,7 +51,7 @@ def download_spark(
     spark_version: str,
     hadoop_version: str,
     scala_version: str,
-    spark_download_url: Path,
+    spark_download_url: str,
 ) -> str:
     """
     Downloads and unpacks spark
@@ -75,12 +62,12 @@ def download_spark(
     if scala_version:
         spark_dir_name += f"-scala{scala_version}"
     LOGGER.info(f"Spark directory name: {spark_dir_name}")
-    spark_url = spark_download_url / f"spark-{spark_version}" / f"{spark_dir_name}.tgz"
-
+    spark_url = f"{spark_download_url}/spark-{spark_version}/{spark_dir_name}.tgz"
+    
+    LOGGER.info(f"Downloading Spark from {spark_url}")
     tmp_file = Path("/tmp/spark.tar.gz")
-    subprocess.check_call(
-        ["curl", "--progress-bar", "--location", "--output", tmp_file, spark_url]
-    )
+    urllib.request.urlretrieve(spark_url, "/tmp/spark.tar.gz")
+    
     subprocess.check_call(
         [
             "tar",
@@ -121,7 +108,7 @@ if __name__ == "__main__":
     arg_parser.add_argument("--spark-version", required=True)
     arg_parser.add_argument("--hadoop-version", required=True)
     arg_parser.add_argument("--scala-version", required=True)
-    arg_parser.add_argument("--spark-download-url", type=Path, required=True)
+    arg_parser.add_argument("--spark-download-url", type=str, required=True)
     args = arg_parser.parse_args()
 
     args.spark_version = args.spark_version or get_latest_spark_version()
