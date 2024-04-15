@@ -28,8 +28,7 @@ ENV SPARK_HOME=/usr/local/spark
 ENV PATH="${PATH}:${SPARK_HOME}/bin"
 ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info"
 
-COPY setup_spark.py /opt/setup-scripts/
-COPY requirements.txt /opt/setup-scripts/
+COPY setup_spark.py requirements.txt /opt/setup-scripts/
 
 # Setup Spark
 RUN pip install -r /opt/setup-scripts/requirements.txt && \
