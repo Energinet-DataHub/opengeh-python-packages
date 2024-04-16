@@ -11,7 +11,8 @@ ARG openjdk_version="17"
 RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
     "openjdk-${openjdk_version}-jre-headless" \
-    ca-certificates-java && \
+    ca-certificates-java \
+    gcc python3-dev && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # If spark_version is not set, latest stable Spark will be installed
