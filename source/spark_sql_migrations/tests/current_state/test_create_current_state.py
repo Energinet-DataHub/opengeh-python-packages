@@ -37,7 +37,11 @@ def test__get_table_scripts__should_match_schema_config() -> None:
 
 def test__get_view_scripts__should_be_sorted_by_name() -> None:
     # Arrange
-    expected = ["create_view_1", "create_view_2", "create_view_3"]
+    expected = [
+        "create__view_1",
+        "create_view_2",
+        "create_view_3",
+    ]
 
     # Act
     actual = sut._get_view_scripts()
