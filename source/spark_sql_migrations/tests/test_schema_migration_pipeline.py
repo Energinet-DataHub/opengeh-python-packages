@@ -30,7 +30,6 @@ def test_migrate_with_schema_migration_scripts_compare_result_with_schema_config
     sut.migrate()
 
     # Assert
-    actual_schemas = spark.catalog.listDatabases()
     catalog_name = spark.catalog.currentCatalog()
     schemas = spark.sql(f"SHOW SCHEMAS IN {catalog_name}")
     for schema in schemas.collect():

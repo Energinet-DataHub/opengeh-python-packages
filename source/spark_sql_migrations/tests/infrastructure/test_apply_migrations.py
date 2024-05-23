@@ -191,21 +191,21 @@ def test__apply_uncommitted_migrations__when_table_containing_go_in_column_name_
 
     # Assert
     assert spark.catalog.databaseExists("spark_catalog.test_schema")
-    assert spark.catalog.tableExists(f"spark_catalog.test_schema.test_table")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
 
-def test__get_table_versions__should_contai_all_tables(spark: SparkSession) -> None:
+def test__get_table_versions__should_contain_all_tables(spark: SparkSession) -> None:
     # Arrange
     reset_spark_catalog(spark)
-    location = test__get_table_versions__should_contai_all_tables.__name__
+    location = test__get_table_versions__should_contain_all_tables.__name__
 
     for schema in schema_config:
-        spark.sql(f"CREATE SCHEMA IF NOT EXISTS {schema.name} LOCATION '{location}'")
+        spark.sql(f"CREATE SCHEMA IF NOT EXISTS spark_catalog.{schema.name} LOCATION '{location}'")
         for table in schema.tables:
             schema_df = spark.createDataFrame([], schema=table.schema)
             ddl = schema_df._jdf.schema().toDDL()
             spark.sql(
-                f"CREATE TABLE {schema.name}.{table.name} ({ddl}) USING DELTA LOCATION '{location}/{schema.name}/{table.name}'"
+                f"CREATE TABLE spark_catalog.{schema.name}.{table.name} ({ddl}) USING DELTA LOCATION '{location}/{schema.name}/{table.name}'"
             )
 
     # Act

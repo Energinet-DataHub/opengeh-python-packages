@@ -75,7 +75,7 @@ def test__create_all_tables__when_table_is_missing__it_should_create_the_missing
     reset_spark_catalog(spark)
 
     sut.create_all_tables()
-    spark.sql(f"DROP TABLE spark_catalog.test_schema.test_table_2")
+    spark.sql("DROP TABLE spark_catalog.test_schema.test_table_2")
 
     # Act
     sut.create_all_tables()

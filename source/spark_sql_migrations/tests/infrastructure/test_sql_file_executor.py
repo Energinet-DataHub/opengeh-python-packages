@@ -53,7 +53,7 @@ def test__execute__when_multiple_queries__should_create_all_queries(
 
     # Assert
     assert spark.catalog.databaseExists("spark_catalog.test_schema")
-    assert spark.catalog.tableExists(f"spark_catalog.test_schema.test_table")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
 
 def test__execute__when_multiline_query__should_execute_query(
@@ -67,7 +67,7 @@ def test__execute__when_multiline_query__should_execute_query(
     sut.execute(migration_name, script_folder)
 
     # Assert
-    assert spark.catalog.tableExists(f"spark_catalog.test_schema.test_table")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
 
 @pytest.mark.parametrize(
