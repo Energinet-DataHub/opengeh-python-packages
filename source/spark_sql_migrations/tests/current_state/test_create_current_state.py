@@ -1,10 +1,11 @@
 ﻿import pytest
+import tests.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
 import spark_sql_migrations.current_state.create_current_state as sut
-
 from pyspark.sql import SparkSession
 from unittest.mock import Mock
 from tests.helpers.test_schemas import schema_config
 from tests.helpers.spark_helper import reset_spark_catalog
+from spark_sql_migrations.container import create_and_configure_container
 
 
 def test__get_schema_scripts__should_match_schema_config() -> None:
@@ -34,7 +35,25 @@ def test__get_table_scripts__should_match_schema_config() -> None:
     assert len(actual) == len(tables)
 
 
-def test__create_all_tables__should_create_all_tables(spark: SparkSession) -> None:
+def test__get_view_scripts__should_be_sorted_by_name() -> None:
+    # Arrange
+    expected = [
+        "create__view_1",
+        "create_view_2",
+        "create_view_3",
+    ]
+
+    # Act
+    actual = sut._get_view_scripts()
+
+    # Assert
+    assert len(actual) == len(expected)
+    assert actual == expected
+
+
+def test__create_all_tables__should_create_all_tables_and_views(
+    spark: SparkSession,
+) -> None:
     # Arrange
     reset_spark_catalog(spark)
     # Act
