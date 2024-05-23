@@ -214,7 +214,7 @@ def test__get_table_versions__should_contain_all_tables(spark: SparkSession) -> 
     # Assert
     for schema in schema_config:
         for table in schema.tables:
-            table_version = TableVersion(f"{schema.name}.{table.name}", 0)
+            table_version = TableVersion(f"spark_catalog.{schema.name}.{table.name}", 0)
             assert any(
                 table_version.table_name == actual_table_version.table_name
                 and table_version.version == actual_table_version.version

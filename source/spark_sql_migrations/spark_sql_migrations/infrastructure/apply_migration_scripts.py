@@ -46,9 +46,9 @@ def _get_table_versions(
                 if spark.catalog.tableExists(f"{config.catalog_name}.{schema.name}.{table.name}") is False:
                     continue
 
-                version = spark.sql(f"DESCRIBE HISTORY {schema.name}.{table.name}")
+                version = spark.sql(f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}")
                 version_no = version.select(F.max(F.col("version"))).collect()[0][0]
-                table_version = TableVersion(f"{schema.name}.{table.name}", version_no)
+                table_version = TableVersion(f"{config.catalog_name}.{schema.name}.{table.name}", version_no)
                 tables.append(table_version)
 
     return tables
