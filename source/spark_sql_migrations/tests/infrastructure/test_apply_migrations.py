@@ -28,6 +28,7 @@ def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
 
     table_helper.create_schema_and_table(
         spark,
+        configuration.catalog_name,
         configuration.migration_schema_name,
         configuration.migration_table_name,
         schema_migration_schema,
@@ -55,15 +56,15 @@ def test__apply_uncommitted_migrations__it_should_apply_all_scripts(
     sut.apply_migration_scripts(migrations)
 
     # Assert
-    assert spark.catalog.databaseExists("test_schema")
-    assert spark.catalog.tableExists("test_table", "test_schema")
+    assert spark.catalog.databaseExists("spark_catalog.test_schema")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
-    actual = spark.table("test_schema.test_table").collect()[0]
+    actual = spark.table("spark_catalog.test_schema.test_table").collect()[0]
     assert actual.column1 == "test1"
     assert actual.column2 == "test2"
 
     actual = spark.table(
-        f"{configuration.migration_schema_name}.{configuration.migration_table_name}"
+        f"{configuration.catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 2
 
@@ -91,10 +92,10 @@ def test__apply_uncommitted_migrations__when_sql_file_with_error__it_should_roll
         sut.apply_migration_scripts(migrations)
 
     # Assert
-    assert spark.catalog.databaseExists("test_schema") is True
-    assert spark.catalog.tableExists("test_table_fail", "test_schema") is True
+    assert spark.catalog.databaseExists("spark_catalog.test_schema") is True
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table_fail") is True
 
-    cols = spark.table("test_schema.test_table_fail").columns
+    cols = spark.table("spark_catalog.test_schema.test_table_fail").columns
     assert len(cols) == 2
 
 
@@ -121,7 +122,7 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails__it_s
         sut.apply_migration_scripts(migrations)
 
     # Assert
-    history = spark.sql("DESCRIBE HISTORY test_schema.test_table")
+    history = spark.sql("DESCRIBE HISTORY spark_catalog.test_schema.test_table")
     current_version = history.orderBy(F.desc("version")).limit(1)
     assert current_version.select("version").first()[0] == 2
     assert current_version.select("operation").first()[0] == "RESTORE"
@@ -132,7 +133,7 @@ def test__apply_uncommitted_migrations__version_is_bumped(
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
-    current_version = table_helper.get_table_version(spark, "test_schema", "test_table")
+    current_version = table_helper.get_table_version(spark, "spark_catalog", "test_schema", "test_table")
 
     mocker.patch.object(
         sut,
@@ -148,7 +149,7 @@ def test__apply_uncommitted_migrations__version_is_bumped(
     sut.apply_migration_scripts(migrations)
 
     # Assert
-    actual_version = table_helper.get_table_version(spark, "test_schema", "test_table")
+    actual_version = table_helper.get_table_version(spark, "spark_catalog", "test_schema", "test_table")
     assert expected_version == actual_version
 
 
@@ -165,7 +166,7 @@ def test__insert_executed_sql_script__should_insert_row_into_executed_migrations
 
     # Assert
     actual = spark.table(
-        f"{configuration.migration_schema_name}.{configuration.migration_table_name}"
+        f"{configuration.catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 1
     assert actual[0].migration_name == migration_name
@@ -189,8 +190,8 @@ def test__apply_uncommitted_migrations__when_table_containing_go_in_column_name_
     sut.apply_migration_scripts(migrations)
 
     # Assert
-    assert spark.catalog.databaseExists("test_schema")
-    assert spark.catalog.tableExists("test_table", "test_schema")
+    assert spark.catalog.databaseExists("spark_catalog.test_schema")
+    assert spark.catalog.tableExists(f"spark_catalog.test_schema.test_table")
 
 
 def test__get_table_versions__should_contai_all_tables(spark: SparkSession) -> None:

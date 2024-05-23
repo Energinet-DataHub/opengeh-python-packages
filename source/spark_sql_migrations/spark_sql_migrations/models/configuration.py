@@ -23,6 +23,7 @@ class Configuration:
             spark_sql_migrations_configuration.migration_table_location
         )
         self.table_prefix = spark_sql_migrations_configuration.table_prefix
+        self.catalog_name = spark_sql_migrations_configuration.catalog_name
         self.current_state_schemas_folder_path = (
             spark_sql_migrations_configuration.current_state_schemas_folder_path
         )

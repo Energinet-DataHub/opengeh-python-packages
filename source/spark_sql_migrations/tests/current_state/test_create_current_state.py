@@ -37,17 +37,16 @@ def test__get_table_scripts__should_match_schema_config() -> None:
 def test__create_all_tables__should_create_all_tables(spark: SparkSession) -> None:
     # Arrange
     reset_spark_catalog(spark)
-
     # Act
     sut.create_all_tables()
 
     # Assert
     for schema in schema_config:
         for table in schema.tables:
-            assert spark.catalog.tableExists(table.name, schema.name)
+            assert spark.catalog.tableExists(f"spark_catalog.{schema.name}.{table.name}")
 
         for view in schema.views:
-            assert spark.catalog.tableExists(view.name, schema.name)
+            assert spark.catalog.tableExists(f"spark_catalog.{schema.name}.{view.name}")
 
 
 def test__create_all_tables__when_table_is_missing__it_should_create_the_missing_tables(
@@ -57,7 +56,7 @@ def test__create_all_tables__when_table_is_missing__it_should_create_the_missing
     reset_spark_catalog(spark)
 
     sut.create_all_tables()
-    spark.sql("DROP TABLE test_schema.test_table_2")
+    spark.sql(f"DROP TABLE spark_catalog.test_schema.test_table_2")
 
     # Act
     sut.create_all_tables()
@@ -65,7 +64,7 @@ def test__create_all_tables__when_table_is_missing__it_should_create_the_missing
     # Assert
     for schema in schema_config:
         for table in schema.tables:
-            assert spark.catalog.tableExists(table.name, schema.name)
+            assert spark.catalog.tableExists(f"spark_catalog.{schema.name}.{table.name}")
 
 
 def test__create_all_table__when_an_error_occurs__it_should_throw_an_exception(

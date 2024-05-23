@@ -44,9 +44,9 @@ def _get_tables(
     tables = []
 
     for schema in config.schema_config:
-        if spark.catalog.databaseExists(schema.name) is True:
+        if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
             for table in schema.tables:
-                table_name = f"{schema.name}.{table.name}"
+                table_name = f"{config.catalog_name}.{schema.name}.{table.name}"
                 if spark.catalog.tableExists(table_name):
                     tables.append(table_name)
 
@@ -59,10 +59,9 @@ def _get_missing_tables(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     missing_tables = []
-
     for schema in config.schema_config:
         for table in schema.tables:
-            table_name = f"{schema.name}.{table.name}"
+            table_name = f"{config.catalog_name}.{schema.name}.{table.name}"
             if spark.catalog.tableExists(table_name) is False:
                 missing_tables.append(table_name)
 

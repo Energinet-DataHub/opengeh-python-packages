@@ -29,19 +29,23 @@ def test_migrate_with_schema_migration_scripts_compare_result_with_schema_config
     # Act
     sut.migrate()
 
-    # Assert5
+    # Assert
     actual_schemas = spark.catalog.listDatabases()
-    for db in actual_schemas:
-        if db.name == "default" or db.name == "schema_migration":
+    catalog_name = spark.catalog.currentCatalog()
+    schemas = spark.sql(f"SHOW SCHEMAS IN {catalog_name}")
+    for schema in schemas.collect():
+        schema_name = schema["namespace"]
+        if schema_name == "default" or schema_name == "schema_migration":
             continue
 
-        actual_schema = next((x for x in schema_config if x.name == db.name), None)
-        assert actual_schema is not None, f"Schema {db.name} is not in the schema config"
-        tables = spark.catalog.listTables(db.name)
-        for table in tables:
-            table_config = next((x for x in actual_schema.tables if x.name == table.name), None)
-            assert table_config is not None, f"Table {table.name} is not in the schema config"
-            actual_table = spark.table(f"{db.name}.{table.name}")
+        actual_schema = next((x for x in schema_config if x.name == schema_name), None)
+        assert actual_schema is not None, f"Schema {schema_name} is not in the schema config"
+        tables = spark.sql(f"SHOW TABLES IN {catalog_name}.{schema_name}")
+        for table in tables.collect():
+            table_name = table["tableName"]
+            actual_table = spark.table(f"{catalog_name}.{schema_name}.{table_name}")
+            table_config = next((x for x in actual_schema.tables if x.name == table_name), None)
+            assert table_config is not None, f"Table {table_name} is not in the schema config"
             assert actual_table.schema == table_config.schema
 
 

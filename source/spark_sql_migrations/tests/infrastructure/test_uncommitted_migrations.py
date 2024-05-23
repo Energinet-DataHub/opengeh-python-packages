@@ -34,7 +34,7 @@ def test__get_committed_migrations__when_no_table_exists__create_schema_migratio
 
     # Assert
     assert spark.catalog.tableExists(
-        SchemaMigrationConstants.table_name, SchemaMigrationConstants.schema_name
+        f"{SchemaMigrationConstants.catalog_name}.{SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}"
     )
 
 
@@ -45,13 +45,14 @@ def test__get_committed_migration__when_table_exists__returns_rows(
     reset_spark_catalog(spark)
     table_helper.create_schema_and_table(
         spark,
+        SchemaMigrationConstants.catalog_name,
         SchemaMigrationConstants.schema_name,
         SchemaMigrationConstants.table_name,
         schema_migration_schema,
     )
 
     spark.sql(
-        f"""INSERT INTO {SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}
+        f"""INSERT INTO {SchemaMigrationConstants.catalog_name}.{SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}
         VALUES ('test_script', current_timestamp())"""
     )
 
@@ -164,5 +165,5 @@ def test__create_schema_migration_table__when_table_does_not_exist__create_schem
 
     # Assert
     assert spark.catalog.tableExists(
-        SchemaMigrationConstants.table_name, SchemaMigrationConstants.schema_name
+        f"{SchemaMigrationConstants.catalog_name}.{SchemaMigrationConstants.schema_name}.{SchemaMigrationConstants.table_name}"
     )

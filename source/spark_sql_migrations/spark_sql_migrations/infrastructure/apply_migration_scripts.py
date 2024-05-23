@@ -41,9 +41,9 @@ def _get_table_versions(
 ) -> list[TableVersion]:
     tables = []
     for schema in config.schema_config:
-        if spark.catalog.databaseExists(schema.name) is True:
+        if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
             for table in schema.tables:
-                if spark.catalog.tableExists(table.name, schema.name) is False:
+                if spark.catalog.tableExists(f"{config.catalog_name}.{schema.name}.{table.name}") is False:
                     continue
 
                 version = spark.sql(f"DESCRIBE HISTORY {schema.name}.{table.name}")
