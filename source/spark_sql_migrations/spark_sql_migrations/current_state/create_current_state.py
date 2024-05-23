@@ -67,8 +67,10 @@ def _get_view_scripts(
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> list[str]:
     view_script_files = contents(config.current_state_views_folder_path)
-    return [
+    script_files = [
         view_script_file.removesuffix(".sql")
         for view_script_file in view_script_files
         if view_script_file.endswith(".sql")
     ]
+    script_files.sort()
+    return script_files
