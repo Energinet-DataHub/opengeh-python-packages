@@ -45,7 +45,6 @@ schema_config = [
 substitutions = {"{location}": "some_location"}
 
 spark_config = SparkSqlMigrationsConfiguration(
-    catalog="spark_catalog",
     migration_schema_name="schema_name",
     migration_schema_location="schema_location",
     migration_table_name="table_name",
@@ -57,6 +56,7 @@ spark_config = SparkSqlMigrationsConfiguration(
     current_state_views_folder_path="current_state_views_folder_path",
     schema_config=schema_config,
     substitution_variables=substitutions,
+    catalog_name="spark_catalog",
 )
 
 create_and_configure_container(spark_config)
