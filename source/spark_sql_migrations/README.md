@@ -45,6 +45,7 @@ schema_config = [
 substitutions = {"{location}": "some_location"}
 
 spark_config = SparkSqlMigrationsConfiguration(
+    catalog="spark_catalog",
     migration_schema_name="schema_name",
     migration_schema_location="schema_location",
     migration_table_name="table_name",
