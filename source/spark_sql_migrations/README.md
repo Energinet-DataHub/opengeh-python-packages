@@ -56,6 +56,7 @@ spark_config = SparkSqlMigrationsConfiguration(
     current_state_views_folder_path="current_state_views_folder_path",
     schema_config=schema_config,
     substitution_variables=substitutions,
+    unity_catalog_enabled=False,
     catalog_name="spark_catalog",
 )
 
@@ -116,6 +117,8 @@ schemas and tables that are part of the `current step`:
 
 The `current step` is executed when there are missing schemas or tables in the Catalog, based on the `schema_config` field in the
 `SparkSqlMigrationsConfiguration` class.
+
+The current state process only applies for workspaces using hive metastore and not unity catalog.
 
 ## SQL Script format
 

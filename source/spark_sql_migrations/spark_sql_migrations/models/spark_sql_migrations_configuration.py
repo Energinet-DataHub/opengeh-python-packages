@@ -25,5 +25,7 @@ class SparkSqlMigrationsConfiguration:
     """The substitution variables. These are used to replace variables in the migration scripts"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
+    unity_catalog_enabled: bool = False
+    """(Optional) A flag to indicate if the Unity Catalog is enabled"""
     catalog_name: str = ""
     """The name of the catalog"""
