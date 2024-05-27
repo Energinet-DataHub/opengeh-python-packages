@@ -10,6 +10,7 @@ class Configuration:
         self.migration_scripts_folder_path = (
             spark_sql_migrations_configuration.migration_scripts_folder_path
         )
+        self.unity_catalog_enabled = spark_sql_migrations_configuration.unity_catalog_enabled
         self.catalog_name = spark_sql_migrations_configuration.catalog_name
         self.migration_schema_name = (
             spark_sql_migrations_configuration.migration_schema_name

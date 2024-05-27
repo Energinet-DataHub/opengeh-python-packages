@@ -14,6 +14,10 @@ def _create_all_tables(
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
     """Executes schema, table and view scripts to create all tables"""
+
+    if config.unity_catalog_enabled:
+        return
+
     print("Creating all tables")
 
     schema_scripts = _get_schema_scripts()
