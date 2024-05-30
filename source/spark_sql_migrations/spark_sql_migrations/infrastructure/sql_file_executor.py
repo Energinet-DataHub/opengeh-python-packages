@@ -26,7 +26,7 @@ def _execute(
             query = _substitute_placeholders(query)
             spark.sql(query)
     except Exception as exception:
-        print(f"Unity catalog: {config.catalog_name} is enabled = {config.unity_catalog_enabled}")
+        print(f"Unity catalog is enabled = {config.unity_catalog_enabled}")
         print(f"SQL file '{sql_file_name}.sql' failed with exception: {exception}")
         raise exception
 

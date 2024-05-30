@@ -52,23 +52,14 @@ def _create_schema_migration_table(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
-    if config.unity_catalog_enabled:
-        delta_table_helper.create_table_from_schema(
+    if not config.unity_catalog_enabled:
+        delta_table_helper.create_schema(
             spark,
             config.catalog_name,
             schema_name,
-            table_name,
-            schema_migration_schema,
+            "Contains executed SQL migration_scripts",
+            config.migration_schema_location
         )
-        return
-
-    delta_table_helper.create_schema(
-        spark,
-        config.catalog_name,
-        schema_name,
-        "Contains executed SQL migration_scripts",
-        config.migration_schema_location
-    )
 
     delta_table_helper.create_table_from_schema(
         spark,
