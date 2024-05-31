@@ -10,6 +10,8 @@ substitution_variables = {"substitution_variables": "substitution_variables"}
 
 
 def build(
+    unity_catalog_enabled: bool = False,
+    catalog_name: str = SchemaMigrationConstants.catalog_name,
     current_state_schemas_folder_path: str = "tests.test_scripts.schema_scripts",
     current_state_tables_folder_path: str = "tests.test_scripts.table_scripts",
     current_state_views_folder_path: str = "tests.test_scripts.view_scripts",
@@ -17,7 +19,6 @@ def build(
     migration_schema_name: str = SchemaMigrationConstants.schema_name,
     migration_table_name: str = SchemaMigrationConstants.table_name,
     table_prefix: str = "",
-    catalog_name: str = SchemaMigrationConstants.catalog_name,
     migration_schema_location: str = "schema_migration",
     migration_table_location: str = "schema_migration",
     schema_config: list[Schema] | None = None,
@@ -30,6 +31,8 @@ def build(
         substitutions = substitution_variables
 
     return SparkSqlMigrationsConfiguration(
+        unity_catalog_enabled=unity_catalog_enabled,
+        catalog_name=catalog_name,
         current_state_schemas_folder_path=current_state_schemas_folder_path,
         current_state_tables_folder_path=current_state_tables_folder_path,
         current_state_views_folder_path=current_state_views_folder_path,
@@ -37,9 +40,9 @@ def build(
         migration_schema_name=migration_schema_name,
         migration_table_name=migration_table_name,
         table_prefix=table_prefix,
-        catalog_name=catalog_name,
         migration_schema_location=migration_schema_location,
         migration_table_location=migration_table_location,
         schema_config=schema_config,
         substitution_variables=substitutions,
+
     )

@@ -52,6 +52,7 @@ def _create_schema_migration_table(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
+
     if not config.unity_catalog_enabled:
         delta_table_helper.create_schema(
             spark,
