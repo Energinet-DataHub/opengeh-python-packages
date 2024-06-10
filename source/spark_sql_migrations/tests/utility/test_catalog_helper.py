@@ -5,17 +5,18 @@ from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
 
 
 @pytest.mark.parametrize(
-    "count, expected",
+    "count, unity_enabled, expected",
     [
-        (1, True),
-        (0, False)
+        (1, True, True),
+        (0, True, False),
+        (1, False, False),
+        (0, False, False)
     ]
 )
-def test__is_a_unity_catalog(spark: SparkSession, count: int, expected: bool):
+def test__is_a_unity_catalog(spark: SparkSession, count: int, unity_enabled: bool, expected: bool):
     # Arrange
-    mock_result = spark.createDataFrame([(count,)], ["count"])
-    spark.sql = lambda _: mock_result
-    spark.catalog.databaseExists = lambda _: True
+    spark.catalog.databaseExists = lambda _: unity_enabled
+    spark.sql = lambda _: spark.createDataFrame([(count,)], ["count"])
 
     # Act
     result = is_unity_catalog(spark, "test_catalog")
