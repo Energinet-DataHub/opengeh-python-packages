@@ -15,6 +15,7 @@ def test__is_a_unity_catalog(spark: SparkSession, count: int, expected: bool):
     # Arrange
     mock_result = spark.createDataFrame([(count,)], ["count"])
     spark.sql = lambda _: mock_result
+    spark.catalog.databaseExists = lambda _: True
 
     # Act
     result = is_unity_catalog(spark, "test_catalog")
