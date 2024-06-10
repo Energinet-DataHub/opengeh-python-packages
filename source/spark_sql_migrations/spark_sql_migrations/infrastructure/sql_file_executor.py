@@ -14,7 +14,6 @@ def _execute(
     sql_file_name: str,
     folder_path: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
-    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
     print(f"Executing SQL file '{sql_file_name}.sql'")
     sql_content = resources.read_text(folder_path, f"{sql_file_name}.sql")
@@ -26,7 +25,6 @@ def _execute(
             query = _substitute_placeholders(query)
             spark.sql(query)
     except Exception as exception:
-        print(f"Unity catalog is enabled = {config.unity_catalog_enabled}")
         print(f"SQL file '{sql_file_name}.sql' failed with exception: {exception}")
         raise exception
 

@@ -26,7 +26,7 @@ def get_all_migration_scripts() -> list[str]:
 def _get_all_migration_scripts(
         config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> list[str]:
-    print (f"script_folder_path {config.migration_scripts_folder_path}")
+    print(f"script_folder_path {config.migration_scripts_folder_path}")
     migration_files = list(contents(config.migration_scripts_folder_path))
 
     migration_files.sort()
