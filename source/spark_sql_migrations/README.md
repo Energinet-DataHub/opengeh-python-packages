@@ -56,7 +56,6 @@ spark_config = SparkSqlMigrationsConfiguration(
     current_state_views_folder_path="current_state_views_folder_path",
     schema_config=schema_config,
     substitution_variables=substitutions,
-    unity_catalog_enabled=False,
     catalog_name="spark_catalog",
 )
 

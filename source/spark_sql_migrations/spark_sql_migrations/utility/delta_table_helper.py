@@ -4,6 +4,7 @@ from pyspark.sql.types import StructType
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.models.table_version import TableVersion
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
+from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
 
 
 def delta_table_exists(spark: SparkSession, catalog_name: str, schema_name: str, table_name: str) -> bool:
@@ -13,6 +14,11 @@ def delta_table_exists(spark: SparkSession, catalog_name: str, schema_name: str,
 def create_schema(
     spark: SparkSession, catalog_name: str, schema_name: str, comment: str = "", location: str = ""
 ) -> None:
+
+    if is_unity_catalog(spark, catalog_name):
+        # Schema creation for unity catalogs is created in infrastructure
+        return
+
     sql_command = f"CREATE SCHEMA IF NOT EXISTS {catalog_name}.{schema_name}"
 
     if comment:
