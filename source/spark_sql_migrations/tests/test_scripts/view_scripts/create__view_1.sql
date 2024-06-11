@@ -1,3 +1,3 @@
 CREATE VIEW IF NOT EXISTS
-test_schema.test_view as
-select * from test_schema.test_table
+spark_catalog.test_schema.test_view as
+select * from spark_catalog.test_schema.test_table

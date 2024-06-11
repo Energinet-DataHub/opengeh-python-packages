@@ -24,8 +24,9 @@ def get_all_migration_scripts() -> list[str]:
 
 @inject
 def _get_all_migration_scripts(
-        config: str = Provide[SparkSqlMigrationsContainer.config],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> list[str]:
+    print(f"script_folder_path {config.migration_scripts_folder_path}")
     migration_files = list(contents(config.migration_scripts_folder_path))
 
     migration_files.sort()
@@ -38,7 +39,7 @@ def _get_committed_migration_scripts(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     table_name = f"{config.table_prefix}{config.migration_table_name}"
-    if not delta_table_helper.delta_table_exists(spark, config.migration_schema_name, table_name):
+    if not delta_table_helper.delta_table_exists(spark, config.catalog_name, config.migration_schema_name, table_name):
         _create_schema_migration_table(config.migration_schema_name, table_name)
 
     schema_table = spark.table(f"{config.migration_schema_name}.{table_name}")
@@ -52,12 +53,18 @@ def _create_schema_migration_table(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
+
     delta_table_helper.create_schema(
-        spark, schema_name, "Contains executed SQL migration_scripts", config.migration_schema_location
+        spark,
+        config.catalog_name,
+        schema_name,
+        "Contains executed SQL migration_scripts",
+        config.migration_schema_location
     )
 
     delta_table_helper.create_table_from_schema(
         spark,
+        config.catalog_name,
         schema_name,
         table_name,
         schema_migration_schema,

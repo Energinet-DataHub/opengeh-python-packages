@@ -38,7 +38,7 @@ def test__execute__should_creates_schema(spark: SparkSession) -> None:
     sut.execute(migration_name, script_folder)
 
     # Assert
-    assert spark.catalog.databaseExists("test_schema")
+    assert spark.catalog.databaseExists("spark_catalog.test_schema")
 
 
 def test__execute__when_multiple_queries__should_create_all_queries(
@@ -52,8 +52,8 @@ def test__execute__when_multiple_queries__should_create_all_queries(
     sut.execute(migration_name, script_folder)
 
     # Assert
-    assert spark.catalog.databaseExists("test_schema")
-    assert spark.catalog.tableExists("test_table", "test_schema")
+    assert spark.catalog.databaseExists("spark_catalog.test_schema")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
 
 def test__execute__when_multiline_query__should_execute_query(
@@ -67,7 +67,7 @@ def test__execute__when_multiline_query__should_execute_query(
     sut.execute(migration_name, script_folder)
 
     # Assert
-    assert spark.catalog.tableExists("test_table", "test_schema")
+    assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
 
 
 @pytest.mark.parametrize(
@@ -88,7 +88,7 @@ def test__substitute_placeholders__should_replace_placeholders_in_query(
 ) -> None:
     # Arrange
     _test_configuration()
-    sql = f"CREATE SCHEMA IF NOT EXISTS test_schema LOCATION {placeholder}"
+    sql = f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
 
     # Act
     query = sut._substitute_placeholders(sql)

@@ -41,14 +41,14 @@ def _get_table_versions(
 ) -> list[TableVersion]:
     tables = []
     for schema in config.schema_config:
-        if spark.catalog.databaseExists(schema.name) is True:
+        if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
             for table in schema.tables:
-                if spark.catalog.tableExists(table.name, schema.name) is False:
+                if spark.catalog.tableExists(f"{config.catalog_name}.{schema.name}.{table.name}") is False:
                     continue
 
-                version = spark.sql(f"DESCRIBE HISTORY {schema.name}.{table.name}")
+                version = spark.sql(f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}")
                 version_no = version.select(F.max(F.col("version"))).collect()[0][0]
-                table_version = TableVersion(f"{schema.name}.{table.name}", version_no)
+                table_version = TableVersion(f"{config.catalog_name}.{schema.name}.{table.name}", version_no)
                 tables.append(table_version)
 
     return tables
@@ -62,7 +62,7 @@ def _insert_executed_sql_script(
 ) -> None:
     table_name = f"{config.table_prefix}{config.migration_table_name}"
     sql_query = f"""
-        INSERT INTO {config.migration_schema_name}.{table_name}
+        INSERT INTO {config.catalog_name}.{config.migration_schema_name}.{table_name}
         VALUES ('{migration_name}', current_timestamp())
     """
     spark.sql(sql_query)

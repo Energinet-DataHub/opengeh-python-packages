@@ -4,16 +4,22 @@ from pyspark.sql.types import StructType
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.models.table_version import TableVersion
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
+from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
 
 
-def delta_table_exists(spark: SparkSession, schema_name: str, table_name: str) -> bool:
-    return spark.catalog.tableExists(table_name, schema_name)
+def delta_table_exists(spark: SparkSession, catalog_name: str, schema_name: str, table_name: str) -> bool:
+    return spark.catalog.tableExists(f"{catalog_name}.{schema_name}.{table_name}")
 
 
 def create_schema(
-    spark: SparkSession, schema_name: str, comment: str = "", location: str = ""
+    spark: SparkSession, catalog_name: str, schema_name: str, comment: str = "", location: str = ""
 ) -> None:
-    sql_command = f"CREATE SCHEMA IF NOT EXISTS {schema_name}"
+
+    if is_unity_catalog(spark, catalog_name):
+        # Schema creation for unity catalogs is created in infrastructure
+        return
+
+    sql_command = f"CREATE SCHEMA IF NOT EXISTS {catalog_name}.{schema_name}"
 
     if comment:
         sql_command += f" COMMENT '{comment}'"
@@ -25,7 +31,8 @@ def create_schema(
 
 def create_table_from_schema(
     spark: SparkSession,
-    database: str,
+    catalog_name: str,
+    schema_name: str,
     table_name: str,
     schema: StructType,
     optimize: bool = False,
@@ -37,7 +44,7 @@ def create_table_from_schema(
     schema_df = spark.createDataFrame([], schema=schema)
     ddl = schema_df._jdf.schema().toDDL()
 
-    sql_command = f"CREATE TABLE IF NOT EXISTS {database}.{table_name} ({ddl}) USING DELTA"
+    sql_command = f"CREATE TABLE IF NOT EXISTS {catalog_name}.{schema_name}.{table_name} ({ddl}) USING DELTA"
 
     if partition_columns:
         partition_columns_str = ", ".join(partition_columns)

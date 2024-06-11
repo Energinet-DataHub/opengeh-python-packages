@@ -1,8 +1,11 @@
-﻿import spark_sql_migrations.infrastructure.sql_file_executor as sql_file_executor
+﻿from pyspark.sql import SparkSession
+
+import spark_sql_migrations.infrastructure.sql_file_executor as sql_file_executor
 from importlib.resources import contents
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from spark_sql_migrations.models.configuration import Configuration
+from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
 
 
 def create_all_tables() -> None:
@@ -11,9 +14,15 @@ def create_all_tables() -> None:
 
 @inject
 def _create_all_tables(
-    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+        spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
+        config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
     """Executes schema, table and view scripts to create all tables"""
+
+    if is_unity_catalog(spark, config.catalog_name):
+        # Creating metadata from current state is not applicable for unity catalogs
+        return
+
     print("Creating all tables")
 
     schema_scripts = _get_schema_scripts()
