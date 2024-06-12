@@ -42,7 +42,7 @@ def _get_committed_migration_scripts(
     if not delta_table_helper.delta_table_exists(spark, config.catalog_name, config.migration_schema_name, table_name):
         _create_schema_migration_table(config.migration_schema_name, table_name)
 
-    schema_table = spark.table(f"{config.migration_schema_name}.{table_name}")
+    schema_table = spark.table(f"{config.catalog_name}.{config.migration_schema_name}.{table_name}")
     return [row.migration_name for row in schema_table.select(ColNames.migration_name).collect()]
 
 
