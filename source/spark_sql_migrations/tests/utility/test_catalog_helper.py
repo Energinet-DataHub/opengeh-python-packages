@@ -13,10 +13,11 @@ from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
         (0, False, False)
     ]
 )
-def test__is_a_unity_catalog(spark: SparkSession, count: int, unity_enabled: bool, expected: bool):
+def test__is_a_unity_catalog(spark: SparkSession, mocker: Mock, count: int, unity_enabled: bool, expected: bool):
     # Arrange
-    spark.catalog.databaseExists = lambda _: unity_enabled
-    spark.sql = lambda _: spark.createDataFrame([(count,)], ["count"])
+
+    mocker.patch.object(spark.catalog, "databaseExists", return_value=unity_enabled)
+    mocker.patch.object(spark, "sql", return_value=spark.createDataFrame([(count,)], ["count"]))
 
     # Act
     result = is_unity_catalog(spark, "test_catalog")
