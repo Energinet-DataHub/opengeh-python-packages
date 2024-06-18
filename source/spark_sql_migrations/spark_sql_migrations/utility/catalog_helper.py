@@ -10,5 +10,5 @@ def is_unity_catalog(
         return False
 
     result = spark.sql(f'SELECT count(*) AS count FROM system.information_schema.catalogs'
-                       f' WHERE catalog_name = "{catalog_name}"').result.collect()[0][0]
+                       f' WHERE catalog_name = "{catalog_name}"').collect()[0][0]
     return result > 0
