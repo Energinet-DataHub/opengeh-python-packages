@@ -42,12 +42,15 @@ def _get_tables(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[str]:
     tables = []
-
+    print(f"Schema config: {config.schema_config}")
     for schema in config.schema_config:
+        print(f"schema: {config.catalog_name}.{schema.name}")
         if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
             for table in schema.tables:
+                print(f"table: {config.catalog_name}.{schema.name}.{table.name}")
                 table_name = f"{config.catalog_name}.{schema.name}.{table.name}"
                 if spark.catalog.tableExists(table_name):
+                    print(f"table: {config.catalog_name}.{schema.name}.{table.name} exists")
                     tables.append(table_name)
 
     return tables
