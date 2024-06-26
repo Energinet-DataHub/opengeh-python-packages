@@ -11,7 +11,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pyspark==3.5.1",
-        "delta-spark==3.1.0",
+        "delta-spark>=3.1,<4.0",
         "dependency_injector==4.41.0",
     ],
 )
