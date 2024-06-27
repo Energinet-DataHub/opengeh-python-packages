@@ -7,4 +7,4 @@ def is_unity_catalog(
         spark: SparkSession,
         catalog_name: str,
 ) -> bool:
-    return catalog_name.lower() != Catalog.hive_metastore()
+    return catalog_name.lower() not in Catalog.hive_metastores

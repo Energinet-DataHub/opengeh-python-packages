@@ -27,5 +27,5 @@ class SparkSqlMigrationsConfiguration:
     """The substitution variables. These are used to replace variables in the migration scripts"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
-    catalog_name: str = Catalog.hive_metastore
+    catalog_name: str = Catalog.default_hive_metastore
     """(Optional) The name of the catalog"""
