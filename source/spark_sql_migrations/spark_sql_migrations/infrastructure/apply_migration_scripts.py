@@ -40,16 +40,17 @@ def _get_table_versions(
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> list[TableVersion]:
     tables = []
-    for schema in config.schema_config:
-        if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
-            for table in schema.tables:
-                if spark.catalog.tableExists(f"{config.catalog_name}.{schema.name}.{table.name}") is False:
-                    continue
+    for catalog in config.schema_config:
+        for schema in catalog.schemas:
+            if spark.catalog.databaseExists(f"{catalog.name}.{schema.name}") is True:
+                for table in schema.tables:
+                    if spark.catalog.tableExists(f"{catalog.name}.{schema.name}.{table.name}") is False:
+                        continue
 
-                version = spark.sql(f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}")
-                version_no = version.select(F.max(F.col("version"))).collect()[0][0]
-                table_version = TableVersion(f"{config.catalog_name}.{schema.name}.{table.name}", version_no)
-                tables.append(table_version)
+                    version = spark.sql(f"DESCRIBE HISTORY {catalog.name}.{schema.name}.{table.name}")
+                    version_no = version.select(F.max(F.col("version"))).collect()[0][0]
+                    table_version = TableVersion(f"{catalog.name}.{schema.name}.{table.name}", version_no)
+                    tables.append(table_version)
 
     return tables
 

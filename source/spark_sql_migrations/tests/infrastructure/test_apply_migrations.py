@@ -28,7 +28,7 @@ def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
 
     table_helper.create_schema_and_table(
         spark,
-        configuration.catalog_name,
+        configuration.migration_catalog_name,
         configuration.migration_schema_name,
         configuration.migration_table_name,
         schema_migration_schema,
@@ -64,7 +64,7 @@ def test__apply_uncommitted_migrations__it_should_apply_all_scripts(
     assert actual.column2 == "test2"
 
     actual = spark.table(
-        f"{configuration.catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
+        f"{configuration.migration_catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 2
 
@@ -166,7 +166,7 @@ def test__insert_executed_sql_script__should_insert_row_into_executed_migrations
 
     # Assert
     actual = spark.table(
-        f"{configuration.catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
+        f"{configuration.migration_catalog_name}.{configuration.migration_schema_name}.{configuration.migration_table_name}"
     ).collect()
     assert len(actual) == 1
     assert actual[0].migration_name == migration_name

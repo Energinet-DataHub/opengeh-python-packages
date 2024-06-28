@@ -39,7 +39,7 @@ def _get_committed_migration_scripts(
 ) -> list[str]:
     table_name = f"{config.table_prefix}{config.migration_table_name}"
     if not delta_table_helper.delta_table_exists(spark, config.catalog_name, config.migration_schema_name, table_name):
-        _create_schema_migration_table(config.migration_schema_name, table_name)
+        _create_schema_migration_table(config.migration_catalog_name, config.migration_schema_name, table_name)
 
     schema_table = spark.table(f"{config.catalog_name}.{config.migration_schema_name}.{table_name}")
     return [row.migration_name for row in schema_table.select(ColNames.migration_name).collect()]
@@ -47,6 +47,7 @@ def _get_committed_migration_scripts(
 
 @inject
 def _create_schema_migration_table(
+    catalog_name: str,
     schema_name: str,
     table_name: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
@@ -55,7 +56,7 @@ def _create_schema_migration_table(
 
     delta_table_helper.create_schema(
         spark,
-        config.catalog_name,
+        catalog_name,
         schema_name,
         "Contains executed SQL migration_scripts",
         config.migration_schema_location
