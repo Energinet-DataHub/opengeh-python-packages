@@ -63,7 +63,7 @@ def _insert_executed_sql_script(
 ) -> None:
     table_name = f"{config.table_prefix}{config.migration_table_name}"
     sql_query = f"""
-        INSERT INTO {config.catalog_name}.{config.migration_schema_name}.{table_name}
+        INSERT INTO {config.migration_catalog_name}.{config.migration_schema_name}.{table_name}
         VALUES ('{migration_name}', current_timestamp())
     """
     spark.sql(sql_query)
