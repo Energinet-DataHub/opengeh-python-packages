@@ -30,11 +30,11 @@ def build(
         substitutions = substitution_variables
 
     return SparkSqlMigrationsConfiguration(
-        catalog_name=catalog_name,
         current_state_schemas_folder_path=current_state_schemas_folder_path,
         current_state_tables_folder_path=current_state_tables_folder_path,
         current_state_views_folder_path=current_state_views_folder_path,
         migration_scripts_folder_path=migration_scripts_folder_path,
+        migration_catalog_name=catalog_name,
         migration_schema_name=migration_schema_name,
         migration_table_name=migration_table_name,
         table_prefix=table_prefix,
@@ -42,5 +42,4 @@ def build(
         migration_table_location=migration_table_location,
         schema_config=schema_config,
         substitution_variables=substitutions,
-
     )
