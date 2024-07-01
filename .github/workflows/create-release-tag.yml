@@ -15,13 +15,13 @@ jobs:
           private_key: ${{ secrets.dh3serviceaccount_privatekey }}
 
       - name: Create release
-        uses: Energinet-DataHub/.github/.github/actions/create-release-tag@v13
+        uses: Energinet-DataHub/.github/.github/actions/create-release-tag@v14
         with:
           # BE AWARE --> Updating to a new MAJOR version will delete deprecated versions on a nightly schedule.
           # See https://github.com/Energinet-DataHub/.github#release-procedure for details
           major_version: 1
           minor_version: 7
-          patch_version: 5
+          patch_version: 6
           repository_path: Energinet-DataHub/opengeh-python-packages
         env:
           GH_TOKEN: ${{ steps.generate_token.outputs.token }}
