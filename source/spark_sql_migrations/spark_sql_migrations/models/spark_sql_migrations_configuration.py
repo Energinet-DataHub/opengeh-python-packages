@@ -23,7 +23,7 @@ class SparkSqlMigrationsConfiguration:
     """The location of the schema that contains the migration table"""
     migration_table_location: str = ""
     """The location of the table that contains the migration scripts"""
-    current_state_schemas_folder_path: str =""
+    current_state_schemas_folder_path: str = ""
     """The folder path to the schema files"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
