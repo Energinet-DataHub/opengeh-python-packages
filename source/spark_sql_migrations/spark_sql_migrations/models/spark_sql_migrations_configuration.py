@@ -20,11 +20,11 @@ class SparkSqlMigrationsConfiguration:
     substitution_variables: dict[str, str]
     """The substitution variables. These are used to replace variables in the migration scripts"""
     migration_schema_location: str = ""
-    """The location of the schema that contains the migration table"""
+    """(Optional) The location of the schema that contains the migration table"""
     migration_table_location: str = ""
-    """The location of the table that contains the migration scripts"""
+    """(Optional) The location of the table that contains the migration scripts"""
     current_state_schemas_folder_path: str = ""
-    """The folder path to the schema files"""
+    """(Optional) The folder path to the schema files"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
     catalog_name: str = Catalog.default_hive_metastore
