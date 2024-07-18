@@ -117,8 +117,6 @@ schemas and tables that are part of the `current step`:
 The `current step` is executed when there are missing schemas or tables in the Catalog, based on the `schema_config` field in the
 `SparkSqlMigrationsConfiguration` class.
 
-The current state process only applies for workspaces using hive metastore and not unity catalog.
-
 ## SQL Script format
 
 When creating SQL scripts for the Schema Migration functionality, it is crucial to adhere to a specific format to ensure consistency, readability, and proper execution. Below are the guidelines for the SQL script format:
