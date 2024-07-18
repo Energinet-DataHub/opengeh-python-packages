@@ -1,5 +1,4 @@
 import pytest
-from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from spark_sql_migrations.utility.catalog_helper import is_unity_catalog
 

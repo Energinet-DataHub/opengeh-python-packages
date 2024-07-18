@@ -42,5 +42,4 @@ def build(
         migration_table_location=migration_table_location,
         schema_config=schema_config,
         substitution_variables=substitutions,
-
     )
