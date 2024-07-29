@@ -55,16 +55,18 @@ def test_migrate_with_schema_migration_scripts_compare_result_with_schema_config
         assert (
             actual_schema is not None
         ), f"Schema {schema_name} is not in the schema config"
-        tables = spark.sql(f"SHOW TABLES IN {catalog_name}.{schema_name}")
-        for table in tables.collect():
-            table_name = table["tableName"]
-            actual_table = spark.table(f"{catalog_name}.{schema_name}.{table_name}")
+        tables = spark.catalog.listTables(f"{catalog_name}.{schema_name}")
+        for table in tables:
+            if table.tableType == "VIEW":
+                continue
+
+            actual_table = spark.table(f"{catalog_name}.{schema_name}.{table.name}")
             table_config = next(
-                (x for x in actual_schema.tables if x.name == table_name), None
+                (x for x in actual_schema.tables if x.name == table.name), None
             )
             assert (
                 table_config is not None
-            ), f"Table {table_name} is not in the schema config"
+            ), f"Table {table.name} is not in the schema config"
             assert actual_table.schema == table_config.schema
 
 

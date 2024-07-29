@@ -3,7 +3,7 @@ import spark_sql_migrations.infrastructure.uncommitted_migration_scripts as sut
 from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from importlib.resources import contents
-from tests.helpers.spark_helper import reset_spark_catalog
+from tests.helpers.spark_helper import reset_spark_catalog, drop_schema
 from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
 from tests.helpers.schema_migration_costants import SchemaMigrationConstants
 
@@ -14,7 +14,11 @@ def test__get_committed_migrations__when_no_table_exists__return_empty_list(
     spark: SparkSession,
 ) -> None:
     # Arrange
-    reset_spark_catalog(spark)
+    drop_schema(
+        spark,
+        SchemaMigrationConstants.catalog_name,
+        SchemaMigrationConstants.schema_name,
+    )
     table_helper.create_schema(
         spark,
         SchemaMigrationConstants.catalog_name,
