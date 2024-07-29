@@ -15,6 +15,11 @@ def test__get_committed_migrations__when_no_table_exists__return_empty_list(
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
+    table_helper.create_schema(
+        spark,
+        SchemaMigrationConstants.catalog_name,
+        SchemaMigrationConstants.schema_name,
+    )
 
     # Act
     actual = sut._get_committed_migration_scripts()
@@ -28,6 +33,11 @@ def test__get_committed_migrations__when_no_table_exists__create_schema_migratio
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
+    table_helper.create_schema(
+        spark,
+        SchemaMigrationConstants.catalog_name,
+        SchemaMigrationConstants.schema_name,
+    )
 
     # Act
     sut._get_committed_migration_scripts()
@@ -156,6 +166,11 @@ def test__create_schema_migration_table__when_table_does_not_exist__create_schem
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
+    table_helper.create_schema(
+        spark,
+        SchemaMigrationConstants.catalog_name,
+        SchemaMigrationConstants.schema_name,
+    )
 
     # Act
     sut._create_schema_migration_table(
