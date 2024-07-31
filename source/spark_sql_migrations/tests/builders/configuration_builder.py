@@ -17,8 +17,6 @@ def build(
     migration_table_name: str = SchemaMigrationConstants.table_name,
     table_prefix: str = "",
     catalog_name: str = "spark_catalog",
-    migration_schema_location: str = "schema_migration",
-    migration_table_location: str = "schema_migration",
     schema_config: list[Schema] | None = None,
     substitutions: dict[str, str] | None = None,
 ) -> Configuration:
@@ -37,8 +35,6 @@ def build(
         migration_table_name=migration_table_name,
         table_prefix=table_prefix,
         catalog_name=catalog_name,
-        migration_schema_location=migration_schema_location,
-        migration_table_location=migration_table_location,
         schema_config=schema_config,
         substitutions=substitutions,
     )

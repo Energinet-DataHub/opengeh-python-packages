@@ -23,7 +23,6 @@ def create_table_from_schema(
     table_name: str,
     schema: StructType,
     optimize: bool = False,
-    location: str = "",
     target_file_size_in_mb: int = 0,
     enable_change_data_feed: bool = False,
     partition_columns: List[str] = [],
@@ -54,8 +53,6 @@ def create_table_from_schema(
         tbl_properties_string = ", ".join(tbl_properties)
         sql_command += f" TBLPROPERTIES ({tbl_properties_string})"
 
-    if location:
-        sql_command += f" LOCATION '{location}'"
     spark.sql(sql_command)
 
 

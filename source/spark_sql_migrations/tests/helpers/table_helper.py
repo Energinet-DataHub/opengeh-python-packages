@@ -1,8 +1,6 @@
 ﻿import pyspark.sql.functions as F
 from pyspark.sql.types import StructType
 from pyspark.sql import DataFrame, SparkSession
-from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
-from tests.helpers.schema_migration_costants import SchemaMigrationConstants
 
 
 def append_to_table(dataframe: DataFrame, full_table: str) -> None:

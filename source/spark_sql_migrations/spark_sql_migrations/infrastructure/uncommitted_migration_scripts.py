@@ -75,5 +75,4 @@ def _create_schema_migration_table(
         schema_name,
         table_name,
         schema_migration_schema,
-        location=config.migration_table_location,
     )
