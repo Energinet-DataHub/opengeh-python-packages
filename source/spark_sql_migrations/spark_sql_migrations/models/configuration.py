@@ -14,14 +14,8 @@ class Configuration:
         self.migration_schema_name = (
             spark_sql_migrations_configuration.migration_schema_name
         )
-        self.migration_schema_location = (
-            spark_sql_migrations_configuration.migration_schema_location
-        )
         self.migration_table_name = (
             spark_sql_migrations_configuration.migration_table_name
-        )
-        self.migration_table_location = (
-            spark_sql_migrations_configuration.migration_table_location
         )
         self.table_prefix = spark_sql_migrations_configuration.table_prefix
         self.current_state_schemas_folder_path = (

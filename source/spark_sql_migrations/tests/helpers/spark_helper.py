@@ -7,3 +7,13 @@ def reset_spark_catalog(spark: SparkSession) -> None:
         schema_name = schema["namespace"]
         if schema_name != "default":
             spark.sql(f"DROP SCHEMA IF EXISTS spark_catalog.{schema_name} CASCADE")
+
+
+def drop_schema(spark: SparkSession, catalog_name: str, schema_name: str) -> None:
+    spark.sql(f"DROP SCHEMA IF EXISTS {catalog_name}.{schema_name} CASCADE")
+
+
+def drop_table(
+    spark: SparkSession, catalog_name: str, schema_name: str, table_name: str
+) -> None:
+    spark.sql(f"DROP TABLE IF EXISTS {catalog_name}.{schema_name}.{table_name}")
