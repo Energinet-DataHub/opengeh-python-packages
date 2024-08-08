@@ -23,6 +23,6 @@ schema_config = [
             Table(name="test_table", schema=schema),
             Table(name="test_table_2", schema=schema),
         ],
-        views=[View(name="test_view")],
+        views=[View(name="test_view", schema=schema)],
     )
 ]
