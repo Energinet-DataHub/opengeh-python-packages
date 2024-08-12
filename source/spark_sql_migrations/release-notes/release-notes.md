@@ -1,7 +1,5 @@
 # Spark SQL Migrations Release Notes
 
-- [Version 1.9.1](#version-191)
-
 ## Version 1.9.1
 
 - Adding schema to the Views.
