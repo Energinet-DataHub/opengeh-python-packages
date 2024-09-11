@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from spark_sql_migrations.constants.catalog_constants import Catalog
-
 
 @dataclass
 class SparkSqlMigrationsConfiguration:
@@ -19,9 +17,9 @@ class SparkSqlMigrationsConfiguration:
     """The schema configuration, telling the migration tool which schemas and tables to check."""
     substitution_variables: dict[str, str]
     """The substitution variables. These are used to replace variables in the migration scripts"""
+    catalog_name: str
+    """The name of the catalog"""
     current_state_schemas_folder_path: str = ""
     """(Optional) The folder path to the schema files"""
     table_prefix: str = ""
     """(Optional) A prefix to use for the table name"""
-    catalog_name: str = Catalog.default_hive_metastore
-    """(Optional) The name of the catalog"""
