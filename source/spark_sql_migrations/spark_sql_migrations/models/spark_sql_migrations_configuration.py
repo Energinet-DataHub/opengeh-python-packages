@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 
+
 @dataclass
 class SparkSqlMigrationsConfiguration:
     migration_schema_name: str
