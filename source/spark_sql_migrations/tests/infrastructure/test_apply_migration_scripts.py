@@ -2,13 +2,12 @@ import pytest
 import pyspark.sql.functions as F
 import tests.helpers.table_helper as table_helper
 import spark_sql_migrations.infrastructure.apply_migration_scripts as sut
-
 from unittest.mock import Mock
 from pyspark.sql import SparkSession
 from tests.helpers.spark_helper import reset_spark_catalog
 from spark_sql_migrations.models.table_version import TableVersion
 from spark_sql_migrations.container import create_and_configure_container
-from tests.helpers.test_schemas import schema_config
+import tests.helpers.test_schemas as test_schemas
 from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
 import tests.builders.spark_sql_migrations_configuration_builder as configuration_builder
 from spark_sql_migrations.models.spark_sql_migrations_configuration import (
@@ -105,19 +104,19 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails__it_s
     mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    reset_spark_catalog(spark)
+    _test_configuration(spark)
+    test_schemas.create_test_tables(spark)
     mocker.patch.object(
         sut,
         sut._insert_executed_sql_script.__name__,
         side_effect=Exception("mocked error"),
     )
-    mocker.patch.object(
-        sut,
-        sut._get_table_versions.__name__,
-        return_value=[TableVersion("test_schema.test_table", 0)],
+
+    migrations = ["migration_test_restore"]
+
+    expected_version = table_helper.get_current_table_version(
+        spark, "test_schema", "test_table"
     )
-    migrations = ["migration_test_version"]
-    _test_configuration(spark)
 
     # Act
     with pytest.raises(Exception):
@@ -126,8 +125,41 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails__it_s
     # Assert
     history = spark.sql("DESCRIBE HISTORY spark_catalog.test_schema.test_table")
     current_version = history.orderBy(F.desc("version")).limit(1)
-    assert current_version.select("version").first()[0] == 2
     assert current_version.select("operation").first()[0] == "RESTORE"
+    assert current_version.select("operationParameters").first()[0]["version"] == str(
+        expected_version
+    )
+
+
+def test__apply_uncommitted_migrations__when_schema_migration_insert_fails_on_second_script_file__it_should_rollback_table_to_version_before(
+    mocker: Mock, spark: SparkSession
+) -> None:
+    # Arrange
+    _test_configuration(spark)
+    test_schemas.create_test_tables(spark)
+    mocker.patch.object(
+        sut,
+        sut._insert_executed_sql_script.__name__,
+        side_effect=["first_call_ok", Exception("mocked error")],
+    )
+    migrations = ["migration_test_restore", "migration_test_restore_2"]
+
+    table_version = table_helper.get_current_table_version(
+        spark, "test_schema", "test_table"
+    )
+    expected_version = table_version + 1
+
+    # Act
+    with pytest.raises(Exception):
+        sut.apply_migration_scripts(migrations)
+
+    # Assert
+    history = spark.sql("DESCRIBE HISTORY spark_catalog.test_schema.test_table")
+    current_version = history.orderBy(F.desc("version")).limit(1)
+    assert current_version.select("operation").first()[0] == "RESTORE"
+    assert current_version.select("operationParameters").first()[0]["version"] == str(
+        expected_version
+    )
 
 
 def test__apply_uncommitted_migrations__version_is_bumped(
@@ -204,7 +236,7 @@ def test__get_table_versions__should_contain_all_tables(spark: SparkSession) -> 
     # Arrange
     reset_spark_catalog(spark)
 
-    for schema in schema_config:
+    for schema in test_schemas.schema_config:
         spark.sql(f"CREATE SCHEMA IF NOT EXISTS spark_catalog.{schema.name}")
         for table in schema.tables:
             schema_df = spark.createDataFrame([], schema=table.schema)
@@ -217,7 +249,7 @@ def test__get_table_versions__should_contain_all_tables(spark: SparkSession) -> 
     actual = sut._get_table_versions()
 
     # Assert
-    for schema in schema_config:
+    for schema in test_schemas.schema_config:
         for table in schema.tables:
             table_version = TableVersion(f"spark_catalog.{schema.name}.{table.name}", 0)
             assert any(
