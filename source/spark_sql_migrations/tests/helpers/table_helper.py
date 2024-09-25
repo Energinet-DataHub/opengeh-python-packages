@@ -40,7 +40,22 @@ def create_table(
     table_name: str,
     schema: StructType,
 ) -> None:
-    spark.catalog.createTable(
-        f"{catalog_name}.{schema_name}.{table_name}",
-        schema=schema,
+    table_exists = spark.catalog.tableExists(
+        f"{catalog_name}.{schema_name}.{table_name}"
     )
+
+    if not table_exists:
+        spark.catalog.createTable(
+            f"{catalog_name}.{schema_name}.{table_name}",
+            schema=schema,
+        )
+
+
+def get_current_table_version(
+    spark: SparkSession, schema_name: str, table_name: str
+) -> int:
+    history = spark.sql(f"DESCRIBE HISTORY spark_catalog.{schema_name}.{table_name}")
+    expected_version = (
+        history.orderBy(F.desc("version")).limit(1).select("version").first()[0]
+    )
+    return expected_version

@@ -18,10 +18,9 @@ def _apply_migration_scripts(
     uncommitted_migrations: list[str],
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> None:
-    table_versions = _get_table_versions()
-
     for migration in uncommitted_migrations:
         try:
+            table_versions = _get_table_versions()
             sql_file_executor.execute(migration, config.migration_scripts_folder_path)
             _insert_executed_sql_script(migration)
 
@@ -43,12 +42,21 @@ def _get_table_versions(
     for schema in config.schema_config:
         if spark.catalog.databaseExists(f"{config.catalog_name}.{schema.name}") is True:
             for table in schema.tables:
-                if spark.catalog.tableExists(f"{config.catalog_name}.{schema.name}.{table.name}") is False:
+                if (
+                    spark.catalog.tableExists(
+                        f"{config.catalog_name}.{schema.name}.{table.name}"
+                    )
+                    is False
+                ):
                     continue
 
-                version = spark.sql(f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}")
+                version = spark.sql(
+                    f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}"
+                )
                 version_no = version.select(F.max(F.col("version"))).collect()[0][0]
-                table_version = TableVersion(f"{config.catalog_name}.{schema.name}.{table.name}", version_no)
+                table_version = TableVersion(
+                    f"{config.catalog_name}.{schema.name}.{table.name}", version_no
+                )
                 tables.append(table_version)
 
     return tables
