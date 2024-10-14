@@ -1,10 +1,11 @@
 # Spark SQL Migrations Release Notes
 
-## Version 1.10.0
+## Version 2.0.0
 
 - Added `rollback_on_failure` parameter to the `SparkSqlMigrationsConfiguration` class. This parameter allows the user to specify whether the migration should be rolled back if an error occurs during the migration process. The default value is `False`.
+<br> The reason for this change is that a rollback might unintentionally delete data that was not supposed to be deleted. The user should be aware of the risks of rolling back a migration and should only do so if they are sure that the migration will not cause any data loss.
 
-### Changes
+### Breaking Changes
 
 As the behavior before was `True`, the default value is now `False`. This means that if an error occurs during the migration process, the migration will not be rolled back by default. If the user wants to roll back the migration in case of an error, they can set the `rollback_on_failure` parameter to `True`.
 

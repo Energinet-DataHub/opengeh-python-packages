@@ -25,3 +25,4 @@ class SparkSqlMigrationsConfiguration:
     """(Optional) A prefix to use for the table name"""
     rollback_on_failure: bool = False
     """(Optional) Whether to rollback tables if migration fails"""
+    """Be careful with this option, as it can cause data loss if not used correctly."""
