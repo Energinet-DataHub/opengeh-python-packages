@@ -21,7 +21,6 @@ spark_config = SparkSqlMigrationsConfiguration(
 
 - Bug fixed for rollback when more than two migration scripts are running at the same time.
 
-
 ## Version 1.9.3
 
 - SparkSqlMigrationsConfiguration no longer defaults to hive_metastore as catalog name, so now it is not an optional property.
