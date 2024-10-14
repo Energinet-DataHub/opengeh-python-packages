@@ -67,19 +67,20 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
         matrix:
-            package:
-              [
-                {
-                  packageName: 'telemetry',
-                  changed: ${{ needs.changes.outputs.telemetry }},
-                  releaseNotesUpdated: ${{ needs.changes.outputs.telemetry_release_notes }}
-                },
-                {
-                  packageName: 'spark_sql_migrations',
-                  changed: ${{ needs.changes.outputs.spark_sql_migrations }},
-                  releaseNotesUpdated: ${{ needs.changes.outputs.spark_sql_migrations_release_notes }}
-                }
-              ]
+          package:
+            [
+              {
+                packageName: 'telemetry',
+                changed: ${{ needs.changes.outputs.telemetry }},
+                releaseNotesUpdated: ${{ needs.changes.outputs.telemetry_release_notes }}
+              },
+              {
+                packageName: 'spark_sql_migrations',
+                changed: ${{ needs.changes.outputs.spark_sql_migrations }},
+                releaseNotesUpdated: ${{ needs.changes.outputs.spark_sql_migrations_release_notes }}
+              },
+            ]
+        max-parallel: 1
     steps:
       - name: Check if release notes have been updated
         run: |
