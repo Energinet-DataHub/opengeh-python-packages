@@ -67,24 +67,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        package:
+        services:
           [
-            {
-              packageName: 'telemetry',
-              changed: ${{ needs.changes.outputs.telemetry }},
-              releaseNotesUpdated: ${{ needs.changes.outputs.telemetry_release_notes }}
-            },
-            {
-              packageName: 'spark_sql_migrations',
-              changed: ${{ needs.changes.outputs.spark_sql_migrations }},
-              releaseNotesUpdated: ${{ needs.changes.outputs.spark_sql_migrations_release_notes }}
-            },
+            { packageName: telemetry, changed: ${{ steps.filter.outputs.telemetry }}, releaseNotesChanged: ${{ steps.filter.outputs.telemetry_release_notes }} },
+            { packageName: spark_sql_migrations, changed: ${{ steps.filter.outputs.spark_sql_migrations }}, releaseNotesChanged: ${{ steps.filter.outputs.spark_sql_migrations_release_notes }} }
           ]
       max-parallel: 1
     steps:
       - name: Check if release notes have been updated
         run: |
-          if [ "${{ matrix.package.changed }}" = "true" ] && [ "${{ matrix.package.releaseNotesUpdated }}" = "false" ]; then
+          if [ "${{ matrix.services.changed }}" = "true" ] && [ "${{ matrix.services.releaseNotesUpdated }}" = "false" ]; then
             echo "Release notes have NOT been updated for ${{ matrix.packages.packageName }}. They need to be updated."
             exit 1
           fi
