@@ -31,3 +31,6 @@ class Configuration:
         self.substitution_variables = (
             spark_sql_migrations_configuration.substitution_variables
         )
+        self.rollback_on_failure = (
+            spark_sql_migrations_configuration.rollback_on_failure
+        )

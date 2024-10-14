@@ -20,15 +20,18 @@ def _apply_migration_scripts(
 ) -> None:
     for migration in uncommitted_migrations:
         try:
-            table_versions = _get_table_versions()
+            if config.rollback_on_failure is True:
+                table_versions = _get_table_versions()
+
             sql_file_executor.execute(migration, config.migration_scripts_folder_path)
             _insert_executed_sql_script(migration)
 
         except Exception as exception:
             print(f"Schema migration failed with exception: {exception}")
 
-            for table_version in table_versions:
-                delta_table_helper.restore_table(table_version)
+            if config.rollback_on_failure is True:
+                for table_version in table_versions:
+                    delta_table_helper.restore_table(table_version)
 
             raise exception
 
