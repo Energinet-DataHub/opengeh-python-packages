@@ -44,8 +44,12 @@ jobs:
           filters: |
             telemetry:
               - 'source/telemetry/**'
+            telemetry_release_notes:
+              - 'source/telemetry/release-notes/release-notes.md'
             spark_sql_migrations:
               - 'source/spark_sql_migrations/**'
+            spark_sql_migrations_release_notes:
+              - 'source/spark_sql_migrations/release-notes/release-notes.md'
             docker:
               - .docker/**
             pyspark_slim:
@@ -57,3 +61,29 @@ jobs:
         with:
           since_last_remote_commit: true
           files: .docker/**
+
+  release_notes:
+    needs: changes
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+            package:
+              [
+                {
+                  packageName: 'telemetry',
+                  changed: ${{ needs.changes.outputs.telemetry }},
+                  releaseNotesUpdated: ${{ needs.changes.outputs.telemetry_release_notes }}
+                },
+                {
+                  packageName: 'spark_sql_migrations',
+                  changed: ${{ needs.changes.outputs.spark_sql_migrations }},
+                  releaseNotesUpdated: ${{ needs.changes.outputs.spark_sql_migrations_release_notes }}
+                }
+              ]
+    steps:
+      - name: Check if release notes have been updated
+        run: |
+          if [ "${{ matrix.package.changed }}" = "true" ] && [ "${{ matrix.package.releaseNotesUpdated }}" = "false" ]; then
+            echo "Release notes have NOT been updated for ${{ matrix.packages.packageName }}. They need to be updated."
+            exit 1
+          fi
