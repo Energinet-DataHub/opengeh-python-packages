@@ -9,6 +9,7 @@
 As the behavior before was `True`, the default value is now `False`. This means that if an error occurs during the migration process, the migration will not be rolled back by default. If the user wants to roll back the migration in case of an error, they can set the `rollback_on_failure` parameter to `True`.
 
 Example:
+
 ``` python
 spark_config = SparkSqlMigrationsConfiguration(
     ...
