@@ -71,14 +71,14 @@ jobs:
       matrix:
         package:
           [
-            { packageName: telemetry, changed: "${{ needs.changes.outputs.telemetry }}", releaseNotesChanged: "${{ needs.changes.outputs.telemetry_release_notes }}" },
-            { packageName: spark_sql_migrations, changed: "${{ needs.changes.outputs.spark_sql_migrations }}", releaseNotesChanged: "${{ needs.changes.outputs.spark_sql_migrations_release_notes }}" },
+            { packageName: telemetry, packageChanged: "${{ needs.changes.outputs.telemetry }}", releaseNotesChanged: "${{ needs.changes.outputs.telemetry_release_notes }}" },
+            { packageName: spark_sql_migrations, packageChanged: "${{ needs.changes.outputs.spark_sql_migrations }}", releaseNotesChanged: "${{ needs.changes.outputs.spark_sql_migrations_release_notes }}" },
           ]
       max-parallel: 1
     steps:
       - name: Check if release notes have been updated
         run: |
-          if [ "${{ matrix.package.changed }}" = "true" ] && [ "${{ matrix.package.releaseNotesUpdated }}" = "false" ]; then
+          if [ "${{ matrix.package.packageChanged }}" = "true" ] && [ "${{ matrix.package.releaseNotesChanged }}" = "false" ]; then
             echo "Release notes have NOT been updated for ${{ matrix.package.packageName }}. They need to be updated."
             exit 1
           fi
