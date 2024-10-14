@@ -13,5 +13,5 @@ def create_and_configure_container(config: SparkSqlMigrationsConfiguration) -> N
     container = SparkSqlMigrationsContainer()
 
     container.config.from_value(config)
-    # weird change
+
     container.wire(packages=[spark_sql_migrations])
