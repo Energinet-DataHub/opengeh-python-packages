@@ -26,7 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
+      telemetry_release_notes: ${{ steps.filter.outputs.telemetry_release_notes }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
+      spark_sql_migrations_release_notes: ${{ steps.filter.outputs.spark_sql_migrations_release_notes }}
       docker: ${{ steps.filter.outputs.docker }}
       docker_in_commit: ${{ steps.docker_changed.outputs.any_changed }}
       pyspark_slim: ${{ steps.filter.outputs.pyspark_slim }}
@@ -44,8 +46,12 @@ jobs:
           filters: |
             telemetry:
               - 'source/telemetry/**'
+            telemetry_release_notes:
+              - 'source/telemetry/release-notes/release-notes.md'
             spark_sql_migrations:
               - 'source/spark_sql_migrations/**'
+            spark_sql_migrations_release_notes:
+              - 'source/spark_sql_migrations/release-notes/release-notes.md'
             docker:
               - .docker/**
             pyspark_slim:
@@ -57,3 +63,22 @@ jobs:
         with:
           since_last_remote_commit: true
           files: .docker/**
+
+  release_notes:
+    needs: changes
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package:
+          [
+            { packageName: telemetry, packageChanged: "${{ needs.changes.outputs.telemetry }}", releaseNotesChanged: "${{ needs.changes.outputs.telemetry_release_notes }}" },
+            { packageName: spark_sql_migrations, packageChanged: "${{ needs.changes.outputs.spark_sql_migrations }}", releaseNotesChanged: "${{ needs.changes.outputs.spark_sql_migrations_release_notes }}" },
+          ]
+      max-parallel: 1
+    steps:
+      - name: Check if release notes have been updated
+        run: |
+          if [ "${{ matrix.package.packageChanged }}" = "true" ] && [ "${{ matrix.package.releaseNotesChanged }}" = "false" ]; then
+            echo "Release notes have NOT been updated for ${{ matrix.package.packageName }}. They need to be updated."
+            exit 1
+          fi
