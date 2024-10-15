@@ -19,9 +19,12 @@ shared_storage_account = "shared_storage_account"
 storage_account = "storage_account"
 
 
-def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
+def _test_configuration(
+    spark: SparkSession, rollback_on_failure: bool = False
+) -> SparkSqlMigrationsConfiguration:
     configuration = configuration_builder.build(
         migration_scripts_folder_path="tests.test_scripts",
+        rollback_on_failure=rollback_on_failure,
     )
     create_and_configure_container(configuration)
 
@@ -84,7 +87,7 @@ def test__apply_uncommitted_migrations__when_sql_file_with_error__it_should_roll
         return_value=[TableVersion("test_schema.test_table_fail", 0)],
     )
     migrations = ["fail_migration_step_1", "fail_migration_step_2"]
-    _test_configuration(spark)
+    _test_configuration(spark, rollback_on_failure=True)
 
     # Act
     with pytest.raises(Exception):
@@ -104,7 +107,7 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails__it_s
     mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    _test_configuration(spark)
+    _test_configuration(spark, rollback_on_failure=True)
     test_schemas.create_test_tables(spark)
     mocker.patch.object(
         sut,
@@ -135,7 +138,7 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails_on_se
     mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
-    _test_configuration(spark)
+    _test_configuration(spark, rollback_on_failure=True)
     test_schemas.create_test_tables(spark)
     mocker.patch.object(
         sut,
@@ -162,7 +165,7 @@ def test__apply_uncommitted_migrations__when_schema_migration_insert_fails_on_se
     )
 
 
-def test__apply_uncommitted_migrations__version_is_bumped(
+def test__apply_uncommitted_migrations__when_rollback_on_failure_is_true__version_is_bumped(
     mocker: Mock, spark: SparkSession
 ) -> None:
     # Arrange
@@ -179,10 +182,70 @@ def test__apply_uncommitted_migrations__version_is_bumped(
 
     migrations = ["migration_test_version"]
     expected_version = current_version + 1
-    _test_configuration(spark)
+    _test_configuration(spark, rollback_on_failure=True)
 
     # Act
     sut.apply_migration_scripts(migrations)
+
+    # Assert
+    actual_version = table_helper.get_table_version(
+        spark, "spark_catalog", "test_schema", "test_table"
+    )
+    assert expected_version == actual_version
+
+
+def test__apply_uncommitted_migrations__when_schema_migration_insert_fails_and_no_rollback__it_should_not_rollback_table(
+    mocker: Mock, spark: SparkSession
+) -> None:
+    # Arrange
+    _test_configuration(spark, rollback_on_failure=False)
+    test_schemas.create_test_tables(spark)
+    mocker.patch.object(
+        sut,
+        sut._insert_executed_sql_script.__name__,
+        side_effect=Exception("mocked error"),
+    )
+
+    migrations = ["migration_test_restore"]
+
+    first_version = table_helper.get_current_table_version(
+        spark, "test_schema", "test_table"
+    )
+    expected_version = first_version + 1  # 1 script should have been executed
+
+    # Act
+    with pytest.raises(Exception):
+        sut.apply_migration_scripts(migrations)
+
+    # Assert
+    actual_version = table_helper.get_table_version(
+        spark, "spark_catalog", "test_schema", "test_table"
+    )
+    assert expected_version == actual_version
+
+
+def test__apply_uncommitted_migrations__when_schema_migration_insert_fails_on_second_script_file_and_no_rollback__it_should_not_rollback_table(
+    mocker: Mock, spark: SparkSession
+) -> None:
+    # Arrange
+    _test_configuration(spark, rollback_on_failure=False)
+    reset_spark_catalog(spark)
+    test_schemas.create_test_tables(spark)
+    mocker.patch.object(
+        sut,
+        sut._insert_executed_sql_script.__name__,
+        side_effect=["first_call_ok", Exception("mocked error")],
+    )
+    migrations = ["migration_test_restore", "migration_test_restore_2"]
+
+    first_version = table_helper.get_current_table_version(
+        spark, "test_schema", "test_table"
+    )
+    expected_version = first_version + 2  # 2 scripts should have executed
+
+    # Act
+    with pytest.raises(Exception):
+        sut.apply_migration_scripts(migrations)
 
     # Assert
     actual_version = table_helper.get_table_version(

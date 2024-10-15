@@ -18,6 +18,7 @@ def build(
     migration_schema_name: str = SchemaMigrationConstants.schema_name,
     migration_table_name: str = SchemaMigrationConstants.table_name,
     table_prefix: str = "",
+    rollback_on_failure: bool = False,
     schema_config: list[Schema] | None = None,
     substitutions: dict[str, str] | None = None,
 ) -> SparkSqlMigrationsConfiguration:
@@ -38,4 +39,5 @@ def build(
         table_prefix=table_prefix,
         schema_config=schema_config,
         substitution_variables=substitutions,
+        rollback_on_failure=rollback_on_failure,
     )

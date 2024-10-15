@@ -55,6 +55,7 @@ spark_config = SparkSqlMigrationsConfiguration(
     schema_config=schema_config,
     substitution_variables=substitutions,
     catalog_name="spark_catalog",
+    rollback_on_failure=False,
 )
 
 create_and_configure_container(spark_config)
