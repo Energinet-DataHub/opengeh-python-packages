@@ -56,9 +56,7 @@ def _get_table_versions(
                 version = spark.sql(
                     f"DESCRIBE HISTORY {config.catalog_name}.{schema.name}.{table.name}"
                 )
-                version_no = (
-                    version.select(F.max(F.col("version"))).first().collect()[0]
-                )
+                version_no = version.select(F.max(F.col("version"))).first()[0]
 
                 table_version = TableVersion(
                     f"{config.catalog_name}.{schema.name}.{table.name}", version_no
