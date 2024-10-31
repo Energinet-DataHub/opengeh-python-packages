@@ -1,5 +1,11 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.1
+
+- Bug fix: When rollback is enabled, it needs to get the latest version of each table before executing the migration.
+However, when getting the version it was collecting all the rows from the history, which was not needed and could
+cause a performance issue. Now it is only getting the latest version of each table.
+
 ## Version 2.0.0
 
 - Added `rollback_on_failure` parameter to the `SparkSqlMigrationsConfiguration` class. This parameter allows the user to specify whether the migration should be rolled back if an error occurs during the migration process. The default value is `False`.
