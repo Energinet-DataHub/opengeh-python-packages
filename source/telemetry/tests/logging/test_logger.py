@@ -18,6 +18,7 @@ import pytest
 
 from package.common.logger import Logger
 
+
 @pytest.mark.parametrize(
     "log_method, log_func",
     [
