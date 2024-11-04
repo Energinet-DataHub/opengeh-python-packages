@@ -1,5 +1,5 @@
 from opentelemetry.trace import Status, StatusCode, Span
-import logging.logging_configuration as config
+import telemetry.logging.logging_configuration as config
 
 
 def span_record_exception(exception: SystemExit | Exception, span: Span) -> None:
