@@ -15,7 +15,7 @@
 import logging
 from typing import Any
 
-import settlement_report_job.logging.logging_configuration as config
+import telemetry.logging.logging_configuration as config
 
 
 class Logger:
