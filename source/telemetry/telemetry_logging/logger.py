@@ -15,7 +15,7 @@
 import logging
 from typing import Any
 
-import telemetry.telemetry_logging.logging_configuration as config
+import telemetry_logging.logging_configuration as config
 
 
 class Logger:

@@ -1,7 +1,7 @@
 from typing import Callable, Any, Tuple, Dict
 
-from telemetry.telemetry_logging.logging_configuration import start_span
-from telemetry.telemetry_logging import Logger
+from telemetry_logging.logging_configuration import start_span
+from telemetry_logging import Logger
 
 
 def use_span(name: str | None = None) -> Callable[..., Any]:
