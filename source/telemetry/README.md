@@ -2,9 +2,15 @@
 
 Shared telemetry logging library for Python. Useful for creating spans in Azure.
 
+The `telemetry_logging` package in this module provides utilities for logging telemetry data. It includes functions and classes to facilitate the collection, formatting, and storage of telemetry information, which can be used for monitoring application performance, diagnosing issues, and gathering usage statistics. The package aims to offer a flexible and extensible framework for integrating telemetry logging into various parts of an application.
 ## Usage
 
-Initial configuration of logging:
+This code snippet demonstrates the initial configuration of logging using the telemetry_logging library. It includes the following steps:
+
+1) Import necessary modules from the telemetry_logging library.
+2) Define a function run_method decorated with @use_span(), which creates a nested span for tracing. Inside this function, a logger instance is created and used to log an informational message.
+3) Define an entry_point method that configures the logging setup using the configure_logging function. It starts the initial span, which following nested method calls can use, i.e. the run_method defined previously will inherit the same settings.
+
 ```python
 import telemetry_logging.logging_configuration as config
 from telemetry_logging.span_recording import span_record_exception
