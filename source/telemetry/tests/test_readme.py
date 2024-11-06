@@ -1,4 +1,5 @@
-import os, re
+import os
+import re
 from unittest.mock import Mock
 import telemetry_logging.logging_configuration as config
 from telemetry_logging.span_recording import span_record_exception
