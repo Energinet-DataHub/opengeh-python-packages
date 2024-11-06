@@ -1,7 +1,6 @@
 import os
 import pytest
 import unittest.mock as mock
-
 from telemetry_logging.logging_configuration import (
     configure_logging,
     get_extras,

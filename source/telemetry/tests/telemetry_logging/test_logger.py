@@ -13,9 +13,7 @@
 # limitations under the License.
 import logging
 from unittest.mock import patch
-
 import pytest
-
 from telemetry_logging import Logger
 
 

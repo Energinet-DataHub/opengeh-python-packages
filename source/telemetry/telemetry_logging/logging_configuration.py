@@ -15,7 +15,6 @@ import contextlib
 import logging
 import os
 from typing import Any, Iterator
-
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
