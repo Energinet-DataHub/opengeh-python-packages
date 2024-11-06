@@ -11,6 +11,7 @@ from telemetry_logging.logging_configuration import (
     _IS_INSTRUMENTED,
 )
 
+
 def test_configure_logging__then_environmental_variables_are_set():
     # Arrange
     cloud_role_name = "test_role"
@@ -101,6 +102,7 @@ def test_start_span__span_is_started():
     # Assert
     with start_span("test_span") as span:
         assert span is not None
+
 
 @mock.patch("telemetry_logging.logging_configuration.configure_azure_monitor")
 def test_configure_logging__when_connection_string_is_provided__azure_monitor_is_configured(mock_configure_azure_monitor):
