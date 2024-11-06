@@ -22,7 +22,7 @@ Product teams should avoid the temptation to define their own structure but alig
 │   │   ├── spark_sql_migrations/
 │   │   └── tests/
 │   └── telemetry/
-│       ├── telemetry/
+│       ├── telemetry_logging/
 │       └── tests/
 │
 ├── .gitignore
