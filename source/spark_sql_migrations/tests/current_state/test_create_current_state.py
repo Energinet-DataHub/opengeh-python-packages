@@ -1,11 +1,11 @@
 ﻿import pytest
-import tests.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
 import spark_sql_migrations.current_state.create_current_state as sut
 from pyspark.sql import SparkSession
 from unittest.mock import Mock
 from tests.helpers.test_schemas import schema_config
 from tests.helpers.spark_helper import reset_spark_catalog
-from spark_sql_migrations.container import create_and_configure_container
+from tests.helpers import table_helper
+import tests.builders.spark_sql_migrations_configuration_builder as configuration_builder
 
 
 def test__get_schema_scripts__should_match_schema_config() -> None:
@@ -73,7 +73,6 @@ def test__create_all_tables__when_table_is_missing__it_should_create_the_missing
 ) -> None:
     # Arrange
     reset_spark_catalog(spark)
-
     sut.create_all_tables()
     spark.sql("DROP TABLE spark_catalog.test_schema.test_table_2")
 
@@ -100,6 +99,20 @@ def test__create_all_table__when_an_error_occurs__it_should_throw_an_exception(
     # Act
     with pytest.raises(Exception):
         sut.create_all_tables()
+
+def test__create_all_table__when_no_migration_table__it_should_create_it(spark: SparkSession) -> None:
+    # Arrange
+    reset_spark_catalog(spark)
+
+    config = configuration_builder.build()
+    full_migration_table_name = f"{config.catalog_name}.{config.migration_schema_name}.{config.migration_table_name}"
+    table_helper.create_schema(spark, config.catalog_name, config.migration_schema_name)
+
+    # Act
+    sut.create_all_tables()
+
+    # Assert
+    assert spark.catalog.tableExists(full_migration_table_name)
 
 
 def path_helper(storage_account: str, container: str, folder: str = "") -> str:

@@ -5,6 +5,8 @@ from importlib.resources import contents
 from dependency_injector.wiring import Provide, inject
 from spark_sql_migrations.container import SparkSqlMigrationsContainer
 from spark_sql_migrations.models.configuration import Configuration
+from spark_sql_migrations.utility import delta_table_helper
+from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
 
 
 def create_all_tables() -> None:
@@ -33,6 +35,7 @@ def _create_all_tables(
         f"Found {len(view_scripts)} view scripts in {config.current_state_views_folder_path}"
     )
 
+    _create_schema_migration_table()
     for script in schema_scripts:
         sql_file_executor.execute(script, config.current_state_schemas_folder_path)
 
@@ -43,6 +46,30 @@ def _create_all_tables(
         sql_file_executor.execute(script, config.current_state_views_folder_path)
 
     print("Successfully created all tables")
+
+
+@inject
+def _create_schema_migration_table(
+    spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
+    config: Configuration = Provide[SparkSqlMigrationsContainer.config],
+) -> None:
+    schema_exists = delta_table_helper.schema_exists(
+        spark, config.catalog_name, config.migration_schema_name
+    )
+    if not schema_exists:
+        raise Exception(f"Schema {config.migration_schema_name} does not exist")
+
+    table_name = f"{config.table_prefix}{config.migration_table_name}"
+    if not delta_table_helper.delta_table_exists(
+        spark, config.catalog_name, config.migration_schema_name, table_name
+    ):
+        delta_table_helper.create_table_from_schema(
+            spark,
+            config.catalog_name,
+            config.migration_schema_name,
+            table_name,
+            schema_migration_schema
+        )
 
 
 @inject
