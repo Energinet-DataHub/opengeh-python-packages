@@ -1,5 +1,9 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.3
+
+- open minor version for spark_sql_migrations
+
 ## Version 2.0.2
 
 - required pyspark version bumped form 3.5.1 to 3.5.3
