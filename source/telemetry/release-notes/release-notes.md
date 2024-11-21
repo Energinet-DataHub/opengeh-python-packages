@@ -1,6 +1,6 @@
 # Telemetry Release Notes
 
-## Version 2.2.1
+## Version 2.4.0
 
 - Added integration test for telemetry
 
