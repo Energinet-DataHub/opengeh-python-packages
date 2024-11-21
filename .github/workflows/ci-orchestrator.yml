@@ -41,7 +41,7 @@ jobs:
   #
   python_ci_test_spark_sql_migrations:
     needs: [changes, ci_base, ci_docker]
-    if: ${{ needs.changes.outputs.spark_sql_migrations }}
+    if: ${{ needs.changes.outputs.spark_sql_migrations == 'true' }}
     uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v14
     with:
       job_name: Spark sql migrations unit tests
@@ -58,7 +58,7 @@ jobs:
   #
   python_ci_test_telemetry:
     needs: [changes, ci_base, ci_docker]
-    if: ${{ needs.changes.outputs.telemetry }}
+    if: ${{ needs.changes.outputs.telemetry == 'true' }}
     uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v14
     with:
       job_name: Telemetry unit tests
