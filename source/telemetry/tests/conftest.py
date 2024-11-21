@@ -18,6 +18,7 @@ import pytest
 import yaml
 from integration_test_configuration import IntegrationTestConfiguration
 
+
 @pytest.fixture(scope="session")
 def telemetry_path() -> str:
     """
@@ -27,6 +28,7 @@ def telemetry_path() -> str:
     actually located in a file located directly in the tests folder.
     """
     return "source/telemetry"
+
 
 @pytest.fixture(scope="session")
 def telemetry_tests_path(telemetry_path: str) -> str:
@@ -38,6 +40,7 @@ def telemetry_tests_path(telemetry_path: str) -> str:
     """
     return f"{telemetry_path}/tests"
 
+
 @pytest.fixture(scope="session")
 def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTestConfiguration:
     """
@@ -47,7 +50,14 @@ def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTest
 
     settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
 
-    def load_settings_from_env() -> dict:
+    def _load_settings_from_file(file_path: Path) -> dict:
+        if file_path.exists():
+            with file_path.open() as stream:
+                return yaml.safe_load(stream)
+        else:
+            return {}
+
+    def _load_settings_from_env() -> dict:
         return {
             key: os.getenv(key)
             for key in [
@@ -60,7 +70,7 @@ def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTest
             if os.getenv(key) is not None
         }
 
-    settings = _load_settings_from_file(settings_file_path) or load_settings_from_env()
+    settings = _load_settings_from_file(settings_file_path) or _load_settings_from_env()
 
     # Set environment variables from loaded settings
     for key, value in settings.items():
@@ -78,11 +88,3 @@ def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTest
     raise Exception(
         "Failed to load integration test settings. Ensure that the Azure Key Vault URL is provided in the settings file or as an environment variable."
     )
-
-
-def _load_settings_from_file(file_path: Path) -> dict:
-    if file_path.exists():
-        with file_path.open() as stream:
-            return yaml.safe_load(stream)
-    else:
-        return {}
