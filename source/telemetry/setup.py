@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="opengeh-telemetry",
-    version="2.1.1",
+    version="2.2.1",
     description="Shared telemetry logging and tracing for OpenGEH",
     long_description="",
     long_description_content_type="text/markdown",

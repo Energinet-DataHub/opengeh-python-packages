@@ -13,5 +13,6 @@
 # limitations under the License.
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
 
+
 def test_integration():
     assert True
