@@ -53,7 +53,7 @@ jobs:
       test_report_path: ./source/spark_sql_migrations/tests
       image_tag: ${{ needs.ci_docker.outputs.image_tag }}
 
-    #
+  #
   # Run Python unit tests for telemetry
   #
   python_ci_test_telemetry:
