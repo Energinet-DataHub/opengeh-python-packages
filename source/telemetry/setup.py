@@ -10,7 +10,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     install_requires=[
-        "azure-monitor-opentelemetry==1.6.0",
-        "azure-core==1.30.0",
+        "azure-monitor-opentelemetry>=1.6.0,<2.0.0",
+        "azure-core>=1.30.0<2.0.0",
     ],
 )
