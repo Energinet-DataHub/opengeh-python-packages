@@ -1,5 +1,9 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.4
+
+- Fix
+
 ## Version 2.0.3
 
 - open minor version for spark_sql_migrations
