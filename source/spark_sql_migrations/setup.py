@@ -10,8 +10,8 @@ setup(
     license="MIT",
     packages=find_packages(),
     install_requires=[
-        "pyspark>=3.5.3<4.0",
+        "pyspark>=3.5.3,<4.0",
         "delta-spark>=3.1,<4.0",
-        "dependency_injector>=4.43.0<5.0",
+        "dependency_injector>=4.43.0,<5.0",
     ],
 )
