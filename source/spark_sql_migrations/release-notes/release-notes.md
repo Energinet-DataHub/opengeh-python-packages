@@ -1,5 +1,10 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.2
+
+- required pyspark version bumped form 3.5.1 to 3.5.3
+- required dependency_injector version bumped from 4.41.0 to 4.43.0
+
 ## Version 2.0.1
 
 - Bug fix: When rollback is enabled, it needs to get the latest version of each table before executing the migration.
