@@ -6,7 +6,7 @@
 
 ## Version 2.1.0
 
-- Added shared telemtry library for logging
+- Added shared telemetry library for logging
 
 ## Version 1.9.5
 
