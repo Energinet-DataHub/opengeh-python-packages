@@ -68,6 +68,7 @@ jobs:
       ignore_errors_and_warning_flake8: E501,F401,E402,E203,W503
       tests_folder_path: ./source/telemetry/tests
       test_report_path: ./source/telemetry/tests
+      azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
       image_tag: ${{ needs.ci_docker.outputs.image_tag }}
 
   # Branch policy status check
