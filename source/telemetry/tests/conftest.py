@@ -16,7 +16,7 @@ from pathlib import Path
 import logging
 import pytest
 import yaml
-from .integration_test_configuration import IntegrationTestConfiguration
+from integration_test_configuration import IntegrationTestConfiguration
 
 
 @pytest.fixture(scope="session")
