@@ -21,6 +21,7 @@ from integration_test_configuration import IntegrationTestConfiguration
 from telemetry_logging.logger import Logger
 from telemetry_logging.logging_configuration import configure_logging
 
+
 def _wait_for_condition(callback: Callable, *, timeout: timedelta, step: timedelta):
     """
     Wait for a condition to be met, or timeout.
@@ -53,6 +54,7 @@ def _assert_row_count(actual, expected_count):
     count = cast(int, value)
     assert count == expected_count
 
+
 def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str):
     actual = logs_client.query_workspace(
         workspace_id, query, timespan=timedelta(minutes=5)
@@ -61,43 +63,44 @@ def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str):
 
 
 def test_add_info_log_record_to_azure_monitor_with_expected_settings(
-        integration_test_configuration: IntegrationTestConfiguration,
-    ) -> None:
-        # Arrange
-        message = "test message"
-        logger_name = "test-logger"
-        cloud_name = "test-cloud-role-name"
-        tracer_name = "test-tracer-name"
-        extras = {"test-key": "test-value"}
-        applicationinsights_connection_string = (
-            integration_test_configuration.get_applicationinsights_connection_string()
-        )
+    integration_test_configuration: IntegrationTestConfiguration,
+) -> None:
+    # Arrange
+    message = "test message"
+    logger_name = "test-logger"
+    cloud_name = "test-cloud-role-name"
+    tracer_name = "test-tracer-name"
+    extras = {"test-key": "test-value"}
+    applicationinsights_connection_string = (
+        integration_test_configuration.get_applicationinsights_connection_string()
+    )
 
-        configure_logging(
-            cloud_role_name=cloud_name,
-            tracer_name=tracer_name,
-            applicationinsights_connection_string=applicationinsights_connection_string,
-            extras=extras,
-        )
-        logger = Logger(logger_name)
+    configure_logging(
+        cloud_role_name=cloud_name,
+        tracer_name=tracer_name,
+        applicationinsights_connection_string=applicationinsights_connection_string,
+        extras=extras,
+    )
+    logger = Logger(logger_name)
 
-        # Act
-        logger.info(message)
+    # Act
+    logger.info(message)
 
-        # Assert
-        # noinspection PyTypeChecker
-        logs_client = LogsQueryClient(integration_test_configuration.credential)
+    # Assert
+    # noinspection PyTypeChecker
+    logs_client = LogsQueryClient(integration_test_configuration.credential)
 
-        query = f"""
+    query = f"""
         AppTraces
         | where AppRoleName == "{cloud_name}"
         | count
         """
 
-        workspace_id = integration_test_configuration.get_analytics_workspace_id()
+    workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
-
-        # Assert, but timeout if not succeeded
-        _wait_for_condition(
-            _assert_logged(logs_client, workspace_id, query), timeout=timedelta(minutes=3), step=timedelta(seconds=10)
-        )
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        _assert_logged(logs_client, workspace_id, query),
+        timeout=timedelta(minutes=3),
+        step=timedelta(seconds=10),
+    )

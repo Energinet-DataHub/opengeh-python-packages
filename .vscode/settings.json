@@ -8,5 +8,9 @@
             "indent": 4
         }
     },
-    "redhat.telemetry.enabled": false
+    "redhat.telemetry.enabled": false,
+    "[python]": {
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "editor.formatOnSave": true
+    },
 }
