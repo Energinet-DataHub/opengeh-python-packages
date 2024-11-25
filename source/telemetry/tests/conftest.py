@@ -42,13 +42,17 @@ def telemetry_tests_path(telemetry_path: str) -> str:
 
 
 @pytest.fixture(scope="session")
-def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTestConfiguration:
+def integration_test_configuration(
+    telemetry_tests_path: str,
+) -> IntegrationTestConfiguration:
     """
     Load settings for integration tests either from a local YAML settings file or from environment variables.
     Proceeds even if certain Azure-related keys are not present in the settings file.
     """
 
-    settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    settings_file_path = (
+        Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    )
 
     def _load_settings_from_file(file_path: Path) -> dict:
         if file_path.exists():
@@ -69,6 +73,18 @@ def integration_test_configuration(telemetry_tests_path: str) -> IntegrationTest
             ]
             if os.getenv(key) is not None
         }
+
+    x = [
+        os.getenv(key)
+        for key in [
+            "AZURE_KEYVAULT_URL",
+            "AZURE_CLIENT_ID",
+            "AZURE_CLIENT_SECRET",
+            "AZURE_TENANT_ID",
+            "AZURE_SUBSCRIPTION_ID",
+        ]
+    ]
+    print("Variables from environment: ", x)
 
     settings = _load_settings_from_file(settings_file_path) or _load_settings_from_env()
 
