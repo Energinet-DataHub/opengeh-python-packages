@@ -16,7 +16,7 @@ from pathlib import Path
 import logging
 import pytest
 import yaml
-from integration_test_configuration import IntegrationTestConfiguration
+from .integration_test_configuration import IntegrationTestConfiguration
 
 
 @pytest.fixture(scope="session")
@@ -66,6 +66,10 @@ def integration_test_configuration(
             key: os.getenv(key)
             for key in [
                 "AZURE_KEYVAULT_URL",
+                "AZURE_CLIENT_ID",
+                "AZURE_CLIENT_SECRET",
+                "AZURE_TENANT_ID",
+                "AZURE_SUBSCRIPTION_ID",
             ]
             if os.getenv(key) is not None
         }

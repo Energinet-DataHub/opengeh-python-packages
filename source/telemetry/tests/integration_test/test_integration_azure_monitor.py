@@ -17,7 +17,7 @@ from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
 
-from integration_test_configuration import IntegrationTestConfiguration
+from tests.integration_test_configuration import IntegrationTestConfiguration
 from telemetry_logging.logger import Logger
 from telemetry_logging.logging_configuration import configure_logging
 
