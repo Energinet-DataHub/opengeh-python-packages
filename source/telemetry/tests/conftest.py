@@ -66,25 +66,9 @@ def integration_test_configuration(
             key: os.getenv(key)
             for key in [
                 "AZURE_KEYVAULT_URL",
-                "AZURE_CLIENT_ID",
-                "AZURE_CLIENT_SECRET",
-                "AZURE_TENANT_ID",
-                "AZURE_SUBSCRIPTION_ID",
             ]
             if os.getenv(key) is not None
         }
-
-    x = [
-        os.getenv(key)
-        for key in [
-            "AZURE_KEYVAULT_URL",
-            "AZURE_CLIENT_ID",
-            "AZURE_CLIENT_SECRET",
-            "AZURE_TENANT_ID",
-            "AZURE_SUBSCRIPTION_ID",
-        ]
-    ]
-    print("Variables from environment: ", x)
 
     settings = _load_settings_from_file(settings_file_path) or _load_settings_from_env()
 
@@ -94,6 +78,7 @@ def integration_test_configuration(
             os.environ[key] = value
 
     if "AZURE_KEYVAULT_URL" in settings:
+        print("Integration test configuration loaded successfully.")
         return IntegrationTestConfiguration(
             azure_keyvault_url=settings["AZURE_KEYVAULT_URL"]
         )
