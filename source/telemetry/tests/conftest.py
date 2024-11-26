@@ -82,7 +82,6 @@ def integration_test_configuration(
             os.environ[key] = value
 
     if "AZURE_KEYVAULT_URL" in settings:
-        print("Integration test configuration loaded successfully.")
         return IntegrationTestConfiguration(
             azure_keyvault_url=settings["AZURE_KEYVAULT_URL"]
         )

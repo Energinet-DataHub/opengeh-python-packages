@@ -1,16 +1,22 @@
 {
+    "python.testing.pytestArgs": [
+        "source"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
     "powershell.codeFormatting.avoidSemicolonsAsLineTerminators": true,
     "powershell.codeFormatting.useCorrectCasing": true,
     "powershell.codeFormatting.whitespaceBetweenParameters": true,
-    "powershell.codeFormatting.pipelineIndentationStyle": "IncreaseIndentationForFirstPipeline",
     "markdownlint.config": {
         "MD007": {
             "indent": 4
-        }
+        },
+        "MD024": {
+            "siblings_only": true
+        },
     },
     "redhat.telemetry.enabled": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true
+        "editor.defaultFormatter": "ms-python.black-formatter"
     },
 }
