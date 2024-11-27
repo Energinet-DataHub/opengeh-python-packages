@@ -105,12 +105,38 @@ def test_get_tracer__then_a_tracer_is_returned():
     assert tracer is not None
 
 
+def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure():
+    # Arrange
+    tracer_name = "test_tracer"
+    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name)
+
+    # Act
+    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name, force_configuration=True)
+    tracer = get_tracer()
+
+    # Assert
+    assert tracer is not None
+
+
 def test_start_span__span_is_started():
     # Arrange
     tracer_name = "test_tracer"
 
     # Act
     configure_logging(cloud_role_name="test_role", tracer_name=tracer_name)
+
+    # Assert
+    with start_span("test_span") as span:
+        assert span is not None
+
+
+def test_start_span__span_is_started_with_force_configuration():
+    # Arrange
+    tracer_name = "test_tracer"
+    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name)
+
+    # Act
+    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name, force_configuration=True)
 
     # Assert
     with start_span("test_span") as span:

@@ -57,6 +57,11 @@ def configure_logging(
     if _IS_INSTRUMENTED and not force_configuration:
         return
 
+    # Force reconfiguration by resetting the tracer.
+    if force_configuration:
+        global _TRACER
+        _TRACER = None
+
     # Configure structured logging data to be included in every log message.
     if extras is not None:
         global _EXTRAS
