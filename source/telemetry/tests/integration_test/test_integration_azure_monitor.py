@@ -14,6 +14,7 @@
 import time
 import sys
 import uuid
+import os
 import pytest
 from datetime import timedelta
 from typing import cast, Callable
@@ -142,7 +143,8 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
         query=query,
         expected_count=1,
     )
-    
+
+
 def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:
@@ -159,7 +161,6 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
         cloud_role_name=new_unique_cloud_role_name,
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
-        extras=extras,
         force_configuration=True,
     )
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)

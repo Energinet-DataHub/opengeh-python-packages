@@ -23,7 +23,7 @@ def test_configure_logging__then_environmental_variables_are_set():
     assert os.environ["OTEL_SERVICE_NAME"] == cloud_role_name
 
 
-def test_configure_logging__configure_does_updates_environmental_variables():
+def test_configure_logging__configure_does_update_environmental_variables():
     # Arrange
     initial_cloud_role_name = "test_role"
     updated_cloud_role_name = "updated_test_role"
