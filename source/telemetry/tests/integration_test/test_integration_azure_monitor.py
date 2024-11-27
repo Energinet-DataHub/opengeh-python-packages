@@ -101,7 +101,8 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
     new_uuid = uuid.uuid4()
     new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
     message = "test message"
-    extras = {"test-key": "test-value"}
+    key = "key"
+    extras = {key: "value"}
     applicationinsights_connection_string = (
         integration_test_configuration.get_applicationinsights_connection_string()
     )
@@ -126,7 +127,7 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
         | where AppRoleName == "{new_unique_cloud_role_name}"
         | where Message == "{message}"
-        | where Properties.test-key == "{extras['test-key']}"
+        | where Properties.{key} == "{extras[key]}"
         | where SeverityLevel == {severity_level}
         | count
         """
