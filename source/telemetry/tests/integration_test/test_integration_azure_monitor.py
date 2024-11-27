@@ -82,7 +82,15 @@ def _wait_for_condition(
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")
 
 
+@pytest.parametrize(
+    "logging_level, azure_log_name",
+    [
+        (Logger.info, "AppTraces"),
+    ],
+)
 def test_add_info_log_record_to_azure_monitor_with_expected_settings(
+    logging_level: Callable[[str], None],
+    azure_log_name: str,
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:
     # Arrange
@@ -103,20 +111,22 @@ def test_add_info_log_record_to_azure_monitor_with_expected_settings(
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
     # Act
-    logger.info(message)
+    logging_level(logger, message)
 
     # Assert
     # noinspection PyTypeChecker
     logs_client = LogsQueryClient(integration_test_configuration.credential)
 
     query = f"""
-        AppTraces
-        | where CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+        {azure_log_name}
+        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
         | where AppRoleName == "{new_unique_cloud_role_name}"
         | where message == "{message}"
         | where test-key == "{extras['test-key']}"
         | count
         """
+
+    print(query)
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
