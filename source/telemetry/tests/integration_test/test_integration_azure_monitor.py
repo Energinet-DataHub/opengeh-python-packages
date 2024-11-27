@@ -85,6 +85,53 @@ def _wait_for_condition(
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")
 
 
+def test__exception_adds_log_to_app_exceptions(
+    integration_test_configuration: IntegrationTestConfiguration,
+) -> None:
+    # Arrange
+    new_uuid = uuid.uuid4()
+    message = f"test exception {new_uuid}"
+    applicationinsights_connection_string = (
+        integration_test_configuration.get_applicationinsights_connection_string()
+    )
+
+    config.configure_logging(
+        cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
+        tracer_name=INTEGRATION_TEST_TRACER_NAME,
+        applicationinsights_connection_string=applicationinsights_connection_string,
+        force_configuration=True,
+    )
+
+    # Act
+    with config.start_span(__name__) as span:
+        try:
+            raise ValueError(message)
+        except ValueError as e:
+            span.record_exception(e)
+
+    # Assert
+    # noinspection PyTypeChecker
+    logs_client = LogsQueryClient(integration_test_configuration.credential)
+
+    query = f"""
+        AppExceptions
+        | where AppRoleName == "{INTEGRATION_TEST_CLOUD_ROLE_NAME}"
+        | where ExceptionType == "ValueError"
+        | where OuterMessage == "{message}"
+        | count
+        """
+
+    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query,
+        expected_count=1,
+    )
+
+
 @pytest.mark.parametrize(
     "logging_level, severity_level",
     [
@@ -189,51 +236,4 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
         workspace_id=workspace_id,
         query=query,
         expected_count=log_count,
-    )
-
-
-def test__exception_adds_log_to_app_exceptions(
-    integration_test_configuration: IntegrationTestConfiguration,
-) -> None:
-    # Arrange
-    new_uuid = uuid.uuid4()
-    message = f"test exception {new_uuid}"
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
-
-    config.configure_logging(
-        cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
-        tracer_name=INTEGRATION_TEST_TRACER_NAME,
-        applicationinsights_connection_string=applicationinsights_connection_string,
-        force_configuration=True,
-    )
-
-    # Act
-    with config.start_span(__name__) as span:
-        try:
-            raise ValueError(message)
-        except ValueError as e:
-            span.record_exception(e)
-
-    # Assert
-    # noinspection PyTypeChecker
-    logs_client = LogsQueryClient(integration_test_configuration.credential)
-
-    query = f"""
-        AppExceptions
-        | where AppRoleName == "{INTEGRATION_TEST_CLOUD_ROLE_NAME}"
-        | where ExceptionType == "ValueError"
-        | where OuterMessage == "{message}"
-        | count
-        """
-
-    workspace_id = integration_test_configuration.get_analytics_workspace_id()
-
-    # Assert, but timeout if not succeeded
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query,
-        expected_count=1,
     )
