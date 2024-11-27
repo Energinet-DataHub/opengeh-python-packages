@@ -13,7 +13,7 @@
 # limitations under the License.
 import time
 import sys
-import functools
+import uuid
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
@@ -28,11 +28,20 @@ INTEGRATION_TEST_CLOUD_ROLE_NAME = "test-cloud-role-name"
 INTEGRATION_TEST_TRACER_NAME = "test-tracer-name"
 LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
 
-def _wait_for_condition(logs_client: LogsQueryClient, workspace_id: str, query: str, actual: int, expected_count: int, timeout: timedelta = timedelta(minutes=3), step: timedelta = timedelta(seconds=10)) -> None:
+
+def _wait_for_condition(
+    logs_client: LogsQueryClient,
+    workspace_id: str,
+    query: str,
+    expected_count: int,
+    timeout: timedelta = timedelta(minutes=3),
+    step: timedelta = timedelta(seconds=10),
+) -> None:
     """
     Wait for a condition to be met, or timeout.
     The function keeps invoking the callback until it returns without raising an exception.
     """
+
     def _assert_row_count(actual: int, expected_count: int) -> None:
         actual = cast(LogsQueryResult, actual)
         table = actual.tables[0]
@@ -41,20 +50,25 @@ def _wait_for_condition(logs_client: LogsQueryClient, workspace_id: str, query: 
         count = cast(int, value)
         assert count == expected_count
 
-
-    def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int) -> None:
+    def _assert_logged(
+        logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int
+    ) -> None:
         actual = logs_client.query_workspace(
             workspace_id, query, timespan=LOOK_BACK_FOR_QUERY
         )
         _assert_row_count(actual, expected_count)
-
 
     start_time = time.time()
     while True:
         elapsed_ms = int((time.time() - start_time) * 1000)
         # noinspection PyBroadException
         try:
-            _assert_logged(logs_client=logs_client, workspace_id=workspace_id, query=query, expected_count=expected_count)
+            _assert_logged(
+                logs_client=logs_client,
+                workspace_id=workspace_id,
+                query=query,
+                expected_count=expected_count,
+            )
             print(f"Condition met in {elapsed_ms} ms")
             return
         except Exception:
@@ -68,11 +82,12 @@ def _wait_for_condition(logs_client: LogsQueryClient, workspace_id: str, query: 
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")
 
 
-
 def test_add_info_log_record_to_azure_monitor_with_expected_settings(
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:
     # Arrange
+    new_uuid = uuid.uuid4()
+    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
     message = "test message"
     extras = {"test-key": "test-value"}
     applicationinsights_connection_string = (
@@ -80,7 +95,7 @@ def test_add_info_log_record_to_azure_monitor_with_expected_settings(
     )
 
     configure_logging(
-        cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
+        cloud_role_name=new_unique_cloud_role_name,
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
         extras=extras,
@@ -97,7 +112,7 @@ def test_add_info_log_record_to_azure_monitor_with_expected_settings(
     query = f"""
         AppTraces
         | where CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-        | where AppRoleName == "{INTEGRATION_TEST_CLOUD_ROLE_NAME}"
+        | where AppRoleName == "{new_unique_cloud_role_name}"
         | where message == "{message}"
         | where test-key == "{extras['test-key']}"
         | count
@@ -110,6 +125,5 @@ def test_add_info_log_record_to_azure_monitor_with_expected_settings(
         logs_client=logs_client,
         workspace_id=workspace_id,
         query=query,
-        actual=1,
         expected_count=1,
     )
