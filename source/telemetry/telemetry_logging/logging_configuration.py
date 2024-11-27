@@ -33,6 +33,7 @@ def configure_logging(
     tracer_name: str,
     applicationinsights_connection_string: str | None = None,
     extras: dict[str, Any] | None = None,
+    force_configuration: bool = False,
 ) -> None:
     """
     Configure logging to use OpenTelemetry and Azure Monitor.
@@ -41,6 +42,7 @@ def configure_logging(
     :param tracer_name:
     :param applicationinsights_connection_string:
     :param extras: Custom structured logging data to be included in every log message.
+    :param force_configuration: If True, then logging will be reconfigured even if it has already been configured.
     :return:
 
     If connection string is None, then logging will not be sent to Azure Monitor.
@@ -50,9 +52,9 @@ def configure_logging(
     global _TRACER_NAME
     _TRACER_NAME = tracer_name
 
-    # Only configure logging once.
+    # Only configure logging once unless forced.
     global _IS_INSTRUMENTED
-    if _IS_INSTRUMENTED:
+    if _IS_INSTRUMENTED and not force_configuration:
         return
 
     # Configure structured logging data to be included in every log message.

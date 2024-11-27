@@ -23,6 +23,20 @@ def test_configure_logging__then_environmental_variables_are_set():
     assert os.environ["OTEL_SERVICE_NAME"] == cloud_role_name
 
 
+def test_configure_logging__configure_does_updates_environmental_variables():
+    # Arrange
+    initial_cloud_role_name = "test_role"
+    updated_cloud_role_name = "updated_test_role"
+    tracer_name = "test_tracer"
+    configure_logging(cloud_role_name=initial_cloud_role_name, tracer_name=tracer_name)
+
+    # Act
+    configure_logging(cloud_role_name=updated_cloud_role_name, tracer_name=tracer_name)
+
+    # Assert
+    assert os.environ["OTEL_SERVICE_NAME"] == updated_cloud_role_name
+
+
 def test_get_extras__when_no_extras_none_are_returned():
     # Arrange
     cloud_role_name = "test_role"
@@ -115,3 +129,35 @@ def test_configure_logging__when_connection_string_is_provided__azure_monitor_is
 
     # Assert
     mock_configure_azure_monitor.assert_called_once_with(connection_string=connection_string)
+
+
+@mock.patch("telemetry_logging.logging_configuration.configure_azure_monitor")
+def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(mock_configure_azure_monitor):
+    # Arrange
+    initial_cloud_role_name = "test_role"
+    updated_cloud_role_name = "updated_test_role"
+    tracer_name = "test_tracer"
+    connection_string = "connection_string"
+    configure_logging(cloud_role_name=initial_cloud_role_name, tracer_name=tracer_name, applicationinsights_connection_string=connection_string)
+
+    # Act
+    configure_logging(cloud_role_name=updated_cloud_role_name, tracer_name=tracer_name, applicationinsights_connection_string=connection_string)
+
+    # Assert
+    assert os.environ["OTEL_SERVICE_NAME"] == initial_cloud_role_name
+
+
+@mock.patch("telemetry_logging.logging_configuration.configure_azure_monitor")
+def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_force_configure(mock_configure_azure_monitor):
+    # Arrange
+    initial_cloud_role_name = "test_role"
+    updated_cloud_role_name = "updated_test_role"
+    tracer_name = "test_tracer"
+    connection_string = "connection_string"
+    configure_logging(cloud_role_name=initial_cloud_role_name, tracer_name=tracer_name, applicationinsights_connection_string=connection_string)
+
+    # Act
+    configure_logging(cloud_role_name=updated_cloud_role_name, tracer_name=tracer_name, applicationinsights_connection_string=connection_string, force_configuration=True)
+
+    # Assert
+    assert os.environ["OTEL_SERVICE_NAME"] == updated_cloud_role_name

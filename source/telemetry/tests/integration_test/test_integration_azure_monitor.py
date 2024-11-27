@@ -36,7 +36,7 @@ def _wait_for_condition(
     workspace_id: str,
     query: str,
     expected_count: int,
-    timeout: timedelta = timedelta(minutes=3),
+    timeout: timedelta = timedelta(minutes=2),
     step: timedelta = timedelta(seconds=10),
 ) -> None:
     """
@@ -112,6 +112,7 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
         extras=extras,
+        force_configuration=True,
     )
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
@@ -158,6 +159,7 @@ def test_exception_adds_log_to_app_exceptions(
         cloud_role_name=new_unique_cloud_role_name,
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
+        force_configuration=True,
     )
 
     # Act
