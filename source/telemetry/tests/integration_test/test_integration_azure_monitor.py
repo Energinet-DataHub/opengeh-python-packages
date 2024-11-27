@@ -130,6 +130,8 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         | where SeverityLevel == {severity_level}
         | count
         """
+        
+    print(query)
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
@@ -174,9 +176,9 @@ def test_exception_adds_log_to_app_exceptions(
 
     query = f"""
         AppExceptions
-        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
         | where AppRoleName == "{new_unique_cloud_role_name}"
-        | where message == "{message}"
+        | where ExceptionType == "ValueError"
+        | where OuterMessage == "{message}"
         | count
         """
 
