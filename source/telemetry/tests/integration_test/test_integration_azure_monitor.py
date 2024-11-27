@@ -130,8 +130,6 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         | where SeverityLevel == {severity_level}
         | count
         """
-        
-    print(query)
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
