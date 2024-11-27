@@ -234,6 +234,8 @@ def test__exception_adds_log_to_app_exceptions(
         | count
         """
 
+    print(query)
+
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
     # Assert, but timeout if not succeeded
