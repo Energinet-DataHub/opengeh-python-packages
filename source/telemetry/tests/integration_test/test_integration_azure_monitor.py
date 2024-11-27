@@ -14,6 +14,7 @@
 import time
 import sys
 import uuid
+import pytest
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
@@ -86,9 +87,11 @@ def _wait_for_condition(
     "logging_level, azure_log_name",
     [
         (Logger.info, "AppTraces"),
+        (Logger.warning, "AppTraces"),
+        (Logger.error, "AppTraces"),
     ],
 )
-def test_add_info_log_record_to_azure_monitor_with_expected_settings(
+def test_add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[str], None],
     azure_log_name: str,
     integration_test_configuration: IntegrationTestConfiguration,
