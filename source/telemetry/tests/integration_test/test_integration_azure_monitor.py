@@ -197,21 +197,17 @@ def test__exception_adds_log_to_app_exceptions(
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
-    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
-    message = "test exception"
+    message = f"test exception {new_uuid}"
     applicationinsights_connection_string = (
         integration_test_configuration.get_applicationinsights_connection_string()
     )
 
     config.configure_logging(
-        cloud_role_name=new_unique_cloud_role_name,
+        cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
         force_configuration=True,
     )
-
-    print(new_unique_cloud_role_name)
-    print(os.environ["OTEL_SERVICE_NAME"])
 
     # Act
     with config.start_span(__name__) as span:
@@ -226,13 +222,11 @@ def test__exception_adds_log_to_app_exceptions(
 
     query = f"""
         AppExceptions
-        | where AppRoleName == "{new_unique_cloud_role_name}"
+        | where AppRoleName == "{INTEGRATION_TEST_CLOUD_ROLE_NAME}"
         | where ExceptionType == "ValueError"
         | where OuterMessage == "{message}"
         | count
         """
-
-    print(query)
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
