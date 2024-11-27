@@ -198,7 +198,7 @@ def test__exception_adds_log_to_app_exceptions(
     # Arrange
     new_uuid = uuid.uuid4()
     new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
-    message = f"test exception"
+    message = "test exception"
     applicationinsights_connection_string = (
         integration_test_configuration.get_applicationinsights_connection_string()
     )
