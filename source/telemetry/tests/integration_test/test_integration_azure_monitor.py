@@ -83,7 +83,7 @@ def _wait_for_condition(
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")
 
 
-@pytest.parametrize(
+@pytest.mark.parametrize(
     "logging_level, azure_log_name",
     [
         (Logger.info, "AppTraces"),
