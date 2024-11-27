@@ -92,7 +92,7 @@ def _wait_for_condition(
         (Logger.error, 3),
     ],
 )
-def test_add_log_record_to_azure_monitor_with_expected_settings(
+def test__add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[str], None],
     severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
@@ -142,9 +142,56 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         query=query,
         expected_count=1,
     )
+    
+def test__add_log_records_to_azure_monitor_keeps_correct_count(
+    integration_test_configuration: IntegrationTestConfiguration,
+) -> None:
+    # Arrange
+    log_count = 5
+    new_uuid = uuid.uuid4()
+    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
+    message = "test message"
+    applicationinsights_connection_string = (
+        integration_test_configuration.get_applicationinsights_connection_string()
+    )
+
+    config.configure_logging(
+        cloud_role_name=new_unique_cloud_role_name,
+        tracer_name=INTEGRATION_TEST_TRACER_NAME,
+        applicationinsights_connection_string=applicationinsights_connection_string,
+        extras=extras,
+        force_configuration=True,
+    )
+    logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
+
+    # Act
+    for _ in range(log_count):
+        logger.info(message)
+
+    # Assert
+    # noinspection PyTypeChecker
+    logs_client = LogsQueryClient(integration_test_configuration.credential)
+
+    query = f"""
+        AppTraces
+        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+        | where AppRoleName == "{new_unique_cloud_role_name}"
+        | where Message == "{message}"
+        | count
+        """
+
+    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query,
+        expected_count=log_count,
+    )
 
 
-def test_exception_adds_log_to_app_exceptions(
+def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:
     # Arrange
@@ -161,6 +208,9 @@ def test_exception_adds_log_to_app_exceptions(
         applicationinsights_connection_string=applicationinsights_connection_string,
         force_configuration=True,
     )
+
+    print(new_unique_cloud_role_name)
+    print(os.environ["OTEL_SERVICE_NAME"])
 
     # Act
     with config.get_tracer().start_as_current_span(
@@ -182,8 +232,6 @@ def test_exception_adds_log_to_app_exceptions(
         | where OuterMessage == "{message}"
         | count
         """
-
-    print(query)
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
