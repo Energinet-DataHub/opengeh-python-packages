@@ -214,9 +214,7 @@ def test__exception_adds_log_to_app_exceptions(
     print(os.environ["OTEL_SERVICE_NAME"])
 
     # Act
-    with config.get_tracer().start_as_current_span(
-        __name__, kind=SpanKind.SERVER
-    ) as span:
+    with config.start_span(__name__) as span:
         try:
             raise ValueError(message)
         except ValueError as e:
