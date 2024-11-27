@@ -18,10 +18,11 @@ import pytest
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
+from opentelemetry.trace import SpanKind
 
 from tests.integration_test_configuration import IntegrationTestConfiguration
 from telemetry_logging.logger import Logger
-from telemetry_logging.logging_configuration import configure_logging
+import telemetry_logging.logging_configuration as config
 
 
 INTEGRATION_TEST_LOGGER_NAME = "test-logger"
@@ -84,16 +85,16 @@ def _wait_for_condition(
 
 
 @pytest.mark.parametrize(
-    "logging_level, azure_log_name",
+    "logging_level, severity_level",
     [
-        (Logger.info, "AppTraces"),
-        (Logger.warning, "AppTraces"),
-        (Logger.error, "AppTraces"),
+        (Logger.info, 1),
+        (Logger.warning, 2),
+        (Logger.error, 3),
     ],
 )
 def test_add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[str], None],
-    azure_log_name: str,
+    severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:
     # Arrange
@@ -105,7 +106,7 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
         integration_test_configuration.get_applicationinsights_connection_string()
     )
 
-    configure_logging(
+    config.configure_logging(
         cloud_role_name=new_unique_cloud_role_name,
         tracer_name=INTEGRATION_TEST_TRACER_NAME,
         applicationinsights_connection_string=applicationinsights_connection_string,
@@ -121,15 +122,63 @@ def test_add_log_record_to_azure_monitor_with_expected_settings(
     logs_client = LogsQueryClient(integration_test_configuration.credential)
 
     query = f"""
-        {azure_log_name}
+        AppTraces
         | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
         | where AppRoleName == "{new_unique_cloud_role_name}"
         | where message == "{message}"
-        | where test-key == "{extras['test-key']}"
+        | where Properties.test-key == "{extras['test-key']}"
+        | where SeverityLevel == {severity_level}
         | count
         """
 
-    print(query)
+    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query,
+        expected_count=1,
+    )
+
+
+def test_exception_adds_log_to_app_exceptions(
+    integration_test_configuration: IntegrationTestConfiguration,
+) -> None:
+    # Arrange
+    new_uuid = uuid.uuid4()
+    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
+    message = "test exception"
+    applicationinsights_connection_string = (
+        integration_test_configuration.get_applicationinsights_connection_string()
+    )
+
+    config.configure_logging(
+        cloud_role_name=new_unique_cloud_role_name,
+        tracer_name=INTEGRATION_TEST_TRACER_NAME,
+        applicationinsights_connection_string=applicationinsights_connection_string,
+    )
+
+    # Act
+    with config.get_tracer().start_as_current_span(
+        __name__, kind=SpanKind.SERVER
+    ) as span:
+        try:
+            raise ValueError(message)
+        except ValueError as e:
+            span.record_exception(e)
+
+    # Assert
+    # noinspection PyTypeChecker
+    logs_client = LogsQueryClient(integration_test_configuration.credential)
+
+    query = f"""
+        AppExceptions
+        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+        | where AppRoleName == "{new_unique_cloud_role_name}"
+        | where message == "{message}"
+        | count
+        """
 
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
