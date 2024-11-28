@@ -1,5 +1,9 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.5
+
+- Test
+
 ## Version 2.0.4
 
 - Fix
