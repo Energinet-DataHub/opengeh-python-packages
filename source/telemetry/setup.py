@@ -12,8 +12,8 @@ setup(
     install_requires=[
         "azure-monitor-opentelemetry>=1.6.0,<2.0.0",
         "azure-core>=1.30.0,<2.0.0",
-        "azure-identity==1.12.0",
-        "azure-keyvault-secrets==4.7.0",
-        "azure-monitor-query==1.2.0",
+        "azure-identity>=1.12.0,<2.0.0",
+        "azure-keyvault-secrets>=4.7.0,<5.0.0",
+        "azure-monitor-query>=1.2.0,<2.0.0",
     ],
 )
