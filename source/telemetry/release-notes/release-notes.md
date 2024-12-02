@@ -1,5 +1,9 @@
 # Telemetry Release Notes
 
+## Version 2.4.1
+
+- Change required version to ranges
+
 ## Version 2.4.0
 
 - Added integration test for telemetry
