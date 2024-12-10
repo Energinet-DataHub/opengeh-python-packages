@@ -1,5 +1,9 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.6
+
+- Added temporary fix that allows migration without current state scripts.
+
 ## Version 2.0.5
 
 - Change minimum required version of `pyspark` to `3.5.1`
