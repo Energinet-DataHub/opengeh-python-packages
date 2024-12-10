@@ -22,8 +22,7 @@ def _migrate_without_current_state() -> None:
     This is temporary solution to migrate without current state.
     """
     migrations: list[str] = uncommitted_migrations.get_uncommitted_migration_scripts()
-    all_migrations_count: int = len(uncommitted_migrations.get_all_migration_scripts())
-    if len(migrations) == all_migrations_count:
+    if len(migrations) > 0:
         (apply_migrations.apply_migration_scripts(migrations))
     else:
         raise Exception(
