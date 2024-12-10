@@ -248,3 +248,19 @@ def test_migrate_when_one_table_missing_and_no_migrations_should_call_create_tab
 
     # Assert
     mocked_create_all_tables.assert_called_once()
+
+
+def test_migrate_with_none_tables_and_uncommitted_migrations_throws_exception(
+    mocker: Mock,
+    spark: SparkSession,
+) -> None:
+    # Arrange
+    mocker.patch.object(sut, sut._get_tables.__name__, return_value=None)
+    mocker.patch.object(
+        sut.uncommitted_migrations,
+        sut.uncommitted_migrations.get_all_migration_scripts.__name__,
+        return_value=["migration1", "migration2"],
+    )
+    # Act / Assert
+    with pytest.raises(Exception):
+        sut.migrate()
