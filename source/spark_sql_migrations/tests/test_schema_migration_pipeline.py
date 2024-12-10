@@ -267,12 +267,14 @@ def test_migrate_with_none_tables_and_uncommitted_migrations(
         sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=["migration1", "migration2"],
     )
+    mocked_migrate = mocker.patch.object(sut, '_migrate')
 
     # Act
     sut.migrate()
 
     # Assert
     mocked_apply_migration_scripts.assert_called_once()
+    mocked_migrate.assert_not_called()
 
 
 def test_migrate_with_none_tables_and_zero_uncommitted_migrations_throws_exception(
