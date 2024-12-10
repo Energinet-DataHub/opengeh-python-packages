@@ -9,6 +9,8 @@ from spark_sql_migrations.models.configuration import Configuration
 
 def migrate() -> None:
     tables = _get_tables()
+
+    # This is temporary solution to migrate without current state.
     if tables is None:
           _migrate_without_current_state()
 
