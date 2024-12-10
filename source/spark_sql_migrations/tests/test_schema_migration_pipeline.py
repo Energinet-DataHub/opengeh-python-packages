@@ -259,7 +259,7 @@ def test_migrate_with_none_tables_and_uncommitted_migrations_throws_exception(
     mocker.patch.object(
         sut.uncommitted_migrations,
         sut.uncommitted_migrations.get_all_migration_scripts.__name__,
-        return_value=["migration1", "migration2"],
+        return_value=[],
     )
     # Act / Assert
     with pytest.raises(Exception):
