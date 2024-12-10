@@ -1,5 +1,9 @@
 # Telemetry Release Notes
 
+## Version 2.4.2
+
+- Added temporary solution to migrate without current state
+
 ## Version 2.4.1
 
 - Change required version to ranges
