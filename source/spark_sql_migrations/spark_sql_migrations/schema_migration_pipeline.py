@@ -12,7 +12,7 @@ def migrate() -> None:
 
     # This is temporary solution to migrate without current state.
     if tables is None:
-          _migrate_without_current_state()
+        _migrate_without_current_state()
 
     _migrate(len(_get_tables()))
 
