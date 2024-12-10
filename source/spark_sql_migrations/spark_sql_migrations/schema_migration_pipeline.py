@@ -24,10 +24,6 @@ def _migrate_without_current_state() -> None:
     migrations: list[str] = uncommitted_migrations.get_uncommitted_migration_scripts()
     if len(migrations) > 0:
         (apply_migrations.apply_migration_scripts(migrations))
-    else:
-        raise Exception(
-            "Uncommitted migrations are not in sync with all migrations"
-        )
 
 
 def _migrate(existing_tables_count: int) -> None:

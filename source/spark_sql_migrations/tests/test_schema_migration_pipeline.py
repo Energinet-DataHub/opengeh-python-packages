@@ -277,17 +277,24 @@ def test_migrate_with_none_tables_and_uncommitted_migrations(
     mocked_migrate.assert_not_called()
 
 
-def test_migrate_with_none_tables_and_zero_uncommitted_migrations_throws_exception(
+def test_migrate_with_none_tables_and_zero_uncommitted_migrations(
     mocker: Mock,
     spark: SparkSession,
 ) -> None:
     # Arrange
     mocker.patch.object(sut, sut._get_tables.__name__, return_value=None)
+    mocked_apply_migration_scripts = mocker.patch.object(
+        sut.apply_migrations,
+        sut.apply_migrations.apply_migration_scripts.__name__,
+        return_value=None
+    )
     mocker.patch.object(
         sut.uncommitted_migrations,
         sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
         return_value=[],
     )
-    # Act / Assert
-    with pytest.raises(Exception):
-        sut.migrate()
+    # Act
+    sut.migrate()
+
+    # Assert
+    mocked_apply_migration_scripts.assert_not_called()
