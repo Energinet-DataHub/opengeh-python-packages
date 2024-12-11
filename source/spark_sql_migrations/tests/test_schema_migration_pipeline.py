@@ -248,3 +248,53 @@ def test_migrate_when_one_table_missing_and_no_migrations_should_call_create_tab
 
     # Assert
     mocked_create_all_tables.assert_called_once()
+
+
+def test_migrate_with_none_tables_and_uncommitted_migrations(
+    mocker: Mock,
+    spark: SparkSession,
+) -> None:
+    # Arrange
+    mocker.patch.object(sut, sut._get_tables.__name__, return_value=None)
+    mocked_apply_migration_scripts = mocker.patch.object(
+        sut.apply_migrations,
+        sut.apply_migrations.apply_migration_scripts.__name__,
+        return_value=None
+    )
+
+    mocker.patch.object(
+        sut.uncommitted_migrations,
+        sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
+        return_value=["migration1", "migration2"],
+    )
+    mocked_migrate = mocker.patch.object(sut, '_migrate')
+
+    # Act
+    sut.migrate()
+
+    # Assert
+    mocked_apply_migration_scripts.assert_called_once()
+    mocked_migrate.assert_not_called()
+
+
+def test_migrate_with_none_tables_and_zero_uncommitted_migrations(
+    mocker: Mock,
+    spark: SparkSession,
+) -> None:
+    # Arrange
+    mocker.patch.object(sut, sut._get_tables.__name__, return_value=None)
+    mocked_apply_migration_scripts = mocker.patch.object(
+        sut.apply_migrations,
+        sut.apply_migrations.apply_migration_scripts.__name__,
+        return_value=None
+    )
+    mocker.patch.object(
+        sut.uncommitted_migrations,
+        sut.uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
+        return_value=[],
+    )
+    # Act
+    sut.migrate()
+
+    # Assert
+    mocked_apply_migration_scripts.assert_not_called()
