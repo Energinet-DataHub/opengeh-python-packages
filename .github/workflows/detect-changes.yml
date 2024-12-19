@@ -9,6 +9,8 @@ name: Detect changes
 on:
   workflow_call:
     outputs:
+      testcommon:
+        value: ${{ jobs.changes.outputs.testcommon }}
       telemetry:
         value: ${{ jobs.changes.outputs.telemetry }}
       spark_sql_migrations:
