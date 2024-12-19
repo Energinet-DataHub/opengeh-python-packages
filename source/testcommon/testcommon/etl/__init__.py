@@ -1,3 +1,8 @@
+"""Utility functions for ETL testing.
+
+This module provides utility functions to aid in feature testing.
+"""
+
 from testcommon.etl.read_csv import read_csv
 from testcommon.etl.get_then_names import get_then_names
 
