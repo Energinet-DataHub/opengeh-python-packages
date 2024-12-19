@@ -1,4 +1,4 @@
-from tests.data.cases import Cases
+from tests.covernator.data.cases import Cases
 
 """
 ## Purpose

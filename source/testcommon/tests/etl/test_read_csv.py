@@ -1,9 +1,7 @@
 from pyspark.sql import types as T
 
 from testcommon.etl import read_csv, assert_dataframes
-from tests.constants import TEST_DATA_DIR
-
-CSV_EXAMPLES = TEST_DATA_DIR / "csv_examples"
+from tests.etl.constants import ETL_TEST_DATA
 
 
 def test_no_array(spark):
@@ -15,7 +13,7 @@ def test_no_array(spark):
         ]
     )
 
-    path = CSV_EXAMPLES / "no_array.csv"
+    path = ETL_TEST_DATA / "no_array.csv"
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
@@ -36,13 +34,11 @@ def test_with_array_string(spark):
             T.StructField("b", T.StringType(), True),
             T.StructField("c", T.BooleanType(), True),
             T.StructField("d", T.ArrayType(T.StringType()), True),
-            T.StructField(
-                "e", T.ArrayType(T.StringType(), containsNull=False), True
-            ),
+            T.StructField("e", T.ArrayType(T.StringType(), containsNull=False), True),
         ]
     )
 
-    path = CSV_EXAMPLES / "with_array_string.csv"
+    path = ETL_TEST_DATA / "with_array_string.csv"
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
