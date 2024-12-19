@@ -9,6 +9,8 @@ name: Detect changes
 on:
   workflow_call:
     outputs:
+      testcommon:
+        value: ${{ jobs.changes.outputs.testcommon }}
       telemetry:
         value: ${{ jobs.changes.outputs.telemetry }}
       spark_sql_migrations:
@@ -27,6 +29,8 @@ jobs:
     outputs:
       telemetry: ${{ steps.filter.outputs.telemetry }}
       telemetry_release_notes: ${{ steps.filter.outputs.telemetry_release_notes }}
+      testcommon: ${{ steps.filter.outputs.testcommon }}
+      testcommon_release_notes: ${{ steps.filter.outputs.testcommon_release_notes }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
       spark_sql_migrations_release_notes: ${{ steps.filter.outputs.spark_sql_migrations_release_notes }}
       docker: ${{ steps.filter.outputs.docker }}
@@ -52,6 +56,10 @@ jobs:
               - 'source/spark_sql_migrations/**'
             spark_sql_migrations_release_notes:
               - 'source/spark_sql_migrations/release-notes/release-notes.md'
+            testcommon:
+              - 'source/testcommon/**'
+            testcommon_release_notes:
+              - 'source/testcommon/release-notes/release-notes.md'
             docker:
               - .docker/**
             pyspark_slim:
@@ -71,8 +79,21 @@ jobs:
       matrix:
         package:
           [
-            { packageName: telemetry, packageChanged: "${{ needs.changes.outputs.telemetry }}", releaseNotesChanged: "${{ needs.changes.outputs.telemetry_release_notes }}" },
-            { packageName: spark_sql_migrations, packageChanged: "${{ needs.changes.outputs.spark_sql_migrations }}", releaseNotesChanged: "${{ needs.changes.outputs.spark_sql_migrations_release_notes }}" },
+            {
+              packageName: telemetry,
+              packageChanged: "${{ needs.changes.outputs.telemetry }}",
+              releaseNotesChanged: "${{ needs.changes.outputs.telemetry_release_notes }}",
+            },
+            {
+              packageName: spark_sql_migrations,
+              packageChanged: "${{ needs.changes.outputs.spark_sql_migrations }}",
+              releaseNotesChanged: "${{ needs.changes.outputs.spark_sql_migrations_release_notes }}",
+            },
+            {
+              packageName: testcommon,
+              packageChanged: "${{ needs.changes.outputs.testcommon }}",
+              releaseNotesChanged: "${{ needs.changes.outputs.testcommon_release_notes }}",
+            },
           ]
       max-parallel: 1
     steps:

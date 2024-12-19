@@ -12,6 +12,13 @@ mypy
 pyspelling
 pytest-asyncio
 pytest-xdist
+azure-storage-blob==12.14.1
+coverage==7.0.*
+configargparse==1.5.3
+rope==1.6.*
+pytest==7.2.*
+pytest-mock==3.10.*
+virtualenv==20.*
 
 #
 # PROJECT DEPENDENCIES
@@ -25,3 +32,7 @@ databricks-cli==0.18
 delta-spark==3.1.0
 dependency_injector==4.43.0
 pyyaml==6.0.2
+pyspark>=3.5.0
+pandas>=1.0.5,<2.0.0
+numpy==1.26.4
+PyArrow>=4.0.0
