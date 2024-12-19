@@ -1,14 +1,15 @@
 from pathlib import Path
-from testcommon import TestCases
+
+from testcommon.covernator import TestCases
 from tests.data.cases import Cases
 from tests.constants import TEST_DATA_DIR, TEST_DIR
 
 
 def test_submodule_discovery():
     assert TestCases.__subclasses__() == [Cases]
-    assert TestCases.get_subclass_paths()[0].relative_to(TEST_DATA_DIR) == Path(
-        "cases.py"
-    )
+    assert TestCases.get_subclass_paths()[0].relative_to(
+        TEST_DATA_DIR
+    ) == Path("cases.py")
 
 
 def test_find_imports_with_root_dir():

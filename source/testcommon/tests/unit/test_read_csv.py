@@ -1,7 +1,7 @@
 from pyspark.sql import types as T
-from pyspark.testing.utils import assertDataFrameEqual
+
+from testcommon.etl import read_csv, assert_dataframes
 from tests.constants import TEST_DATA_DIR
-from testcommon.read_csv import read_csv
 
 CSV_EXAMPLES = TEST_DATA_DIR / "csv_examples"
 
@@ -21,7 +21,7 @@ def test_no_array(spark):
 
     test_df = spark.createDataFrame([(1, "a", True)], schema=schema)
 
-    assertDataFrameEqual(df, test_df)
+    assert_dataframes(df, test_df)
 
     collected = df.collect()
     assert collected[0].a == 1, f"a should be 1, got {collected[0].a}"
@@ -36,7 +36,9 @@ def test_with_array_string(spark):
             T.StructField("b", T.StringType(), True),
             T.StructField("c", T.BooleanType(), True),
             T.StructField("d", T.ArrayType(T.StringType()), True),
-            T.StructField("e", T.ArrayType(T.StringType(), containsNull=False), True),
+            T.StructField(
+                "e", T.ArrayType(T.StringType(), containsNull=False), True
+            ),
         ]
     )
 
@@ -48,7 +50,7 @@ def test_with_array_string(spark):
         [(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema
     )
 
-    assertDataFrameEqual(df, test_df)
+    assert_dataframes(df, test_df)
 
     collected = df.collect()
     assert collected[0].a == 1, f"a should be 1, got {collected[0].a}"
