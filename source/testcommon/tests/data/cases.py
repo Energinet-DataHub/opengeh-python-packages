@@ -1,4 +1,4 @@
-from testcommon import TestCases
+from testcommon.covernator import TestCases
 
 
 class Cases(TestCases):
