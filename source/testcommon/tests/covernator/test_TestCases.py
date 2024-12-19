@@ -18,7 +18,7 @@ def test_find_imports_with_root_dir():
     cases_import_path = import_paths["Cases"]
     for path, cases in cases_import_path.items():
         if not path.parent == COVERNATOR_TEST_DATA:
-            continue
+            raise AssertionError(f"{path} is not in {COVERNATOR_TEST_DATA}")
         assert path.relative_to(COVERNATOR_TEST_DATA) == Path("import_cases.py")
         for case in cases:
             assert case.startswith("Cases.")
@@ -30,7 +30,7 @@ def test_find_imports_without_root_dir():
     cases_import_path = import_paths["Cases"]
     for path, cases in cases_import_path.items():
         if not path.parent == COVERNATOR_TEST_DATA:
-            continue
+            raise AssertionError(f"{path} is not in {COVERNATOR_TEST_DATA}")
         assert path.relative_to(COVERNATOR_TEST_DATA) == Path("import_cases.py")
         for case in cases:
             assert case.startswith("Cases.")
