@@ -13,8 +13,8 @@ from pyspark.testing.utils import assertDataFrameEqual as assert_dataframes
 from pyspark.testing.utils import assertSchemaEqual as assert_schemas
 
 __all__ = [
-    "read_csv",
-    "assert_dataframes",
-    "get_then_names",
-    "assert_schemas",
+    read_csv.__name__,
+    assert_dataframes.__name__,
+    get_then_names.__name__,
+    assert_schemas.__name__,
 ]
