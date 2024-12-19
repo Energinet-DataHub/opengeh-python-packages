@@ -10,25 +10,36 @@ class TestCases:
 
     @classmethod
     def get_subclass_paths(cls: "TestCases") -> list[Path]:
+        """Get the paths of the subclasses of the TestCases class.
+
+        Returns:
+            list[Path]: A list of the paths of the subclasses.
+        """
         subclasses = cls.__subclasses__()
         return [
-            Path(importlib.import_module(sub.__module__).__file__)
-            for sub in subclasses
+            Path(importlib.import_module(sub.__module__).__file__) for sub in subclasses
         ]
 
     @classmethod
     def find_imports(
         cls: "TestCases", root_dir: Path | None = None
     ) -> dict[str, dict[Path, list[str]]]:
+        """Find the imports of the subclasses of the TestCases class.
+
+        Args:
+            root_dir (Path, optional): The root directory to search for imports.
+                Defaults to None.
+
+        Returns:
+            dict[str, dict[Path, list[str]]]: A dictionary of the imports of the subclasses.
+        """
         if root_dir is None:
             root_dir = cls._find_git_root()
         subclasses = cls.__subclasses__()
         import_paths = {}
         for sub in subclasses:
             module_name = sub.__name__
-            import_paths[module_name] = cls._find_module_imports(
-                module_name, root_dir
-            )
+            import_paths[module_name] = cls._find_module_imports(module_name, root_dir)
         return import_paths
 
     @staticmethod
