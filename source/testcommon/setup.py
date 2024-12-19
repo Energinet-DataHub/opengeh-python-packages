@@ -15,6 +15,8 @@ setup(
         "PyYAML",
         "pytest",
         "delta-spark",
+        # The pandas, numpy and PyArray dependencies are required for using
+        # `assertDataFrameEqual` and `assertSchemaEqual` function from PySpark.
         "pandas>=1.0.5,<2.0.0",
         "numpy==1.26.4",
         "PyArrow >= 4.0.0",
