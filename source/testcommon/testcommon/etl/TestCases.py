@@ -11,6 +11,8 @@ class TestCase:
     The expected data is lazy-loaded from a CSV file as it may not exist in all scenarios.
     """
 
+    __test__ = False
+
     def __init__(self, expected_csv_path: str, actual: DataFrame) -> None:
         if not isinstance(expected_csv_path, str):
             raise TypeError("expected_csv_path must be a string")
@@ -19,6 +21,7 @@ class TestCase:
 
     @property
     def expected(self) -> DataFrame:
+        """The expected DataFrame."""
         return read_csv(
             self.actual.sparkSession, self.expected_csv_path, self.actual.schema
         )
@@ -26,6 +29,8 @@ class TestCase:
 
 @dataclass
 class TestCases(dict):
+    __test__ = False
+
     def __init__(self, test_cases: list[TestCase]) -> None:
         super().__init__()
         for test_case in test_cases:
