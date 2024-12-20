@@ -43,7 +43,7 @@ jobs:
   #
   create_release:
     needs: [changes]
-    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' }}
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.testcommon == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' }}
     uses: ./.github/workflows/create-release-tag.yml
     secrets: inherit # Needed for organization scope GH_TOKEN
 
