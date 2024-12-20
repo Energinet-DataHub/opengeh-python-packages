@@ -7,6 +7,11 @@ from testcommon.etl.read_csv import read_csv
 from testcommon.etl.get_then_names import get_then_names
 from testcommon.etl.TestCases import TestCases, TestCase
 
+# Used to suppress FutureWarnings from PySpark.
+import warnings
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+
 # We are using the assertDataFrameEqual function from PySpark.
 # This function has A LOT of dependency issues. These have been resolved in
 # the setup.py file. So we can import the function here without any issues.
