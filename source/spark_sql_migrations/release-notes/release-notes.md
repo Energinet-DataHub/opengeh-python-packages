@@ -1,5 +1,9 @@
 # Spark SQL Migrations Release Notes
 
+## Version 2.0.7
+
+- Nothing changed.
+
 ## Version 2.0.6
 
 - Added temporary fix that allows migration without current state scripts.

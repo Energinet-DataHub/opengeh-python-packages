@@ -12,6 +12,7 @@ def get_uncommitted_migration_scripts() -> list[str]:
     all_migrations = get_all_migration_scripts()
     committed_migrations = _get_committed_migration_scripts()
 
+    # comment
     uncommitted_migrations = [
         m for m in all_migrations if m not in committed_migrations
     ]
