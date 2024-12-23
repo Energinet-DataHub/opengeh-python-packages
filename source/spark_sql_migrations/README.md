@@ -10,9 +10,6 @@ from spark_sql_migrations import (
     create_and_configure_container,
     migration_pipeline,
     SparkSqlMigrationsConfiguration,
-    Table,
-    Schema,
-    View
 )
 
 from pyspark.sql.types import (
@@ -28,19 +25,6 @@ schema = StructType(
     ]
 )
 
-schema_config = [
-    Schema(
-        name="test_schema",
-        tables=[
-            Table(name="test_table", schema=schema),
-            Table(name="test_table_2", schema=schema)
-        ],
-        views=[
-            View(name="test_view", schema=schema)
-        ]
-    )
-]
-
 substitutions = {"{location}": "some_location"}
 
 spark_config = SparkSqlMigrationsConfiguration(
@@ -48,17 +32,12 @@ spark_config = SparkSqlMigrationsConfiguration(
     migration_table_name="table_name",
     migration_scripts_folder_path="migration_scripts_folder_path",
     table_prefix="table_prefix",
-    current_state_schemas_folder_path="current_state_schemas_folder_path",
-    current_state_tables_folder_path="current_state_tables_folder_path",
-    current_state_views_folder_path="current_state_views_folder_path",
-    schema_config=schema_config,
     substitution_variables=substitutions,
     catalog_name="spark_catalog",
-    rollback_on_failure=False,
 )
 
 create_and_configure_container(spark_config)
-schema_migration_pipeline.migrate()
+migration_pipeline.migrate()
 
 
 ```
