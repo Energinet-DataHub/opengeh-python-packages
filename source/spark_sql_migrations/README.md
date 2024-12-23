@@ -8,7 +8,7 @@
 
 from spark_sql_migrations import (
     create_and_configure_container,
-    schema_migration_pipeline,
+    migration_pipeline,
     SparkSqlMigrationsConfiguration,
     Table,
     Schema,
@@ -20,7 +20,6 @@ from pyspark.sql.types import (
     StructField,
     StringType,
 )
-
 
 schema = StructType(
     [

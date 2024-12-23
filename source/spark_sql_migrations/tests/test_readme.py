@@ -3,7 +3,7 @@ import os
 import tests.helpers.mock_helper as mock_helper
 from unittest.mock import Mock
 import spark_sql_migrations.container as container
-import spark_sql_migrations.schema_migration_pipeline as schema_migration_pipeline
+import spark_sql_migrations.migration_pipeline as schema_migration_pipeline
 
 
 def test_read_me_python_code_example(mocker: Mock) -> None:
