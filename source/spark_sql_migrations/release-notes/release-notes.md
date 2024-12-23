@@ -2,7 +2,7 @@
 
 ## Version 3.0.0
 
-**Breaking changes**
+Breaking changes
 
 - Removed current_state functionality
 - Removed rollback functionality
