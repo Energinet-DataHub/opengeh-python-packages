@@ -1,8 +1,5 @@
-import spark_sql_migrations.schema_migration_pipeline as schema_migration_pipeline
+import spark_sql_migrations.migration_pipeline as schema_migration_pipeline
 from spark_sql_migrations.container import create_and_configure_container
 from spark_sql_migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
-from spark_sql_migrations.models.table import Table
-from spark_sql_migrations.models.schema import Schema
-from spark_sql_migrations.models.view import View
