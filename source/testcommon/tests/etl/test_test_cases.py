@@ -15,7 +15,8 @@ def test_test_cases(spark):
     df = spark.createDataFrame([(1, "a", True)], schema=schema)
 
     path = (ETL_TEST_DATA / "then" / "no_array.csv").as_posix()
+    key = "no_array"  # The path relative to the `then` folder, excluding the file extension
     cases = TestCases([TestCase(path, df)])
 
-    assert list(cases.keys()) == ["no_array"]
-    assert cases[path].expected.schema == schema
+    assert list(cases.keys()) == [key]
+    assert cases[key].expected.schema == schema
