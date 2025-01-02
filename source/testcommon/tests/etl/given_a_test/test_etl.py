@@ -18,24 +18,19 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     scenario_path = str(Path(request.module.__file__).parent)
 
     # Read input data
-    output_path = f"{scenario_path}/when/output.csv"
-    output = read_csv(
+    input_df = read_csv(
         spark,
-        output_path,
+        scenario_path + "/when/input.csv",
         _schema,
     )
 
-    some_output_path = f"{scenario_path}/when/some_folder/some_output.csv"
-    some_output = read_csv(
-        spark,
-        some_output_path,
-        _schema,
-    )
+    # No need to transform the input to test the ETL framework.
+    output_df = input_df
 
     # Return test cases. A test case must exist for each CSV file in the `then` folder.
     return TestCases([
-        TestCase(output_path, output),
-        TestCase(some_output_path, some_output)
+        TestCase(f"{scenario_path}/then/output.csv", output_df),
+        TestCase(f"{scenario_path}/then/some_folder/some_output.csv", output_df)
     ])
 
 

@@ -17,5 +17,5 @@ def test_test_cases(spark):
     path = (ETL_TEST_DATA / "then" / "no_array.csv").as_posix()
     cases = TestCases([TestCase(path, df)])
 
-    assert list(cases.keys()) == [path]
+    assert list(cases.keys()) == ["no_array"]
     assert cases[path].expected.schema == schema
