@@ -32,9 +32,9 @@ class TestCase:
 class TestCases(dict):
     __test__ = False
 
-    def __init__(self, path: str | Path, items: list[TestCase]) -> None:
+    def __init__(self, test_cases: list[TestCase]) -> None:
         super().__init__()
-        for test_case in items:
+        for test_case in test_cases:
             test_case_name = _get_then_name(test_case.expected_csv_path)
             self[test_case_name] = test_case
 
