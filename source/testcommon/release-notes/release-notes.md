@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.0.3
+
+Include test file extension in function `get_then_names` to adhere to functionality of class `TestCase`.
+
 ## Version 0.0.2
 
 Function `get_then_names` of `Testcommon.etl` is updated to include subfolders to avoid naming conflicts.
