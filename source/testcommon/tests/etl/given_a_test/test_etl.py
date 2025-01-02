@@ -10,6 +10,7 @@ from testcommon.etl import assert_dataframes, get_then_names, read_csv, TestCase
 
 _schema = StructType().add("a", "string").add("b", "string").add("c", "integer")
 
+
 @pytest.fixture(scope="module")
 def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     """Very simple fixture where all expected data matches the input data."""
