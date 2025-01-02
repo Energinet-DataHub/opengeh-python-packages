@@ -2,7 +2,9 @@
 
 ## Version 0.0.3
 
-Include test file extension in function `get_then_names` to adhere to functionality of class `TestCase`.
+Add test to verify that the parts of `testcommon.etl` work together.
+See the test in the test `test_etl` in the test module `test_etl.py`.
+This test also provides a simple example of how to write tests using this framework.
 
 ## Version 0.0.2
 
