@@ -14,7 +14,7 @@ def test_test_cases(spark):
     )
     df = spark.createDataFrame([(1, "a", True)], schema=schema)
 
-    path = (ETL_TEST_DATA / "no_array.csv").as_posix()
+    path = (ETL_TEST_DATA / "then" / "no_array.csv").as_posix()
     cases = TestCases([TestCase(path, df)])
 
     assert list(cases.keys()) == [path]

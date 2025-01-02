@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 
 from pyspark.sql import DataFrame
 from testcommon.etl import read_csv
@@ -31,7 +32,21 @@ class TestCase:
 class TestCases(dict):
     __test__ = False
 
-    def __init__(self, test_cases: list[TestCase]) -> None:
+    def __init__(self, path: str | Path, items: list[TestCase]) -> None:
         super().__init__()
-        for test_case in test_cases:
-            self[test_case.expected_csv_path] = test_case
+        for test_case in items:
+            test_case_name = _get_then_name(test_case.expected_csv_path)
+            self[test_case_name] = test_case
+
+    def __getitem__(self, key: str) -> TestCase:
+        """Overload to support type hint of return object."""
+        return super().__getitem__(key)
+
+
+def _get_then_name(path: str | Path) -> str:
+    """Get the path of a file relative to the `/then` folder, excluding the file extension."""
+    path = Path(path)
+    for parent in path.parents:
+        if parent.name == "then":
+            return str(path.relative_to(parent).with_suffix(''))
+    raise ValueError("The path does not contain a 'then' folder")
