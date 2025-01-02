@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from coverage.files import actual_path
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
 import pytest
@@ -25,12 +26,12 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     )
 
     # No need to transform the input to test the ETL framework.
-    output_df = input_df
+    actual_df = input_df
 
     # Return test cases. A test case must exist for each CSV file in the `then` folder.
     return TestCases([
-        TestCase(f"{scenario_path}/then/output.csv", output_df),
-        TestCase(f"{scenario_path}/then/some_folder/some_output.csv", output_df)
+        TestCase(f"{scenario_path}/then/output.csv", actual_df),
+        TestCase(f"{scenario_path}/then/some_folder/some_output.csv", actual_df)
     ])
 
 
