@@ -1,5 +1,11 @@
 # Testcommon Release Notes
 
+## Version 0.0.3
+
+Add test to verify that the parts of `testcommon.etl` work together.
+See the test in the test `test_etl` in the test module `test_etl.py`.
+This test also provides a simple example of how to write tests using this framework.
+
 ## Version 0.0.2
 
 Function `get_then_names` of `Testcommon.etl` is updated to include subfolders to avoid naming conflicts.
