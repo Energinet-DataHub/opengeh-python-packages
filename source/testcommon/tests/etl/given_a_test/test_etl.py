@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from coverage.files import actual_path
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
 import pytest
 
 # These imports are the parts of the ETL framework that we want to test.
-from testcommon.etl import assert_dataframes, get_then_names, read_csv, TestCase, TestCases
+from testcommon.dataframes import read_csv, assert_dataframes_and_schemas, AssertDataframesConfiguration
+from testcommon.etl import get_then_names, TestCase, TestCases
 
 
 _schema = StructType().add("a", "string").add("b", "string").add("c", "integer")
@@ -40,4 +40,5 @@ def test_etl(test_case_name, test_cases: TestCases):
     """Verify that all the parts of `testcommon.etl` work together."""
 
     test_case = test_cases[test_case_name]
-    assert_dataframes(actual=test_case.actual, expected=test_case.expected)
+    assert_dataframes_and_schemas(actual=test_case.actual, expected=test_case.expected)
+    assert_dataframes_and_schemas(actual=test_case.actual, expected=test_case.expected, AssertDataframesConfiguration())
