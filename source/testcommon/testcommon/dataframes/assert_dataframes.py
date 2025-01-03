@@ -11,6 +11,7 @@ from testcommon.dataframes.assert_schemas import assert_schema
 class AssertDataframesConfiguration:
     show_actual_and_expected_count: bool = False
     show_actual_and_expected: bool = False
+    show_columns_when_actual_and_expected_are_equal: bool = False
 
     ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
