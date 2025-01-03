@@ -1,6 +1,6 @@
 from pyspark.sql import types as T
 
-from testcommon.etl import read_csv, assert_dataframes
+from testcommon.dataframes import read_csv, assert_dataframes
 from tests.etl.constants import ETL_TEST_DATA
 
 
@@ -34,7 +34,9 @@ def test_with_array_string(spark):
             T.StructField("b", T.StringType(), True),
             T.StructField("c", T.BooleanType(), True),
             T.StructField("d", T.ArrayType(T.StringType()), True),
-            T.StructField("e", T.ArrayType(T.StringType(), containsNull=False), True),
+            T.StructField(
+                "e", T.ArrayType(T.StringType(), containsNull=False), True
+            ),
         ]
     )
 
