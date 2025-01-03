@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyspark.sql import DataFrame
-from testcommon.etl import read_csv
+from testcommon.dataframes import read_csv
 
 
 @dataclass
@@ -24,7 +24,9 @@ class TestCase:
     def expected(self) -> DataFrame:
         """The expected DataFrame."""
         return read_csv(
-            self.actual.sparkSession, self.expected_csv_path, self.actual.schema
+            self.actual.sparkSession,
+            self.expected_csv_path,
+            self.actual.schema,
         )
 
 
@@ -35,6 +37,7 @@ class TestCases(dict):
     in the `/then` folder of the scenario. The names are the file paths relative
     to the `/then` folder, excluding the file extension.
     """
+
     __test__ = False
 
     def __init__(self, test_cases: list[TestCase]) -> None:
@@ -57,5 +60,5 @@ def _get_then_name(path: str | Path) -> str:
     path = Path(path)
     for parent in path.parents:
         if parent.name == "then":
-            return str(path.relative_to(parent).with_suffix(''))
+            return str(path.relative_to(parent).with_suffix(""))
     raise ValueError("The path does not contain a 'then' folder")

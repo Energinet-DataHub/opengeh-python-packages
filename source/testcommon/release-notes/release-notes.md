@@ -1,5 +1,12 @@
 # Testcommon Release Notes
 
+## Version 0.0.4
+
+Support custom function `assert_dataframes_and_schemas` for more configuration options.
+
+As a sideeffect the heavy dependencies on pandas and more can be removed. Greatly
+improving performance of rebuilding docker images depending on this package.
+
 ## Version 0.0.3
 
 Add test to verify that the parts of `testcommon.etl` work together.
