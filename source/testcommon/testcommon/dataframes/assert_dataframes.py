@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Tuple
+from typing import Tuple
 
 from pyspark.sql import DataFrame
 import pyspark.sql.functions as f
@@ -12,13 +12,13 @@ class AssertDataframesConfiguration:
     show_actual_and_expected_count: bool = False
     show_actual_and_expected: bool = False
 
-    ignore_nullability: bool = True,
+    ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
-    ignore_column_order: bool = False,
-    ignore_decimal_scale: bool = False,
-    ignore_decimal_precision: bool = False,
+    ignore_column_order: bool = False
+    ignore_decimal_scale: bool = False
+    ignore_decimal_precision: bool = False
 
-    columns_to_skip: list[str] | None = None,
+    columns_to_skip: list[str] | None = None
 
 
 def assert_dataframes_and_schemas(
@@ -37,18 +37,21 @@ def assert_dataframes_and_schemas(
         print(f"Number of rows in actual: {actual.count()}")
         print(f"Number of rows in expected: {expected.count()}")
 
-    if configuration.columns_to_skip is not None and len(configuration.columns_to_skip) > 0:
+    if (
+        configuration.columns_to_skip is not None
+        and len(configuration.columns_to_skip) > 0
+    ):
         actual = actual.drop(*configuration.columns_to_skip)
         expected = expected.drop(*configuration.columns_to_skip)
 
     try:
         assert_schema(
-            actual: actual.schema,
-            expected: expected.schema,
-            ignore_nullability: configuration.ignore_nullability,
-            ignore_column_order: configuration.ignore_column_order,
-            ignore_decimal_scale: configuration.ignore_decimal_scale,
-            ignore_decimal_precision: configuration.ignore_decimal_precision
+            actual=actual.schema,
+            expected=expected.schema,
+            ignore_nullability=configuration.ignore_nullability,
+            ignore_column_order=configuration.ignore_column_order,
+            ignore_decimal_scale=configuration.ignore_decimal_scale,
+            ignore_decimal_precision=configuration.ignore_decimal_precision,
         )
     except AssertionError:
         print("SCHEMA MISMATCH:")
@@ -68,9 +71,7 @@ def assert_dataframes_and_schemas(
         _assert_no_duplicates(actual)
     except AssertionError:
 
-        if (
-            not configuration.show_columns_when_actual_and_expected_are_equal
-        ):
+        if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
         print("DUPLICATED ROWS IN ACTUAL:")
@@ -81,9 +82,7 @@ def assert_dataframes_and_schemas(
         _assert_no_duplicates(expected)
     except AssertionError:
 
-        if (
-            not configuration.show_columns_when_actual_and_expected_are_equal
-        ):
+        if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
         print("DUPLICATED ROWS IN EXPECTED:")
@@ -94,9 +93,7 @@ def assert_dataframes_and_schemas(
         _assert_dataframes(actual, expected)
     except AssertionError:
 
-        if (
-            not configuration.show_columns_when_actual_and_expected_are_equal
-        ):
+        if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
         print("DATA MISMATCH:")
@@ -110,9 +107,7 @@ def assert_dataframes_and_schemas(
         assert actual.count() == expected.count()
     except AssertionError:
 
-        if (
-            not configuration.show_columns_when_actual_and_expected_are_equal
-        ):
+        if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
         print(
@@ -141,7 +136,9 @@ def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
 def _assert_no_duplicates(df: DataFrame) -> None:
     original_count = df.count()
     distinct_count = df.dropDuplicates().count()
-    assert original_count == distinct_count, "The DataFrame contains duplicate rows"
+    assert (
+        original_count == distinct_count
+    ), "The DataFrame contains duplicate rows"
 
 
 def _show_duplicates(df: DataFrame) -> DataFrame:
@@ -154,7 +151,9 @@ def _show_duplicates(df: DataFrame) -> DataFrame:
     return duplicates
 
 
-def _drop_columns_if_the_same(df1: DataFrame, df2: DataFrame) -> Tuple[DataFrame, DataFrame]:
+def _drop_columns_if_the_same(
+    df1: DataFrame, df2: DataFrame
+) -> Tuple[DataFrame, DataFrame]:
     column_names = df1.columns
     for column_name in column_names:
         df1_column = df1.select(column_name).collect()
