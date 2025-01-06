@@ -13,7 +13,7 @@ def test_no_array(spark):
         ]
     )
 
-    path = ETL_TEST_DATA / "no_array.csv"
+    path = ETL_TEST_DATA / "then" / "no_array.csv"
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
@@ -38,7 +38,7 @@ def test_with_array_string(spark):
         ]
     )
 
-    path = ETL_TEST_DATA / "with_array_string.csv"
+    path = ETL_TEST_DATA / "then" / "with_array_string.csv"
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
