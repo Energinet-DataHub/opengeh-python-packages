@@ -1,5 +1,21 @@
 # Spark SQL Migrations Release Notes
 
+## Version 3.0.0
+
+Breaking changes
+
+The `spark sql migrations` package is being simplified by removing the current state and rollback functionalities.
+
+The current state functionality, which was mainly used by the migration team to easily recreate deleted tables when data needed to be rerun, has been removed. If you still need this functionality, please use version 2.0.6.
+
+The rollback functionality has been removed due to the risk of unintended rollbacks. It has been decided that any issues during migration should be handled manually.
+
+- Removed current_state functionality
+- Removed rollback functionality
+- Removed `schema_config` parameter from `SparkSqlMigrationsConfiguration` class
+
+These changes are made to simplify the database migration
+
 ## Version 2.0.6
 
 - Added temporary fix that allows migration without current state scripts.
