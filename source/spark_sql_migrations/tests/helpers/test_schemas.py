@@ -5,9 +5,6 @@ from pyspark.sql.types import (
 )
 
 from pyspark.sql import SparkSession
-from spark_sql_migrations.models.view import View
-from spark_sql_migrations.models.table import Table
-from spark_sql_migrations.models.schema import Schema
 
 
 schema = StructType(
@@ -16,17 +13,6 @@ schema = StructType(
         StructField("column2", StringType(), True),
     ]
 )
-
-schema_config = [
-    Schema(
-        name="test_schema",
-        tables=[
-            Table(name="test_table", schema=schema),
-            Table(name="test_table_2", schema=schema),
-        ],
-        views=[View(name="test_view", schema=schema)],
-    )
-]
 
 
 def create_test_tables(spark: SparkSession) -> None:
