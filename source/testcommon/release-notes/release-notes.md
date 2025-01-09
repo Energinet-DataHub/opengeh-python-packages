@@ -1,5 +1,12 @@
 # Testcommon Release Notes
 
+## Version 0.0.5
+
+Add support for ignoring columns in the `read_csv` function.
+
+Some columns are not easily replicated in testing, such as timestamps or other columns that are not deterministic.
+These columns can now be ignored by setting their rows to the `ignored_value` parameter in the `read_csv` function.
+
 ## Version 0.0.4
 
 Support custom function `assert_dataframes_and_schemas` for more configuration options.
