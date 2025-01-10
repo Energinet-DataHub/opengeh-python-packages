@@ -4,6 +4,7 @@ import spark_sql_migrations.infrastructure.uncommitted_migration_scripts as unco
 import spark_sql_migrations.infrastructure.apply_migration_scripts as apply_migrations
 import tests.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
 
+
 def test__migrate__when_no_uncommitted_migrations__should_not_call_apply_migrations(
     mocker: Mock,
 ) -> None:
