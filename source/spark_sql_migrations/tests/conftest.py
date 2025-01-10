@@ -15,14 +15,6 @@ from tests.builders.spark_sql_migrations_configuration_builder import (
 )
 
 
-def pytest_runtest_setup() -> None:
-    """
-    This function is called before each test function is executed.
-    """
-
-    create_and_configure_container(build_configuration())
-
-
 @pytest.fixture(scope="session")
 def spark() -> Generator[SparkSession, None, None]:
     warehouse_location = os.path.abspath("spark-warehouse")

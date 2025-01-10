@@ -2,12 +2,13 @@
 import spark_sql_migrations.migration_pipeline as sut
 import spark_sql_migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
 import spark_sql_migrations.infrastructure.apply_migration_scripts as apply_migrations
-
+import tests.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
 
 def test__migrate__when_no_uncommitted_migrations__should_not_call_apply_migrations(
     mocker: Mock,
 ) -> None:
     # Arrange
+    config = spark_sql_migrations_configuration_builder.build()
     mocker.patch.object(
         uncommitted_migrations,
         uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
@@ -19,7 +20,7 @@ def test__migrate__when_no_uncommitted_migrations__should_not_call_apply_migrati
     )
 
     # Act
-    sut.migrate()
+    sut.migrate(config)
 
     # Assert
     mocked_apply_migrations.assert_not_called()
@@ -29,6 +30,7 @@ def test__migrate__when_uncommitted_migrations_not_zero__should_call_apply_migra
     mocker: Mock,
 ) -> None:
     # Arrange
+    config = spark_sql_migrations_configuration_builder.build()
     mocker.patch.object(
         uncommitted_migrations,
         uncommitted_migrations.get_uncommitted_migration_scripts.__name__,
@@ -41,7 +43,7 @@ def test__migrate__when_uncommitted_migrations_not_zero__should_call_apply_migra
     )
 
     # Act
-    sut.migrate()
+    sut.migrate(config)
 
     # Assert
     mocked_apply_migrations.assert_called_once()
