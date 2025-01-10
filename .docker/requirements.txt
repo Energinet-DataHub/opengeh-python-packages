@@ -16,6 +16,8 @@ azure-storage-blob==12.14.1
 coverage==7.0.*
 configargparse==1.5.3
 rope==1.6.*
+pydantic==2.10.4
+pydantic-settings==2.7.1
 pytest==7.2.*
 pytest-mock==3.10.*
 virtualenv==20.*
