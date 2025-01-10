@@ -32,7 +32,6 @@ methods = [func for func, _ in inspect.getmembers(app_working, predicate=inspect
 print(methods)
 
 AppRunner.run(app_working, log_settings)
-
 # Test that it is actually failing
 with pytest.raises(NotImplementedError):
     AppRunner.run(app_not_working, log_settings)
