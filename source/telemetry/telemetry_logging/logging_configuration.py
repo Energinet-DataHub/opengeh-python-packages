@@ -18,6 +18,7 @@ from typing import Any, Iterator
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
+from dataclasses import dataclass
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
@@ -26,7 +27,16 @@ _IS_INSTRUMENTED: bool = False
 _TRACER: Tracer | None = None
 _TRACER_NAME: str
 
+@dataclass
+class LoggingSettings:
+    """Logging settings class used to configure logging for the provided app"""
+    cloud_role_name: str
+    tracer_name: str
+    applicationinsights_connection_string: str = None # If set to null, logging will not be sent to Azure Monitor
+    logging_extras: dict = None # Custom structured logging data to be included in every log message.
+    force_configuration: bool = False # If True, logging will be reconfigured even if it has already been configured
 
+# Overload? so we don't introduce breaking changes
 def configure_logging(
     *,
     cloud_role_name: str,
