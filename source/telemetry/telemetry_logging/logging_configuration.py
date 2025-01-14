@@ -27,7 +27,17 @@ _EXTRAS: dict[str, Any] = {}
 _IS_INSTRUMENTED: bool = False
 _TRACER: Tracer | None = None
 _TRACER_NAME: str
-_LOGGING_CONFIGURED: bool = False
+_LOGGING_CONFIGURED: bool = False # Flag to track if logging is configured
+
+def set_logging_configured(configured: bool) -> None:
+    """Sets the global flag indicating logging has been configured."""
+    global _LOGGING_CONFIGURED
+    _LOGGING_CONFIGURED = configured
+
+def get_logging_configured() -> bool:
+    """Returns the current logging configuration state."""
+    return _LOGGING_CONFIGURED
+
 
 @dataclass
 class LoggingSettings:
@@ -38,19 +48,6 @@ class LoggingSettings:
     logging_extras: dict = None # Custom structured logging data to be included in every log message.
     force_configuration: bool = False # If True, logging will be reconfigured even if it has already been configured
 
-class LoggingState:
-    """
-    Singleton class to track logging configuration state.
-    """
-    _configured = False
-
-    @classmethod
-    def is_configured(cls) -> bool:
-        return cls._configured
-
-    @classmethod
-    def set_configured(cls, value: bool) -> None:
-        cls._configured = value
 
 def configure_logging(
     *,
@@ -99,7 +96,10 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Mark logging state as configured
-    LoggingState.set_configured(True)
+    #LoggingState.set_configured(True)
+    global _LOGGING_CONFIGURED
+    _LOGGING_CONFIGURED = True
+    print("_LOGGING_CONFIGURED within configure_logging:", _LOGGING_CONFIGURED)
 
 
 def get_extras() -> dict[str, Any]:
