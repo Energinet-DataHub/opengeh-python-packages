@@ -3,7 +3,16 @@ from telemetry.telemetry_logging.logging_configuration import LoggingSettings
 import inspect
 import pytest
 
-# Creates
+# Define the logging settings used in all the tests we do
+log_settings = LoggingSettings(
+    cloud_role_name="MyAppRole",
+    tracer_name="MyTracerName",
+    applicationinsights_connection_string=None,
+    logging_extras={"key1": "value1", "key2": "value2"},
+    force_configuration=False
+)
+
+# Creates classes we need for testing
 
 class Application(AppInterface):
     def run(self):
@@ -15,18 +24,10 @@ class NonWorkingApplication(AppInterface):
         print("I am a non-working app.")
         print("I do not adhere to the interface because I implement a runz method")
 
-class FakeApplicationClass:
-    def runzzz(self):
+class FakeApplicationClass():
+    variable1: str
+    def runz(self):
         print("I am a fake class.")
-
-# Define the logging settings
-log_settings = LoggingSettings(
-    cloud_role_name="MyAppRole",
-    tracer_name="MyTracerName",
-    applicationinsights_connection_string=None,
-    logging_extras={"key1": "value1", "key2": "value2"},
-    force_configuration=False
-)
 
 app_working = Application()
 app_not_working = NonWorkingApplication()
@@ -47,5 +48,6 @@ with pytest.raises(NotImplementedError):
 
 # Create a test that calls Apprunner.run with a non-AppInterface based class
 fake_app = FakeApplicationClass()
-AppRunner.run(fake_app, log_settings) #It will run, even though it does not implement the interface, IF the run() method is implemented for the class
 
+with pytest.raises(TypeError):
+    AppRunner.run(fake_app, log_settings)

@@ -8,8 +8,7 @@ class AppMeta(type):
     """
         A metaclass for defining structural behavior for classes implementing the `AppInterface`.
         This metaclass overrides type-checking behavior to enforce that any class or instance
-        considered a subclass or instance of `AppInterface` must define a callable `run` method,
-        along other methods.
+        considered a subclass or instance of `AppInterface` must define a callable `run` method
     """
 
     def __instancecheck__(cls, instance):
@@ -22,8 +21,13 @@ class AppMeta(type):
         """
         Determines if the given subclass adheres to the structural requirements of the interface.
         E.g. it needs a run method
+        We check if the AppInterface is in the Method Resolution Order, meaning that we explicitly check if the subclass
+        has declared AppInterface as a base class directly or through inheritance.
         """
-        return hasattr(subclass, "run") and callable(subclass.run)
+        return (hasattr(subclass, "run") and
+                callable(subclass.run)
+                and AppInterface in subclass.__mro__ # Method Resolution Order (MRO)
+                )
 
 
 class AppInterface(metaclass=AppMeta):
@@ -59,7 +63,12 @@ class AppRunner:
         app: AppInterface,
         logging_settings: LoggingSettings,
     ):
-        """Check if the provided application implements the `AppInterface` and calls private"""
+        """
+        Check if the provided application implements the `AppInterface` and calls private run function.
+
+        The isinstance check is important, as it delegates to __subclasscheck__ in the AppMeta class.
+        Hereby, we can verify, that classes that do not
+        """
         if not isinstance(app, AppInterface):
             raise TypeError("'app' must be a subclass of 'AppInterface'")
 
