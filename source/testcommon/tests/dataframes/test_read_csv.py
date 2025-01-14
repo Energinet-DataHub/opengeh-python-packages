@@ -3,50 +3,31 @@ from pyspark.sql import types as T
 from testcommon.dataframes import read_csv, assert_dataframes_and_schemas
 from tests.etl.constants import ETL_TEST_DATA
 
+schema = T.StructType([
+    T.StructField("a", T.IntegerType(), False),
+    T.StructField("b", T.StringType(), True),
+    T.StructField("c", T.BooleanType(), True),
+])
 
-def test_with_ignored(spark):
-    schema = schema = T.StructType(
-        [
-            T.StructField("a", T.IntegerType(), False),
-            T.StructField("b", T.StringType(), True),
-            T.StructField("c", T.BooleanType(), True),
-        ]
-    )
+IGNORED_VALUE = "[IGNORED]"
 
-    IGNORED_VALUE = "[IGNORED]"
+def test_read_csv_with_ignored(spark):
+    # Arrange
+    expected_data = [(1, True), (2, False), (3, False)]
+    columns = ["a", "c"]
+    expected = spark.createDataFrame(expected_data, columns).collect()
     path = ETL_TEST_DATA / "then" / "with_ignored.csv"
-    df = read_csv(
-        spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE
-    )
 
-    new_schema = schema = T.StructType(
-        [
-            T.StructField("a", T.IntegerType(), False),
-            T.StructField("b", T.StringType(), True),
-        ]
-    )
-    assert df.schema == new_schema, "Schema does not match"
+    # Act
+    actual = read_csv(spark, str(path), schema, ignored_value=IGNORED_VALUE).collect()
 
-    test_df = spark.createDataFrame([(1, "a")], schema=new_schema)
-
-    assert_dataframes_and_schemas(df, test_df)
-
-    collected = df.collect()
-    assert collected[0].a == 1, f"a should be 1, got {collected[0].a}"
-    assert collected[0].b == "a", f"b should be a, got {collected[0].b}"
+    # Assert
+    assert actual == expected, f"Expected {expected}, got {actual}."
 
 
 def test_no_array(spark):
-    schema = T.StructType(
-        [
-            T.StructField("a", T.IntegerType(), False),
-            T.StructField("b", T.StringType(), True),
-            T.StructField("c", T.BooleanType(), True),
-        ]
-    )
-
     path = ETL_TEST_DATA / "then" / "no_array.csv"
-    df = read_csv(spark, str(path), schema, sep=";")
+    df = read_csv(spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE)
     assert df.schema == schema, "Schema does not match"
 
     test_df = spark.createDataFrame([(1, "a", True)], schema=schema)

@@ -20,7 +20,7 @@ class AssertDataframesConfiguration:
     ignore_decimal_precision: bool = False
 
     columns_to_skip: list[str] | None = None
-
+    strict_actual_assertion: bool = False
 
 def assert_dataframes_and_schemas(
     actual: DataFrame,
@@ -44,6 +44,15 @@ def assert_dataframes_and_schemas(
     ):
         actual = actual.drop(*configuration.columns_to_skip)
         expected = expected.drop(*configuration.columns_to_skip)
+
+    if not configuration.strict_actual_assertion:
+        # When there are ignored columns, the expected dataframe will have
+        # more columns than the expected dataframe. Therefore, to compare
+        # the ignored columns are removed from the actual dataframe.
+        actual_columns = set(actual.columns)
+        expected_columns = set(expected.columns)
+        columns_to_drop = actual_columns - expected_columns
+        actual = actual.drop(*columns_to_drop)
 
     try:
         assert_schema(
