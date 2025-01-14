@@ -1,6 +1,6 @@
 from typing import Callable, Any, Tuple, Dict
-from telemetry_logging.logging_configuration import start_span
-from .logging_configuration import get_logging_configured, get_tracer # works with relative import, but not absolute (because telemetry_logging is an imported module from requirements.tx: opengeh-telemetry
+from telemetry_logging.logging_configuration import start_span, get_tracer, get_logging_configured
+#from .logging_configuration import get_logging_configured, get_tracer # works with relative import, but not absolute (because telemetry_logging is an imported module from requirements.tx: opengeh-telemetry
 from telemetry_logging import Logger
 from opentelemetry.trace import SpanKind
 
@@ -35,6 +35,7 @@ def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
             with get_tracer().start_as_current_span(func.__name__, kind=SpanKind.SERVER):
                 # Log the start of the function execution
                 log = Logger(func.__name__)
+                log.info(f"logging_configured: {logging_configured}")
                 log.info(f"Started executing function: {func.__name__}")
 
                 # Call the original function

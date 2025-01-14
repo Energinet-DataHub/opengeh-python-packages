@@ -62,8 +62,8 @@
 """
 New development approach: testing the logging setup using the decorator approach
 """
-from source.telemetry.telemetry_logging import logging_configuration
-from source.telemetry.telemetry_logging import decorators as logging_decorators
+from telemetry_logging import logging_configuration
+from telemetry_logging import decorators as logging_decorators
 import site
 
 # get_tracer does not have _TRACER_NAME yet
@@ -90,9 +90,10 @@ class SimpleApp():
     def run(self):
         print("I am a new app and this is my functionality")
 
-print("config.configure_logging has been called")
 newAppInstance = SimpleApp()
 newAppInstance.run()
+
+print("WOOF")
 
 print("Site packages:")
 print(site.getsitepackages())
