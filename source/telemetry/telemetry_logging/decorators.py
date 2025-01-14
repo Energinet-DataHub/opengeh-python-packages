@@ -1,6 +1,8 @@
 from typing import Callable, Any, Tuple, Dict
 from telemetry_logging.logging_configuration import start_span
 from telemetry_logging import Logger
+from opentelemetry.trace import SpanKind
+from .logging_configuration import get_tracer, LoggingState
 
 
 def use_span(name: str | None = None) -> Callable[..., Any]:
@@ -20,3 +22,28 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
         return wrapper
 
     return decorator
+
+
+def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
+    """
+    Decorator to add tracing for a function.
+    Starts a tracing span before executing the function.
+    """
+    def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
+        print("printing logging configured within wrapper")
+        print(LoggingState.is_configured())
+        if LoggingState.is_configured():
+            # Start the tracer span using the current function name
+            with get_tracer().start_as_current_span(func.__name__, kind=SpanKind.SERVER):
+                # Log the start of the function execution
+                log = Logger(func.__name__)
+                log.info(f"Started executing function: {func.__name__}")
+                # Testing the printout TODO: XCBAN: remove this
+                print(f"Started executing function: {func.__name__}")
+
+                # Call the original function (app.run() or other function)
+                return func(*args, **kwargs)
+        else:
+            raise NotImplementedError("Logging has not been configured before use of decorator.")
+
+    return wrapper

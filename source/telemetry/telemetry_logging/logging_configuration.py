@@ -11,6 +11,8 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+print("logging_configuration module loaded")
+
 import contextlib
 import logging
 import os
@@ -26,6 +28,7 @@ _EXTRAS: dict[str, Any] = {}
 _IS_INSTRUMENTED: bool = False
 _TRACER: Tracer | None = None
 _TRACER_NAME: str
+_LOGGING_CONFIGURED: bool = False
 
 @dataclass
 class LoggingSettings:
@@ -36,7 +39,20 @@ class LoggingSettings:
     logging_extras: dict = None # Custom structured logging data to be included in every log message.
     force_configuration: bool = False # If True, logging will be reconfigured even if it has already been configured
 
-# Overload? so we don't introduce breaking changes
+class LoggingState:
+    """
+    Singleton class to track logging configuration state.
+    """
+    _configured = False
+
+    @classmethod
+    def is_configured(cls) -> bool:
+        return cls._configured
+
+    @classmethod
+    def set_configured(cls, value: bool) -> None:
+        cls._configured = value
+
 def configure_logging(
     *,
     cloud_role_name: str,
@@ -82,6 +98,9 @@ def configure_logging(
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
+
+    # Mark as configured
+    LoggingState.set_configured(True)
 
 
 def get_extras() -> dict[str, Any]:

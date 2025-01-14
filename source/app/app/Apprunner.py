@@ -3,7 +3,6 @@ from opentelemetry.trace import SpanKind
 from telemetry_logging import logging_configuration as config
 from source.telemetry.telemetry_logging.logging_configuration import LoggingSettings
 
-
 class AppMeta(type):
     """
         A metaclass for defining structural behavior for classes implementing the `AppInterface`.
