@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-print("logging_configuration module loaded")
 
 import contextlib
 import logging
@@ -99,7 +98,7 @@ def configure_logging(
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
-    # Mark as configured
+    # Mark logging state as configured
     LoggingState.set_configured(True)
 
 

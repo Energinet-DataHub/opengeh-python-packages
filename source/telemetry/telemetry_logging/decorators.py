@@ -30,18 +30,14 @@ def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
     Starts a tracing span before executing the function.
     """
     def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
-        print("printing logging configured within wrapper")
-        print(LoggingState.is_configured())
         if LoggingState.is_configured():
             # Start the tracer span using the current function name
             with get_tracer().start_as_current_span(func.__name__, kind=SpanKind.SERVER):
                 # Log the start of the function execution
                 log = Logger(func.__name__)
                 log.info(f"Started executing function: {func.__name__}")
-                # Testing the printout TODO: XCBAN: remove this
-                print(f"Started executing function: {func.__name__}")
 
-                # Call the original function (app.run() or other function)
+                # Call the original function
                 return func(*args, **kwargs)
         else:
             raise NotImplementedError("Logging has not been configured before use of decorator.")
