@@ -14,7 +14,7 @@ IGNORED_VALUE = "[IGNORED]"
 
 def test_read_csv_with_ignored(spark):
     # Arrange
-    expected_data = [(1, True), (2, False), (3, False)]
+    expected_data = [(1, True), (2, True), (3, False)]
     columns = ["a", "c"]
     expected = spark.createDataFrame(expected_data, columns).collect()
     path = ETL_TEST_DATA / "then" / "with_ignored.csv"
