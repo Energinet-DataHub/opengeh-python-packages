@@ -96,11 +96,8 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Mark logging state as configured
-    #LoggingState.set_configured(True)
     global _LOGGING_CONFIGURED
     _LOGGING_CONFIGURED = True
-    print("_LOGGING_CONFIGURED within configure_logging:", _LOGGING_CONFIGURED)
-
 
 def get_extras() -> dict[str, Any]:
     return _EXTRAS.copy()

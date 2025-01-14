@@ -93,10 +93,5 @@ class SimpleApp():
 newAppInstance = SimpleApp()
 newAppInstance.run()
 
-print("WOOF")
-
-print("Site packages:")
-print(site.getsitepackages())
-
 
 
