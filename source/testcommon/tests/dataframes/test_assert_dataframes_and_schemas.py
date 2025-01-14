@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql import types as T
 
-from source.testcommon.testcommon.dataframes import assert_dataframes_and_schemas, AssertDataframesConfiguration
+from testcommon.dataframes import assert_dataframes_and_schemas, AssertDataframesConfiguration
 
 actual_schema = T.StructType(
     [
