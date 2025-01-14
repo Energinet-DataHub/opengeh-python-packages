@@ -19,8 +19,8 @@ class AssertDataframesConfiguration:
     ignore_column_order: bool = False
     ignore_decimal_scale: bool = False
     ignore_decimal_precision: bool = False
-
     columns_to_skip: list[str] | None = None
+
 
 def assert_dataframes_and_schemas(
     actual: DataFrame,

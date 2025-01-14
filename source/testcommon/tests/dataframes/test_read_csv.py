@@ -11,6 +11,7 @@ schema = T.StructType([
 
 IGNORED_VALUE = "[IGNORED]"
 
+
 def test_read_csv_with_ignored(spark):
     # Arrange
     expected_data = [(1, True), (2, False), (3, False)]
