@@ -1,5 +1,12 @@
 # Testcommon Release Notes
 
+## Version 0.0.6
+
+Support for enabling or disabling 'ignoring columns' in the dataframe assert function.
+
+Add test setting strict_actual_assertion to enable or disable strict assertion of dataframes.
+When true cells with 'ignored_value' will not be ignored.
+
 ## Version 0.0.5
 
 Add support for ignoring columns in the `read_csv` function.
