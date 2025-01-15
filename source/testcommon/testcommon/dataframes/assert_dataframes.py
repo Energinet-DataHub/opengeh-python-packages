@@ -12,7 +12,7 @@ class AssertDataframesConfiguration:
     show_actual_and_expected_count: bool = False
     show_actual_and_expected: bool = False
     show_columns_when_actual_and_expected_are_equal: bool = False
-    strict_actual_assertion: bool = False
+    ignore_extra_columns_in_actual: bool = True
 
     ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
