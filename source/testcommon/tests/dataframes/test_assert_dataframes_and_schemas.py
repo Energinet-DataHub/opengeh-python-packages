@@ -19,7 +19,7 @@ expected_schema = T.StructType(
 )
 
 
-def test_with_ignored(spark):
+def test_with_ignored_ignore_extra_columns_in_actual_true(spark):
     # Arrange
     expected_data = [(1, True), (2, False), (3, False)]
     expected = spark.createDataFrame(expected_data, schema=expected_schema)
@@ -31,7 +31,7 @@ def test_with_ignored(spark):
     assert_dataframes_and_schemas(actual, expected)
 
 
-def test_with_strict_actual_assertion_with_ignored_columns(spark):
+def test_with_ignore_extra_columns_in_actual_false(spark):
     # Arrange
     expected_data = [(1, True), (2, False), (3, False)]
     expected = spark.createDataFrame(expected_data, schema=expected_schema)
@@ -40,8 +40,8 @@ def test_with_strict_actual_assertion_with_ignored_columns(spark):
     actual = spark.createDataFrame(actual_data, schema=actual_schema)
 
     configuration = AssertDataframesConfiguration()
-    configuration.strict_actual_assertion = True
-
+    configuration.ignore_extra_columns_in_actual = False
+    
     # Act & Assert
     with pytest.raises(Exception):
         assert_dataframes_and_schemas(actual, expected, configuration)
