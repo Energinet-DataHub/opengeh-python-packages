@@ -45,10 +45,10 @@ def assert_dataframes_and_schemas(
         actual = actual.drop(*configuration.columns_to_skip)
         expected = expected.drop(*configuration.columns_to_skip)
 
-    if not configuration.strict_actual_assertion:
-        # When there are ignored columns, the expected dataframe will have
-        # more columns than the expected dataframe. Therefore, to compare
-        # the ignored columns are removed from the actual dataframe.
+    if configuration.ignore_extra_columns_in_actual:
+        # When there are ignored columns, the actual dataframe will have
+        # more columns than the expected dataframe. Therefore, in order to
+        # compare the extra columns are removed from the actual dataframe.
         actual_columns = set(actual.columns)
         expected_columns = set(expected.columns)
         columns_to_drop = actual_columns - expected_columns
