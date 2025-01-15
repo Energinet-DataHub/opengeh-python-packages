@@ -41,7 +41,7 @@ def test_with_ignore_extra_columns_in_actual_false(spark):
 
     configuration = AssertDataframesConfiguration()
     configuration.ignore_extra_columns_in_actual = False
-    
+
     # Act & Assert
     with pytest.raises(Exception):
         assert_dataframes_and_schemas(actual, expected, configuration)
