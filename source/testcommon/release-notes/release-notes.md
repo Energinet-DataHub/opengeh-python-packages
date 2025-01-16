@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.0.7
+
+Nullability is now handled correctly when parsing CSV files to dataframes.
+
 ## Version 0.0.6
 
 Support for enabling or disabling 'ignoring columns' in the dataframe assert function.
