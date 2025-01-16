@@ -18,7 +18,7 @@ import os
 import argparse
 from typing import Any, Iterator
 from pydantic import BaseModel, Field, ValidationError
-#from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
@@ -65,38 +65,38 @@ class CLIArgs(BaseModel):
         except ValidationError as e:
             print(f"Validation failed:\n{e.json()}")
 
-# class ENVArgs(BaseSettings):
-#     """
-#     A class used to hold environment variables passed to the application
-#     Add new fields to the ENVArgs class as needed
-#     """
-#     cloud_role_name: str = Field(validation_alias="CLOUD_ROLE_NAME")
-#     applicationinsights_connection_string: str = Field(validation_alias="APPLICATIONINSIGHTS_CONNECTION_STRING")
-#     subsystem: str = Field(validation_alias="SUBSYSTEM")
-#
-# @dataclass
-# class LoggingSettings(BaseSettings):
-#     """Logging settings class used to configure logging for the provided app"""
-#     cloud_role_name: str
-#     subsystem: str
-#     applicationinsights_connection_string: str = None # If set to null, logging will not be sent to Azure Monitor
-#     logging_extras: dict = None # Custom structured logging data to be included in every log message.
-#
-#     @classmethod
-#     def load(cls):
-#         # Load CLI args
-#         cli_args = CLIArgs.parse_from_cli()
-#
-#         # Load environment args
-#         env_args = ENVArgs()
-#
-#         # Combine and return LoggingSettings
-#         return cls(
-#             cloud_role_name=env_args.cloud_role_name,
-#             applicationinsights_connection_string=env_args.applicationinsights_connection_string,
-#             subsystem=env_args.subsystem,
-#             logging_extras = {"OrchestrationInstanceId": cli_args.orchestration_instance_id}
-#         )
+class ENVArgs(BaseSettings):
+    """
+    A class used to hold environment variables passed to the application
+    Add new fields to the ENVArgs class as needed
+    """
+    cloud_role_name: str = Field(validation_alias="CLOUD_ROLE_NAME")
+    applicationinsights_connection_string: str = Field(validation_alias="APPLICATIONINSIGHTS_CONNECTION_STRING")
+    subsystem: str = Field(validation_alias="SUBSYSTEM")
+
+@dataclass
+class LoggingSettings(BaseSettings):
+    """Logging settings class used to configure logging for the provided app"""
+    cloud_role_name: str
+    subsystem: str
+    applicationinsights_connection_string: str = None # If set to null, logging will not be sent to Azure Monitor
+    logging_extras: dict = None # Custom structured logging data to be included in every log message.
+
+    @classmethod
+    def load(cls):
+        # Load CLI args
+        cli_args = CLIArgs.parse_from_cli()
+
+        # Load environment args
+        env_args = ENVArgs()
+
+        # Combine and return LoggingSettings
+        return cls(
+            cloud_role_name=env_args.cloud_role_name,
+            applicationinsights_connection_string=env_args.applicationinsights_connection_string,
+            subsystem=env_args.subsystem,
+            logging_extras = {"OrchestrationInstanceId": cli_args.orchestration_instance_id}
+        )
 
 def configure_logging(
     *,

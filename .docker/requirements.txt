@@ -20,6 +20,7 @@ pytest==7.2.*
 pytest-mock==3.10.*
 virtualenv==20.*
 pydantic==2.10.5
+pydantic-settings==2.7.1
 
 #
 # PROJECT DEPENDENCIES
