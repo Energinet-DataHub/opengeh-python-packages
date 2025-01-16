@@ -1,9 +1,11 @@
 """
 New development approach: testing the logging setup using the decorator approach
 """
+import os
 from telemetry_logging import logging_configuration
 from telemetry_logging import decorators as logging_decorators
 from telemetry_logging import Logger
+from .telemetry import setup
 
 @logging_decorators.use_span()
 def run_method():
@@ -13,23 +15,20 @@ def run_method():
     log.warning("I am now a warning inside the app")
 
 @logging_decorators.use_logging
-def entry_point(span=None, message=None) -> None:
+def entry_point(span=None) -> None:
     try:
-        if span:
-            print(message)
         run_method()
     except Exception as e:
         log = Logger(__name__)
         log.error(str(e))
 
 
-log_settings = logging_configuration.LoggingSettings(
-        cloud_role_name="MyAppRole",
-        tracer_name="MyTracerName",
-        applicationinsights_connection_string=None,
-        logging_extras={"key1": "value1", "key2": "value2"},
-        force_configuration=False
-    )
+os.environ['CLOUD_ROLE_NAME'] = 'dbr-electrical-heating'
+os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'test_string'
+os.environ['SUBSYSTEM'] = 'electrical-heating'
+
+
+
 logging_configuration.configure_logging(
     cloud_role_name=log_settings.cloud_role_name,
     tracer_name=log_settings.tracer_name,

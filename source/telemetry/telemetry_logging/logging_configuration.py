@@ -15,7 +15,11 @@
 import contextlib
 import logging
 import os
+import argparse
 from typing import Any, Iterator
+from pydantic import BaseModel, Field, ValidationError
+from pydantic_settings import BaseSettings
+from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
@@ -38,16 +42,61 @@ def get_logging_configured() -> bool:
     """Returns the current logging configuration state."""
     return _LOGGING_CONFIGURED
 
+class CLIArgs(BaseModel):
+    """
+    A class used to hold CLI arguments passed to the application
+    Add new fields to the CLIArgs class as needed
+    """
+    orchestration_instance_id: UUID = Field(..., description="The UUID of the orchestration instance")
+
+    @classmethod
+    def parse_from_cli(cls):
+        # Initialize argparse
+        parser = argparse.ArgumentParser(description="Process the orchestration instance UUID.")
+        parser.add_argument('--orchestration_instance_id', type=str, required=True, help='Your name')
+
+        # Parse the arguments
+        args = parser.parse_args()
+
+        try:
+            # Use Pydantic to validate and parse the UUID input
+            return cls(orchestration_instance_id=args.orchestration_instance_id)
+
+        except ValidationError as e:
+            print(f"Validation failed:\n{e.json()}")
+
+class ENVArgs(BaseSettings):
+    """
+    A class used to hold environment variables passed to the application
+    Add new fields to the ENVArgs class as needed
+    """
+    cloud_role_name: str = Field(validation_alias="CLOUD_ROLE_NAME")
+    applicationinsights_connection_string: str = Field(validation_alias="APPLICATIONINSIGHTS_CONNECTION_STRING")
+    subsystem: str = Field(validation_alias="SUBSYSTEM")
 
 @dataclass
-class LoggingSettings:
+class LoggingSettings(BaseSettings):
     """Logging settings class used to configure logging for the provided app"""
     cloud_role_name: str
-    tracer_name: str
+    subsystem: str
     applicationinsights_connection_string: str = None # If set to null, logging will not be sent to Azure Monitor
     logging_extras: dict = None # Custom structured logging data to be included in every log message.
-    force_configuration: bool = False # If True, logging will be reconfigured even if it has already been configured
 
+    @classmethod
+    def load(cls):
+        # Load CLI args
+        cli_args = CLIArgs.parse_from_cli()
+
+        # Load environment args
+        env_args = ENVArgs()
+
+        # Combine and return LoggingSettings
+        return cls(
+            cloud_role_name=env_args.cloud_role_name,
+            applicationinsights_connection_string=env_args.applicationinsights_connection_string,
+            subsystem=env_args.subsystem,
+            logging_extras = {"OrchestrationInstanceId": cli_args.orchestration_instance_id}
+        )
 
 def configure_logging(
     *,

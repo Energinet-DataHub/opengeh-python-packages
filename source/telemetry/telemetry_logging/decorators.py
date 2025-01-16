@@ -24,8 +24,8 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
 
 def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
     """
-    Decorator to add tracing for a function.
-    Starts a tracing span before executing the function.
+    Decorator checks if the logging has been configured
+
     """
     def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
         logging_configured = get_logging_configured()
@@ -38,7 +38,6 @@ def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
 
                 # Add the span and message to kwargs
                 kwargs['span'] = span
-                kwargs['message'] = "message"
 
                 # Call the original function with both positional and keyword arguments
                 return func(*args, **kwargs)
