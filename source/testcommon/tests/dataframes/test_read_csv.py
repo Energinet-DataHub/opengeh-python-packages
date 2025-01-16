@@ -3,7 +3,7 @@ from pyspark.sql import types as T
 from testcommon.dataframes import read_csv, assert_dataframes_and_schemas
 from tests.etl.constants import ETL_TEST_DATA
 
-from source.testcommon.tests.dataframes.testing import test_nullability_schema
+from testcommon.tests.dataframes.testing import test_nullability_schema
 
 schema = T.StructType([
     T.StructField("a", T.IntegerType(), False),
