@@ -3,13 +3,35 @@ from pyspark.sql import types as T
 from testcommon.dataframes import read_csv, assert_dataframes_and_schemas
 from tests.etl.constants import ETL_TEST_DATA
 
-from nullability_schema import test_nullability_schema
+from pyspark.sql.types import (
+    StructField,
+    StringType,
+    TimestampType,
+    StructType, IntegerType, DecimalType, FloatType, BooleanType,
+)
 
 schema = T.StructType([
     T.StructField("a", T.IntegerType(), False),
     T.StructField("b", T.StringType(), True),
     T.StructField("c", T.BooleanType(), True),
 ])
+
+nullability_schema = StructType(
+    [
+        StructField("string_type_nullable", StringType(), True),
+        StructField("string_type", StringType(), False),
+        StructField("integer_type_nullable", IntegerType(), True),
+        StructField("integer_type", IntegerType(), False),
+        StructField("timestamp_type_nullable", TimestampType(), True),
+        StructField("timestamp_type", TimestampType(), False),
+        StructField("decimal_type_nullable", DecimalType(), True),
+        StructField("decimal_type", DecimalType(), False),
+        StructField("float_type_nullable", FloatType(), True),
+        StructField("float_type", FloatType(), False),
+        StructField("boolean_type_nullable", BooleanType(), True),
+        StructField("boolean_type", BooleanType(), False),
+    ]
+)
 
 IGNORED_VALUE = "[IGNORED]"
 
@@ -87,8 +109,8 @@ def test_read_csv_with_nullabilities(spark):
     path = ETL_TEST_DATA / "then" / "with_nullability.csv"
 
     # Act
-    actual = read_csv(spark, str(path), test_nullability_schema)
+    actual = read_csv(spark, str(path), nullability_schema)
 
     # Assert
-    expected = spark.createDataFrame(data=actual.rdd, schema=test_nullability_schema, verifySchema=True)
+    expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
     assert_dataframes_and_schemas(actual, expected)
