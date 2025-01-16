@@ -5,7 +5,6 @@ import os
 from telemetry_logging import logging_configuration
 from telemetry_logging import decorators as logging_decorators
 from telemetry_logging import Logger
-from .telemetry import setup
 
 @logging_decorators.use_span()
 def run_method():
@@ -27,6 +26,9 @@ os.environ['CLOUD_ROLE_NAME'] = 'dbr-electrical-heating'
 os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'test_string'
 os.environ['SUBSYSTEM'] = 'electrical-heating'
 
+log_settings = logging_configuration.LoggingSettings.load()
+#print(log_settings)
+
 # logging_configuration.configure_logging(
 #     cloud_role_name=log_settings.cloud_role_name,
 #     tracer_name=log_settings.tracer_name,
@@ -34,7 +36,7 @@ os.environ['SUBSYSTEM'] = 'electrical-heating'
 #     extras=log_settings.logging_extras,
 #     force_configuration=log_settings.force_configuration
 # )
-entry_point()
+# entry_point()
 
 
 

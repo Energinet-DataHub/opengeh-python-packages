@@ -75,7 +75,7 @@ class ENVArgs(BaseSettings):
     subsystem: str = Field(validation_alias="SUBSYSTEM")
 
 @dataclass
-class LoggingSettings(BaseSettings):
+class LoggingSettings:
     """Logging settings class used to configure logging for the provided app"""
     cloud_role_name: str
     subsystem: str
