@@ -3,6 +3,8 @@ from pyspark.sql import types as T
 from testcommon.dataframes import read_csv, assert_dataframes_and_schemas
 from tests.etl.constants import ETL_TEST_DATA
 
+from source.testcommon.tests.dataframes.testing import test_nullability_schema
+
 schema = T.StructType([
     T.StructField("a", T.IntegerType(), False),
     T.StructField("b", T.StringType(), True),
@@ -78,3 +80,15 @@ def test_with_array_string(spark):
         "b",
         "c",
     ], f"e should be ['a', 'b', 'c'], got {collected[0].e}"
+
+
+def test_read_csv_with_nullabilities(spark):
+    # Arrange
+    path = ETL_TEST_DATA / "then" / "with_nullability.csv"
+
+    # Act
+    actual = read_csv(spark, str(path), test_nullability_schema)
+
+    # Assert
+    expected = spark.createDataFrame(data=actual.rdd, schema=test_nullability_schema, verifySchema=True)
+    assert_dataframes_and_schemas(actual, expected)
