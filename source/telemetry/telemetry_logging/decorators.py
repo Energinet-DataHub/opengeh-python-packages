@@ -31,12 +31,16 @@ def use_logging(func: Callable[..., Any]) -> Callable[..., Any]:
         logging_configured = get_logging_configured()
         if logging_configured:
             # Start the tracer span using the current function name
-            with get_tracer().start_as_current_span(func.__name__, kind=SpanKind.SERVER):
+            with get_tracer().start_as_current_span(func.__name__, kind=SpanKind.SERVER) as span:
                 # Log the start of the function execution
                 log = Logger(func.__name__)
                 log.info(f"Started executing function: {func.__name__}")
 
-                # Call the original function
+                # Add the span and message to kwargs
+                kwargs['span'] = span
+                kwargs['message'] = "message"
+
+                # Call the original function with both positional and keyword arguments
                 return func(*args, **kwargs)
         else:
             raise NotImplementedError("Logging has not been configured before use of decorator.")

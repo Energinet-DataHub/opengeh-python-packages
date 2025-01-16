@@ -59,39 +59,5 @@
 
 
 
-"""
-New development approach: testing the logging setup using the decorator approach
-"""
-from telemetry_logging import logging_configuration
-from telemetry_logging import decorators as logging_decorators
-import site
-
-# get_tracer does not have _TRACER_NAME yet
-log_settings = logging_configuration.LoggingSettings(
-    cloud_role_name="MyAppRole",
-    tracer_name="MyTracerName",
-    applicationinsights_connection_string=None,
-    logging_extras={"key1": "value1", "key2": "value2"},
-    force_configuration=False
-)
-
-logging_settings = log_settings
-logging_configuration.configure_logging(
-        cloud_role_name=logging_settings.cloud_role_name,
-        tracer_name=logging_settings.tracer_name,
-        applicationinsights_connection_string=logging_settings.applicationinsights_connection_string,
-        extras=logging_settings.logging_extras,
-        force_configuration=logging_settings.force_configuration,
-    )
-
-# Now we are testing the new decorator functionality for our apps
-class SimpleApp():
-    @logging_decorators.use_logging
-    def run(self):
-        print("I am a new app and this is my functionality")
-
-newAppInstance = SimpleApp()
-newAppInstance.run()
-
 
 
