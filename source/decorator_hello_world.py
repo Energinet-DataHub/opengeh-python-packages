@@ -27,13 +27,13 @@ os.environ['CLOUD_ROLE_NAME'] = 'dbr-electrical-heating'
 os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'test_string'
 os.environ['SUBSYSTEM'] = 'electrical-heating'
 
-logging_configuration.configure_logging(
-    cloud_role_name=log_settings.cloud_role_name,
-    tracer_name=log_settings.tracer_name,
-    applicationinsights_connection_string=log_settings.applicationinsights_connection_string,
-    extras=log_settings.logging_extras,
-    force_configuration=log_settings.force_configuration
-)
+# logging_configuration.configure_logging(
+#     cloud_role_name=log_settings.cloud_role_name,
+#     tracer_name=log_settings.tracer_name,
+#     applicationinsights_connection_string=log_settings.applicationinsights_connection_string,
+#     extras=log_settings.logging_extras,
+#     force_configuration=log_settings.force_configuration
+# )
 entry_point()
 
 
