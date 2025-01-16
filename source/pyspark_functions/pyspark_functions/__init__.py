@@ -1,2 +1,2 @@
 def main():
-    print("Hello from pyspark_functions!")
+    return "Hello from pyspark_functions!"
