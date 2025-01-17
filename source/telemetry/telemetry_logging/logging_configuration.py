@@ -80,7 +80,7 @@ def configure_logging(
     """
 
     global _TRACER_NAME
-    _TRACER_NAME = logging_settings.tracer_name
+    _TRACER_NAME = logging_settings.subsystem
 
     # Only configure logging once unless forced.
     global _IS_INSTRUMENTED
