@@ -3,6 +3,7 @@
 ## Version 0.0.7
 
 Nullability is now handled correctly when parsing CSV files to dataframes.
+Before this change, all columns were treated as nullable.
 
 ## Version 0.0.6
 

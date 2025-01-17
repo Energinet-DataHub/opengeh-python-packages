@@ -1,6 +1,6 @@
 from pyspark.sql import types as T
 
-from testcommon.dataframes import read_csv, assert_dataframes_and_schemas
+from testcommon.dataframes import assert_dataframes_and_schemas, read_csv, AssertDataframesConfiguration
 from tests.etl.constants import ETL_TEST_DATA
 
 from pyspark.sql.types import (
@@ -112,10 +112,12 @@ def test_with_array_string(spark):
 def test_read_csv_with_nullabilities(spark):
     # Arrange
     path = ETL_TEST_DATA / "then" / "with_nullability.csv"
+    configuration = AssertDataframesConfiguration()
+    configuration.ignore_nullability = False
 
     # Act
     actual = read_csv(spark, str(path), nullability_schema)
 
     # Assert
     expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
-    assert_dataframes_and_schemas(actual, expected)
+    assert_dataframes_and_schemas(actual, expected, configuration)
