@@ -1,5 +1,24 @@
 # Testcommon Release Notes
 
+## Version 0.0.7
+
+Nullability is now handled correctly when parsing CSV files to dataframes.
+Before this change, all columns were treated as nullable.
+
+## Version 0.0.6
+
+Support for enabling or disabling 'ignoring columns' in the dataframe assert function.
+
+Add test setting strict_actual_assertion to enable or disable strict assertion of dataframes.
+When true cells with 'ignored_value' will not be ignored.
+
+## Version 0.0.5
+
+Add support for ignoring columns in the `read_csv` function.
+
+Some columns are not easily replicated in testing, such as timestamps or other columns that are not deterministic.
+These columns can now be ignored by setting their rows to the `ignored_value` parameter in the `read_csv` function.
+
 ## Version 0.0.4
 
 Support custom function `assert_dataframes_and_schemas` for more configuration options.
