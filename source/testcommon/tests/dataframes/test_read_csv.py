@@ -16,6 +16,11 @@ schema = T.StructType([
     T.StructField("c", T.BooleanType(), True),
 ])
 
+schema_without_ignored = T.StructType([
+    T.StructField("a", T.IntegerType(), False),
+    T.StructField("c", T.BooleanType(), True),
+])
+
 nullability_schema = StructType(
     [
         StructField("string_type_nullable", StringType(), True),
@@ -44,7 +49,7 @@ def test_read_csv_with_ignored(spark):
     path = ETL_TEST_DATA / "then" / "with_ignored.csv"
 
     # Act
-    actual = read_csv(spark, str(path), schema, ignored_value=IGNORED_VALUE).collect()
+    actual = read_csv(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
 
     # Assert
     assert actual == expected, f"Expected {expected}, got {actual}."
