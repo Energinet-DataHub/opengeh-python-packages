@@ -108,10 +108,5 @@ def test_start_trace__when_logging_is_configured():
         # Act
         entry_point()
         # Assert
-        print(mock_logger.call_args_list)
-        print(log_instance_in_test.info.call_args_list)
         mock_logger.assert_called_once_with('app_sample_function')
-
-
-
-
+        log_instance_in_test.info.assert_called_once_with('Started executing function: app_sample_function')
