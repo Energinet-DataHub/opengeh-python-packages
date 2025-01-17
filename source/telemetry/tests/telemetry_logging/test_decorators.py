@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from telemetry_logging.decorators import use_span, start_trace
 from telemetry_logging.logging_configuration import configure_logging
-
+from opentelemetry.trace import Span
 
 # Mocking the Logger and start_span
 @pytest.fixture
@@ -55,9 +55,8 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
     mock_start_span.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
     mock_logger.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
     mock_logger_instance.info.assert_called_once_with("Started executing function: test_use_span__when_name_is_not_defined.<locals>.sample_function")
+    print(mock_logger.call_args_list)
     assert result == "test"
-    print("see mee")
-    print(mock_logger_instance.info.call_args_list)
 
 
 def test_start_trace__when_logging_not_configured(mock_logger, mock_start_trace):
@@ -81,35 +80,32 @@ def test_start_trace__when_logging_not_configured(mock_logger, mock_start_trace)
     assert 2 == 1
 
 
-def test_start_trace__when_logging_is_configured(mock_logger):
-    #with patch('telemetry_logging.decorators.start_trace') as mock_start_trace, \
-    #     patch('telemetry_logging.decorators.Logger') as mock_logger:
-    # Arrange
-    mock_logger_instance = mock_logger.return_value
+def test_start_trace__when_logging_is_configured():
+    with patch('telemetry_logging.decorators.Logger') as mock_logger2:
+        mock_logger_instance = mock_logger2.return_value
 
-    # Prepare
-    @start_trace
-    def app_sample_function(initial_span=None):
-        assert (1 + 1) == 2
-        return "I am an app sample function. Doing important calculations"
+        # Prepare
+        @start_trace
+        def app_sample_function(initial_span=None):
+            assert (1 + 1) == 2
+            return "I am an app sample function. Doing important calculations"
 
-    def entry_point() -> None:
-        print("I am an entry point function, who is supposed to configure logging - which I do here")
-        configure_logging(
-            cloud_role_name="test_cloud_role_name",
-            tracer_name="subsystem_tracer_name",
-            applicationinsights_connection_string=None,
-            extras={'key1': 'value1', 'key2': 'value2'},
-        )
-        app_sample_function()
+        def entry_point() -> None:
+            print("I am an entry point function, who is supposed to configure logging - which I do here")
+            configure_logging(
+                cloud_role_name="test_cloud_role_name",
+                tracer_name="subsystem_tracer_name",
+                applicationinsights_connection_string=None,
+                extras={'key1': 'value1', 'key2': 'value2'},
+            )
+            app_sample_function()
 
-    # Act
-    print("SEE MEEEE")
-    #print(mock_logger_instance.call_args_list)
-    #print(mock_start_trace_instance.call_args_list)
+        # Act
+        print("SEE MEEEE")
+        print(mock_logger_instance.call_args_list)
+        #print(mock_start_trace_instance.call_args_list)
 
-    entry_point()
-    # Assert
+        entry_point()
 
 
 
