@@ -21,7 +21,7 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
 
     return decorator
 
-def start_trace(func: Callable[..., Any]) -> Callable[..., Any]:
+def start_trace() -> Callable[..., Any]:
     """
     Decorator that checks if the logging_configuration.configure_logging method has been called prior to starting the
     trace
