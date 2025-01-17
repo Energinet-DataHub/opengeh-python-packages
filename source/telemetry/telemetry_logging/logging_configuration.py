@@ -16,9 +16,9 @@ import contextlib
 import logging
 import os
 import argparse
-from typing import Any, Iterator
+from typing import Any, Iterator, Tuple, Type, Optional
 from pydantic import BaseModel, Field, ValidationError
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
@@ -42,90 +42,49 @@ def get_logging_configured() -> bool:
     """Returns the current logging configuration state."""
     return _LOGGING_CONFIGURED
 
-class CLIArgs(BaseModel):
+class LoggingSettings(BaseSettings):
     """
-    A class used to hold CLI arguments passed to the application
-    Add new fields to the CLIArgs class as needed
+    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters.
+    Parameters can come from both runtime (CLI) or from environment variables.
+    The priority is CLI parameters first and then environment variables.
     """
-    orchestration_instance_id: UUID = Field(..., description="The UUID of the orchestration instance")
-
-    @classmethod
-    def parse_from_cli(cls):
-        # Initialize argparse
-        parser = argparse.ArgumentParser(description="Process the orchestration instance UUID.")
-        parser.add_argument('--orchestration_instance_id', type=str, required=True, help='Your name')
-
-        # Parse the arguments
-        args = parser.parse_args()
-
-        try:
-            # Use Pydantic to validate and parse the UUID input
-            return cls(orchestration_instance_id=args.orchestration_instance_id)
-
-        except ValidationError as e:
-            print(f"Validation failed:\n{e.json()}")
-
-class ENVArgs(BaseSettings):
-    """
-    A class used to hold environment variables passed to the application
-    Add new fields to the ENVArgs class as needed
-    """
-    cloud_role_name: str = Field(validation_alias="CLOUD_ROLE_NAME")
-    applicationinsights_connection_string: str = Field(validation_alias="APPLICATIONINSIGHTS_CONNECTION_STRING")
-    subsystem: str = Field(validation_alias="SUBSYSTEM")
-
-@dataclass
-class LoggingSettings:
-    """Logging settings class used to configure logging for the provided app"""
     cloud_role_name: str
+    applicationinsights_connection_string: str
     subsystem: str
-    applicationinsights_connection_string: str = None # If set to null, logging will not be sent to Azure Monitor
-    logging_extras: dict = None # Custom structured logging data to be included in every log message.
+    orchestration_instance_id: Optional[UUID] = None
 
     @classmethod
-    def load(cls):
-        # Load CLI args
-        cli_args = CLIArgs.parse_from_cli()
+    def settings_customise_sources(
+        cls,
+        settings_cls: Type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> Tuple[PydanticBaseSettingsSource, ...]:
+        return CliSettingsSource(settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True), env_settings
 
-        # Load environment args
-        env_args = ENVArgs()
-
-        # Combine and return LoggingSettings
-        return cls(
-            cloud_role_name=env_args.cloud_role_name,
-            applicationinsights_connection_string=env_args.applicationinsights_connection_string,
-            subsystem=env_args.subsystem,
-            logging_extras = {"OrchestrationInstanceId": cli_args.orchestration_instance_id}
-        )
 
 def configure_logging(
     *,
-    cloud_role_name: str,
-    tracer_name: str,
-    applicationinsights_connection_string: str | None = None,
-    extras: dict[str, Any] | None = None,
-    force_configuration: bool = False,
+    logging_settings: LoggingSettings,
+    extras: dict[str, Any],
 ) -> None:
     """
     Configure logging to use OpenTelemetry and Azure Monitor.
-
-    :param cloud_role_name:
-    :param tracer_name:
-    :param applicationinsights_connection_string:
+    :param logging_settings: Logging settings object
     :param extras: Custom structured logging data to be included in every log message.
-    :param force_configuration: If True, then logging will be reconfigured even if it has already been configured.
     :return:
-
     If connection string is None, then logging will not be sent to Azure Monitor.
     This is useful for unit testing.
     """
 
     global _TRACER_NAME
-    _TRACER_NAME = tracer_name
+    _TRACER_NAME = logging_settings.tracer_name
 
     # Only configure logging once unless forced.
     global _IS_INSTRUMENTED
-    if _IS_INSTRUMENTED and not force_configuration:
+    if _IS_INSTRUMENTED and not logging_settings.force_configuration:
         return
 
     # Configure structured logging data to be included in every log message.
@@ -134,11 +93,11 @@ def configure_logging(
         _EXTRAS = extras.copy()
 
     # Add cloud role name when logging
-    os.environ["OTEL_SERVICE_NAME"] = cloud_role_name
+    os.environ["OTEL_SERVICE_NAME"] = logging_settings.cloud_role_name
 
     # Configure OpenTelemetry to log to Azure Monitor.
-    if applicationinsights_connection_string is not None:
-        configure_azure_monitor(connection_string=applicationinsights_connection_string)
+    if logging_settings.applicationinsights_connection_string is not None:
+        configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
         _IS_INSTRUMENTED = True
 
     # Reduce Py4J logging. py4j logs a lot of information.
@@ -147,6 +106,10 @@ def configure_logging(
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
     _LOGGING_CONFIGURED = True
+
+    # Adding orchestration ID as an extra when provided through LoggingSettings:
+    add_extras({"orchestration_instance_id": logging_settings.orchestration_instance_id})
+
 
 def get_extras() -> dict[str, Any]:
     return _EXTRAS.copy()

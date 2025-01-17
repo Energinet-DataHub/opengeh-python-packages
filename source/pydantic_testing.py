@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import Tuple, Type
+from typing import Tuple, Type, Any
 
 from pydantic_settings import (
     BaseSettings,
@@ -34,6 +34,7 @@ os.environ['ENV_FOO1'] = 'foo1 from environment'
 os.environ['ENV_FOO2'] = 'foo2 from environment'
 
 settings = Settings()
+settings.extras = {"some_extra": "extra_value"}
 
 print(settings)
 

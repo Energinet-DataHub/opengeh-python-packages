@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, MagicMock
 from telemetry_logging.decorators import use_span, start_trace
+from telemetry_logging.logging_configuration import configure_logging
 
 
 # Mocking the Logger and start_span
@@ -55,19 +56,61 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
     mock_logger.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
     mock_logger_instance.info.assert_called_once_with("Started executing function: test_use_span__when_name_is_not_defined.<locals>.sample_function")
     assert result == "test"
+    print("see mee")
+    print(mock_logger_instance.info.call_args_list)
 
 
 def test_start_trace__when_logging_not_configured(mock_logger, mock_start_trace):
     mock_logger_instance = mock_logger.return_value
     mock_start_trace_instance = mock_start_trace.return_value
 
+    # Prepare
     @start_trace
-    def app_sample_function():
-        return "I am an app sample function"
+    def app_sample_function(initial_span=None):
+        assert (1 + 1) == 2
+        return "I am an app sample function. Doing important calculations"
 
     def entry_point():
         print("I am an entry point function, who is supposed to configure logging - but I don't in this case")
         app_sample_function()
 
+    # Act and assert
     with pytest.raises(NotImplementedError):
         entry_point()
+
+    assert 2 == 1
+
+
+def test_start_trace__when_logging_is_configured(mock_logger):
+    #with patch('telemetry_logging.decorators.start_trace') as mock_start_trace, \
+    #     patch('telemetry_logging.decorators.Logger') as mock_logger:
+    # Arrange
+    mock_logger_instance = mock_logger.return_value
+
+    # Prepare
+    @start_trace
+    def app_sample_function(initial_span=None):
+        assert (1 + 1) == 2
+        return "I am an app sample function. Doing important calculations"
+
+    def entry_point() -> None:
+        print("I am an entry point function, who is supposed to configure logging - which I do here")
+        configure_logging(
+            cloud_role_name="test_cloud_role_name",
+            tracer_name="subsystem_tracer_name",
+            applicationinsights_connection_string=None,
+            extras={'key1': 'value1', 'key2': 'value2'},
+        )
+        app_sample_function()
+
+    # Act
+    print("SEE MEEEE")
+    #print(mock_logger_instance.call_args_list)
+    #print(mock_start_trace_instance.call_args_list)
+
+    entry_point()
+    # Assert
+
+
+
+
