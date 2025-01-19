@@ -67,6 +67,7 @@ def test_start_trace__when_logging_not_configured(mock_logger, mock_start_trace)
     # Prepare
     @start_trace()
     def app_sample_function(initial_span=None):
+        _LOGGING_CONFIGURED = True
         assert (1 + 1) == 2
         return "I am an app sample function. Doing important calculations"
 
