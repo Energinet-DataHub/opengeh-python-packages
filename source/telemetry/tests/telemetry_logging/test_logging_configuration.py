@@ -1,7 +1,5 @@
 import os
-import sys
 import pytest
-from unittest.mock import patch
 import unittest.mock as mock
 from telemetry_logging.logging_configuration import (
     configure_logging,
@@ -10,6 +8,8 @@ from telemetry_logging.logging_configuration import (
     get_tracer,
     start_span,
     _IS_INSTRUMENTED,
+    _LOGGING_CONFIGURED,
+    get_logging_configured,
     LoggingSettings
 )
 
@@ -262,3 +262,16 @@ def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_fo
     # Clean up
     # Reset force_configuration for the fixture
     mock_logging_settings.force_configuration = False
+
+def test_configure_logging_check_if_logging_configured(mock_logging_settings, mock_logging_extras):
+    # Arrange
+    initial_logging_is_configured = get_logging_configured()
+    expected_logging_is_configured = True
+
+    # Act
+    configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
+
+    # Assert
+    assert initial_logging_is_configured == False
+    actual_logging_is_configured = get_logging_configured()
+    assert actual_logging_is_configured == expected_logging_is_configured
