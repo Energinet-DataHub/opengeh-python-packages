@@ -25,10 +25,12 @@ def read_csv(
     """
     raw_df = spark.read.csv(path, header=True, sep=sep)
 
+    # Check each column to see if all values are "[IGNORED]"
     ignore_check = raw_df.agg(
         *[F.every(F.col(c) == F.lit(ignored_value)).alias(c) for c in raw_df.columns]
     ).collect()
 
+    # Get the columns that should be ignored
     ignored_cols = [
         c for c, v in ignore_check[0].asDict().items() if v and c in schema.fieldNames()
     ]
@@ -48,15 +50,4 @@ def read_csv(
                 )
 
     df = raw_df.select(*transforms)
-    return _fix_nullable(df, schema)
-
-
-def _fix_nullable(df: DataFrame, schema: T.StructType):
-    for field in df.schema.fields:
-        assert field.name in schema.fieldNames(), f"Field {field.name} not in schema"
-        if isinstance(schema[field.name].dataType, T.ArrayType):
-            df.schema[field.name].dataType = schema[field.name].dataType
-        else:
-            df.schema[field.name].nullable = schema[field.name].nullable
-
-    return df
+    return spark.createDataFrame(df.rdd, schema=schema, verifySchema=True)
