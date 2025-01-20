@@ -72,5 +72,3 @@ def test_days_in_year(spark):
     # Assert
     assert rows[0]["days"] == 365  # 2023
     assert rows[1]["days"] == 366  # 2024
-
-
