@@ -2,9 +2,9 @@ from typing import Tuple
 
 from pyspark.sql import SparkSession
 
-from source.testcommon.testcommon.utils.csv_to_dataframe_parser import CsvToDataframeWrapperParser
-from source.testcommon.testcommon.utils.dataframes.typecasting import cast_column_types
-from source.testcommon.testcommon.utils.views.dataframe_wrapper import DataframeWrapper
+from testcommon.utils.csv_to_dataframe_parser import CsvToDataframeWrapperParser
+from testcommon.utils.dataframes.typecasting import cast_column_types
+from testcommon.utils.views.dataframe_wrapper import DataframeWrapper
 
 
 class ViewScenarioExecutor:
