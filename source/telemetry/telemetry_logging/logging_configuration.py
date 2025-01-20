@@ -52,6 +52,7 @@ class LoggingSettings(BaseSettings):
     applicationinsights_connection_string: str
     subsystem: str
     orchestration_instance_id: Optional[UUID] = None
+    force_configuration: bool = False
 
     @classmethod
     def settings_customise_sources(

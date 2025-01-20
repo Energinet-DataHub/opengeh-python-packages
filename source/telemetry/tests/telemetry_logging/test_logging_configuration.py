@@ -1,5 +1,7 @@
 import os
+import sys
 import pytest
+from unittest.mock import patch
 import unittest.mock as mock
 from telemetry_logging.logging_configuration import (
     configure_logging,
@@ -8,11 +10,41 @@ from telemetry_logging.logging_configuration import (
     get_tracer,
     start_span,
     _IS_INSTRUMENTED,
+    LoggingSettings
 )
+"""
+cloud_role_name: str
+    applicationinsights_connection_string: str
+    subsystem: str
+    orchestration_instance_id: Optional[UUID] = None
+"""
 
+@pytest.fixture
+def mock_sysargv():
+    testargs = ["--force_configuration OR4a540892-2c0a-46a9-9257-c4e13051d76a"]
+    with patch.object(sys, 'argv', testargs) as MockSysArgs:
+        yield MockSysArgs
+
+@pytest.fixture
+def logging_settings(mock_sysargv):
+    os.environ['CLOUD_ROLE_NAME'] = 'foozzzzzz from environment'
+    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'foo2 from environment'
+    os.environ['SUBSYSTEM'] = 'foo2 from environment'
+    os.environ['ORCHESTRATION_INSTANCE_ID'] = '4a540892-2c0a-46a9-9257-c4e13051d76a'
+    return LoggingSettings()
+
+def test_mocker(logging_settings):
+    print("TESTING OUTPUT")
+    print(logging_settings.cloud_role_name)
+    print(logging_settings.orchestration_instance_id)
+    print("Failing on purpose:")
+    print(sys.argv)
+    print(sys.argv[0])
+    assert 1 == 1
 
 def test_configure_logging__then_environmental_variables_are_set():
     # Arrange
+
     cloud_role_name = "test_role"
     tracer_name = "test_tracer"
 
