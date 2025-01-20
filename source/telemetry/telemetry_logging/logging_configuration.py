@@ -49,7 +49,7 @@ class LoggingSettings(BaseSettings):
     The priority is CLI parameters first and then environment variables.
     """
     cloud_role_name: str
-    applicationinsights_connection_string: str
+    applicationinsights_connection_string: str = None
     subsystem: str
     orchestration_instance_id: Optional[UUID] = None
     force_configuration: bool = False
@@ -109,7 +109,7 @@ def configure_logging(
     _LOGGING_CONFIGURED = True
 
     # Adding orchestration ID as an extra when provided through LoggingSettings:
-    add_extras({"orchestration_instance_id": logging_settings.orchestration_instance_id})
+    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
 
 
 def get_extras() -> dict[str, Any]:

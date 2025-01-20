@@ -18,6 +18,7 @@ class Settings(BaseSettings):
     # env_foo1: str
     # env_foo2: str
     input_foo1: str = "Hello"
+    force_configuration: bool = False
 
     @classmethod
     def settings_customise_sources(
@@ -34,7 +35,6 @@ os.environ['ENV_FOO1'] = 'foo1 from environment'
 os.environ['ENV_FOO2'] = 'foo2 from environment'
 
 settings = Settings()
-settings.extras = {"some_extra": "extra_value"}
 
 print(settings)
 
