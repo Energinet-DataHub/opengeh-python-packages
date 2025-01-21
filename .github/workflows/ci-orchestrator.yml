@@ -28,7 +28,14 @@ jobs:
 
   create_release:
     needs: changes
-    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' || needs.changes.outputs.testcommon == 'true' || needs.changes.outputs.pyspark_slim == 'true'}}
+    if: |
+      ${{
+      needs.changes.outputs.telemetry == 'true' ||
+      needs.changes.outputs.spark_sql_migrations == 'true' ||
+      needs.changes.outputs.testcommon == 'true' ||
+      needs.changes.outputs.pyspark_slim == 'true' ||
+      needs.changes.outputs.pyspark_functions == 'true'
+      }}
     uses: ./.github/workflows/create-release-tag.yml
     secrets: inherit
 
