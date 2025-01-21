@@ -11,14 +11,14 @@ from pyspark_functions.functions import (
 
 def test_convert_utc_to_localtime(spark):
     # Arrange
-    data = [(datetime(2023, 1, 1, 12, 0),)]
+    data = [(datetime(2023, 1, 1, 11, 0),)]
     df = spark.createDataFrame(data, ["timestamp"])
 
     # Act
     result = convert_utc_to_localtime(df, "timestamp", "Europe/Copenhagen")
 
     # Assert
-    assert result.collect()[0]["timestamp"].hour == 13  # UTC+1
+    assert result.collect()[0]["timestamp"].hour == 12  # UTC+1
 
 
 def test_convert_localtime_to_utc(spark):
