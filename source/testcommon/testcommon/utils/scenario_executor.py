@@ -24,7 +24,7 @@ import telemetry_logging.logging_configuration as config
 from package.calculation.calculation_output import CalculationOutput
 from package.calculation.calculator_args import CalculatorArgs
 from .calculation_args import create_calculation_args
-from .dataframes.typecasting import cast_column_types
+from testcommon.utils.typecasting import cast_column_types
 from .expected_output import ExpectedOutput
 from .input_specifications import get_data_input_specifications
 
