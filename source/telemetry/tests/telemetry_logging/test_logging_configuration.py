@@ -1,4 +1,5 @@
 import os
+import sys
 import pytest
 import unittest.mock as mock
 from telemetry_logging.logging_configuration import (
@@ -8,8 +9,176 @@ from telemetry_logging.logging_configuration import (
     get_tracer,
     start_span,
     _IS_INSTRUMENTED,
+    LoggingSettings
 )
+from uuid import UUID
+from pydantic import ValidationError
 
+
+# ---------------------------------------------------------------------------------------------
+@pytest.fixture
+def mock_logging_settings():
+    os.environ['CLOUD_ROLE_NAME'] = 'cloud_role_name_value'
+    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'applicationinsights_connection_string_value'
+    os.environ['SUBSYSTEM'] = 'subsystem_value'
+    with mock.patch('sys.argv', ['program_name', '--force_configuration', 'true', '--orchestration_instance_id', '4a540892-2c0a-46a9-9257-c4e13051d76a']):
+        yield LoggingSettings()
+
+def test_logging_settings_from_mock(mock_logging_settings):
+    # Arrange
+    expected_cloud_role_name = 'cloud_role_name_value'
+    expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
+    expected_subsystem = 'subsystem_value'
+    expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
+    expected_force_configuration = True
+    # Act
+    # Assert
+    assert mock_logging_settings.cloud_role_name == expected_cloud_role_name
+    assert mock_logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
+    assert mock_logging_settings.subsystem == expected_subsystem
+    assert mock_logging_settings.orchestration_instance_id == expected_orchestration_instance_id
+    assert mock_logging_settings.force_configuration is expected_force_configuration
+
+
+def test_logging_settings_without_any_params():
+    # Arrange
+
+    # Act
+    with pytest.raises(ValidationError):
+        logging_settings = LoggingSettings()
+    # Assert
+
+
+
+def test_logging_settings_without_cli_params():
+    # Arrange
+    os.environ['CLOUD_ROLE_NAME'] = 'cloud_role_name_value'
+    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'applicationinsights_connection_string_value'
+    os.environ['SUBSYSTEM'] = 'subsystem_value'
+
+
+    expected_cloud_role_name = 'cloud_role_name_value'
+    expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
+    expected_subsystem = 'subsystem_value'
+    expected_orchestration_instance_id = None
+    expected_force_configuration = False
+    # Act
+
+    logging_settings = LoggingSettings()
+
+    # Assert
+    assert logging_settings.cloud_role_name == expected_cloud_role_name
+    assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
+    assert logging_settings.subsystem == expected_subsystem
+    assert logging_settings.orchestration_instance_id == expected_orchestration_instance_id
+    assert logging_settings.force_configuration is expected_force_configuration
+
+def test_logging_settings_all_params_from_env():
+    # Arrange
+    os.environ['CLOUD_ROLE_NAME'] = 'cloud_role_name_value'
+    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'applicationinsights_connection_string_value'
+    os.environ['SUBSYSTEM'] = 'subsystem_value'
+    os.environ['ORCHESTRATION_INSTANCE_ID'] = '4a540892-2c0a-46a9-9257-c4e13051d76a'
+    os.environ['FORCE_CONFIGURATION'] = 'True'
+
+    expected_cloud_role_name = 'cloud_role_name_value'
+    expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
+    expected_subsystem = 'subsystem_value'
+    expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
+    expected_force_configuration = True
+
+
+    # Act
+    logging_settings = LoggingSettings()
+
+    # Assert
+    assert logging_settings.cloud_role_name == expected_cloud_role_name
+    assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
+    assert logging_settings.subsystem == expected_subsystem
+    assert logging_settings.orchestration_instance_id == expected_orchestration_instance_id
+    assert logging_settings.force_configuration is expected_force_configuration
+
+
+
+def test_logging_settings_all_params_from_cli():
+    # Arrange
+    sysargs = [
+        'program_name',
+        '--cloud_role_name', 'cloud_role_name_value',
+        '--applicationinsights_connection_string', 'applicationinsights_connection_string_value',
+        '--subsystem', 'subsystem_value',
+        '--force_configuration', 'true',
+        '--orchestration_instance_id', '4a540892-2c0a-46a9-9257-c4e13051d76a'
+    ]
+
+    # Act
+    with mock.patch('sys.argv', sysargs):
+        logging_settings = LoggingSettings()
+
+
+
+        expected_cloud_role_name = 'cloud_role_name_value'
+        expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
+        expected_subsystem = 'subsystem_value'
+        expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
+        expected_force_configuration = True
+
+
+    # Assert
+        assert logging_settings.cloud_role_name == expected_cloud_role_name
+        assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
+        assert logging_settings.subsystem == expected_subsystem
+        assert logging_settings.orchestration_instance_id == expected_orchestration_instance_id
+        assert logging_settings.force_configuration is expected_force_configuration
+
+        assert os.environ.get('CLOUD_ROLE_NAME') is None
+        assert os.environ.get('APPLICATIONINSIGHTS_CONNECTION_STRING') is None
+        assert os.environ.get('SUBSYSTEM') is None
+        assert os.environ.get('ORCHESTRATION_INSTANCE_ID') is None
+        assert os.environ.get('FORCE_CONFIGURATION') is None
+
+
+def test_logging_settings_params_from_both_cli_and_env(mock_logging_settings):
+    # Arrange
+    sysargs = [
+        'program_name',
+        '--cloud_role_name', 'cloud_role_name_value_from_cli',
+        '--force_configuration', 'true',
+        '--orchestration_instance_id', '4a540892-2c0a-46a9-9257-c4e13051d76a'
+    ]
+    # Act
+    with mock.patch('sys.argv', sysargs):
+        logging_settings = LoggingSettings()
+
+        os.environ['CLOUD_ROLE_NAME'] = 'cloud_role_name_value_from_env'
+        os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'applicationinsights_connection_string_value'
+        os.environ['SUBSYSTEM'] = 'subsystem_value'
+
+        expected_cloud_role_name = 'cloud_role_name_value_cli'
+        expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
+        expected_subsystem = 'subsystem_value'
+        expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
+        expected_force_configuration = True
+
+    # Assert
+        assert logging_settings.cloud_role_name == expected_cloud_role_name
+        assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
+        assert logging_settings.subsystem == expected_subsystem
+        assert logging_settings.orchestration_instance_id == expected_orchestration_instance_id
+        assert logging_settings.force_configuration is expected_force_configuration
+
+# ---------------------------------------------------------------------------------------------
+
+
+def test_mocker(mock_logging_settings):
+    #logging_settings.force_configuration = True
+    print("sys.argv:")
+    print(sys.argv)
+    print("Mock settings object:")
+    print(mock_logging_settings)
+    assert 1 == 1
+
+# ---------------------------------------------------------------------------------------------
 
 def test_configure_logging__then_environmental_variables_are_set():
     # Arrange
@@ -187,3 +356,7 @@ def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_fo
 
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == updated_cloud_role_name
+
+
+
+
