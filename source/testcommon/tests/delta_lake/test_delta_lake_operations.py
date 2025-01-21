@@ -56,3 +56,17 @@ def test_create_table__when_already_exists__does_not_create(spark: SparkSession)
     # Assert
     tables = [table.name for table in spark.catalog.listTables(DEFAULT_DATABASE_NAME)]
     assert tables.count(DEFAULT_TABLE_NAME) == 1  # Ensure the table is not duplicated
+
+
+def test_create_table__schema_is_as_expected(spark: SparkSession):
+    # Arrange
+    create_database(spark, DEFAULT_DATABASE_NAME)
+    expected_schema = DEFAULT_SCHEMA
+
+    # Act
+    create_table(spark, DEFAULT_DATABASE_NAME, DEFAULT_TABLE_NAME, DEFAULT_LOCATION, expected_schema)
+
+    # Assert
+    actual_schema = spark.read.table(f"{DEFAULT_DATABASE_NAME}.{DEFAULT_TABLE_NAME}")
+    actual_schema.show()
+    assert actual_schema == expected_schema, f"Expected schema: {expected_schema}, but got: {actual_schema}"
