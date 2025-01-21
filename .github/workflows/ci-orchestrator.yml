@@ -28,6 +28,7 @@ jobs:
 
   create_release:
     needs: changes
+    # Only create a release tag if there are changes in the following folders
     if: |
       ${{
       needs.changes.outputs.telemetry == 'true' ||
