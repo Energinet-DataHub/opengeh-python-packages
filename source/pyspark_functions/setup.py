@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="opengeh-pyspark-functions",
+    name="opengeh-pyspark",
     version="0.0.1",
     description="Shared pyspark functions for OpenGEH",
     long_description="",

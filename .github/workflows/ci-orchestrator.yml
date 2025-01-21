@@ -109,7 +109,7 @@ jobs:
       test_report_path: ./source/testcommon/tests/
       image_tag: ${{ needs.ci_docker.outputs.image_tag }}
   #
-  # Run Python unit tests for testcommon
+  # Run Python unit tests for python functions
   #
   python_ci_test_pyspark_functions:
     needs: [changes, ci_base, ci_docker]
