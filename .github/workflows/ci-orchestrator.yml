@@ -110,6 +110,22 @@ jobs:
       tests_folder_path: ./source/testcommon/tests/
       test_report_path: ./source/testcommon/tests/
       image_tag: ${{ needs.ci_docker.outputs.image_tag }}
+  #
+  # Run Python unit tests for python functions
+  #
+  python_ci_test_pyspark_functions:
+    needs: [changes, ci_base, ci_docker]
+    if: ${{ needs.changes.outputs.pyspark_functions == 'true' }}
+    uses: Energinet-DataHub/.github/.github/workflows/python-ci.yml@v14
+    with:
+      job_name: Pyspark Functions unit tests
+      operating_system: dh3-ubuntu-20.04-4core
+      path_static_checks: ./source/pyspark_functions/
+      # documented here https://github.com/Energinet-DataHub/opengeh-migration/tree/main/source/MigrationTools#styling-and-formatting
+      ignore_errors_and_warning_flake8: E501,F401,E402,E203,W503
+      tests_folder_path: ./source/pyspark_functions/tests/
+      test_report_path: ./source/pyspark_functions/tests/
+      image_tag: ${{ needs.ci_docker.outputs.image_tag }}
   # Branch policy status check
   allow_merge_ci_orchestrator:
     runs-on: ubuntu-latest
@@ -122,6 +138,7 @@ jobs:
         python_ci_test_telemetry,
         python_ci_integration_test_telemetry,
         python_ci_test_testcommon,
+        python_ci_test_pyspark_functions,
       ]
     if: |
       always()
