@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.0.8
+
+Added support for creating tables and databases in Delta Lake (`create_database` and `create_table`).
+
 ## Version 0.0.7
 
 Nullability is now handled correctly when parsing CSV files to dataframes.
