@@ -8,6 +8,7 @@ DEFAULT_TABLE_NAME = "test_table"
 DEFAULT_LOCATION = "/tmp/test_table"
 DEFAULT_SCHEMA  = StructType([StructField("name", StringType(), True)])
 
+
 def test_create_database__creates_database(spark: SparkSession):
     # Arrange
     database_name = "test_db"

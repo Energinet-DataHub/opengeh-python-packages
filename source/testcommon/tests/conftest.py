@@ -28,4 +28,3 @@ def spark() -> Generator[SparkSession, None, None]:
     session = configure_spark_with_delta_pip(session).getOrCreate()
     yield session
     session.stop()
-
