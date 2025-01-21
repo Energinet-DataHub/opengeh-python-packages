@@ -12,6 +12,7 @@ def clear_cache(spark: SparkSession):
     # Clear the cache after each test module to avoid memory issues
     spark.catalog.clearCache()
 
+
 @pytest.fixture(scope="session")
 def spark() -> Generator[SparkSession, None, None]:
     """

@@ -6,7 +6,7 @@ from testcommon.delta_lake.delta_lake_operations import create_database, create_
 DEFAULT_DATABASE_NAME = "test_db"
 DEFAULT_TABLE_NAME = "test_table"
 DEFAULT_LOCATION = "/tmp/test_table"
-DEFAULT_SCHEMA  = StructType([StructField("name", StringType(), True)])
+DEFAULT_SCHEMA = StructType([StructField("name", StringType(), True)])
 
 
 def test_create_database__creates_database(spark: SparkSession):
