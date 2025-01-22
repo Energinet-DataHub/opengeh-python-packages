@@ -1,4 +1,4 @@
 # Version 0.0.1
 
-- Bootstraped project
+- Bootstraped project.
 - Added functions and tests.
