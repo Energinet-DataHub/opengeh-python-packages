@@ -29,14 +29,7 @@ jobs:
   create_release:
     needs: changes
     # Only create a release tag if there are changes in the following folders
-    if: |
-      ${{
-      needs.changes.outputs.telemetry == 'true' ||
-      needs.changes.outputs.spark_sql_migrations == 'true' ||
-      needs.changes.outputs.testcommon == 'true' ||
-      needs.changes.outputs.pyspark_slim == 'true' ||
-      needs.changes.outputs.pyspark_functions == 'true'
-      }}
+    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' || needs.changes.outputs.testcommon == 'true' || needs.changes.outputs.pyspark_slim == 'true' || needs.changes.outputs.pyspark_functions == 'true' }}
     uses: ./.github/workflows/create-release-tag.yml
     secrets: inherit
 
