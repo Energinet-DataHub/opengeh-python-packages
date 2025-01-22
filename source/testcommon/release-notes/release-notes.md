@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.0.9
+
+Add `__init__.py` in `delta_lake` folder
+
 ## Version 0.0.8
 
 Added support for creating tables and databases in Delta Lake (`create_database` and `create_table`).
