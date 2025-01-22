@@ -27,7 +27,8 @@ def telemetry_path() -> str:
     `os.chdir()`. The correctness also relies on the prerequisite that this function is
     actually located in a file located directly in the tests folder.
     """
-    return "source/telemetry"
+    telemetry_folder_path = Path(__file__).parent.parent
+    return str(telemetry_folder_path)
 
 
 @pytest.fixture(scope="session")

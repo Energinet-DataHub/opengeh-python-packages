@@ -16,6 +16,7 @@ import sys
 import uuid
 import os
 import pytest
+from pathlib import Path #TODO: CHBA REMOVE
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
@@ -31,6 +32,21 @@ INTEGRATION_TEST_CLOUD_ROLE_NAME = "test-cloud-role-name"
 INTEGRATION_TEST_TRACER_NAME = "test-tracer-name"
 LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
 
+@pytest.fixture()
+def fixture_logging_settings(integration_test_configuration):
+    # Get the application insights string, which can be retrieved from the integration_test_configuration fixture
+    applicationinsights_connection_string = (
+        integration_test_configuration.get_applicationinsights_connection_string()
+    )
+    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = applicationinsights_connection_string
+    os.environ['CLOUD_ROLE_NAME'] = INTEGRATION_TEST_CLOUD_ROLE_NAME
+    os.environ['SUBSYSTEM'] = INTEGRATION_TEST_TRACER_NAME
+    logging_settings = config.LoggingSettings()
+    return logging_settings
+
+@pytest.fixture()
+def fixture_extras():
+    return {"key": "value"}
 
 def _wait_for_condition(
     logs_client: LogsQueryClient,
@@ -87,20 +103,27 @@ def _wait_for_condition(
 
 def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
+    fixture_logging_settings, fixture_extras
 ) -> None:
     # Arrange
+    logging_settings = fixture_logging_settings
+    logging_settings.force_configuration = True
+    extras = fixture_extras
     new_uuid = uuid.uuid4()
-    message = f"test exception {new_uuid}"
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    message = f"test exception xcban {new_uuid}"
 
-    config.configure_logging(
-        cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
-        tracer_name=INTEGRATION_TEST_TRACER_NAME,
-        applicationinsights_connection_string=applicationinsights_connection_string,
-        force_configuration=True,
-    )
+    #applicationinsights_connection_string = (
+    #    integration_test_configuration.get_applicationinsights_connection_string()
+    #)
+
+    # config.configure_logging(
+    #     cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
+    #     tracer_name=INTEGRATION_TEST_TRACER_NAME,
+    #     applicationinsights_connection_string=applicationinsights_connection_string,
+    #     force_configuration=True,
+    # )
+
+    config.configure_logging(logging_settings=logging_settings, extras=extras)
 
     # Act
     with config.start_span(__name__) as span:
@@ -237,3 +260,17 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
         query=query,
         expected_count=log_count,
     )
+
+
+def test__path(telemetry_tests_path):
+    print("telemetry_tests_path:")
+    print(telemetry_tests_path)
+    print("CONTENTS OF telemetry_tests_path:")
+    for item in Path(telemetry_tests_path).iterdir():
+        print(item)
+
+def test__create_integration_test_configuration(
+    integration_test_configuration: IntegrationTestConfiguration,
+    telemetry_tests_path
+) -> None:
+    print(integration_test_configuration)
