@@ -110,18 +110,7 @@ def test__exception_adds_log_to_app_exceptions(
     logging_settings.force_configuration = True
     extras = fixture_extras
     new_uuid = uuid.uuid4()
-    message = f"test exception xcban {new_uuid}"
-
-    #applicationinsights_connection_string = (
-    #    integration_test_configuration.get_applicationinsights_connection_string()
-    #)
-
-    # config.configure_logging(
-    #     cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
-    #     tracer_name=INTEGRATION_TEST_TRACER_NAME,
-    #     applicationinsights_connection_string=applicationinsights_connection_string,
-    #     force_configuration=True,
-    # )
+    message = f"test exception {new_uuid}"
 
     config.configure_logging(logging_settings=logging_settings, extras=extras)
 
@@ -167,6 +156,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[str], None],
     severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
+    fixture_logging_settings
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
@@ -174,17 +164,10 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     message = "test message"
     key = "key"
     extras = {key: "value"}
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    new_settings = fixture_logging_settings
+    new_settings.cloud_role_name = new_unique_cloud_role_name
 
-    config.configure_logging(
-        cloud_role_name=new_unique_cloud_role_name,
-        tracer_name=INTEGRATION_TEST_TRACER_NAME,
-        applicationinsights_connection_string=applicationinsights_connection_string,
-        extras=extras,
-        force_configuration=True,
-    )
+    config.configure_logging(logging_settings=new_settings, extras=extras)
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
     # Act
@@ -217,22 +200,20 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
 
 def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_test_configuration: IntegrationTestConfiguration,
+        fixture_logging_settings,
+        fixture_extras
 ) -> None:
     # Arrange
     log_count = 5
     new_uuid = uuid.uuid4()
     new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
     message = "test message"
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    new_settings = fixture_logging_settings
+    new_settings.cloud_role_name = new_unique_cloud_role_name
+    extras = fixture_extras
 
-    config.configure_logging(
-        cloud_role_name=new_unique_cloud_role_name,
-        tracer_name=INTEGRATION_TEST_TRACER_NAME,
-        applicationinsights_connection_string=applicationinsights_connection_string,
-        force_configuration=True,
-    )
+    config.configure_logging(logging_settings=new_settings, extras=extras)
+
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
     # Act
@@ -262,15 +243,3 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     )
 
 
-def test__path(telemetry_tests_path):
-    print("telemetry_tests_path:")
-    print(telemetry_tests_path)
-    print("CONTENTS OF telemetry_tests_path:")
-    for item in Path(telemetry_tests_path).iterdir():
-        print(item)
-
-def test__create_integration_test_configuration(
-    integration_test_configuration: IntegrationTestConfiguration,
-    telemetry_tests_path
-) -> None:
-    print(integration_test_configuration)
