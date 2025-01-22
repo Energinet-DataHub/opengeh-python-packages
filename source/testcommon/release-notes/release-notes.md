@@ -1,6 +1,6 @@
 # Testcommon Release Notes
 
-## Version 0.0.8
+## Version 0.0.9
 
 Add `__init__.py` in `delta_lake` folder
 
