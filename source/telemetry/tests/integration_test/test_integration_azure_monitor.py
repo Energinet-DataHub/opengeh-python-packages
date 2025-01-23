@@ -41,6 +41,7 @@ def fixture_logging_settings(integration_test_configuration):
     os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = applicationinsights_connection_string
     os.environ['CLOUD_ROLE_NAME'] = INTEGRATION_TEST_CLOUD_ROLE_NAME
     os.environ['SUBSYSTEM'] = INTEGRATION_TEST_TRACER_NAME
+    os.environ['ORCHESTRATION_INSTANCE_ID'] = str(uuid.uuid4())
     logging_settings = config.LoggingSettings()
     return logging_settings
 
@@ -262,6 +263,9 @@ def test__decorators_integration_test(
 
     # Configuring logging, setting the name of the trace based on new_settings.cloud_role_name
     config.configure_logging(logging_settings=new_settings, extras=extras)
+    # TODO: CLEAN IT UP
+    var = os.environ['ORCHESTRATION_INSTANCE_ID']
+    currentExtras = config.get_extras()
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
     # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
