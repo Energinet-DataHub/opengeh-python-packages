@@ -1,5 +1,5 @@
-from pyspark.sql import SparkSession
 from pyspark.sql import types as T
+from pyspark.sql import SparkSession
 
 from testcommon.dataframes import read_csv
 
@@ -15,4 +15,4 @@ def write_when_files_to_delta(
             f"{scenario_path}/when/{file_name}",
             schema,
         )
-        spark.saveAsTable(file_name, df)
+        df.saveAsTable(file_name.removesuffix(".csv"))
