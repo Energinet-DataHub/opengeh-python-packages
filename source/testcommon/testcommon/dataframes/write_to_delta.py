@@ -15,4 +15,4 @@ def write_when_files_to_delta(
             f"{scenario_path}/when/{file_name}",
             schema,
         )
-        df.saveAsTable(file_name.removesuffix(".csv"))
+        df.write.saveAsTable(file_name.removesuffix(".csv"))
