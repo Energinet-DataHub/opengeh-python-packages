@@ -16,7 +16,6 @@ import sys
 import uuid
 import os
 import pytest
-from pathlib import Path #TODO: CHBA REMOVE
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
@@ -25,6 +24,7 @@ from opentelemetry.trace import SpanKind
 from tests.integration_test_configuration import IntegrationTestConfiguration
 from telemetry_logging.logger import Logger
 import telemetry_logging.logging_configuration as config
+from telemetry_logging.decorators import start_trace, use_span
 
 
 INTEGRATION_TEST_LOGGER_NAME = "test-logger"
@@ -166,6 +166,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     extras = {key: "value"}
     new_settings = fixture_logging_settings
     new_settings.cloud_role_name = new_unique_cloud_role_name
+    new_settings.force_configuration = True
 
     config.configure_logging(logging_settings=new_settings, extras=extras)
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
@@ -195,6 +196,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
         workspace_id=workspace_id,
         query=query,
         expected_count=1,
+        step=timedelta(seconds=10)
     )
 
 
@@ -210,6 +212,7 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     message = "test message"
     new_settings = fixture_logging_settings
     new_settings.cloud_role_name = new_unique_cloud_role_name
+    new_settings.force_configuration = True
     extras = fixture_extras
 
     config.configure_logging(logging_settings=new_settings, extras=extras)
@@ -243,3 +246,81 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     )
 
 
+def test__decorators_integration_test(
+    integration_test_configuration: IntegrationTestConfiguration,
+        fixture_logging_settings,
+        fixture_extras
+) -> None:
+    # Arrange
+    new_uuid = uuid.uuid4()
+    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
+
+    new_settings = fixture_logging_settings
+    new_settings.cloud_role_name = new_unique_cloud_role_name
+    new_settings.force_configuration = True
+    extras = fixture_extras
+
+    # Configuring logging, setting the name of the trace based on new_settings.cloud_role_name
+    config.configure_logging(logging_settings=new_settings, extras=extras)
+    logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
+
+    # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
+    # taking the name of the function using the decorator @start_trace: app_sample_function
+
+    test_message_start_trace = "test message app_sample_function"
+    test_message_use_span = "test message app_sample_subfunction"
+
+    @start_trace
+    def app_sample_function(initial_span=None):
+        assert (1 + 1) == 2
+        log_message = test_message_start_trace
+        logger.info(log_message)
+        app_sample_subfunction()
+
+    @use_span()
+    def app_sample_subfunction():
+        assert (2 + 2) == 4
+        log_message = test_message_use_span
+        logger.info(log_message)
+        # Using
+
+    # Act
+    app_sample_function()
+
+    # Assert
+    logs_client = LogsQueryClient(integration_test_configuration.credential)
+
+    query_start_trace = f"""
+            AppTraces
+            | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+            | where AppRoleName == "{new_unique_cloud_role_name}"
+            | where Message == "{test_message_start_trace}"
+            | count
+            """
+
+    query_use_span = f"""
+                AppTraces
+                | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+                | where AppRoleName == "{new_unique_cloud_role_name}"
+                | where Message == "{test_message_use_span}"
+                | count
+                """
+
+    # Assert that we can query the specific logs created in the context of the spans
+    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query_start_trace,
+        expected_count=1,
+    )
+
+    # Assert, but timeout if not succeeded
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query_use_span,
+        expected_count=1,
+    )
