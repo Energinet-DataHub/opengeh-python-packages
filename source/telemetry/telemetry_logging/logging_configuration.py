@@ -15,15 +15,13 @@
 import contextlib
 import logging
 import os
-import argparse
 from typing import Any, Iterator, Tuple, Type, Optional
-from pydantic import BaseModel, Field, ValidationError
 from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
-from dataclasses import dataclass
+
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO

@@ -19,7 +19,6 @@ import pytest
 from datetime import timedelta
 from typing import cast, Callable
 from azure.monitor.query import LogsQueryClient, LogsQueryResult
-from opentelemetry.trace import SpanKind
 
 from tests.integration_test_configuration import IntegrationTestConfiguration
 from telemetry_logging.logger import Logger

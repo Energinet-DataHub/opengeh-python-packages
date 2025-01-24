@@ -8,7 +8,6 @@ from telemetry_logging.logging_configuration import (
     get_tracer,
     start_span,
     _IS_INSTRUMENTED,
-    _LOGGING_CONFIGURED,
     get_logging_configured,
     LoggingSettings
 )
@@ -74,7 +73,7 @@ def test_configure_logging__configure_does_update_environmental_variables(mock_l
 def test_get_extras__when_no_extras_none_are_returned(mock_logging_settings):
     # Arrange
     initial_extras = {}
-    # orhcestration_instance_id is always added to extras during logging configuration
+    # orchestration_instance_id is always added to extras during logging configuration
     expected_extras = {'orchestration_instance_id': mock_logging_settings.orchestration_instance_id}
 
     configure_logging(logging_settings=mock_logging_settings, extras=initial_extras)
