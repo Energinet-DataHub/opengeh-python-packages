@@ -1,3 +1,5 @@
+import os
+
 from pyspark.sql import types as T
 from pyspark.sql import SparkSession
 
@@ -10,9 +12,12 @@ def write_when_files_to_delta(
 ) -> None:
 
     for file_name, schema in files:
+        file_path = f"{scenario_path}/when/{file_name}"
+        if not os.path.exists(file_path):
+            continue
         df = read_csv(
             spark,
-            f"{scenario_path}/when/{file_name}",
+            file_path,
             schema,
         )
         df.write.mode("overwrite").saveAsTable(file_name.removesuffix(".csv"))
