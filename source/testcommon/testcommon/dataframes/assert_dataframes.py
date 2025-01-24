@@ -12,13 +12,13 @@ class AssertDataframesConfiguration:
     show_actual_and_expected_count: bool = False
     show_actual_and_expected: bool = False
     show_columns_when_actual_and_expected_are_equal: bool = False
+    ignore_extra_columns_in_actual: bool = True
 
     ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
     ignore_column_order: bool = False
     ignore_decimal_scale: bool = False
     ignore_decimal_precision: bool = False
-
     columns_to_skip: list[str] | None = None
 
 
@@ -44,6 +44,15 @@ def assert_dataframes_and_schemas(
     ):
         actual = actual.drop(*configuration.columns_to_skip)
         expected = expected.drop(*configuration.columns_to_skip)
+
+    if configuration.ignore_extra_columns_in_actual:
+        # When there are ignored columns, the actual dataframe will have
+        # more columns than the expected dataframe. Therefore, in order to
+        # compare the extra columns are removed from the actual dataframe.
+        actual_columns = set(actual.columns)
+        expected_columns = set(expected.columns)
+        columns_to_drop = actual_columns - expected_columns
+        actual = actual.drop(*columns_to_drop)
 
     try:
         assert_schema(

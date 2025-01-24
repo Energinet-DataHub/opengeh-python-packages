@@ -1,5 +1,25 @@
 # Testcommon Release Notes
 
+## Version 0.0.9
+
+Add `__init__.py` in `delta_lake` folder
+
+## Version 0.0.8
+
+Added support for creating tables and databases in Delta Lake (`create_database` and `create_table`).
+
+## Version 0.0.7
+
+Nullability is now handled correctly when parsing CSV files to dataframes.
+Before this change, all columns were treated as nullable.
+
+## Version 0.0.6
+
+Support for enabling or disabling 'ignoring columns' in the dataframe assert function.
+
+Add test setting strict_actual_assertion to enable or disable strict assertion of dataframes.
+When true cells with 'ignored_value' will not be ignored.
+
 ## Version 0.0.5
 
 Add support for ignoring columns in the `read_csv` function.

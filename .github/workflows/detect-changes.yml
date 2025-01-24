@@ -9,6 +9,8 @@ name: Detect changes
 on:
   workflow_call:
     outputs:
+      pyspark_functions:
+        value: ${{ jobs.changes.outputs.pyspark_functions }}
       testcommon:
         value: ${{ jobs.changes.outputs.testcommon }}
       telemetry:
@@ -31,6 +33,8 @@ jobs:
       telemetry_release_notes: ${{ steps.filter.outputs.telemetry_release_notes }}
       testcommon: ${{ steps.filter.outputs.testcommon }}
       testcommon_release_notes: ${{ steps.filter.outputs.testcommon_release_notes }}
+      pyspark_functions: ${{ steps.filter.outputs.pyspark_functions }}
+      pyspark_functions_release_notes: ${{ steps.filter.outputs.pyspark_functions_release_notes }}
       spark_sql_migrations: ${{ steps.filter.outputs.spark_sql_migrations }}
       spark_sql_migrations_release_notes: ${{ steps.filter.outputs.spark_sql_migrations_release_notes }}
       docker: ${{ steps.filter.outputs.docker }}
@@ -60,6 +64,10 @@ jobs:
               - 'source/testcommon/**'
             testcommon_release_notes:
               - 'source/testcommon/release-notes/release-notes.md'
+            pyspark_functions:
+              - 'source/pyspark_functions/**'
+            pyspark_functions_release_notes:
+              - 'source/pyspark_functions/release-notes/release-notes.md'
             docker:
               - .docker/**
             pyspark_slim:
@@ -93,6 +101,11 @@ jobs:
               packageName: testcommon,
               packageChanged: "${{ needs.changes.outputs.testcommon }}",
               releaseNotesChanged: "${{ needs.changes.outputs.testcommon_release_notes }}",
+            },
+            {
+              packageName: pyspark_functions,
+              packageChanged: "${{ needs.changes.outputs.pyspark_functions }}",
+              releaseNotesChanged: "${{ needs.changes.outputs.pyspark_functions_release_notes }}",
             },
           ]
       max-parallel: 1
