@@ -263,9 +263,6 @@ def test__decorators_integration_test(
 
     # Configuring logging, setting the name of the trace based on new_settings.cloud_role_name
     config.configure_logging(logging_settings=new_settings, extras=extras)
-    # TODO: CLEAN IT UP
-    var = os.environ['ORCHESTRATION_INSTANCE_ID']
-    currentExtras = config.get_extras()
     logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
 
     # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
@@ -286,7 +283,6 @@ def test__decorators_integration_test(
         assert (2 + 2) == 4
         log_message = test_message_use_span
         logger.info(log_message)
-        # Using
 
     # Act
     app_sample_function()
