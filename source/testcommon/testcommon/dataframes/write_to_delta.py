@@ -10,6 +10,14 @@ def write_when_files_to_delta(
     scenario_path: str,
     files: list[tuple[str, T.StructType]]
 ) -> None:
+    """
+    Writes a list of files to a delta table, using the filenames (without the file extension) as table names.
+
+    Args:
+        spark (SparkSession): The Spark session.
+        scenario_path (str): The path to the scenario CSV file.
+        files (list[tuple[str, T.StructType]]): A list of tuples containing filenames and their corresponding schemas.
+    """
 
     for file_name, schema in files:
         file_path = f"{scenario_path}/when/{file_name}"
@@ -20,4 +28,9 @@ def write_when_files_to_delta(
             file_path,
             schema,
         )
-        df.write.mode("overwrite").saveAsTable(file_name.removesuffix(".csv"))
+
+        # Overwrite destination table with DataFrame
+        try:
+            df.write.mode("overwrite").saveAsTable(file_name.removesuffix(".csv"))
+        except Exception as e:
+            print(f"Error executing overwrite on table {file_name}: {str(e)}")
