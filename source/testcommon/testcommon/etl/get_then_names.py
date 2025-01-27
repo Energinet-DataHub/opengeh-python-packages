@@ -9,14 +9,14 @@ def get_then_names(scenario_path = None) -> list[str]:
         list[str]: A list of file paths relative to the `then` folder, without file extensions.
     """
 
-    test_file_path = inspect.stack()[1].filename
-    output_folder_path = Path(test_file_path).parent
-    then_output_folder_path = output_folder_path / "then"
-
     if scenario_path is not None:
         test_file_path = scenario_path
         output_folder_path = Path(test_file_path)
-        then_output_folder_path = output_folder_path / "then"
+    else:
+        test_file_path = inspect.stack()[1].filename
+        output_folder_path = Path(test_file_path).parent
+
+    then_output_folder_path = output_folder_path / "then"
 
     if not output_folder_path.exists():
         raise FileNotFoundError(
