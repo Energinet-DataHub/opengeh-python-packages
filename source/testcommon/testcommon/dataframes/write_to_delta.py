@@ -5,10 +5,11 @@ from pyspark.sql import SparkSession
 
 from testcommon.dataframes import read_csv
 
+
 def write_when_files_to_delta(
-    spark: SparkSession,
-    scenario_path: str,
-    files: list[tuple[str, T.StructType]]
+        spark: SparkSession,
+        scenario_path: str,
+        files: list[tuple[str, T.StructType]]
 ) -> None:
     """
     Writes a list of files to a delta table, using the filenames (without the file extension) as table names.
