@@ -1,5 +1,10 @@
 # Testcommon Release Notes
 
+## Version 0.1.0
+
+Modified `get_then_names` to accept a `scenario_path` as a parameter for locating the `/then` files.
+Added a `write_to_delta.py` file for writing a list of test CSV files to a delta table.
+
 ## Version 0.0.9
 
 Add `__init__.py` in `delta_lake` folder
