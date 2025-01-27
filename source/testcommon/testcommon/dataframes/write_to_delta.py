@@ -12,6 +12,8 @@ def write_when_files_to_delta(
 ) -> None:
     """
     Writes a list of files to a delta table, using the filenames (without the file extension) as table names.
+    If the Delta table does not exist, the function will create it. Otherwise, if a table already exists, its content
+    will be overwritten
 
     Args:
         spark (SparkSession): The Spark session.

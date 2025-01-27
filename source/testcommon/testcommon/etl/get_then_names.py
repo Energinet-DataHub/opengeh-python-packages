@@ -2,19 +2,23 @@ import inspect
 from pathlib import Path
 
 
-def get_then_names(scenario_path = None) -> list[str]:
-    """Get the names of the CSV files in the `then` folder in an ETL test.
+def get_then_names(scenario_path=None) -> list[str]:
+    """
+    Retrieves a list of file paths for the CSV files in the `/then` folder for a scenario test.
+    If 'scenario_path' is provided, it will be utilized to locate the '/then' files.
+    Otherwise, the function will dynamically locate the files by inspecting the call stack for the caller.
+
+    Args:
+        scenario_path (str, optional): Path to the scenario folder. Defaults to None.
 
     Returns:
         list[str]: A list of file paths relative to the `then` folder, without file extensions.
     """
 
     if scenario_path is not None:
-        test_file_path = scenario_path
-        output_folder_path = Path(test_file_path)
+        output_folder_path = Path(scenario_path)
     else:
-        test_file_path = inspect.stack()[1].filename
-        output_folder_path = Path(test_file_path).parent
+        output_folder_path = Path(inspect.stack()[1].filename).parent
 
     then_output_folder_path = output_folder_path / "then"
 
