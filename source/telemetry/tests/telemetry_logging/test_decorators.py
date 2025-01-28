@@ -110,3 +110,43 @@ def test_start_trace__when_logging_is_configured():
         # Assert
         mock_logger.assert_called_once_with('app_sample_function')
         log_instance_in_test.info.assert_called_once_with('Started executing function: app_sample_function')
+
+
+def test_start_trace__when_logging_is_configured_error_thrown_span_records_exception():
+    with (patch('telemetry_logging.decorators.Logger') as mock_logger,
+          patch('telemetry_logging.decorators.span_record_exception') as mock_span_record_exception
+          ):
+        # Intercepts Logger(func.__name__)
+        log_instance_in_test = mock_logger.return_value # Intercepts log = Logger(func.__name__)
+
+        # Prepare
+        @start_trace
+        def app_sample_function(initial_span=None):
+            assert (1 + 1) == 2
+            raise Exception # Mimmic an raised exception during runtime
+            return "I am an app sample function. Doing important calculations"
+
+        def entry_point():
+            print("I am an entry point function, who is supposed to configure logging")
+            # Initial LoggingSettings
+            settings = LoggingSettings()
+            settings.applicationinsights_connection_string = None  # For testing purposes
+
+            configure_logging(
+                logging_settings=settings,
+                extras={'key1': 'value1', 'key2': 'value2'}
+            )
+            app_sample_function()
+
+        # Mimic machine setting environment variables
+        os.environ['CLOUD_ROLE_NAME'] = 'cloud_role_name from environment'
+        os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = 'applicationinsights_connection_string from environment'
+        os.environ['SUBSYSTEM'] = 'subsystem from environment'
+        os.environ['ORCHESTRATION_INSTANCE_ID'] = '4a540892-2c0a-46a9-9257-c4e13051d76b'
+
+        with pytest.raises(SystemExit):
+            entry_point()
+        # Assert
+        mock_logger.assert_called_once_with('app_sample_function')
+        log_instance_in_test.info.assert_called_once_with('Started executing function: app_sample_function')
+        mock_span_record_exception.assert_called_once()
