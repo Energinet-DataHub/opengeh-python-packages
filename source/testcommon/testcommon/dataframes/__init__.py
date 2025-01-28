@@ -9,5 +9,5 @@ __all__ = [
     assert_contract.__name__,
     assert_schema.__name__,
     read_csv.__name__,
-    write_to_delta.__name__,
+    write_when_files_to_delta.__name__,
 ]
