@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.1.1
+
+Added `write_to_delta` to init.py.
+
 ## Version 0.1.0
 
 Modified `get_then_names` to accept a `scenario_path` as a parameter for locating the `/then` files.
