@@ -1,5 +1,7 @@
+import sys
 from typing import Callable, Any, Tuple, Dict
 from telemetry_logging.logging_configuration import start_span, get_tracer, get_logging_configured
+from telemetry_logging.span_recording import span_record_exception
 from telemetry_logging import Logger
 from opentelemetry.trace import SpanKind
 
@@ -42,7 +44,16 @@ def start_trace(func: Callable[..., Any]) -> Callable[..., Any]:
                 kwargs['initial_span'] = initial_span
 
                 # Call the original function with both positional and keyword arguments
-                return func(*args, **kwargs)
+                try:
+                    return func(*args, **kwargs)
+                except SystemExit as e:
+                    if e.code != 0:
+                        span_record_exception(e, initial_span)
+                    sys.exit(e.code)
+
+                except Exception as e:
+                    span_record_exception(e, initial_span)
+                    sys.exit(4)
         else:
             raise NotImplementedError("Logging has not been configured before use of decorator.")
 
