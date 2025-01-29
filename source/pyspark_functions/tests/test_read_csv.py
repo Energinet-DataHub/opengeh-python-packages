@@ -1,7 +1,7 @@
 from pyspark.sql import types as T
 from testcommon.dataframes import assert_dataframes_and_schemas, AssertDataframesConfiguration
 from tests.constants import ETL_TEST_DATA
-from pyspark_functions import read_csv
+from pyspark_functions.read_csv import read_csv
 import pytest
 
 from pyspark.sql.types import (
