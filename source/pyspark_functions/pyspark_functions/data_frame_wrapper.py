@@ -16,7 +16,7 @@ import pyspark.sql.functions as f
 import pyspark.sql.types as t
 from pyspark.sql import DataFrame
 
-from testcommon.dataframes.assert_schema import assert_schema
+from testcommon.dataframes.assert_schemas import assert_schema
 
 
 class DataFrameWrapper:
@@ -60,7 +60,9 @@ class DataFrameWrapper:
         return self._df
 
     @staticmethod
-    def _add_missing_nullable_columns(df: DataFrame, schema: t.StructType) -> DataFrame:
+    def _add_missing_nullable_columns(
+        df: DataFrame, schema: t.StructType
+    ) -> DataFrame:
         """
         Utility method to add nullable fields that are expected by the schema,
         but are not present in the actual data frame.
@@ -71,7 +73,8 @@ class DataFrameWrapper:
                 for actual_field in df.schema.fields
             ):
                 df = df.withColumn(
-                    expected_field.name, f.lit(None).cast(expected_field.dataType)
+                    expected_field.name,
+                    f.lit(None).cast(expected_field.dataType),
                 )
 
         return df
