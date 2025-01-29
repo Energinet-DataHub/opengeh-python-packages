@@ -3,7 +3,7 @@ import os
 from pyspark.sql import types as T
 from pyspark.sql import SparkSession
 
-from testcommon.dataframes import read_csv
+from pyspark_functions.read_csv import read_csv
 
 
 def write_when_files_to_delta(

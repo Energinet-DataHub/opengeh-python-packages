@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyspark.sql import DataFrame
-from testcommon.dataframes import read_csv
+from pyspark_functions.read_csv import read_csv
 
 
 @dataclass
