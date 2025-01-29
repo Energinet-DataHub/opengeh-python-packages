@@ -82,7 +82,7 @@ def test_start_trace__when_logging_is_configured():
         log_instance_in_test = mock_logger.return_value # Intercepts log = Logger(func.__name__)
 
         # Prepare
-        @start_trace
+        @start_trace()
         def app_sample_function(initial_span=None):
             assert (1 + 1) == 2
             return "I am an app sample function. Doing important calculations"
@@ -120,7 +120,7 @@ def test_start_trace__when_logging_is_configured_error_thrown_span_records_excep
         log_instance_in_test = mock_logger.return_value # Intercepts log = Logger(func.__name__)
 
         # Prepare
-        @start_trace
+        @start_trace(initial_span_name="app_sample_function")
         def app_sample_function(initial_span=None):
             assert (1 + 1) == 2
             raise Exception # Mimmic an raised exception during runtime

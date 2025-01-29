@@ -23,17 +23,17 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
 
     return decorator
 
-def start_trace(name: str | None = None) -> Callable[..., Any]:
+def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
     """
     Decorator that checks if the logging_configuration.configure_logging method has been called prior to starting the
     trace
-    Provides an initial span that can be retrieved through span
+    Provides an initial span based on the provided initial_span_name parameter
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
             # Retrieve the logging_configured flag from logging_configuration to see if configure_logging() has been called
             logging_configured = get_logging_configured()
-            name_to_use = name or func.__name__
+            name_to_use = initial_span_name or func.__name__
             if logging_configured:
                 # Start the tracer span using the current function name
                 with get_tracer().start_as_current_span(name_to_use, kind=SpanKind.SERVER) as initial_span:

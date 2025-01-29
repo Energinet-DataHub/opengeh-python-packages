@@ -270,7 +270,7 @@ def test__decorators_integration_test(
     test_message_start_trace = "test message app_sample_function"
     test_message_use_span = "test message app_sample_subfunction"
 
-    @start_trace
+    @start_trace()
     def app_sample_function(initial_span=None):
         assert (1 + 1) == 2
         log_message = test_message_start_trace
