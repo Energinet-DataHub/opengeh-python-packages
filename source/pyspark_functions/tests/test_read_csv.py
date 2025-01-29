@@ -131,6 +131,7 @@ def test_read_csv_fewer_columns_should_fail(spark):
     with pytest.raises(ValueError):
         read_csv(spark, str(path), schema)
 
+
 def test_read_csv_more_columns(spark):
     # Arrange
     path = ETL_TEST_DATA / "then" / "more_columns.csv"
