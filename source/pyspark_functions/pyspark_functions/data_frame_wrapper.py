@@ -16,7 +16,7 @@ import pyspark.sql.functions as f
 import pyspark.sql.types as t
 from pyspark.sql import DataFrame
 
-from pyspark_functions.schemas import assert_schema
+from testcommon.dataframes.assert_schema import assert_schema
 
 
 class DataFrameWrapper:

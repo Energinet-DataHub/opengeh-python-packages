@@ -10,6 +10,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     install_requires=[
-        "pyspark>=3.5.0"
+        "pyspark>=3.5.0",
+        "opengeh-testcommon @ git+https://git@github.com/Energinet-DataHub/opengeh-python-packages@3.3.0#subdirectory=source/testcommon",
     ],
 )
