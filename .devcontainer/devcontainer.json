@@ -1,4 +1,4 @@
-{
+cd{
 	"name": "Spark Python Dev",
 	"build": {
 		"dockerfile": "../.docker/Dockerfile",

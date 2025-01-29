@@ -13,5 +13,6 @@ setup(
         "pyspark>=3.5.0",
         "PyYAML",
         "delta-spark",
+        'opengeh-pyspark @ git+https://github.com/Energinet-DataHub/opengeh-python-packages.git#subdirectory=source/pyspark_functions'
     ],
 )

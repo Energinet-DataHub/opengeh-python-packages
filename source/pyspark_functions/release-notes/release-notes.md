@@ -2,3 +2,4 @@
 
 - Bootstraped project.
 - Added functions and tests.
+- Added read_csv.
