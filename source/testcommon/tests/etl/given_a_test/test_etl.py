@@ -5,10 +5,8 @@ from pyspark.sql.types import StructType
 import pytest
 
 # These imports are the parts of the ETL framework that we want to test.
-from testcommon.dataframes import (
-    read_csv,
-    assert_dataframes_and_schemas,
-)
+from testcommon.dataframes import assert_dataframes_and_schemas
+from pyspark_functions.read_csv import read_csv
 from testcommon.etl import get_then_names, TestCase, TestCases
 
 
