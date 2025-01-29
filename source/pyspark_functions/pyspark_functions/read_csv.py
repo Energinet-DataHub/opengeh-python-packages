@@ -92,4 +92,3 @@ def read_csv(
     df = raw_df.select(*transforms)
 
     return spark.createDataFrame(df.rdd, schema)
-
