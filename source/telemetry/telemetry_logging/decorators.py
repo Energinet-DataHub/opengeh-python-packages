@@ -1,3 +1,4 @@
+import inspect
 import sys
 from typing import Callable, Any, Tuple, Dict
 from telemetry_logging.logging_configuration import start_span, get_tracer, get_logging_configured
@@ -30,6 +31,9 @@ def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
     Provides an initial span based on the provided initial_span_name parameter
     """
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
+        func_signature = inspect.signature(func)  # Get function signature of function applying the decorator
+        accepts_initial_span = 'initial_span' in func_signature.parameters  # Check if initial_span is in function params
+
         def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
             # Retrieve the logging_configured flag from logging_configuration to see if configure_logging() has been called
             logging_configured = get_logging_configured()
@@ -41,9 +45,9 @@ def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
                     log = Logger(name_to_use)
                     log.info(f"Started executing function: {name_to_use}")
 
-                    # Add the span and message to kwargs in order to be able to pass it back to func
-                    # (if the initial span is of interest)
-                    kwargs['initial_span'] = initial_span
+                    # Add the span and message to kwargs in order to be able to pass it back to func, only if the function accepts it
+                    if accepts_initial_span:
+                        kwargs['initial_span'] = initial_span
 
                     # Call the original function with both positional and keyword arguments
                     try:
