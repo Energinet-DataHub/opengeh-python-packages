@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## version 0.2.0
+
+removed read_csv and moved it to pyspark_functions
+
 ## Version 0.2.0
 
 Added container test functionality with DatabricksApiClient.
