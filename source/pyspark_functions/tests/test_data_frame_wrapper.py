@@ -52,11 +52,17 @@ def test__data_frame_wrapper_missing_nullable_columns(spark):
     ])
     data = [("Alice", 30), ("Bob", None)]
     df = spark.createDataFrame(data, schema=schema)
-    expected_data = [("Alice", 30), ("Bob", None)]
-    expected_df = spark.createDataFrame(expected_data, schema)
+
+    expected_schema = StructType([
+        StructField("name", StringType(), True),
+        StructField("age", IntegerType(), True),
+        StructField("city", StringType(), True),
+    ])
+    expected_data = [("Alice", 30, None), ("Bob", None, None)]
+    expected_df = spark.createDataFrame(expected_data, expected_schema)
 
     # Act
-    wrapper = DataFrameWrapper(df, schema)
+    wrapper = DataFrameWrapper(df, expected_schema)
 
     # Assert
     assert wrapper.df.collect() == expected_df.collect()
