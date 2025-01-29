@@ -18,11 +18,6 @@ def mock_start_span():
         yield MockStartSpan
 
 
-@pytest.fixture
-def mock_start_trace():
-    with patch('telemetry_logging.decorators.start_trace') as MockStartTrace:
-        yield MockStartTrace
-
 def test_use_span__when_name_is_defined(mock_logger, mock_start_span):
     # Arrange
     mock_logger_instance = mock_logger.return_value
@@ -63,7 +58,7 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
 def test_start_trace__when_logging_not_configured():
 
     # Prepare
-    @start_trace
+    @start_trace()
     def app_sample_function(initial_span=None):
         assert (1 + 1) == 2
         return "I am an app sample function. Doing important calculations"
