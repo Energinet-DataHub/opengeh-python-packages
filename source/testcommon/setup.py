@@ -14,6 +14,6 @@ setup(
         "PyYAML",
         "delta-spark",
         "databricks-sdk",
-        'opengeh-pyspark @ git+https://github.com/Energinet-DataHub/opengeh-python-packages.git@pyspark_functions#subdirectory=source/pyspark_functions'
+        'opengeh-pyspark @ git+https://github.com/Energinet-DataHub/opengeh-python-packages.git@moved-read_csv#subdirectory=source/pyspark_functions'
     ],
 )
