@@ -1,5 +1,22 @@
 # Testcommon Release Notes
 
+## Version 0.2.0
+
+Added container test functionality with DatabricksApiClient.
+
+## Version 0.1.1
+
+Added `write_to_delta` to init.py.
+
+## Version 0.1.0
+
+Modified `get_then_names` to accept a `scenario_path` as a parameter for locating the `/then` files.
+Added a `write_to_delta.py` file for writing a list of test CSV files to a delta table.
+
+## Version 0.0.9
+
+Add `__init__.py` in `delta_lake` folder
+
 ## Version 0.0.8
 
 Added support for creating tables and databases in Delta Lake (`create_database` and `create_table`).
