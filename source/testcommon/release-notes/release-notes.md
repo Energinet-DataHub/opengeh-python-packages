@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.2.0
+
+Added container test functionality with DatabricksApiClient.
+
 ## Version 0.1.1
 
 Added `write_to_delta` to init.py.

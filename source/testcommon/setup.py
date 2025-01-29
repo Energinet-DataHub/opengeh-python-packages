@@ -13,5 +13,6 @@ setup(
         "pyspark>=3.5.0",
         "PyYAML",
         "delta-spark",
+        "databricks-sdk",
     ],
 )
