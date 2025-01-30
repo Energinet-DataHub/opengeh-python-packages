@@ -110,7 +110,7 @@ def test__ctor__when_not_nullable_column_and_null_value__throws_exception(
         DataFrameWrapper(df, used_schema)
 
 
-def test__ctor__when_cache_internal__dataframe_is_cached(spark):
+def test_cache_internal__dataframe_is_cached(spark):
     schema = StructType(
         [
             StructField("name", StringType(), True),
