@@ -2,13 +2,13 @@
 
 This python packages includes tools and utility function for making testing easier.
 
-# Usage
+## Usage
 
-## Scenario testing
+### Scenario testing
 
 To use testcommon for the scenario testing we need to set up three things.
 
-### 1) Use the standard folder structure setup
+#### 1) Use the standard folder structure setup
 
 ```plaintext
 ├── scenario_name/
@@ -41,7 +41,7 @@ This is because we may have to perform various transformations, such as aggregat
 desired
 output. (i.e., `/then` file).
 
-### 2) conftest.py
+#### 2) conftest.py
 
 The `conftest.py` file is a special pytest file where `fixtures` can be defined. `Fixtures` are small function that will
 run
@@ -90,7 +90,7 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     )
 ```
 
-### 3) test_output.py
+#### 3) test_output.py
 
 For almost all scenarios the `test_output.py` file will look as follows:
 
