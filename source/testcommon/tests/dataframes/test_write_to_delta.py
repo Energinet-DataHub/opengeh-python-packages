@@ -23,7 +23,7 @@ def test_write_for_single_when_file(spark):
         (file_name, schema_for_input)
     ]
     write_to_delta.write_when_files_to_delta(spark=spark, scenario_path=SCENARIO_TESTING_TEST_CASE, files=files)
-    actual_df = spark.sql(f"SELECT * FROM {file_name.removesuffix(".csv")}")
+    actual_df = spark.sql(f"SELECT * FROM {file_name.removesuffix('.csv')}")
 
     # Expected
     expected_df = spark.createDataFrame([('hello', 'world', '42')], schema_for_input)
@@ -43,8 +43,8 @@ def test_write_for_multiple_when_files(spark):
 
     # Actual
     write_to_delta.write_when_files_to_delta(spark=spark, scenario_path=SCENARIO_TESTING_TEST_CASE, files=files)
-    actual1_df = spark.sql(f"SELECT * FROM {file_name1.removesuffix(".csv")}")
-    actual2_df = spark.sql(f"SELECT * FROM {file_name2.removesuffix(".csv")}")
+    actual1_df = spark.sql(f"SELECT * FROM {file_name1.removesuffix('.csv')}")
+    actual2_df = spark.sql(f"SELECT * FROM {file_name2.removesuffix('.csv')}")
 
     # Expected
     expected1_df = spark.createDataFrame([('hello', 'world', '42')], schema_for_input)
@@ -82,7 +82,7 @@ def test_write_to_delta_overwrites_previous_data(spark):
 
     # Actual
     write_to_delta.write_when_files_to_delta(spark=spark, scenario_path=SCENARIO_TESTING_TEST_CASE, files=files)
-    actual_df = spark.sql(f"SELECT * FROM {file_name.removesuffix(".csv")}")
+    actual_df = spark.sql(f"SELECT * FROM {file_name.removesuffix('.csv')}")
 
     # Expected
     expected_df = spark.createDataFrame([('hello', 'world', '42')], schema_for_input)
