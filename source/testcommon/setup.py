@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="opengeh-testcommon",
-    version="0.1.0",
+    version="0.1.1",
     description="Shared testing utilities for OpenGEH Python packages",
     long_description="",
     long_description_content_type="text/markdown",
@@ -13,5 +13,6 @@ setup(
         "pyspark>=3.5.0",
         "PyYAML",
         "delta-spark",
+        "databricks-sdk",
     ],
 )
