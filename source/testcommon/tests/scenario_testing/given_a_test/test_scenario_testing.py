@@ -11,7 +11,6 @@ from testcommon.dataframes import (
 )
 from testcommon.scenario_testing import get_then_names, TestCase, TestCases
 
-
 _schema = (
     StructType().add("a", "string").add("b", "string").add("c", "integer")
 )
