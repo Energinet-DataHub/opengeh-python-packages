@@ -34,3 +34,6 @@ dependency_injector==4.43.0
 pyyaml==6.0.2
 pyspark>=3.5.0
 databricks-sdk==0.41.0
+
+# CUSTOM DEPENDECIES
+opengeh-testcommon @ git+https://github.com/Energinet-DataHub/opengeh-python-packages@3.3.0#subdirectory=source/testcommon
