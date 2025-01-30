@@ -1,24 +1,20 @@
 from pathlib import Path
 
 from pyspark.sql import SparkSession
-from pyspark.sql import types as T
+from pyspark.sql.types import StructType
 import pytest
 
-# These imports are the parts of the Scenario Testing framework that we want to test.
+# These imports are the parts of the ETL framework that we want to test.
 from testcommon.dataframes import (
     read_csv,
     assert_dataframes_and_schemas,
 )
 from testcommon.scenario_testing import get_then_names, TestCase, TestCases
 
+
 _schema = (
-    T.StructType().add("a", "string").add("b", "string").add("c", "integer")
+    StructType().add("a", "string").add("b", "string").add("c", "integer")
 )
-_schema2 = T.StructType([
-    T.StructField("string", T.StringType()),
-    T.StructField("boolean", T.BooleanType()),
-    T.StructField("integer", T.IntegerType()),
-])
 
 
 @pytest.fixture(scope="module")
@@ -28,31 +24,32 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     scenario_path = str(Path(request.module.__file__).parent)
 
     # Read input data
-    actual_df = read_csv(
+    input_df = read_csv(
         spark,
         scenario_path + "/when/input.csv",
         _schema,
     )
-    actual2_df = read_csv(
-        spark,
-        scenario_path + "/when/input2.csv",
-        _schema2,
-    )
+
+    # No need to transform the input to test the ETL framework.
+    actual_df = input_df
+
     # Return test cases.
     # A test case must exist for each CSV file in the `then` folder.
     return TestCases(
         [
             TestCase(f"{scenario_path}/then/output.csv", actual_df),
-            TestCase(f"{scenario_path}/then/output2.csv", actual2_df),
             TestCase(
                 f"{scenario_path}/then/some_folder/some_output.csv", actual_df
             ),
-        ],
+        ]
     )
 
 
 @pytest.mark.parametrize("test_case_name", get_then_names())
-def test_scenario_testing(test_case_name, test_cases: TestCases):
-    """Verify that all the parts of `testcommon.scenario_testing` work together."""
+def test_etl(test_case_name, test_cases: TestCases):
+    """Verify that all the parts of `testcommon.etl` work together."""
+
     test_case = test_cases[test_case_name]
-    assert_dataframes_and_schemas(actual=test_case.actual, expected=test_case.expected)
+    assert_dataframes_and_schemas(
+        actual=test_case.actual, expected=test_case.expected
+    )
