@@ -49,6 +49,15 @@ before the actual test runs (i.e. the `test_output.py`). As such we can use it f
 and
 therefore make the actual tests small and concise (i.e. limiting code duplication).
 
+Each `fixture` will have a `scope` defining how long the fixture is active and when it is set up and torn down.
+There are different types:
+
+1. Function: the default scope, the fixture is destroyed at the end of the test.
+1. Class: the fixture is destroyed during teardown of the last test in the class.
+1. Module: the fixture is destroyed during teardown of the last test in the module.
+1. Package: the fixture is destroyed during teardown of the last test in the package.
+1. Session: the fixture is destroyed at the end of the test session.
+
 We use the `conftest.py` to make a fixtures that performs 3 steps:
 
 1. Read `/when` file(s)
@@ -68,27 +77,44 @@ An example of how a `conftest.py` can look:
 @pytest.fixture(scope="module")
 def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     # Setup
-    schema = StructType([
-        StructField("col1", StringType()),
-        StructField("col2", BooleanType()),
-        StructField("col2", IntegerType()),
-    ])
     scenario_path = str(Path(request.module.__file__).parent)
 
     # Read input data
-    actual_df = read_csv(
+    metering_point_periods = read_csv(
         spark,
-        scenario_path + "/when/input.csv",
-        _schema,
+        f"{scenario_path}/when/metering_point_periods.csv",
+        metering_point_periods_schema,
     )
 
-    # Construct TestCases object
+    # Mock the output
+    migrations_wholesale_repository = Mock()
+    wholesale_internal_repository = Mock()
+    migrations_wholesale_repository.read_metering_point_periods.return_value = (
+        metering_point_periods
+    )
+
+
+    # Execute the calculation logic
+    calculation_output = CalculationCore().execute(
+        calculation_args,
+        PreparedDataReader(
+            migrations_wholesale_repository,
+            wholesale_internal_repository,
+        ),
+    )
+
+    # Construct the TestCases object
     return TestCases(
         [
-            TestCase(f"{scenario_path}/then/output.csv", actual_df),
+            TestCase(
+                expected_csv_path=f"{scenario_path}/then/output.csv",
+                actual=calculation_output.basis_data_output.grid_loss_metering_points,
+            ),
         ],
     )
 ```
+
+Notice, we are using `scope = 'module'`, meaning all the tests within a module will reuse the calculation defined in the `conftest`. This approach will result in a reduction in overall running time.
 
 #### 3) test_output.py
 
