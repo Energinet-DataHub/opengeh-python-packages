@@ -17,7 +17,7 @@
     },
     "redhat.telemetry.enabled": false,
     "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter"
+        "editor.defaultFormatter": "charliermarsh.ruff"
     },
     "black-formatter.args": [
         "--line-length",
