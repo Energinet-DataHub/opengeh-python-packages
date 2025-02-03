@@ -48,7 +48,7 @@ class LoggingSettings(BaseSettings):
     The priority is CLI parameters first and then environment variables.
     """
     cloud_role_name: str
-    applicationinsights_connection_string: str = Field(alias="APPLICATIONINSIGHTS-CONNECTION-STRING") | None
+    applicationinsights_connection_string: str = Field(alias="APPLICATIONINSIGHTS-CONNECTION-STRING", default=None)
     subsystem: str
     orchestration_instance_id: UUID = Field(alias="ORCHESTRATION-INSTANCE-ID")
     force_configuration: bool = False
