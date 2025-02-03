@@ -8,8 +8,6 @@ This python packages includes tools and utility function for making testing easi
 
 To use testcommon for the scenario testing we need to set up three things.
 
----
-
 #### 1) Use the standard folder structure setup
 
 ```plaintext
@@ -42,7 +40,6 @@ Notice, that there is not a one-to-one relation between the `/then` and `/when` 
 This is because we may have to perform various transformations, such as aggregating or joining tables, to achieve the
 desired
 output. (i.e., `/then` file).
----
 
 #### 2) conftest
 
@@ -111,8 +108,6 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
         ],
     )
 ```
-
----
 
 #### 3) test_output
 
