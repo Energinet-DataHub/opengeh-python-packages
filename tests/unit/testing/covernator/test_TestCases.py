@@ -1,13 +1,15 @@
 from pathlib import Path
 
 from opengeh_utilities.testing.covernator.TestCases import TestCases
-from tests.testing.covernator.constants import COVERNATOR_TEST_DATA
-from tests.testing.covernator.data.cases import Cases
+from tests.unit.testing.covernator.constants import COVERNATOR_TEST_DATA
+from tests.unit.testing.covernator.data.cases import Cases
 
 
 def test_submodule_discovery():
     assert TestCases.__subclasses__() == [Cases]
-    assert TestCases.get_subclass_paths()[0].relative_to(COVERNATOR_TEST_DATA) == Path("cases.py")
+    assert TestCases.get_subclass_paths()[0].relative_to(COVERNATOR_TEST_DATA) == Path(
+        "cases.py"
+    )
 
 
 def test_find_imports_with_root_dir():

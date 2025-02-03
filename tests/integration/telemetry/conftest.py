@@ -1,16 +1,3 @@
-# Copyright 2020 Energinet DataHub A/S
-#
-# Licensed under the Apache License, Version 2.0 (the "License2");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 import logging
 import os
 from pathlib import Path
@@ -18,7 +5,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from .integration_test_configuration import IntegrationTestConfiguration
+from tests.integration.telemetry.integration_test_configuration import (
+    IntegrationTestConfiguration,
+)
 
 
 @pytest.fixture(scope="session")
@@ -52,7 +41,9 @@ def integration_test_configuration(
     Proceeds even if certain Azure-related keys are not present in the settings file.
     """
 
-    settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    settings_file_path = (
+        Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    )
 
     def _load_settings_from_file(file_path: Path) -> dict:
         if file_path.exists():
@@ -82,7 +73,9 @@ def integration_test_configuration(
             os.environ[key] = value
 
     if "AZURE_KEYVAULT_URL" in settings:
-        return IntegrationTestConfiguration(azure_keyvault_url=settings["AZURE_KEYVAULT_URL"])
+        return IntegrationTestConfiguration(
+            azure_keyvault_url=settings["AZURE_KEYVAULT_URL"]
+        )
 
     logging.error(
         f"Integration test configuration could not be loaded from {settings_file_path} or environment variables."
