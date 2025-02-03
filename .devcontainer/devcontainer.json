@@ -10,7 +10,9 @@
   "postStartCommand": "uv sync",
   "containerEnv": {
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
-    "MYPY_CACHE_DIR": "/home/vscode/.cache/mypy"
+    "MYPY_CACHE_DIR": "/home/vscode/.cache/mypy",
+    "RUFF_CACHE_DIR": "/home/vscode/.cache/ruff",
+    "PYTHONPYCACHEPREFIX": "/home/vscode/.cache/pycache"
   },
   "mounts": [
     // Persist the command history across container restarts - useful for bash history
