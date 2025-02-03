@@ -13,7 +13,6 @@ def create_table(
     table_location: str,
     schema: StructType,
 ) -> None:
-
     sql_schema = _struct_type_to_sql_schema(schema)
     spark.sql(
         f"CREATE TABLE IF NOT EXISTS {database_name}.{table_name} ({sql_schema}) USING DELTA LOCATION '{table_location}'"

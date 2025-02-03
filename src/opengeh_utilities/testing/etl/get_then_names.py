@@ -31,4 +31,6 @@ def get_then_names(scenario_path=None) -> list[str]:
         raise FileNotFoundError(
             f"Could not find any CSV files in the 'then' folder in {output_folder_path}"
         )
-    return [str(f.relative_to(then_output_folder_path).with_suffix('')) for f in then_files]
+    return [
+        str(f.relative_to(then_output_folder_path).with_suffix("")) for f in then_files
+    ]

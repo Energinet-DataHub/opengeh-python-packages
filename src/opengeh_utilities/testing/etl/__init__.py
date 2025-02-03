@@ -10,4 +10,4 @@ __all__ = [
     get_then_names.__name__,
     TestCases.__name__,
     TestCase.__name__,
-] # type: ignore
+]  # type: ignore

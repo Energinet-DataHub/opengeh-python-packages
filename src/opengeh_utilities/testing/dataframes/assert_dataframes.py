@@ -80,7 +80,6 @@ def assert_dataframes_and_schemas(
     try:
         _assert_no_duplicates(actual)
     except AssertionError:
-
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
@@ -91,7 +90,6 @@ def assert_dataframes_and_schemas(
     try:
         _assert_no_duplicates(expected)
     except AssertionError:
-
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
@@ -102,7 +100,6 @@ def assert_dataframes_and_schemas(
     try:
         _assert_dataframes(actual, expected)
     except AssertionError:
-
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
@@ -116,7 +113,6 @@ def assert_dataframes_and_schemas(
     try:
         assert actual.count() == expected.count()
     except AssertionError:
-
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
@@ -138,17 +134,15 @@ def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
         print("Expected excess:")
         expected_excess.show(3000, False)
 
-    assert (
-        actual_excess.count() == 0 and expected_excess.count() == 0
-    ), "Dataframes data are not equal"
+    assert actual_excess.count() == 0 and expected_excess.count() == 0, (
+        "Dataframes data are not equal"
+    )
 
 
 def _assert_no_duplicates(df: DataFrame) -> None:
     original_count = df.count()
     distinct_count = df.dropDuplicates().count()
-    assert (
-        original_count == distinct_count
-    ), "The DataFrame contains duplicate rows"
+    assert original_count == distinct_count, "The DataFrame contains duplicate rows"
 
 
 def _show_duplicates(df: DataFrame) -> DataFrame:

@@ -26,7 +26,9 @@ class DatabricksApiClient:
         response = self.client.jobs.run_now(job_id=job_id, python_params=python_params)
         return response.run_id
 
-    def wait_for_job_completion(self, run_id: int, timeout: int = 1000, poll_interval: int = 10) -> RunResultState:
+    def wait_for_job_completion(
+        self, run_id: int, timeout: int = 1000, poll_interval: int = 10
+    ) -> RunResultState:
         """
         Waits for a Databricks job to complete.
         """
@@ -50,7 +52,9 @@ class DatabricksApiClient:
                     raise Exception("Job terminated but result state is None")
                 return RunResultState(result_state)
             elif lifecycle_state == "INTERNAL_ERROR":
-                raise Exception(f"Job failed with an internal error: {run_status.state.state_message}")
+                raise Exception(
+                    f"Job failed with an internal error: {run_status.state.state_message}"
+                )
 
             time.sleep(poll_interval)
 
