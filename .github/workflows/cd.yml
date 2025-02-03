@@ -21,9 +21,23 @@ on:
       - main
 
 jobs:
+  ci_reusable:
+    name: Continuous Integration
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      packages_directory: ${{ github.workspace }}
+      tests_directory: tests/unit
+      azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
+      azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
+      azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
+      azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
+    secrets:
+      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
+
   cd_reusable:
     name: Continuous Deployment
     uses: ./.github/workflows/reusable-cd.yml
+    needs: [ci_reusable]
     with:
       subsystem_name: opengeh-common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
