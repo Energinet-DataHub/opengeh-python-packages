@@ -13,7 +13,8 @@
 # limitations under the License.
 import logging
 from typing import Any
-import telemetry_logging.logging_configuration as config
+
+import opengeh_utilities.telemetry.logging_configuration as config
 
 
 class Logger:

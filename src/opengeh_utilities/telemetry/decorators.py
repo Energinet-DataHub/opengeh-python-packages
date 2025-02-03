@@ -1,6 +1,7 @@
 from typing import Callable, Any, Tuple, Dict
-from telemetry_logging.logging_configuration import start_span
-from telemetry_logging import Logger
+
+from opengeh_utilities.telemetry.logging_configuration import start_span
+from opengeh_utilities.telemetry.logger import Logger
 
 
 def use_span(name: str | None = None) -> Callable[..., Any]:
