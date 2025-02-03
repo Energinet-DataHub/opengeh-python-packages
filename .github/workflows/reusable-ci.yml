@@ -18,6 +18,26 @@ on:
           Defaults to workspace root.
         required: true
         default: ${{ github.workspace }}
+      azure_spn_id:
+        type: string
+        description: The Azure SPN ID for the integration test environment
+        required: false
+        default: ""
+      azure_tenant_id:
+        type: string
+        description: The Azure tenant ID for the integration test environment
+        required: false
+        default: ""
+      azure_subscription_id:
+        type: string
+        description: The Azure subscription ID for the integration test environment
+        required: false
+        default: ""
+      azure_keyvault_url:
+        type: string
+        description: The Azure KeyVault URL for the integration test environment
+        required: false
+        default: ""
     secrets:
       dh3serviceaccount_privatekey:
         required: true
@@ -62,6 +82,11 @@ jobs:
     name: Test Packages
     runs-on: ubuntu-24.04
     needs: ci_matrix
+    # Environment is used when using OIDC to login and access the integration test environment
+    environment: AzureAuth
+    env:
+      # Necessary to manage Azure resources from automated tests
+      AZURE_KEYVAULT_URL: ${{ inputs.azure_keyvault_url }}
     strategy:
       matrix:
         inputs: ${{ fromJson(needs.ci_matrix.outputs.matrix) }}
@@ -83,7 +108,9 @@ jobs:
         with:
           name: ${{ matrix.inputs.name }}
           path: ${{ matrix.inputs.path }}
-          pytest_addopts: --ignore=tests/container_tests
+          azure_spn_id: ${{ inputs.azure_spn_id }}
+          azure_tenant_id: ${{ inputs.azure_tenant_id }}
+          azure_subscription_id: ${{ inputs.azure_subscription_id }}
 
       - name: Create prerelease for ${{ matrix.inputs.name }}
         uses: ./.github/actions/github-create-prerelease

@@ -11,13 +11,28 @@ inputs:
     description: The path to the tests
     required: false
     default: tests
-  pytest_addopts:
-    description: Additional arguments to pass to pytest
+  azure_spn_id:
+    description: The Azure SPN ID for the integration test environment
+    required: false
+    default: ""
+  azure_tenant_id:
+    description: The Azure tenant ID for the integration test environment
+    required: false
+    default: ""
+  azure_subscription_id:
+    description: The Azure subscription ID for the integration test environment
     required: false
     default: ""
 runs:
   using: composite
   steps:
+    - name: Login to access Azure resources (integration test environment)
+      if: ${{ inputs.azure_spn_id != '' && inputs.azure_tenant_id != '' && inputs.azure_subscription_id != '' }}
+      uses: azure/login@v2
+      with:
+        client-id: ${{ inputs.azure_spn_id }}
+        tenant-id: ${{ inputs.azure_tenant_id }}
+        subscription-id: ${{ inputs.azure_subscription_id }}
     - name: Install uv
       uses: astral-sh/setup-uv@v4
       with:
@@ -35,4 +50,4 @@ runs:
       run: uv run --directory ${{ inputs.path }} ruff format --check
     - name: Test
       shell: bash
-      run: uv run --directory ${{ inputs.path }} pytest ${{ inputs.tests_path }} ${{ inputs.pytest_addopts }}
+      run: uv run --directory ${{ inputs.path }} pytest ${{ inputs.tests_path }}

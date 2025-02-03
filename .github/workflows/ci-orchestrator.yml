@@ -16,6 +16,10 @@ jobs:
     uses: ./.github/workflows/reusable-ci.yml
     with:
       packages_directory: ${{ github.workspace }}
+      azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
+      azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
+      azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
+      azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
     secrets:
       dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
