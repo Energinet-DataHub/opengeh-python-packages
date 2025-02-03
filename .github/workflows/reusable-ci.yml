@@ -44,9 +44,12 @@ on:
         description: Used in ci_base job to authenticate with the DataHub3 service account
 
 permissions:
-  contents: write
-  checks: write
-  pull-requests: write
+  id-token: write # Required for use of OIDC in GitHub
+  contents: read # Required for use of OIDC in GitHub
+  issues: read # Needed by EnricoMi/publish-unit-test-result-action
+  checks: write # Needed by EnricoMi/publish-unit-test-result-action
+  pull-requests: write # Needed by EnricoMi/publish-unit-test-result-action
+  packages: read # Required for downloading docker image from GitHub packages
 
 jobs:
   #
