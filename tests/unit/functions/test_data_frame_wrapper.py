@@ -1,20 +1,15 @@
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-    IntegerType,
-    DoubleType,
-)
-from pyspark_functions.data_frame_wrapper import DataFrameWrapper
+import pyspark.sql.types as T
 import pytest
+
+from opengeh_common.functions.data_frame_wrapper import DataFrameWrapper
 
 
 def test__ctor__when_valid_input__returns_expected_schema_and_data(spark):
     # Arrange
-    schema = StructType(
+    schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
         ]
     )
     data = [("Alice", 30), ("Bob", 25)]
@@ -30,19 +25,19 @@ def test__ctor__when_valid_input__returns_expected_schema_and_data(spark):
 
 def test__ctor__when_different_columns__returns_expected_schema(spark):
     # Arrange
-    initial_schema = StructType(
+    initial_schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
-            StructField("city", StringType(), True),
+            T.StructField("name",T.StringType(), True),
+            T.StructField("age",T.IntegerType(), True),
+            T.StructField("city",T.StringType(), True),
         ]
     )
     data = [("Alice", 30, "Roskilde"), ("Bob", 25, "Taastrup")]
     df = spark.createDataFrame(data, initial_schema)
-    expected_schema = StructType(
+    expected_schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
         ]
     )
     expected_data = [("Alice", 30), ("Bob", 25)]
@@ -58,20 +53,20 @@ def test__ctor__when_different_columns__returns_expected_schema(spark):
 
 def test__ctor__when_nullable_column__returns_column_filled_with_nulls(spark):
     # Arrange
-    schema = StructType(
+    schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
         ]
     )
     data = [("Alice", 30), ("Bob", None)]
     df = spark.createDataFrame(data, schema=schema)
 
-    expected_schema = StructType(
+    expected_schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
-            StructField("city", StringType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
+            T.StructField("city", T.StringType(), True),
         ]
     )
     expected_data = [("Alice", 30, None), ("Bob", None, None)]
@@ -88,18 +83,18 @@ def test__ctor__when_not_nullable_column_and_null_value__throws_exception(
     spark,
 ):
     # Arrange
-    schema = StructType(
+    schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
         ]
     )
     data = [("Alice", 30), ("Bob", None)]
     df = spark.createDataFrame(data, schema=schema)
-    used_schema = StructType(
+    used_schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), False),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), False),
         ]
     )
 
@@ -111,10 +106,10 @@ def test__ctor__when_not_nullable_column_and_null_value__throws_exception(
 
 
 def test_cache_internal__dataframe_is_cached(spark):
-    schema = StructType(
+    schema = T.StructType(
         [
-            StructField("name", StringType(), True),
-            StructField("age", IntegerType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
         ]
     )
     data = [("Alice", 30), ("Bob", 25)]

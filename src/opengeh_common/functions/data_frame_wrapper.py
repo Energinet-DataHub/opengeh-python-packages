@@ -16,12 +16,12 @@ import pyspark.sql.functions as f
 import pyspark.sql.types as t
 from pyspark.sql import DataFrame
 
-from testcommon.dataframes.assert_schemas import assert_schema
+from opengeh_common.testing.dataframes.assert_schemas import assert_schema
 
 
 class DataFrameWrapper:
-    """
-    Base class of "typed" data frames.
+    """Base class of "typed" data frames.
+
     The raw pyspark DataFrame is accessible as `data.df`.
 
     The wrapper will transform and verify the provided data frame:
@@ -63,9 +63,17 @@ class DataFrameWrapper:
     def _add_missing_nullable_columns(
         df: DataFrame, schema: t.StructType
     ) -> DataFrame:
-        """
+        """Add missing nullable columns to the data frame.
+        
         Utility method to add nullable fields that are expected by the schema,
         but are not present in the actual data frame.
+
+        Args:
+            df: The data frame to add nullable columns to.
+            schema: The schema to compare against.
+
+        Returns:
+            The data frame with missing nullable columns added.
         """
         for expected_field in schema:
             if expected_field.nullable and all(
