@@ -11,8 +11,8 @@ jobs:
   #
   # Reusable CI
   #
-  ci_reusable:
-    name: Continuous Integration
+  ci_unit:
+    name: Unit tests
     uses: ./.github/workflows/reusable-ci.yml
     with:
       packages_directory: ${{ github.workspace }}
@@ -20,10 +20,23 @@ jobs:
     secrets:
       dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
+  ci_integration:
+    name: Integration tests
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      packages_directory: ${{ github.workspace }}
+      tests_directory: tests/integration
+      azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
+      azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
+      azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
+      azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
+    secrets:
+      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
+
   # Branch policy status check
   allow_merge_ci_orchestrator:
     runs-on: ubuntu-latest
-    needs: [ci_reusable]
+    needs: [ci_unit, ci_integration]
     if: |
       always()
     steps:
