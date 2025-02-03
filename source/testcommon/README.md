@@ -25,11 +25,11 @@ To use testcommon for the scenario testing we need to set up three things.
 ```
 
 Input files are stored in the `/when` subfolder, while the expected results are stored in the `/then` subfolder.
-We prefix scenario names with `given_...` to enhance readability. As if we ready it line-by-line it makes sense.
-This is best shown with an example.
+Scenario names prefixed with `given_...` to enhance readability. This structure allows us to read it line-by-line,
+forming a complete sentence that makes logical sense.
 
 ```plaintext
-├──given_energy_scenario
+├── given_energy_scenario
     ├── when/
         ├── energy.csv
         ├── energy_per_brp.csv
@@ -44,7 +44,7 @@ desired
 output. (i.e., `/then` file).
 ---
 
-#### 2) conftest.py
+#### 2) conftest
 
 The test setup might seem unusual at first glance, as the individual test files do not perform any transformations
 but solely compare actual results to expected results. The idea behind using `fixtures` is that many of the scenario
@@ -65,7 +65,10 @@ These are different `scope` types:
 1. Package: the fixture is destroyed during teardown of the last test in the package.
 1. Session: the fixture is destroyed at the end of the test session.
 
-In the example below, we are using the `module` scope. This means that all the tests within a module will reuse the same
+Typically, the `module` is the preffered scope choice for scenario testing (we will also use the `module` scope in the
+example below), as all the then-files in a scenario test rely on the exact same transformation. Additionally, tests
+should always remain independent of each other, making the `module` scope is the only appropriate choice.
+By using the `module` scope it means that all the tests within a module will reuse the same
 instance of the `fixture`. Consequently, we perform data loading, calculations, and transformations to prepare
 actual dataframes for all the tests beforehand. Subsequently, each test file (`test_ouput.py`) utilizes this
 preprocessed work to simply compare the actual to an expected dataframe.
@@ -111,7 +114,7 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
 
 ---
 
-#### 3) test_output.py
+#### 3) test_output
 
 For almost all scenarios the `test_output.py` file will look as follows:
 
