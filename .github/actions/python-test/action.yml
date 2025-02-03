@@ -60,5 +60,5 @@ runs:
       with:
         github-token: ${{ inputs.github_token }}
         unique-id-for-comment: ${{ inputs.name }}
-        title: "Coverage report for '${{ inputs.name }}'"
-        pytest-xml-coverage-path: "${{ inputs.path }}/coverage.xml"
+        title: Coverage report for '${{ inputs.name }}'
+        pytest-xml-coverage-path: ${{ inputs.path }}/coverage.xml
