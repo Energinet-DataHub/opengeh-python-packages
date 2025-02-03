@@ -1,16 +1,10 @@
-from pyspark.sql.types import (
-    StructType,
-    StructField,
-    StringType,
-)
-
+import pyspark.sql.types as T
 from pyspark.sql import SparkSession
 
-
-schema = StructType(
+schema = T.StructType(
     [
-        StructField("column1", StringType(), True),
-        StructField("column2", StringType(), True),
+        T.StructField("column1", T.StringType(), True),
+        T.StructField("column2", T.StringType(), True),
     ]
 )
 

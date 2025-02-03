@@ -1,9 +1,11 @@
-import spark_sql_migrations.infrastructure.sql_file_executor as sql_file_executor
 from typing import List
-from pyspark.sql import SparkSession
+
 from dependency_injector.wiring import Provide, inject
-from spark_sql_migrations.models.configuration import Configuration
-from spark_sql_migrations.container import SparkSqlMigrationsContainer
+from pyspark.sql import SparkSession
+
+import opengeh_utilities.migrations.infrastructure.sql_file_executor as sql_file_executor
+from opengeh_utilities.migrations.container import SparkSqlMigrationsContainer
+from opengeh_utilities.migrations.models.configuration import Configuration
 
 
 def apply_migration_scripts(uncommitted_migrations: List[str]) -> None:
@@ -20,7 +22,7 @@ def _apply_migration_scripts(
             sql_file_executor.execute(migration, config.migration_scripts_folder_path)
             _insert_executed_sql_script(migration)
         except Exception as exception:
-            print(f"Schema migration failed with exception: {exception}")
+            print(f"Schema migration failed with exception: {exception}")  # noqa
             raise exception
 
 

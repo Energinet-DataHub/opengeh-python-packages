@@ -1,4 +1,4 @@
-from spark_sql_migrations.models.spark_sql_migrations_configuration import (
+from opengeh_utilities.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
 

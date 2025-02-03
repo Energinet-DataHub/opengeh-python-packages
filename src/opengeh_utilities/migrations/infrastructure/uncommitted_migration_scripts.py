@@ -1,11 +1,15 @@
-import spark_sql_migrations.utility.delta_table_helper as delta_table_helper
-from pyspark.sql import SparkSession
-from importlib.resources import contents
+from importlib.resources import files
+
 from dependency_injector.wiring import Provide, inject
-from spark_sql_migrations.models.configuration import Configuration
-from spark_sql_migrations.container import SparkSqlMigrationsContainer
-from spark_sql_migrations.constants.migrations_constants import ColNames
-from spark_sql_migrations.schemas.migrations_schema import schema_migration_schema
+from pyspark.sql import SparkSession
+
+import opengeh_utilities.migrations.utility.delta_table_helper as delta_table_helper
+from opengeh_utilities.migrations.constants.migrations_constants import ColNames
+from opengeh_utilities.migrations.container import SparkSqlMigrationsContainer
+from opengeh_utilities.migrations.models.configuration import Configuration
+from opengeh_utilities.migrations.schemas.migrations_schema import (
+    schema_migration_schema,
+)
 
 
 def get_uncommitted_migration_scripts() -> list[str]:
@@ -28,8 +32,9 @@ def get_all_migration_scripts() -> list[str]:
 def _get_all_migration_scripts(
     config: Configuration = Provide[SparkSqlMigrationsContainer.config],
 ) -> list[str]:
-    migration_files = list(contents(config.migration_scripts_folder_path))
-
+    migration_files = [
+        p.name for p in files(config.migration_scripts_folder_path).iterdir()
+    ]
     migration_files.sort()
     return [
         file.removesuffix(".sql") for file in migration_files if file.endswith(".sql")

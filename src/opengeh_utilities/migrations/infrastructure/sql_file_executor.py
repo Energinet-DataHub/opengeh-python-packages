@@ -1,8 +1,10 @@
-﻿from dependency_injector.wiring import Provide, inject
-from importlib import resources
+﻿from importlib.resources import files
+
+from dependency_injector.wiring import Provide, inject
 from pyspark.sql import SparkSession
-from spark_sql_migrations.container import SparkSqlMigrationsContainer
-from spark_sql_migrations.models.configuration import Configuration
+
+from opengeh_utilities.migrations.container import SparkSqlMigrationsContainer
+from opengeh_utilities.migrations.models.configuration import Configuration
 
 
 def execute(sql_file_name: str, folder_path: str) -> None:
@@ -15,8 +17,8 @@ def _execute(
     folder_path: str,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> None:
-    print(f"Executing SQL file '{sql_file_name}.sql'")
-    sql_content = resources.read_text(folder_path, f"{sql_file_name}.sql")
+    print(f"Executing SQL file '{sql_file_name}.sql'")  # noqa
+    sql_content = files(folder_path).joinpath(f"{sql_file_name}.sql").read_text()
 
     queries = _split_string_by_go(sql_content)
 
@@ -25,7 +27,7 @@ def _execute(
             query = _substitute_placeholders(query)
             spark.sql(query)
     except Exception as exception:
-        print(f"SQL file '{sql_file_name}.sql' failed with exception: {exception}")
+        print(f"SQL file '{sql_file_name}.sql' failed with exception: {exception}")  # noqa
         raise exception
 
 
@@ -40,9 +42,16 @@ def _substitute_placeholders(
 
 
 def _split_string_by_go(sql_content: str) -> list[str]:
-    """
+    """Split SQL content by "GO" keyword.
+
     Databricks doesn't support multi-statement queries.
     So this emulates the "GO" used with SQL Server T-SQL.
+
+    Args:
+        sql_content (str): The SQL content to split.
+
+    Returns:
+        list[str]: A list of SQL statements.
     """
     lines = sql_content.replace("\r\n", "\n").split("\n")
     sections = []

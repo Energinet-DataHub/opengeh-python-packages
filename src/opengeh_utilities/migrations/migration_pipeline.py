@@ -1,5 +1,5 @@
-import spark_sql_migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
-import spark_sql_migrations.infrastructure.apply_migration_scripts as apply_migrations
+import opengeh_utilities.migrations.infrastructure.apply_migration_scripts as apply_migrations
+import opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
 
 
 def migrate() -> None:

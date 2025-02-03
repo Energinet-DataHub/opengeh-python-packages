@@ -4,13 +4,15 @@ shared among all tests in the test suite.
 """
 
 import os
-import pytest
-from pyspark.sql import SparkSession
 from shutil import rmtree
 from typing import Generator
+
+import pytest
 from delta import configure_spark_with_delta_pip
-from spark_sql_migrations.container import create_and_configure_container
-from tests.builders.spark_sql_migrations_configuration_builder import (
+from pyspark.sql import SparkSession
+
+from opengeh_utilities.migrations.container import create_and_configure_container
+from tests.unit.migrations.builders.spark_sql_migrations_configuration_builder import (
     build as build_configuration,
 )
 
@@ -30,7 +32,7 @@ def spark() -> Generator[SparkSession, None, None]:
         rmtree(warehouse_location)
 
     session = configure_spark_with_delta_pip(
-        SparkSession.builder.config("spark.sql.streaming.schemaInference", True)
+        SparkSession.builder.config("spark.sql.streaming.schemaInference", True)  # type: ignore
         .config("spark.ui.showConsoleProgress", "false")
         .config("spark.ui.enabled", "false")
         .config("spark.ui.dagGraph.retainedRootRDDs", "1")

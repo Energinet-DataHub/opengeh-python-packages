@@ -1,9 +1,11 @@
 from typing import List
+
+from dependency_injector.wiring import Provide, inject
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
-from dependency_injector.wiring import Provide, inject
-from spark_sql_migrations.models.table_version import TableVersion
-from spark_sql_migrations.container import SparkSqlMigrationsContainer
+
+from opengeh_utilities.migrations.container import SparkSqlMigrationsContainer
+from opengeh_utilities.migrations.models.table_version import TableVersion
 
 
 def delta_table_exists(
@@ -28,7 +30,7 @@ def create_table_from_schema(
     partition_columns: List[str] = [],
 ) -> None:
     schema_df = spark.createDataFrame([], schema=schema)
-    ddl = schema_df._jdf.schema().toDDL()
+    ddl = schema_df._jdf.schema().toDDL()  # type: ignore
 
     sql_command = f"CREATE TABLE IF NOT EXISTS {catalog_name}.{schema_name}.{table_name} ({ddl}) USING DELTA"
 

@@ -1,12 +1,15 @@
-import spark_sql_migrations
-from pyspark.sql import SparkSession
 from dependency_injector import containers, providers
-from spark_sql_migrations.models.spark_sql_migrations_configuration import SparkSqlMigrationsConfiguration
+from pyspark.sql import SparkSession
+
+import opengeh_utilities.migrations as spark_sql_migrations
+from opengeh_utilities.migrations.models.spark_sql_migrations_configuration import (
+    SparkSqlMigrationsConfiguration,
+)
 
 
 class SparkSqlMigrationsContainer(containers.DeclarativeContainer):
     config = providers.Configuration()
-    spark = providers.Singleton(SparkSession.builder.getOrCreate)
+    spark = providers.Singleton(SparkSession.builder.getOrCreate)  # type: ignore
 
 
 def create_and_configure_container(config: SparkSqlMigrationsConfiguration) -> None:

@@ -1,5 +1,5 @@
 ﻿import pyspark.sql.functions as F
-from pyspark.sql.types import StructType
+import pyspark.sql.types as T
 from pyspark.sql import DataFrame, SparkSession
 
 
@@ -15,7 +15,10 @@ def get_table_version(
 
     history = spark.sql(f"DESCRIBE HISTORY {catalog_name}.{schema_name}.{table_name}")
     current_version = history.orderBy(F.desc("version")).limit(1)
-    return current_version.select("version").first()[0]
+    versions = current_version.select("version").first()
+    if versions is None:
+        return 0
+    return versions[0]
 
 
 def create_schema_and_table(
@@ -23,7 +26,7 @@ def create_schema_and_table(
     catalog_name: str,
     schema_name: str,
     table_name: str,
-    schema: StructType,
+    schema: T.StructType,
 ) -> None:
     create_schema(spark, catalog_name, schema_name)
     create_table(spark, catalog_name, schema_name, table_name, schema)
@@ -38,7 +41,7 @@ def create_table(
     catalog_name: str,
     schema_name: str,
     table_name: str,
-    schema: StructType,
+    schema: T.StructType,
 ) -> None:
     table_exists = spark.catalog.tableExists(
         f"{catalog_name}.{schema_name}.{table_name}"
@@ -57,6 +60,9 @@ def get_current_table_version(
     history = spark.sql(f"DESCRIBE HISTORY spark_catalog.{schema_name}.{table_name}")
 
     expected_version = (
-        history.orderBy(F.desc("version")).limit(1).select("version").first()[0]
+        history.orderBy(F.desc("version")).limit(1).select("version").first()
     )
-    return expected_version
+    if expected_version is None:
+        return 0
+
+    return expected_version[0]
