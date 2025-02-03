@@ -28,8 +28,6 @@ runs:
         packages = Path("${{ inputs.path }}").rglob("pyproject.toml")
         matrix = []
         for toml in packages:
-            if str(toml.parent) == ".":
-                continue
             with open(toml, "rb") as fh:
                 data = tomllib.load(fh)
             name = data.get("project", {}).get("name")

@@ -15,7 +15,7 @@ jobs:
     name: Continuous Integration
     uses: ./.github/workflows/reusable-ci.yml
     with:
-      packages_directory: .
+      packages_directory: ${{ github.workspace }}
     secrets:
       dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
