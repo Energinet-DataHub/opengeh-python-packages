@@ -23,6 +23,10 @@ inputs:
     description: The Azure subscription ID for the integration test environment
     required: false
     default: ""
+  github_token:
+    description: The GitHub token
+    required: false
+    default: ${{ github.token }}
 runs:
   using: composite
   steps:
@@ -51,3 +55,10 @@ runs:
     - name: Test
       shell: bash
       run: uv run --directory ${{ inputs.path }} pytest ${{ inputs.tests_path }}
+    - name: Coverage comment
+      uses: MishaKav/pytest-coverage-comment@main
+      with:
+        github-token: ${{ inputs.github_token }}
+        unique-id-for-comment: ${{ inputs.name }}
+        title: "Coverage report for '${{ inputs.name }}'"
+        pytest-xml-coverage-path: "${{ inputs.path }}/coverage.xml"

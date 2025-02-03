@@ -25,7 +25,7 @@ on:
           directories containing a test directory. All directories discovered
           are considered test directories. Defaults to "tests".
         required: false
-        default: "tests"
+        default: tests
       azure_spn_id:
         type: string
         description: The Azure SPN ID for the integration test environment
@@ -52,12 +52,11 @@ on:
         description: Used in ci_base job to authenticate with the DataHub3 service account
 
 permissions:
-  id-token: write # Required for use of OIDC in GitHub
-  contents: read # Required for use of OIDC in GitHub
-  issues: read # Needed by EnricoMi/publish-unit-test-result-action
-  checks: write # Needed by EnricoMi/publish-unit-test-result-action
-  pull-requests: write # Needed by EnricoMi/publish-unit-test-result-action
-  packages: read # Required for downloading docker image from GitHub packages
+  id-token: write
+  contents: write
+  issues: read
+  checks: write
+  pull-requests: write
 
 jobs:
   #
