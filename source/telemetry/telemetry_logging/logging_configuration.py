@@ -16,7 +16,7 @@ import contextlib
 import logging
 import os
 from typing import Any, Iterator, Tuple, Type, Optional
-from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource
+from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
 from pydantic import Field
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
@@ -48,10 +48,13 @@ class LoggingSettings(BaseSettings):
     The priority is CLI parameters first and then environment variables.
     """
     cloud_role_name: str
-    applicationinsights_connection_string: str = Field(alias="APPLICATIONINSIGHTS-CONNECTION-STRING", default=None)
+    applicationinsights_connection_string: str = Field(alias="applicationinsights-connection-string", default=None)
     subsystem: str
-    orchestration_instance_id: UUID = Field(alias="ORCHESTRATION-INSTANCE-ID")
-    force_configuration: bool = False
+    orchestration_instance_id: UUID = Field(alias="orchestration-instance-id")
+    force_configuration: bool = Field(alias="force-configuration", default=False)
+    model_config = SettingsConfigDict(
+        populate_by_name=True,  # Allow access using both alias and field name
+    )
 
     @classmethod
     def settings_customise_sources(
@@ -62,7 +65,8 @@ class LoggingSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        return CliSettingsSource(settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True), env_settings
+        return (init_settings, CliSettingsSource(settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True),
+                env_settings)
 
 
 def configure_logging(
