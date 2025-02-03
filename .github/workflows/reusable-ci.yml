@@ -50,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Discover Pyproject
-        uses: ./.github/actions/discover-pyproject
+        uses: ./.github/actions/python-discover-pyproject
         id: package_matrix
         with:
           path: ${{ inputs.packages_directory }}
