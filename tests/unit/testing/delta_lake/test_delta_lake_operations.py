@@ -1,7 +1,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, StructField, StructType
 
-from opengeh_utilities.testing.delta_lake.delta_lake_operations import create_database, create_table
+from opengeh_common.testing.delta_lake.delta_lake_operations import create_database, create_table
 
 DEFAULT_DATABASE_NAME = "test_db"
 DEFAULT_TABLE_NAME = "test_table"

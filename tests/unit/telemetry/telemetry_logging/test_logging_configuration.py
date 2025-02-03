@@ -1,7 +1,7 @@
 import os
 import unittest.mock as mock
 
-from opengeh_utilities.telemetry.logging_configuration import (
+from opengeh_common.telemetry.logging_configuration import (
     _IS_INSTRUMENTED,
     add_extras,
     configure_logging,

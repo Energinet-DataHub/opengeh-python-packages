@@ -1,6 +1,6 @@
 import pytest
 
-from opengeh_utilities.testing.etl import get_then_names
+from opengeh_common.testing.etl import get_then_names
 
 
 @pytest.mark.parametrize("test_case_name", get_then_names())

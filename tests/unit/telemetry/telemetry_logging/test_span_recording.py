@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 from opentelemetry.trace import Span
 
-from opengeh_utilities.telemetry.span_recording import span_record_exception
+from opengeh_common.telemetry.span_recording import span_record_exception
 
 
 def test_span_record__exception_with_exception():

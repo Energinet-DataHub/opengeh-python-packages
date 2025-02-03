@@ -1,8 +1,8 @@
 ﻿from unittest.mock import patch
 
-import opengeh_utilities.migrations.infrastructure.apply_migration_scripts as apply_migrations
-import opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
-import opengeh_utilities.migrations.migration_pipeline as sut
+import opengeh_common.migrations.infrastructure.apply_migration_scripts as apply_migrations
+import opengeh_common.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
+import opengeh_common.migrations.migration_pipeline as sut
 
 
 def test__migrate__when_no_uncommitted_migrations__should_not_call_apply_migrations() -> (

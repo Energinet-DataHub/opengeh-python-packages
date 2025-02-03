@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 from pyspark.sql import SparkSession
 
-import opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts as sut
+import opengeh_common.migrations.infrastructure.uncommitted_migration_scripts as sut
 import tests.unit.migrations.helpers.spark_helper as spark_helper
 import tests.unit.migrations.helpers.table_helper as table_helper
-from opengeh_utilities.migrations.schemas.migrations_schema import (
+from opengeh_common.migrations.schemas.migrations_schema import (
     schema_migration_schema,
 )
 from tests.unit.migrations.helpers.schema_migration_costants import (

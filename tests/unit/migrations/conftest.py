@@ -11,7 +11,7 @@ import pytest
 from delta import configure_spark_with_delta_pip
 from pyspark.sql import SparkSession
 
-from opengeh_utilities.migrations.container import create_and_configure_container
+from opengeh_common.migrations.container import create_and_configure_container
 from tests.unit.migrations.builders.spark_sql_migrations_configuration_builder import (
     build as build_configuration,
 )

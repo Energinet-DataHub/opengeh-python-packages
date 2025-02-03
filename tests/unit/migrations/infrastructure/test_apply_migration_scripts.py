@@ -1,13 +1,13 @@
 from pyspark.sql import SparkSession
 
-import opengeh_utilities.migrations.infrastructure.apply_migration_scripts as sut
+import opengeh_common.migrations.infrastructure.apply_migration_scripts as sut
 import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as configuration_builder
 import tests.unit.migrations.helpers.table_helper as table_helper
-from opengeh_utilities.migrations.container import create_and_configure_container
-from opengeh_utilities.migrations.models.spark_sql_migrations_configuration import (
+from opengeh_common.migrations.container import create_and_configure_container
+from opengeh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
-from opengeh_utilities.migrations.schemas.migrations_schema import (
+from opengeh_common.migrations.schemas.migrations_schema import (
     schema_migration_schema,
 )
 from tests.unit.migrations.constants import TEST_SCRIPTS_DIR

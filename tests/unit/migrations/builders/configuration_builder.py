@@ -1,5 +1,5 @@
 import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
-from opengeh_utilities.migrations.models.configuration import Configuration
+from opengeh_common.migrations.models.configuration import Configuration
 from tests.unit.migrations.constants import TEST_SCRIPTS_DIR
 from tests.unit.migrations.helpers.schema_migration_costants import (
     SchemaMigrationConstants,

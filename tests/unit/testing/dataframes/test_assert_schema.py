@@ -1,7 +1,7 @@
 import pyspark.sql.types as t
 import pytest
 
-from opengeh_utilities.testing.dataframes import assert_schema
+from opengeh_common.testing.dataframes import assert_schema
 
 reference_schema = t.StructType(
     [

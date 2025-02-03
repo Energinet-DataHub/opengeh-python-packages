@@ -1,1 +1,1 @@
-# Documentation folder
+# OpenGEH Common

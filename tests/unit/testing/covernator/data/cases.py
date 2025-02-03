@@ -1,4 +1,4 @@
-from opengeh_utilities.testing.covernator.TestCases import TestCases
+from opengeh_common.testing.covernator.TestCases import TestCases
 
 
 class Cases(TestCases):

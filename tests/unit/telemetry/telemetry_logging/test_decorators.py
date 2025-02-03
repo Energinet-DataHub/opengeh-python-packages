@@ -2,7 +2,7 @@ from unittest.mock import patch
 
 import pytest
 
-from opengeh_utilities.telemetry.decorators import use_span
+from opengeh_common.telemetry.decorators import use_span
 
 
 # Mocking the Logger and start_span

@@ -1,4 +1,4 @@
-from opengeh_utilities.migrations.models.spark_sql_migrations_configuration import (
+from opengeh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
 from tests.unit.migrations.constants import TEST_SCRIPTS_DIR

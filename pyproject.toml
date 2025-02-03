@@ -1,5 +1,5 @@
 [project]
-name = "opengeh-utilities"
+name = "opengeh-common"
 version = "0.1.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"

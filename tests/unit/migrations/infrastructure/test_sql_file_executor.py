@@ -1,10 +1,10 @@
 ﻿import pytest
 from pyspark.sql import SparkSession
 
-import opengeh_utilities.migrations.infrastructure.sql_file_executor as sut
+import opengeh_common.migrations.infrastructure.sql_file_executor as sut
 import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
-from opengeh_utilities.migrations.container import create_and_configure_container
-from opengeh_utilities.migrations.models.spark_sql_migrations_configuration import (
+from opengeh_common.migrations.container import create_and_configure_container
+from opengeh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
 from tests.unit.migrations.constants import TEST_SCRIPTS_DIR

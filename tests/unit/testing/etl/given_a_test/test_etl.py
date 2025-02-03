@@ -5,8 +5,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
 
 # These imports are the parts of the ETL framework that we want to test.
-from opengeh_utilities.testing.dataframes import assert_dataframes_and_schemas, read_csv
-from opengeh_utilities.testing.etl import TestCase, TestCases, get_then_names
+from opengeh_common.testing.dataframes import assert_dataframes_and_schemas, read_csv
+from opengeh_common.testing.etl import TestCase, TestCases, get_then_names
 
 _schema = StructType().add("a", "string").add("b", "string").add("c", "integer")
 

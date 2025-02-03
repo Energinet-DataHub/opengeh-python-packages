@@ -1,7 +1,7 @@
 import pytest
 from pyspark.sql import types as T
 
-from opengeh_utilities.testing.dataframes import AssertDataframesConfiguration, assert_dataframes_and_schemas
+from opengeh_common.testing.dataframes import AssertDataframesConfiguration, assert_dataframes_and_schemas
 
 actual_schema = T.StructType(
     [

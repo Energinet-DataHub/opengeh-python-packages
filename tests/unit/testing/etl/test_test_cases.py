@@ -1,6 +1,6 @@
 from pyspark.sql import types as T
 
-from opengeh_utilities.testing.etl.TestCases import TestCase, TestCases
+from opengeh_common.testing.etl.TestCases import TestCase, TestCases
 from tests.unit.testing.etl.constants import ETL_TEST_DATA
 
 
