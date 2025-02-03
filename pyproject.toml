@@ -1,7 +1,7 @@
 [project]
 name = "opengeh-utilities"
 version = "0.1.0"
-description = "Add your description here"
+description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 authors = [
     { name = "Jens Peder Meldgaard", email = "jpm@halfspace.io" }
