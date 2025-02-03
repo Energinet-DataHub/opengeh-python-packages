@@ -26,7 +26,7 @@ jobs:
     uses: ./.github/workflows/reusable-ci.yml
     with:
       packages_directory: ${{ github.workspace }}
-      tests_directory: tests/unit
+      tests_directory: tests
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
