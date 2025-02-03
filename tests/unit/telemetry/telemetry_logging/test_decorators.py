@@ -8,13 +8,13 @@ from opengeh_common.telemetry.decorators import use_span
 # Mocking the Logger and start_span
 @pytest.fixture
 def mock_logger():
-    with patch("opengeh_utilities.telemetry.decorators.Logger") as MockLogger:
+    with patch("opengeh_common.telemetry.decorators.Logger") as MockLogger:
         yield MockLogger
 
 
 @pytest.fixture
 def mock_start_span():
-    with patch("opengeh_utilities.telemetry.decorators.start_span") as MockStartSpan:
+    with patch("opengeh_common.telemetry.decorators.start_span") as MockStartSpan:
         yield MockStartSpan
 
 

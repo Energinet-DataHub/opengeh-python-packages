@@ -10,10 +10,10 @@ def test__migrate__when_no_uncommitted_migrations__should_not_call_apply_migrati
 ):
     # Arrange
     with patch(
-        "opengeh_utilities.migrations.migration_pipeline.apply_migrations"
+        "opengeh_common.migrations.migration_pipeline.apply_migrations"
     ) as mocked_apply_migrations:
         with patch(
-            "opengeh_utilities.migrations.migration_pipeline.uncommitted_migrations"
+            "opengeh_common.migrations.migration_pipeline.uncommitted_migrations"
         ) as mocked_uncommitted_migrations:
             mocked_uncommitted_migrations.get_uncommitted_migration_scripts.return_value = []
 
@@ -29,10 +29,10 @@ def test__migrate__when_uncommitted_migrations_not_zero__should_call_apply_migra
 ):
     # Arrange
     with patch(
-        "opengeh_utilities.migrations.migration_pipeline.apply_migrations"
+        "opengeh_common.migrations.migration_pipeline.apply_migrations"
     ) as mocked_apply_migrations:
         with patch(
-            "opengeh_utilities.migrations.migration_pipeline.uncommitted_migrations"
+            "opengeh_common.migrations.migration_pipeline.uncommitted_migrations"
         ) as mocked_uncommitted_migrations:
             mocked_uncommitted_migrations.get_uncommitted_migration_scripts.return_value = [
                 "test_migration"

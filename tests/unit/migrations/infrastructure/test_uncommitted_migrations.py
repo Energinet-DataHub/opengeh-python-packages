@@ -98,7 +98,7 @@ def test__get_all_migrations__returns_expected_migrations() -> None:
             ]
 
     with patch(
-        "opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts.files",
+        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.files",
         _MockFiles,
     ):
         expected_migrations = ["migration1", "migration2"]
@@ -116,11 +116,11 @@ def test__get_uncommitted_migrations__when_no_migrations_needed__return_zero() -
     migration2 = "migration2"
 
     with patch(
-        "opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
+        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
     ) as get_all_migration_scripts:
         get_all_migration_scripts.return_value = [migration1, migration2]
         with patch(
-            "opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
+            "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
         ) as get_committed_migration_scripts:
             get_committed_migration_scripts.return_value = [migration1, migration2]
 
@@ -160,11 +160,11 @@ def test__get_uncommitted_migrations__when_multiple_migrations__return_in_correc
     migration2 = "202311200900_migration_2"
 
     with patch(
-        "opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
+        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
     ) as get_all_migration_scripts:
         get_all_migration_scripts.return_value = [migration1, migration2]
         with patch(
-            "opengeh_utilities.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
+            "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
         ) as get_committed_migration_scripts:
             get_committed_migration_scripts.return_value = []
 
