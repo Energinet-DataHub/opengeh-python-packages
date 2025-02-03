@@ -1,4 +1,4 @@
-﻿from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession
 
 
 def reset_spark_catalog(spark: SparkSession) -> None:
@@ -13,7 +13,5 @@ def drop_schema(spark: SparkSession, catalog_name: str, schema_name: str) -> Non
     spark.sql(f"DROP SCHEMA IF EXISTS {catalog_name}.{schema_name} CASCADE")
 
 
-def drop_table(
-    spark: SparkSession, catalog_name: str, schema_name: str, table_name: str
-) -> None:
+def drop_table(spark: SparkSession, catalog_name: str, schema_name: str, table_name: str) -> None:
     spark.sql(f"DROP TABLE IF EXISTS {catalog_name}.{schema_name}.{table_name}")

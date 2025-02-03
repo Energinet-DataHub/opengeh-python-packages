@@ -1,2 +1,2 @@
-﻿def do_nothing(*args, **kwargs) -> None:
+def do_nothing(*args, **kwargs) -> None:
     pass

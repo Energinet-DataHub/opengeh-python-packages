@@ -108,9 +108,7 @@ def _assert_field(
     )
 
 
-def _assert_struct_field_nullability(
-    actual: StructField, expected: StructField
-) -> None:
+def _assert_struct_field_nullability(actual: StructField, expected: StructField) -> None:
     if actual.nullable != expected.nullable:
         _raise(
             f"Expected column name '{expected.name}' to have nullable={expected.nullable}, but got nullable={actual.nullable}"
@@ -169,9 +167,7 @@ def _assert_data_type(
         return
 
     if not isinstance(actual, DecimalType) or not isinstance(expected, DecimalType):
-        _raise(
-            f"Expected column name '{column_name}' to have type {expected}, but got type {actual}"
-        )
+        _raise(f"Expected column name '{column_name}' to have type {expected}, but got type {actual}")
 
     assert isinstance(actual, DecimalType) and isinstance(expected, DecimalType), (
         f"Expected column name '{column_name}' to have type {expected}, but got type {actual}"

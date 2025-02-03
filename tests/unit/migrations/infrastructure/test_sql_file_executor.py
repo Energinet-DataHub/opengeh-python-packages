@@ -1,4 +1,4 @@
-﻿import pytest
+import pytest
 from pyspark.sql import SparkSession
 
 import opengeh_common.migrations.infrastructure.sql_file_executor as sut
@@ -88,9 +88,7 @@ def test__substitute_placeholders__should_replace_placeholders_in_query(
 ) -> None:
     # Arrange
     _test_configuration()
-    sql = (
-        f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
-    )
+    sql = f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
 
     # Act
     query = sut._substitute_placeholders(sql)

@@ -60,11 +60,9 @@ class DataFrameWrapper:
         return self._df
 
     @staticmethod
-    def _add_missing_nullable_columns(
-        df: DataFrame, schema: t.StructType
-    ) -> DataFrame:
+    def _add_missing_nullable_columns(df: DataFrame, schema: t.StructType) -> DataFrame:
         """Add missing nullable columns to the data frame.
-        
+
         Utility method to add nullable fields that are expected by the schema,
         but are not present in the actual data frame.
 
@@ -77,8 +75,7 @@ class DataFrameWrapper:
         """
         for expected_field in schema:
             if expected_field.nullable and all(
-                actual_field.name != expected_field.name
-                for actual_field in df.schema.fields
+                actual_field.name != expected_field.name for actual_field in df.schema.fields
             ):
                 df = df.withColumn(
                     expected_field.name,

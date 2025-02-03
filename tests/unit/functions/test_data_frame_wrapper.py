@@ -27,9 +27,9 @@ def test__ctor__when_different_columns__returns_expected_schema(spark):
     # Arrange
     initial_schema = T.StructType(
         [
-            T.StructField("name",T.StringType(), True),
-            T.StructField("age",T.IntegerType(), True),
-            T.StructField("city",T.StringType(), True),
+            T.StructField("name", T.StringType(), True),
+            T.StructField("age", T.IntegerType(), True),
+            T.StructField("city", T.StringType(), True),
         ]
     )
     data = [("Alice", 30, "Roskilde"), ("Bob", 25, "Taastrup")]
@@ -99,9 +99,7 @@ def test__ctor__when_not_nullable_column_and_null_value__throws_exception(
     )
 
     # Act & Assert
-    with pytest.raises(
-        AssertionError, match="Expected column name 'age' to have nullable"
-    ):
+    with pytest.raises(AssertionError, match="Expected column name 'age' to have nullable"):
         DataFrameWrapper(df, used_schema)
 
 
