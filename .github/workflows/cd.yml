@@ -15,53 +15,19 @@
 name: CD
 
 on:
+  workflow_dispatch: {}
   push:
     branches:
       - main
 
 jobs:
-  #
-  # Detect changes to start relevant jobs
-  #
-
-  changes:
-    uses: ./.github/workflows/detect-changes.yml
-
-  #
-  # Docker image CD
-  #
-
-  cd_docker:
-    needs: changes
-    uses: Energinet-DataHub/.github/.github/workflows/python-build-and-push-docker-image.yml@v14
+  cd_reusable:
+    name: Continuous Deployment
+    uses: ./.github/workflows/reusable-cd.yml
     with:
-      docker_changed: ${{ needs.changes.outputs.docker == 'true' }}
-      docker_changed_in_commit: ${{ needs.changes.outputs.docker == 'true' }}
-
-  #
-  # Automatic Release (create release tag)
-  #
-  create_release:
-    needs: [changes]
-    if: ${{ needs.changes.outputs.telemetry == 'true' || needs.changes.outputs.testcommon == 'true' || needs.changes.outputs.spark_sql_migrations == 'true' || needs.changes.outputs.pyspark_functions == 'true' }}
-    uses: ./.github/workflows/create-release-tag.yml
-    secrets: inherit # Needed for organization scope GH_TOKEN
-
-  #
-  # Send notification to teams channel if deployment dispatch failed
-  #
-
-  dispatch_failed:
-    needs:
-      [
-        cd_docker,
-        create_release,
-      ]
-    if: |
-      always() &&
-      contains(needs.*.result, 'failure')
-    uses: Energinet-DataHub/.github/.github/workflows/notify-team.yml@v14
-    with:
-      team_name: Mandalorian
-      subject: "Deployment dispatch failed: Wholesale"
-    secrets: inherit
+      subsystem_name: opengeh-common
+      notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
+      sender_email: ${{ vars.email_internal_sender }}
+    secrets:
+      gh_token: ${{ secrets.GITHUB_TOKEN }}
+      send_grid_api_key: ${{ secrets.sendgrid_instance_system_notifications_api_key }}
