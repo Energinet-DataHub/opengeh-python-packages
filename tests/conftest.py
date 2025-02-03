@@ -1,8 +1,7 @@
 from typing import Generator
+
 import pytest
-
 from delta import configure_spark_with_delta_pip
-
 from pyspark.sql import SparkSession
 
 
@@ -19,7 +18,7 @@ def spark() -> Generator[SparkSession, None, None]:
     Create a Spark session with Delta Lake enabled.
     """
     session = (
-        SparkSession.builder.master("local[2]") # type: ignore
+        SparkSession.builder.master("local[2]")  # type: ignore
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
         .config(
             "spark.sql.catalog.spark_catalog",

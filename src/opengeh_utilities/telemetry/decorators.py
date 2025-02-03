@@ -1,12 +1,12 @@
-from typing import Callable, Any, Tuple, Dict
+from typing import Any, Callable, Dict, Tuple
 
-from opengeh_utilities.telemetry.logging_configuration import start_span
 from opengeh_utilities.telemetry.logger import Logger
+from opengeh_utilities.telemetry.logging_configuration import start_span
 
 
 def use_span(name: str | None = None) -> Callable[..., Any]:
-    """
-    Decorator for creating spans.
+    """Create a decorator that starts a span before executing the decorated function.
+
     If name is not provided then the __qualname__ of the decorated function is used.
     """
 

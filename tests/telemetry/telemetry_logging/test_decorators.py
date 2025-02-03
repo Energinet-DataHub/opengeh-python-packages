@@ -1,18 +1,20 @@
+from unittest.mock import patch
+
 import pytest
-from unittest.mock import patch, MagicMock
-from telemetry_logging.decorators import use_span
+
+from opengeh_utilities.telemetry.decorators import use_span
 
 
 # Mocking the Logger and start_span
 @pytest.fixture
 def mock_logger():
-    with patch('telemetry_logging.decorators.Logger') as MockLogger:
+    with patch("opengeh_utilities.telemetry.decorators.Logger") as MockLogger:
         yield MockLogger
 
 
 @pytest.fixture
 def mock_start_span():
-    with patch('telemetry_logging.decorators.start_span') as MockStartSpan:
+    with patch("opengeh_utilities.telemetry.decorators.start_span") as MockStartSpan:
         yield MockStartSpan
 
 
@@ -48,5 +50,7 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
     # Assert
     mock_start_span.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
     mock_logger.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
-    mock_logger_instance.info.assert_called_once_with("Started executing function: test_use_span__when_name_is_not_defined.<locals>.sample_function")
+    mock_logger_instance.info.assert_called_once_with(
+        "Started executing function: test_use_span__when_name_is_not_defined.<locals>.sample_function"
+    )
     assert result == "test"

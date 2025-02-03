@@ -11,20 +11,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import time
 import sys
+import time
 import uuid
-import os
-import pytest
 from datetime import timedelta
-from typing import cast, Callable
-from azure.monitor.query import LogsQueryClient, LogsQueryResult
-from opentelemetry.trace import SpanKind
+from typing import Callable, cast
 
-from tests.integration_test_configuration import IntegrationTestConfiguration
-from telemetry_logging.logger import Logger
-import telemetry_logging.logging_configuration as config
+import pytest
+from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
 
+import opengeh_utilities.telemetry.logging_configuration as config
+from opengeh_utilities.telemetry.logger import Logger
+from tests.telemetry.integration_test_configuration import IntegrationTestConfiguration
 
 INTEGRATION_TEST_LOGGER_NAME = "test-logger"
 INTEGRATION_TEST_CLOUD_ROLE_NAME = "test-cloud-role-name"
@@ -45,7 +43,9 @@ def _wait_for_condition(
     The function keeps invoking the callback until it returns without raising an exception.
     """
 
-    def _assert_row_count(actual: int, expected_count: int) -> None:
+    def _assert_row_count(
+        actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int
+    ) -> None:
         actual = cast(LogsQueryResult, actual)
         table = actual.tables[0]
         row = table.rows[0]
@@ -72,17 +72,17 @@ def _wait_for_condition(
                 query=query,
                 expected_count=expected_count,
             )
-            print(f"Condition met in {elapsed_ms} ms")
+            print(f"Condition met in {elapsed_ms} ms")  # noqa
             return
         except Exception:
             if elapsed_ms > timeout.total_seconds() * 1000:
-                print(
+                print(  # noqa
                     f"Condition failed to be met before timeout. Timed out after {elapsed_ms} ms",
                     file=sys.stderr,
                 )
                 raise
             time.sleep(step.seconds)
-            print(f"Condition not met after {elapsed_ms} ms. Retrying...")
+            print(f"Condition not met after {elapsed_ms} ms. Retrying...")  # noqa
 
 
 def test__exception_adds_log_to_app_exceptions(
@@ -141,7 +141,7 @@ def test__exception_adds_log_to_app_exceptions(
     ],
 )
 def test__add_log_record_to_azure_monitor_with_expected_settings(
-    logging_level: Callable[[str], None],
+    logging_level: Callable[[Logger, str], None],
     severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
 ) -> None:

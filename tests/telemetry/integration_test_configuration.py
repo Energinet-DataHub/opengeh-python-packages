@@ -44,4 +44,6 @@ class IntegrationTestConfiguration:
 
     def _get_secret_value(self, secret_name: str) -> str:
         secret = self._secret_client.get_secret(secret_name)
+        if secret.value is None:
+            raise ValueError(f"Secret '{secret_name}' not found.")
         return secret.value

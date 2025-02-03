@@ -15,6 +15,7 @@ import contextlib
 import logging
 import os
 from typing import Any, Iterator
+
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
@@ -35,8 +36,7 @@ def configure_logging(
     extras: dict[str, Any] | None = None,
     force_configuration: bool = False,
 ) -> None:
-    """
-    Configure logging to use OpenTelemetry and Azure Monitor.
+    """Configure logging to use OpenTelemetry and Azure Monitor.
 
     :param cloud_role_name:
     :param tracer_name:
@@ -48,7 +48,6 @@ def configure_logging(
     If connection string is None, then logging will not be sent to Azure Monitor.
     This is useful for unit testing.
     """
-
     global _TRACER_NAME
     _TRACER_NAME = tracer_name
 
