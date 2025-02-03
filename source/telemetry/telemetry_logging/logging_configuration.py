@@ -17,6 +17,7 @@ import logging
 import os
 from typing import Any, Iterator, Tuple, Type, Optional
 from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource
+from pydantic import Field
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
@@ -47,9 +48,9 @@ class LoggingSettings(BaseSettings):
     The priority is CLI parameters first and then environment variables.
     """
     cloud_role_name: str
-    applicationinsights_connection_string: str = None
+    applicationinsights_connection_string: str = Field(alias="`APPLICATIONINSIGHTS-CONNECTION-STRING`") | None
     subsystem: str
-    orchestration_instance_id: Optional[UUID] = None
+    orchestration_instance_id: UUID = Field(alias="ORCHESTRATION-INSTANCE-ID")
     force_configuration: bool = False
 
     @classmethod
@@ -102,12 +103,12 @@ def configure_logging(
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
+    # Adding orchestration ID as an extra when provided through LoggingSettings: This is required for the Telemetry logs to show up in Application Insights
+    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
+
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
     _LOGGING_CONFIGURED = True
-
-    # Adding orchestration ID as an extra when provided through LoggingSettings:
-    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
 
 
 def get_extras() -> dict[str, Any]:

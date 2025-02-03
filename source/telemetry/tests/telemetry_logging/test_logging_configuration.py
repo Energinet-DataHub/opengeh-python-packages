@@ -333,15 +333,6 @@ def test_logging_settings_from_mock(mock_env_args, mock_sys_args):
         assert logging_settings.force_configuration is expected_force_configuration
 
 
-def test_logging_settings_without_any_params(mock_sys_args, mock_env_args):
-    """
-    Test that LoggingSettings fails instantiation without any parameters or environment variables
-    """
-    # Act
-    with pytest.raises(ValidationError):
-        logging_settings = LoggingSettings()
-
-
 def test_logging_settings_without_cli_params(mock_env_args):
     # Arrange
     expected_cloud_role_name = 'cloud_role_name_value'  # From Mock
@@ -450,3 +441,12 @@ def test_logging_settings_params_from_both_cli_and_env(mock_env_args, mock_sys_a
         assert logging_settings.subsystem == expected_subsystem
         assert logging_settings.orchestration_instance_id == expected_orchestration_instance_id
         assert logging_settings.force_configuration is expected_force_configuration
+
+
+def test_logging_settings_without_any_params():
+    """
+    Test that LoggingSettings fails instantiation without any paframeters or environment variables
+    """
+    # Act
+    with pytest.raises(ValidationError):
+        logging_settings = LoggingSettings()
