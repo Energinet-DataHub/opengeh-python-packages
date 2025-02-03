@@ -1,8 +1,9 @@
-from pyspark.sql.types import DecimalType, StructField, StructType, ArrayType, DataType
+from pyspark.sql.types import ArrayType, DataType, DecimalType, StructField, StructType
 
 
 def assert_contract(actual_schema: StructType, contract: StructType) -> None:
-    """
+    """Assert that the actual schema matches the contract of the data product data contract.
+
     Asserts that the actual schema matches the contract of the data product data contract.
     Non-breaking changes are allowed, such as adding new columns or changing column ordering.
     """
@@ -32,7 +33,8 @@ def assert_schema(
     ignore_decimal_precision: bool = False,
     ignore_extra_actual_columns: bool = False,
 ) -> None:
-    """
+    """Assert that the actual schema matches the expected schema.
+
     When actual schema does not match the expected schema,
     raises an AssertionError with an error message starting with 'Schema mismatch'.
 
@@ -170,6 +172,10 @@ def _assert_data_type(
         _raise(
             f"Expected column name '{column_name}' to have type {expected}, but got type {actual}"
         )
+
+    assert isinstance(actual, DecimalType) and isinstance(expected, DecimalType), (
+        f"Expected column name '{column_name}' to have type {expected}, but got type {actual}"
+    )
 
     if not ignore_decimal_precision and actual.precision != expected.precision:
         _raise(

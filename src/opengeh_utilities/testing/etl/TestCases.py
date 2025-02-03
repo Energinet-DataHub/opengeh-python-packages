@@ -2,16 +2,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from pyspark.sql import DataFrame
+
 from opengeh_utilities.testing.dataframes.read_csv import read_csv
 
 
 @dataclass
 class TestCase:
-    """
-    Represents a test case for a specific scenario.
-    The expected data is lazy-loaded from a CSV file as it may not exist in all scenarios.
-    """
-
     __test__ = False
 
     def __init__(self, expected_csv_path: str, actual: DataFrame) -> None:
@@ -32,12 +28,6 @@ class TestCase:
 
 @dataclass
 class TestCases(dict):
-    """
-    A dictionary of test cases, where the keys are the name of the csv-files
-    in the `/then` folder of the scenario. The names are the file paths relative
-    to the `/then` folder, excluding the file extension.
-    """
-
     __test__ = False
 
     def __init__(self, test_cases: list[TestCase]) -> None:
@@ -48,7 +38,8 @@ class TestCases(dict):
 
     # Overload to support type hint of return object.
     def __getitem__(self, key: str) -> TestCase:
-        """
+        """Get the test.
+
         The key is the name of the csv-file in the `/then` folder of the scenario.
         The name is the path relative to the `/then` folder, excluding the file extension.
         """

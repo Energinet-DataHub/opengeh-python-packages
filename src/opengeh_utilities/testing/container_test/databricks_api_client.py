@@ -9,8 +9,13 @@ class DatabricksApiClient:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
 
     def get_job_id(self, job_name: str) -> int:
-        """
-        Gets the job ID for a Databricks job.
+        """Get the job ID for a Databricks job.
+
+        Args:
+            job_name (str): The name of the job.
+
+        Returns:
+            int: The ID of the job.
         """
         job_list = self.client.jobs.list()
         for job in job_list:
@@ -20,17 +25,28 @@ class DatabricksApiClient:
         raise Exception(f"Job '{job_name}' not found.")
 
     def start_job(self, job_id: int, python_params: list[str]) -> int:
-        """
-        Starts a Databricks job using the Databricks SDK and returns the run ID.
+        """Start a Databricks job.
+
+        Args:
+            job_id (int): The ID of the job.
+            python_params (list[str]): The parameters to pass to the job.
+
+        Returns:
+            int: The run ID of the job.
         """
         response = self.client.jobs.run_now(job_id=job_id, python_params=python_params)
         return response.run_id
 
-    def wait_for_job_completion(
-        self, run_id: int, timeout: int = 1000, poll_interval: int = 10
-    ) -> RunResultState:
-        """
-        Waits for a Databricks job to complete.
+    def wait_for_job_completion(self, run_id: int, timeout: int = 1000, poll_interval: int = 10) -> RunResultState:
+        """Wait for a Databricks job to complete.
+
+        Args:
+            run_id (int): The run ID of the job.
+            timeout (int, optional): The maximum time to wait for the job to complete. Defaults to 1000.
+            poll_interval (int, optional): The interval between polling the job status. Defaults to 10.
+
+        Returns:
+            RunResultState: The result state of the job.
         """
         start_time = time.time()
 
@@ -52,9 +68,7 @@ class DatabricksApiClient:
                     raise Exception("Job terminated but result state is None")
                 return RunResultState(result_state)
             elif lifecycle_state == "INTERNAL_ERROR":
-                raise Exception(
-                    f"Job failed with an internal error: {run_status.state.state_message}"
-                )
+                raise Exception(f"Job failed with an internal error: {run_status.state.state_message}")
 
             time.sleep(poll_interval)
 

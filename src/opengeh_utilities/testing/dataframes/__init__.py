@@ -3,8 +3,8 @@ from opengeh_utilities.testing.dataframes.assert_dataframes import (
     assert_dataframes_and_schemas,
 )
 from opengeh_utilities.testing.dataframes.assert_schemas import (
-    assert_schema,
     assert_contract,
+    assert_schema,
 )
 from opengeh_utilities.testing.dataframes.read_csv import read_csv
 from opengeh_utilities.testing.dataframes.write_to_delta import (

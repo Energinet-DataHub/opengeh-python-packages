@@ -1,17 +1,14 @@
 from pathlib import Path
 
+import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
-import pytest
 
 # These imports are the parts of the ETL framework that we want to test.
 from opengeh_utilities.testing.dataframes import assert_dataframes_and_schemas, read_csv
-from opengeh_utilities.testing.etl import TestCases, TestCase, get_then_names
+from opengeh_utilities.testing.etl import TestCase, TestCases, get_then_names
 
-
-_schema = (
-    StructType().add("a", "string").add("b", "string").add("c", "integer")
-)
+_schema = StructType().add("a", "string").add("b", "string").add("c", "integer")
 
 
 @pytest.fixture(scope="module")
@@ -35,9 +32,7 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     return TestCases(
         [
             TestCase(f"{scenario_path}/then/output.csv", actual_df),
-            TestCase(
-                f"{scenario_path}/then/some_folder/some_output.csv", actual_df
-            ),
+            TestCase(f"{scenario_path}/then/some_folder/some_output.csv", actual_df),
         ]
     )
 
@@ -47,6 +42,4 @@ def test_etl(test_case_name, test_cases: TestCases):
     """Verify that all the parts of `testcommon.etl` work together."""
 
     test_case = test_cases[test_case_name]
-    assert_dataframes_and_schemas(
-        actual=test_case.actual, expected=test_case.expected
-    )
+    assert_dataframes_and_schemas(actual=test_case.actual, expected=test_case.expected)

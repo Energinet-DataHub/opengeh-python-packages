@@ -1,6 +1,4 @@
-from typing import Generator
 import pytest
-
 from pyspark.sql import SparkSession
 
 
@@ -8,5 +6,5 @@ from pyspark.sql import SparkSession
 def clean_catalog(spark: SparkSession) -> None:
     # Drop all databases except the default one
     for db in spark.catalog.listDatabases():
-        if db.name != 'default':
+        if db.name != "default":
             spark.sql(f"DROP DATABASE {db.name} CASCADE")

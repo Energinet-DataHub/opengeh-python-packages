@@ -1,25 +1,32 @@
 from pyspark.sql import types as T
-
-from opengeh_utilities.testing.dataframes import assert_dataframes_and_schemas, read_csv, AssertDataframesConfiguration
-from tests.testing.etl.constants import ETL_TEST_DATA
-
 from pyspark.sql.types import (
-    StructField,
+    BooleanType,
+    DecimalType,
+    FloatType,
+    IntegerType,
     StringType,
+    StructField,
+    StructType,
     TimestampType,
-    StructType, IntegerType, DecimalType, FloatType, BooleanType,
 )
 
-schema = T.StructType([
-    T.StructField("a", T.IntegerType(), False),
-    T.StructField("b", T.StringType(), True),
-    T.StructField("c", T.BooleanType(), True),
-])
+from opengeh_utilities.testing.dataframes import AssertDataframesConfiguration, assert_dataframes_and_schemas, read_csv
+from tests.testing.etl.constants import ETL_TEST_DATA
 
-schema_without_ignored = T.StructType([
-    T.StructField("a", T.IntegerType(), False),
-    T.StructField("c", T.BooleanType(), True),
-])
+schema = T.StructType(
+    [
+        T.StructField("a", T.IntegerType(), False),
+        T.StructField("b", T.StringType(), True),
+        T.StructField("c", T.BooleanType(), True),
+    ]
+)
+
+schema_without_ignored = T.StructType(
+    [
+        T.StructField("a", T.IntegerType(), False),
+        T.StructField("c", T.BooleanType(), True),
+    ]
+)
 
 nullability_schema = StructType(
     [
@@ -77,9 +84,7 @@ def test_with_array_string(spark):
             T.StructField("b", T.StringType(), True),
             T.StructField("c", T.BooleanType(), True),
             T.StructField("d", T.ArrayType(T.StringType()), True),
-            T.StructField(
-                "e", T.ArrayType(T.StringType(), containsNull=False), True
-            ),
+            T.StructField("e", T.ArrayType(T.StringType(), containsNull=False), True),
         ]
     )
 
@@ -87,9 +92,7 @@ def test_with_array_string(spark):
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
-    test_df = spark.createDataFrame(
-        [(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema
-    )
+    test_df = spark.createDataFrame([(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema)
 
     assert_dataframes_and_schemas(df, test_df)
 

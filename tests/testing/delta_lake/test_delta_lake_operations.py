@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StringType, StructField
+from pyspark.sql.types import StringType, StructField, StructType
 
 from opengeh_utilities.testing.delta_lake.delta_lake_operations import create_database, create_table
 
@@ -52,7 +52,9 @@ def test_create_table__when_already_exists__does_not_create(spark: SparkSession)
     create_table(spark, DEFAULT_DATABASE_NAME, DEFAULT_TABLE_NAME, DEFAULT_LOCATION, DEFAULT_SCHEMA)
 
     # Act
-    create_table(spark, DEFAULT_DATABASE_NAME, DEFAULT_TABLE_NAME, DEFAULT_LOCATION, DEFAULT_SCHEMA)  # Try to create the same table again
+    create_table(
+        spark, DEFAULT_DATABASE_NAME, DEFAULT_TABLE_NAME, DEFAULT_LOCATION, DEFAULT_SCHEMA
+    )  # Try to create the same table again
 
     # Assert
     tables = [table.name for table in spark.catalog.listTables(DEFAULT_DATABASE_NAME)]
