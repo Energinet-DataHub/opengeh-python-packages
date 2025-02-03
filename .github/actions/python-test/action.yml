@@ -31,7 +31,7 @@ runs:
   using: composite
   steps:
     - name: Login to access Azure resources (integration test environment)
-      if: ${{ inputs.azure_spn_id != '' && inputs.azure_tenant_id != '' && inputs.azure_subscription_id != '' }}
+      if: ${{ inputs.azure_spn_id != '' && inputs.azure_tenant_id != '' && inputs.azure_subscription_id != '' && env.AZURE_KEYVAULT_URL != '' }}
       uses: azure/login@v2
       with:
         client-id: ${{ inputs.azure_spn_id }}
