@@ -24,9 +24,7 @@ class TestCases:
         return paths
 
     @classmethod
-    def find_imports(
-        cls, root_dir: Path | None = None
-    ) -> dict[str, dict[Path, list[str]]]:
+    def find_imports(cls, root_dir: Path | None = None) -> dict[str, dict[Path, list[str]]]:
         """Find the imports of the subclasses of the TestCases class.
 
         Args:
@@ -56,14 +54,10 @@ class TestCases:
             current_dir = current_dir.parent
             if depth > 20:
                 break
-        raise FileNotFoundError(
-            "Could not find the git root directory. Is this a git repository?"
-        )
+        raise FileNotFoundError("Could not find the git root directory. Is this a git repository?")
 
     @staticmethod
-    def _find_module_imports(
-        module_name: str, root_dir: Path | str = "."
-    ) -> dict[Path, list[str]]:
+    def _find_module_imports(module_name: str, root_dir: Path | str = ".") -> dict[Path, list[str]]:
         imports = {}
         for file_path in Path(root_dir).rglob("*.py"):
             with open(file_path, encoding="utf-8") as f:

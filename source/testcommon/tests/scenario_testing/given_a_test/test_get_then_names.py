@@ -1,7 +1,6 @@
 from pathlib import Path
 
 import pytest
-
 from testcommon.scenario_testing import get_then_names
 
 

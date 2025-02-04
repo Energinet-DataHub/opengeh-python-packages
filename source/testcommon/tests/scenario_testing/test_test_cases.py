@@ -1,5 +1,5 @@
-from testcommon.scenario_testing.TestCases import TestCase, TestCases
 from pyspark.sql import types as T
+from testcommon.scenario_testing.TestCases import TestCase, TestCases
 
 from tests.scenario_testing.constants import SCENARIO_TESTING_DATA
 

@@ -1,30 +1,29 @@
 from pathlib import Path
 
+import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql import types as T
-import pytest
 
 # These imports are the parts of the Scenario Testing framework that we want to test.
 from testcommon.dataframes import (
-    read_csv,
     assert_dataframes_and_schemas,
+    read_csv,
 )
-from testcommon.scenario_testing import get_then_names, TestCase, TestCases
+from testcommon.scenario_testing import TestCase, TestCases, get_then_names
 
-_schema = (
-    T.StructType().add("a", "string").add("b", "string").add("c", "integer")
+_schema = T.StructType().add("a", "string").add("b", "string").add("c", "integer")
+_schema2 = T.StructType(
+    [
+        T.StructField("string", T.StringType()),
+        T.StructField("boolean", T.BooleanType()),
+        T.StructField("integer", T.IntegerType()),
+    ]
 )
-_schema2 = T.StructType([
-    T.StructField("string", T.StringType()),
-    T.StructField("boolean", T.BooleanType()),
-    T.StructField("integer", T.IntegerType()),
-])
 
 
 @pytest.fixture(scope="module")
 def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     """Very simple fixture where all expected data matches the input data."""
-
     scenario_path = str(Path(request.module.__file__).parent)
 
     # Read input data
@@ -44,9 +43,7 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
         [
             TestCase(f"{scenario_path}/then/output.csv", actual_df),
             TestCase(f"{scenario_path}/then/output2.csv", actual2_df),
-            TestCase(
-                f"{scenario_path}/then/some_folder/some_output.csv", actual_df
-            ),
+            TestCase(f"{scenario_path}/then/some_folder/some_output.csv", actual_df),
         ],
     )
 
