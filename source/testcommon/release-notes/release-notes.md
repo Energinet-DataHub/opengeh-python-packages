@@ -8,6 +8,14 @@ Added test for `write_to_delta` and the added functionality to `get_then_names`
 
 Renamed testcommon.etl to testcommon.scenario_testing to provide a clearer indication of its intended use.
 
+## Version 0.2.1
+
+Added scenario testing documentation
+
+## Version 0.3.0
+
+Renamed testcommon.etl to testcommon.scenario_testing to provide a clearer indication of its intended use.
+
 ## Version 0.2.0
 
 Added container test functionality with DatabricksApiClient.
