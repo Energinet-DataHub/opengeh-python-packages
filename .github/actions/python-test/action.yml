@@ -44,6 +44,6 @@ runs:
       uses: MishaKav/pytest-coverage-comment@main
       with:
         github-token: ${{ inputs.github_token }}
-        unique-id-for-comment: ${{ inputs.name }}
+        unique-id-for-comment: ${{ inputs.name }}-${{ inputs.path }}
         title: Coverage report for '${{ inputs.name }}'
         pytest-xml-coverage-path: ${{ inputs.path }}/coverage.xml

@@ -100,6 +100,7 @@ jobs:
 
       - name: Login to access Azure resources
         uses: azure/login@v2
+        if: ${{ steps.changes.outputs.is_changed == 'true' && inputs.azure_spn_id != '' && inputs.azure_tenant_id != '' && inputs.azure_subscription_id != '' }}
         with:
           client-id: ${{ inputs.azure_spn_id }}
           tenant-id: ${{ inputs.azure_tenant_id }}
