@@ -22,11 +22,10 @@ jobs:
   # Reusable CI
   #
   ci_tests:
-    name: Integration tests
     uses: ./.github/workflows/reusable-ci.yml
     with:
       packages_directory: ${{ github.workspace }}
-      tests_directory: tests
+      tests_directory: tests/unit
       run_integration_tests: false
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
