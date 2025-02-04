@@ -19,9 +19,9 @@ from telemetry_logging.logging_configuration import (
 @pytest.fixture
 def mock_env_args(request):
     env_args = {
-        'CLOUD_ROLE_NAME': 'cloud_role_name_value',
+        #'CLOUD_ROLE_NAME': 'cloud_role_name_value',
         'APPLICATIONINSIGHTS_CONNECTION_STRING': 'applicationinsights_connection_string_value',
-        'SUBSYSTEM': 'subsystem_value'
+        #'SUBSYSTEM': 'subsystem_value'
     }
     return env_args
 
@@ -43,7 +43,7 @@ def mock_logging_settings():
     command line arguments to the script
     """
     env_args = {
-        'CLOUD_ROLE_NAME': 'test_role',
+        #'CLOUD_ROLE_NAME': 'test_role',
         'APPLICATIONINSIGHTS_CONNECTION_STRING': 'connection_string',
         'SUBSYSTEM': 'test_subsystem',
     }
@@ -52,7 +52,7 @@ def mock_logging_settings():
                                  '--orchestration-instance-id', '4a540892-2c0a-46a9-9257-c4e13051d76a']),
           mock.patch.dict('os.environ', env_args, clear=False)
           ):
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(cloud_role_name="test_role")
         logging_settings.applicationinsights_connection_string = None # for testing purposes
         yield logging_settings
 
@@ -324,7 +324,7 @@ def test_logging_settings_from_mock(mock_env_args, mock_sys_args):
     # Act
     with (mock.patch('sys.argv', mock_sys_args),
           mock.patch.dict('os.environ', mock_env_args, clear=False)):
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(cloud_role_name=expected_cloud_role_name, subsystem=expected_subsystem,)
         # Assert
         assert logging_settings.cloud_role_name == expected_cloud_role_name
         assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
@@ -342,7 +342,7 @@ def test_logging_settings_without_cli_params(mock_env_args):
     expected_force_configuration = False  # Default value
     # Act
     with mock.patch.dict('os.environ', mock_env_args, clear=False):
-        logging_settings = LoggingSettings(orchestration_instance_id=expected_orchestration_instance_id)
+        logging_settings = LoggingSettings(orchestration_instance_id=expected_orchestration_instance_id, cloud_role_name=expected_cloud_role_name, subsystem=expected_subsystem,)
 
     # Assert
     assert logging_settings.cloud_role_name == expected_cloud_role_name
@@ -370,7 +370,7 @@ def test_logging_settings_all_params_from_env(mock_env_args):
 
     # Act
     with mock.patch.dict('os.environ', mock_env_args, clear=False):
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(cloud_role_name=expected_cloud_role_name, subsystem=expected_subsystem)
 
     # Assert
     assert logging_settings.cloud_role_name == expected_cloud_role_name
@@ -422,7 +422,7 @@ def test_logging_settings_params_from_both_cli_and_env(mock_env_args, mock_sys_a
     # Act
     with (mock.patch('sys.argv', mock_sys_args),
           mock.patch.dict('os.environ', mock_env_args, clear=False)):
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(cloud_role_name=expected_cloud_role_name, subsystem=expected_subsystem)
         # Assert
         assert logging_settings.cloud_role_name == expected_cloud_role_name
         assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
