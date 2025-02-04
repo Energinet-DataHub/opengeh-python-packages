@@ -1,7 +1,7 @@
-from testcommon.etl.TestCases import TestCase, TestCases
+from testcommon.scenario_testing.TestCases import TestCase, TestCases
 from pyspark.sql import types as T
 
-from tests.etl.constants import ETL_TEST_DATA
+from tests.scenario_testing.constants import SCENARIO_TESTING_DATA
 
 
 def test_test_cases(spark):
@@ -14,7 +14,7 @@ def test_test_cases(spark):
     )
     df = spark.createDataFrame([(1, "a", True)], schema=schema)
 
-    path = (ETL_TEST_DATA / "then" / "no_array.csv").as_posix()
+    path = (SCENARIO_TESTING_DATA / "then" / "no_array.csv").as_posix()
     key = "no_array"  # The path relative to the `then` folder, excluding the file extension
     cases = TestCases([TestCase(path, df)])
 
