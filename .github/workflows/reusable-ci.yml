@@ -26,14 +26,6 @@ on:
           are considered test directories. Defaults to "tests".
         required: false
         default: tests
-      run_integration_tests:
-        type: boolean
-        description: |
-          Whether to run integration tests. If true, the following variables
-          must be set: azure_spn_id, azure_tenant_id,  azure_subscription_id,
-          and azure_keyvault_url.
-        required: false
-        default: false
       azure_spn_id:
         type: string
         description: The Azure SPN ID for the integration test environment
@@ -82,46 +74,7 @@ jobs:
   #
   # Test Packages
   #
-  ci_unit:
-    name: Test Packages
-    runs-on: ubuntu-24.04
-    needs: ci_matrix
-    if: ${{ !inputs.run_integration_tests }}
-    strategy:
-      matrix:
-        inputs: ${{ fromJson(needs.ci_matrix.outputs.matrix) }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Check if ${{ matrix.inputs.name }} has changed
-        uses: dorny/paths-filter@v3
-        id: changes
-        with:
-          filters: |
-            is_changed:
-              - ${{ matrix.inputs.path }}/**
-
-      - name: Test ${{ matrix.inputs.name }}
-        uses: ./.github/actions/python-test
-        if: ${{ steps.changes.outputs.is_changed == 'true' }}
-        with:
-          name: ${{ matrix.inputs.name }}
-          path: ${{ matrix.inputs.path }}
-          tests_path: ${{ inputs.tests_directory }}
-
-      - name: Create prerelease for ${{ matrix.inputs.name }}
-        uses: ./.github/actions/python-create-prerelease
-        if: ${{ steps.changes.outputs.is_changed == 'true' }}
-        with:
-          name: ${{ matrix.inputs.name }}
-          path: ${{ matrix.inputs.path }}
-          issue-number: ${{ github.event.number }}
-          create_named_release: false
-  #
-  # Test Packages
-  #
-  ci_integration:
+  ci_test:
     name: Test Packages
     runs-on: ubuntu-24.04
     needs: ci_matrix
@@ -146,6 +99,13 @@ jobs:
             is_changed:
               - ${{ matrix.inputs.path }}/**
 
+      - name: Login to access Azure resources
+        uses: azure/login@v2
+        with:
+          client-id: ${{ inputs.azure_spn_id }}
+          tenant-id: ${{ inputs.azure_tenant_id }}
+          subscription-id: ${{ inputs.azure_subscription_id }}
+
       - name: Test ${{ matrix.inputs.name }}
         uses: ./.github/actions/python-test
         if: ${{ steps.changes.outputs.is_changed == 'true' }}
@@ -153,9 +113,6 @@ jobs:
           name: ${{ matrix.inputs.name }}
           path: ${{ matrix.inputs.path }}
           tests_path: ${{ inputs.tests_directory }}
-          azure_spn_id: ${{ inputs.azure_spn_id }}
-          azure_tenant_id: ${{ inputs.azure_tenant_id }}
-          azure_subscription_id: ${{ inputs.azure_subscription_id }}
 
       - name: Create prerelease for ${{ matrix.inputs.name }}
         uses: ./.github/actions/python-create-prerelease
