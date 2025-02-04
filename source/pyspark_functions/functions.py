@@ -1,33 +1,26 @@
-from pyspark.sql import DataFrame
-from pyspark.sql import functions as F, types as T
-from pyspark.sql import Column
 from typing import Callable
 
+from pyspark.sql import Column, DataFrame
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
 
-def convert_utc_to_localtime(
-    df: DataFrame, timestamp_column: str, time_zone: str
-) -> DataFrame:
+
+def convert_utc_to_localtime(df: DataFrame, timestamp_column: str, time_zone: str) -> DataFrame:
     return (
         df.select(
             "*",
-            F.from_utc_timestamp(F.col(timestamp_column), time_zone).alias(
-                f"{timestamp_column}_tmp"
-            ),
+            F.from_utc_timestamp(F.col(timestamp_column), time_zone).alias(f"{timestamp_column}_tmp"),
         )
         .drop(timestamp_column)
         .withColumnRenamed(f"{timestamp_column}_tmp", timestamp_column)
     )
 
 
-def convert_localtime_to_utc(
-    df: DataFrame, timestamp_column: str, time_zone: str
-) -> DataFrame:
+def convert_localtime_to_utc(df: DataFrame, timestamp_column: str, time_zone: str) -> DataFrame:
     return (
         df.select(
             "*",
-            F.to_utc_timestamp(F.col(timestamp_column), time_zone).alias(
-                f"{timestamp_column}_tmp"
-            ),
+            F.to_utc_timestamp(F.col(timestamp_column), time_zone).alias(f"{timestamp_column}_tmp"),
         )
         .drop(timestamp_column)
         .withColumnRenamed(f"{timestamp_column}_tmp", timestamp_column)
@@ -36,11 +29,7 @@ def convert_localtime_to_utc(
 
 def get_timestamp_columns(df: DataFrame) -> list[str]:
     """Get all timestamp and date columns from DataFrame."""
-    return [
-        field.name
-        for field in df.schema.fields
-        if isinstance(field.dataType, (T.TimestampType))
-    ]
+    return [field.name for field in df.schema.fields if isinstance(field.dataType, (T.TimestampType))]
 
 
 def _convert_timezone(
