@@ -34,6 +34,6 @@ def write_when_files_to_delta(
 
         # Overwrite destination table with DataFrame
         try:
-            df.write.mode("overwrite").saveAsTable(file_name.removesuffix(".csv"))
+            df.write.mode("overwrite").format("delta").saveAsTable(file_name.removesuffix(".csv"))
         except Exception as e:
             print(f"Error executing overwrite on table {file_name}: {str(e)}")
