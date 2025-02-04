@@ -29,8 +29,8 @@ on:
       run_integration_tests:
         type: boolean
         description: |
-          Whether to run integration tests. If true, the following variables 
-          must be set: azure_spn_id, azure_tenant_id,  azure_subscription_id, 
+          Whether to run integration tests. If true, the following variables
+          must be set: azure_spn_id, azure_tenant_id,  azure_subscription_id,
           and azure_keyvault_url.
         required: false
         default: false
