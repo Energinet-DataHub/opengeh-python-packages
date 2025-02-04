@@ -42,14 +42,10 @@ def read_csv_path(
         if field.name in raw_df.columns:
             if isinstance(field.dataType, T.ArrayType):
                 raw_df.schema[field.name].dataType = field.dataType
-                transforms.append(
-                    F.from_json(F.col(field.name), field.dataType).alias(field.name)
-                )
+                transforms.append(F.from_json(F.col(field.name), field.dataType).alias(field.name))
             else:
                 raw_df.schema[field.name].nullable = field.nullable
-                transforms.append(
-                    F.col(field.name).cast(field.dataType).alias(field.name)
-                )
+                transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
         else:
             raise ValueError(f"Column {field.name} not found in CSV")
 

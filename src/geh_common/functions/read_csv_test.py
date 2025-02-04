@@ -7,14 +7,10 @@ from geh_common.functions.read_csv import read_csv_path
 
 def _remove_ignored_columns(df, schema, ignored_value="[IGNORED]") -> DataFrame:
     # Check each column to see if all values are "[IGNORED]"
-    ignore_check = df.agg(
-        *[F.every(F.col(c) == F.lit(ignored_value)).alias(c) for c in df.columns]
-    ).collect()
+    ignore_check = df.agg(*[F.every(F.col(c) == F.lit(ignored_value)).alias(c) for c in df.columns]).collect()
 
     # Get the columns that should be ignored
-    ignored_cols = [
-        c for c, v in ignore_check[0].asDict().items() if v and c in schema.fieldNames()
-    ]
+    ignored_cols = [c for c, v in ignore_check[0].asDict().items() if v and c in schema.fieldNames()]
 
     df = df.drop(*ignored_cols)
 

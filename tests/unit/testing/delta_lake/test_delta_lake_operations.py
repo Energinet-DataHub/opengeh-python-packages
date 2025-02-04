@@ -95,9 +95,5 @@ def test_create_table__schema_is_as_expected(spark: SparkSession):
     )
 
     # Assert
-    actual_schema = spark.read.table(
-        f"{DEFAULT_DATABASE_NAME}.{DEFAULT_TABLE_NAME}"
-    ).schema
-    assert actual_schema == expected_schema, (
-        f"Expected schema: {expected_schema}, but got: {actual_schema}"
-    )
+    actual_schema = spark.read.table(f"{DEFAULT_DATABASE_NAME}.{DEFAULT_TABLE_NAME}").schema
+    assert actual_schema == expected_schema, f"Expected schema: {expected_schema}, but got: {actual_schema}"

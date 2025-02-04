@@ -6,9 +6,7 @@ from pyspark.sql import types as T
 from geh_common.testing.dataframes.read_csv import read_csv
 
 
-def write_when_files_to_delta(
-    spark: SparkSession, scenario_path: str, files: list[tuple[str, T.StructType]]
-) -> None:
+def write_when_files_to_delta(spark: SparkSession, scenario_path: str, files: list[tuple[str, T.StructType]]) -> None:
     """Write a list of files to a delta table.
 
     Writes a list of files to a delta table, using the filenames (without the file extension) as table names.
@@ -32,8 +30,6 @@ def write_when_files_to_delta(
 
         # Overwrite destination table with DataFrame
         try:
-            df.write.mode("overwrite").format("delta").saveAsTable(
-                file_name.removesuffix(".csv")
-            )
+            df.write.mode("overwrite").format("delta").saveAsTable(file_name.removesuffix(".csv"))
         except Exception as e:
             Exception(f"Error executing overwrite on table {file_name}: {str(e)}")

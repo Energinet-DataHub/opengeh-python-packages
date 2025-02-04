@@ -217,9 +217,7 @@ def test__when_more_actual_columns_should_be_rejected__raises_assertion_error() 
         )
 
 
-def test__when_different_column_order_and_more_actual_columns_should_be_rejected__does_not_raise() -> (
-    None
-):
+def test__when_different_column_order_and_more_actual_columns_should_be_rejected__does_not_raise() -> None:
     """
     Test name is leaving out the fact that column ordering is ignored as well.
     Otherwise, the name is too long.
@@ -240,9 +238,7 @@ def test__when_more_actual_columns_should_be_accepted__does_not_raise() -> None:
     )
 
 
-def test__when_more_actual_columns_should_be_rejected_without_ignore_extra_columns__raises_assertion_error() -> (
-    None
-):
+def test__when_more_actual_columns_should_be_rejected_without_ignore_extra_columns__raises_assertion_error() -> None:
     """
     Test name is leaving out the fact that column ordering is ignored as well.
     Otherwise, the strict assertion will fail first.

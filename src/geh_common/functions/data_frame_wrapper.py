@@ -75,8 +75,7 @@ class DataFrameWrapper:
         """
         for expected_field in schema:
             if expected_field.nullable and all(
-                actual_field.name != expected_field.name
-                for actual_field in df.schema.fields
+                actual_field.name != expected_field.name for actual_field in df.schema.fields
             ):
                 df = df.withColumn(
                     expected_field.name,

@@ -22,14 +22,8 @@ def get_then_names(scenario_path=None) -> list[str]:
     then_output_folder_path = output_folder_path / "then"
 
     if not output_folder_path.exists():
-        raise FileNotFoundError(
-            f"Could not find the 'then' folder in {output_folder_path}"
-        )
+        raise FileNotFoundError(f"Could not find the 'then' folder in {output_folder_path}")
     then_files = list(then_output_folder_path.rglob("*.csv"))
     if not then_files:
-        raise FileNotFoundError(
-            f"Could not find any CSV files in the 'then' folder in {output_folder_path}"
-        )
-    return [
-        str(f.relative_to(then_output_folder_path).with_suffix("")) for f in then_files
-    ]
+        raise FileNotFoundError(f"Could not find any CSV files in the 'then' folder in {output_folder_path}")
+    return [str(f.relative_to(then_output_folder_path).with_suffix("")) for f in then_files]

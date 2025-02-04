@@ -32,9 +32,7 @@ def _execute(
 
 
 @inject
-def _substitute_placeholders(
-    query: str, config: Configuration = Provide[SparkSqlMigrationsContainer.config]
-) -> str:
+def _substitute_placeholders(query: str, config: Configuration = Provide[SparkSqlMigrationsContainer.config]) -> str:
     for key, value in config.substitution_variables.items():
         query = query.replace(key, value)
 
