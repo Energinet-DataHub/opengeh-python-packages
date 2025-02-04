@@ -1,6 +1,6 @@
 services:
-    opengeh-utilities:
-        image: opengeh-utilities:latest
+    geh_common:
+        image: geh-utilities:latest
         build:
             args:
                 SPARK_VERSION: 3.5.4

@@ -1,1 +1,1 @@
-# OpenGEH Common
+# geh Common

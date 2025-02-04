@@ -143,5 +143,5 @@ file.
 IMPORTANT: Remember to fill in the newest version in the url.
 
 ```bash
-pip install git+https://git@github.com/Energinet-DataHub/opengeh-python-packages@3.1.2#subdirectory=source/testcommon
+pip install git+https://git@github.com/Energinet-DataHub/geh-python-packages@3.1.2#subdirectory=source/testcommon
 ```

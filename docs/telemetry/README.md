@@ -13,9 +13,9 @@ This code snippet demonstrates the initial configuration of logging using the te
 3) Define an entry_point method that configures the logging setup using the configure_logging function. It starts the initial span, which following nested method calls can use, i.e. the run_method defined previously will inherit the same settings.
 
 ```python
-import opengeh_common.telemetry.logging_configuration as config
-from opengeh_common.telemetry.span_recording import span_record_exception
-from opengeh_common.telemetry import Logger, use_span
+import geh_common.telemetry.logging_configuration as config
+from geh_common.telemetry.span_recording import span_record_exception
+from geh_common.telemetry import Logger, use_span
 
 # Span will create a nested span starting from
 @use_span()

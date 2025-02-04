@@ -39,7 +39,7 @@ jobs:
     uses: ./.github/workflows/reusable-cd.yml
     needs: [ci_reusable]
     with:
-      subsystem_name: opengeh-common
+      subsystem_name: geh-common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
       sender_email: ${{ vars.email_internal_sender }}
       dispatch_deployment_event: false
