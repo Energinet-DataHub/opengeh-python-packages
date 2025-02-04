@@ -1,8 +1,9 @@
 import os
+import sys
 import pytest
 import unittest.mock as mock
 from pydantic import ValidationError
-from uuid import UUID
+from uuid import UUID, uuid4
 from telemetry_logging.logging_configuration import (
     configure_logging,
     get_extras,
@@ -29,8 +30,8 @@ def mock_env_args(request):
 def mock_sys_args():
     sys_args = [
         'program_name',
-        '--orchestration_instance_id', '4a540892-2c0a-46a9-9257-c4e13051d76a',
-        '--force_configuration', 'true'
+        '--orchestration-instance-id', '4a540892-2c0a-46a9-9257-c4e13051d76a',
+        '--force-configuration', 'true'
     ]
     return sys_args
 
@@ -45,11 +46,10 @@ def mock_logging_settings():
         'CLOUD_ROLE_NAME': 'test_role',
         'APPLICATIONINSIGHTS_CONNECTION_STRING': 'connection_string',
         'SUBSYSTEM': 'test_subsystem',
-        'ORCHESTRATION_INSTANCE_ID': '4a540892-2c0a-46a9-9257-c4e13051d76b'
     }
     # Command line arguments
-    with (mock.patch('sys.argv', ['program_name', '--force_configuration', 'false',
-                                 '--orchestration_instance_id', '4a540892-2c0a-46a9-9257-c4e13051d76a']),
+    with (mock.patch('sys.argv', ['program_name', '--force-configuration', 'false',
+                                 '--orchestration-instance-id', '4a540892-2c0a-46a9-9257-c4e13051d76a']),
           mock.patch.dict('os.environ', env_args, clear=False)
           ):
         logging_settings = LoggingSettings()
@@ -338,11 +338,11 @@ def test_logging_settings_without_cli_params(mock_env_args):
     expected_cloud_role_name = 'cloud_role_name_value'  # From Mock
     expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'  # From Mock
     expected_subsystem = 'subsystem_value'  # From Mock
-    expected_orchestration_instance_id = None  # Default value
+    expected_orchestration_instance_id = uuid4()
     expected_force_configuration = False  # Default value
     # Act
     with mock.patch.dict('os.environ', mock_env_args, clear=False):
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(orchestration_instance_id=expected_orchestration_instance_id)
 
     # Assert
     assert logging_settings.cloud_role_name == expected_cloud_role_name
@@ -382,21 +382,21 @@ def test_logging_settings_all_params_from_env(mock_env_args):
 
 def test_logging_settings_all_params_from_cli(mock_sys_args):
     # Arrange
-    mock_sys_args.extend(
-        ['--cloud_role_name', 'cloud_role_name_value',
-         '--applicationinsights_connection_string', 'applicationinsights_connection_string_value',
+    expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
+
+    mock_sys_args_extended = mock_sys_args + ['--cloud-role-name', 'cloud_role_name_value',
+         '--applicationinsights-connection-string', 'applicationinsights_connection_string_value',
          '--subsystem', 'subsystem_value'
          ]
-    )
+
     expected_cloud_role_name = 'cloud_role_name_value'
     expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
     expected_subsystem = 'subsystem_value'
-    expected_orchestration_instance_id = UUID('4a540892-2c0a-46a9-9257-c4e13051d76a')
     expected_force_configuration = True
 
     # Act
-    with mock.patch('sys.argv', mock_sys_args):
-        logging_settings = LoggingSettings()
+    with mock.patch('sys.argv', mock_sys_args_extended):
+        logging_settings = LoggingSettings(cloud_role_name=expected_cloud_role_name)
     # Assert
     assert logging_settings.cloud_role_name == expected_cloud_role_name
     assert logging_settings.applicationinsights_connection_string == expected_applicationinsights_connection_string
@@ -412,19 +412,7 @@ def test_logging_settings_all_params_from_cli(mock_sys_args):
 
 
 def test_logging_settings_params_from_both_cli_and_env(mock_env_args, mock_sys_args):
-    # Arrange
-    mock_env_args.update(
-        {
-            'ORCHESTRATION_INSTANCE_ID': '4a540892-2c0a-46a9-9257-c4e13051d76b'
-        }
-    )
-    mock_sys_args.extend(
-        [
-            '--cloud_role_name', 'cloud_role_name_cli_value'
-        ]
-    )
-
-    expected_cloud_role_name = 'cloud_role_name_cli_value'  # Value expected from cli since cli is prioritized over env
+    expected_cloud_role_name = 'cloud_role_name_value'  # Value expected from cli since cli is prioritized over env
     expected_applicationinsights_connection_string = 'applicationinsights_connection_string_value'
     expected_subsystem = 'subsystem_value'
     expected_orchestration_instance_id = UUID(
