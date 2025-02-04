@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         VERSION=$(cat pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
-        if [ "${{ inputs.create_named_release }}" == "true" ]; then
+        if [[ "${{ inputs.create_named_release }}" == "true" ]]; then
           echo "RELEASE_VERSION=${{ inputs.name }}_${VERSION}_${{ inputs.issue-number }}" >> $GITHUB_ENV
         else
           echo "RELEASE_VERSION=${VERSION}_${{ inputs.issue-number }}" >> $GITHUB_ENV
