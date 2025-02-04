@@ -78,7 +78,6 @@ jobs:
     name: Test Packages
     runs-on: ubuntu-24.04
     needs: ci_matrix
-    if: ${{ inputs.run_integration_tests }}
     # Environment is used when using OIDC to login and access the integration test environment
     environment: AzureAuth
     env:
