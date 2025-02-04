@@ -1,4 +1,8 @@
 from pyspark.sql import types as T
+
+from testcommon.dataframes import assert_dataframes_and_schemas, read_csv, AssertDataframesConfiguration
+from tests.scenario_testing.constants import SCENARIO_TESTING_DATA
+
 from pyspark.sql.types import (
     BooleanType,
     DecimalType,
@@ -57,7 +61,7 @@ def test_read_csv_with_ignored(spark):
     expected_data = [(1, True), (2, True), (3, False)]
     columns = ["a", "c"]
     expected = spark.createDataFrame(expected_data, columns).collect()
-    path = ETL_TEST_DATA / "then" / "with_ignored.csv"
+    path = SCENARIO_TESTING_DATA / "then" / "with_ignored.csv"
 
     # Act
     actual = read_csv(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
@@ -67,7 +71,7 @@ def test_read_csv_with_ignored(spark):
 
 
 def test_no_array(spark):
-    path = ETL_TEST_DATA / "then" / "no_array.csv"
+    path = SCENARIO_TESTING_DATA / "then" / "no_array.csv"
     df = read_csv(spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE)
     assert df.schema == schema, "Schema does not match"
 
@@ -92,7 +96,7 @@ def test_with_array_string(spark):
         ]
     )
 
-    path = ETL_TEST_DATA / "then" / "with_array_string.csv"
+    path = SCENARIO_TESTING_DATA / "then" / "with_array_string.csv"
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
@@ -118,7 +122,7 @@ def test_with_array_string(spark):
 
 def test_read_csv_with_nullabilities(spark):
     # Arrange
-    path = ETL_TEST_DATA / "then" / "with_nullability.csv"
+    path = SCENARIO_TESTING_DATA / "then" / "with_nullability.csv"
     configuration = AssertDataframesConfiguration()
     configuration.ignore_nullability = False
 
