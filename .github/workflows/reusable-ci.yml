@@ -117,6 +117,7 @@ jobs:
           name: ${{ matrix.inputs.name }}
           path: ${{ matrix.inputs.path }}
           issue-number: ${{ github.event.number }}
+          create_named_release: false
   #
   # Test Packages
   #
