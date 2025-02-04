@@ -12,10 +12,6 @@ Renamed testcommon.etl to testcommon.scenario_testing to provide a clearer indic
 
 Added scenario testing documentation
 
-## Version 0.3.0
-
-Renamed testcommon.etl to testcommon.scenario_testing to provide a clearer indication of its intended use.
-
 ## Version 0.2.0
 
 Added container test functionality with DatabricksApiClient.
@@ -75,7 +71,9 @@ Function `get_then_names` of `Testcommon.etl` is updated to include subfolders t
 
 ## Version 0.0.1
 
-Added `TestCases` that, if subclassed, can discover files where feature tests are defined. This is related to deprecating the `Covernator`, which is a PowerShell + Excel-based test discovery tool.
+Added `TestCases` that, if subclassed, can discover files where feature tests are defined. This is related to
+deprecating the `Covernator`, which is a PowerShell + Excel-based test discovery tool.
 
-Added utility functions to support ETL (Extract-Transform-Load) testing. Here ETL testing means testing a transformation based on input as CSV files and expected output stated as CSV files.
+Added utility functions to support ETL (Extract-Transform-Load) testing. Here ETL testing means testing a transformation
+based on input as CSV files and expected output stated as CSV files.
 The intended use case is Spark jobs.
