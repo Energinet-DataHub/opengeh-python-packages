@@ -31,7 +31,6 @@ jobs:
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests/unit
-      run_integration_tests: false
 
   #
   # Reusable CI
@@ -41,7 +40,6 @@ jobs:
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests/integration
-      run_integration_tests: false
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
