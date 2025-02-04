@@ -42,6 +42,7 @@ jobs:
       subsystem_name: opengeh-common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
       sender_email: ${{ vars.email_internal_sender }}
+      dispatch_deployment_event: false
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
       send_grid_api_key: ${{ secrets.sendgrid_instance_system_notifications_api_key }}

@@ -111,7 +111,7 @@ jobs:
           tests_path: ${{ inputs.tests_directory }}
 
       - name: Create prerelease for ${{ matrix.inputs.name }}
-        uses: ./.github/actions/github-create-prerelease
+        uses: ./.github/actions/python-create-prerelease
         if: ${{ steps.changes.outputs.is_changed == 'true' }}
         with:
           name: ${{ matrix.inputs.name }}

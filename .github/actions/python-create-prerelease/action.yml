@@ -13,7 +13,8 @@ inputs:
   create_named_release:
     description: |
       Use the name of the package in the release name. Default is true.
-      This results in the following release name: "{package_name}_{version}_{issue_number}"
+      This results in the following release name: "{package_name}_{version}_{issue_number}".
+      Otherwise, the release name will be "{version}_{issue_number}".
     required: false
     default: "true"
   github_token:

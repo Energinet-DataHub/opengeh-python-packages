@@ -32,6 +32,12 @@ on:
         description: |
           The email of the sender of the email notification.
         required: true
+      dispatch_deployment_event:
+        type: boolean
+        description: |
+          Whether to dispatch a deployment event.
+        required: false
+        default: false
       environment_repository_path:
         type: string
         description: |
@@ -116,7 +122,7 @@ jobs:
 
       - name: Create Dispatch Event name
         id: create_dispatch_event_name
-        if: ${{ steps.check_dispatch_variables.outputs.SHOULD_DISPATCH == 'true' }}
+        if: ${{ inputs.dispatch_deployment_event && steps.check_dispatch_variables.outputs.SHOULD_DISPATCH == 'true' }}
         run: |
           package_name=$(echo "${{ matrix.inputs.name }}" | grep -o '^.*_' | sed 's/_$//')
           event_name="${{ inputs.subsystem_name }}-${package_name}-deployment-request-domain"
@@ -126,7 +132,7 @@ jobs:
 
       - name: Dispatch Release
         uses: ./.github/actions/dispatch-deployment-event
-        if: ${{ steps.check_dispatch_variables.outputs.SHOULD_DISPATCH == 'true' }}
+        if: ${{ inputs.dispatch_deployment_event && steps.check_dispatch_variables.outputs.SHOULD_DISPATCH == 'true' }}
         with:
           event_name: ${{ steps.create_dispatch_event_name.outputs.event_name }}
           repository: ${{ inputs.environment_repository_path }}
