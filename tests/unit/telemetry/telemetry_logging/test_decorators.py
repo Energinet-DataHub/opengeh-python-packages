@@ -32,9 +32,7 @@ def test_use_span__when_name_is_defined(mock_logger, mock_start_span):
     # Assert
     mock_start_span.assert_called_once_with("test_span")
     mock_logger.assert_called_once_with("test_span")
-    mock_logger_instance.info.assert_called_once_with(
-        "Started executing function: test_span"
-    )
+    mock_logger_instance.info.assert_called_once_with("Started executing function: test_span")
     assert result == "test"
 
 
@@ -50,12 +48,8 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
     result = sample_function()
 
     # Assert
-    mock_start_span.assert_called_once_with(
-        "test_use_span__when_name_is_not_defined.<locals>.sample_function"
-    )
-    mock_logger.assert_called_once_with(
-        "test_use_span__when_name_is_not_defined.<locals>.sample_function"
-    )
+    mock_start_span.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
+    mock_logger.assert_called_once_with("test_use_span__when_name_is_not_defined.<locals>.sample_function")
     mock_logger_instance.info.assert_called_once_with(
         "Started executing function: test_use_span__when_name_is_not_defined.<locals>.sample_function"
     )
