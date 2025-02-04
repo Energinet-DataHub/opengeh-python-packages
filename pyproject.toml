@@ -1,5 +1,5 @@
 [project]
-name = "opengeh_common"
+name = "geh_common"
 version = "4.0.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
@@ -31,7 +31,7 @@ dev = [
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
-addopts = "--cov-report=term --cov-report=xml:coverage.xml --cov=opengeh_common -ra -vv -s"
+addopts = "--cov-report=term --cov-report=xml:coverage.xml --cov=geh_common -ra -vv -s"
 cache_dir = ".cache/pytest"
 
 [tool.coverage.report]
