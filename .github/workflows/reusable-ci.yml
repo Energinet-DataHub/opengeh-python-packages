@@ -157,9 +157,10 @@ jobs:
           azure_subscription_id: ${{ inputs.azure_subscription_id }}
 
       - name: Create prerelease for ${{ matrix.inputs.name }}
-        uses: ./.github/actions/github-create-prerelease
+        uses: ./.github/actions/python-create-prerelease
         if: ${{ steps.changes.outputs.is_changed == 'true' }}
         with:
           name: ${{ matrix.inputs.name }}
           path: ${{ matrix.inputs.path }}
           issue-number: ${{ github.event.number }}
+          create_named_release: false

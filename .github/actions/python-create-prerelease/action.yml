@@ -13,7 +13,7 @@ inputs:
   create_named_release:
     description: Use the name of the package as the release name
     required: false
-    default: "false"
+    default: "true"
   github_token:
     description: The GitHub token
     required: false
