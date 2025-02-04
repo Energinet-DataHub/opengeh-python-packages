@@ -1,8 +1,4 @@
 from pyspark.sql import types as T
-
-from testcommon.dataframes import assert_dataframes_and_schemas, read_csv, AssertDataframesConfiguration
-from tests.scenario_testing.constants import SCENARIO_TESTING_DATA
-
 from pyspark.sql.types import (
     BooleanType,
     DecimalType,
@@ -19,7 +15,7 @@ from opengeh_common.testing.dataframes import (
     assert_dataframes_and_schemas,
     read_csv,
 )
-from tests.unit.testing.etl.constants import ETL_TEST_DATA
+from tests.unit.testing.scenario_testing.constants import SCENARIO_TESTING_DATA
 
 schema = T.StructType(
     [
@@ -64,7 +60,9 @@ def test_read_csv_with_ignored(spark):
     path = SCENARIO_TESTING_DATA / "then" / "with_ignored.csv"
 
     # Act
-    actual = read_csv(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
+    actual = read_csv(
+        spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE
+    ).collect()
 
     # Assert
     assert actual == expected, f"Expected {expected}, got {actual}."
@@ -100,7 +98,9 @@ def test_with_array_string(spark):
     df = read_csv(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
-    test_df = spark.createDataFrame([(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema)
+    test_df = spark.createDataFrame(
+        [(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema
+    )
 
     assert_dataframes_and_schemas(df, test_df)
 
@@ -130,5 +130,7 @@ def test_read_csv_with_nullabilities(spark):
     actual = read_csv(spark, str(path), nullability_schema)
 
     # Assert
-    expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
+    expected = spark.createDataFrame(
+        data=actual.rdd, schema=nullability_schema, verifySchema=True
+    )
     assert_dataframes_and_schemas(actual, expected, configuration)
