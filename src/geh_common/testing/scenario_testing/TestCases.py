@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pyspark.sql import DataFrame
 
-from opengeh_common.testing.dataframes.read_csv import read_csv
+from geh_common.testing.dataframes.read_csv import read_csv
 
 
 @dataclass

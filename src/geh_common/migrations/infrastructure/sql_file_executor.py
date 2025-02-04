@@ -3,8 +3,8 @@ from importlib.resources import files
 from dependency_injector.wiring import Provide, inject
 from pyspark.sql import SparkSession
 
-from opengeh_common.migrations.container import SparkSqlMigrationsContainer
-from opengeh_common.migrations.models.configuration import Configuration
+from geh_common.migrations.container import SparkSqlMigrationsContainer
+from geh_common.migrations.models.configuration import Configuration
 
 
 def execute(sql_file_name: str, folder_path: str) -> None:
@@ -32,7 +32,9 @@ def _execute(
 
 
 @inject
-def _substitute_placeholders(query: str, config: Configuration = Provide[SparkSqlMigrationsContainer.config]) -> str:
+def _substitute_placeholders(
+    query: str, config: Configuration = Provide[SparkSqlMigrationsContainer.config]
+) -> str:
     for key, value in config.substitution_variables.items():
         query = query.replace(key, value)
 

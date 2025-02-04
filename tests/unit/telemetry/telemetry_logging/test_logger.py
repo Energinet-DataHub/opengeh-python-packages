@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from opengeh_common.telemetry.logger import Logger
+from geh_common.telemetry.logger import Logger
 
 
 @pytest.mark.parametrize(
@@ -28,7 +28,9 @@ from opengeh_common.telemetry.logger import Logger
         ("warning", logging.Logger.error),
     ],
 )
-def test__log_method__when_called_with_custom_extras__passes_correct_extras(log_method, log_func):
+def test__log_method__when_called_with_custom_extras__passes_correct_extras(
+    log_method, log_func
+):
     # Arrange
     logger = Logger("test_logger")
     test_message = f"Test {log_method} message"

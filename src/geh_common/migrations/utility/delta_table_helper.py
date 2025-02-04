@@ -4,11 +4,13 @@ from dependency_injector.wiring import Provide, inject
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType
 
-from opengeh_common.migrations.container import SparkSqlMigrationsContainer
-from opengeh_common.migrations.models.table_version import TableVersion
+from geh_common.migrations.container import SparkSqlMigrationsContainer
+from geh_common.migrations.models.table_version import TableVersion
 
 
-def delta_table_exists(spark: SparkSession, catalog_name: str, schema_name: str, table_name: str) -> bool:
+def delta_table_exists(
+    spark: SparkSession, catalog_name: str, schema_name: str, table_name: str
+) -> bool:
     return spark.catalog.tableExists(f"{catalog_name}.{schema_name}.{table_name}")
 
 
@@ -42,7 +44,9 @@ def create_table_from_schema(
         tbl_properties.append("delta.autoOptimize.autoCompact = true")
     else:
         if target_file_size_in_mb > 0:
-            tbl_properties.append(f"delta.targetFileSize = '{target_file_size_in_mb}mb'")
+            tbl_properties.append(
+                f"delta.targetFileSize = '{target_file_size_in_mb}mb'"
+            )
 
     if enable_change_data_feed:
         tbl_properties.append("delta.enableChangeDataFeed = true")
@@ -63,4 +67,6 @@ def _restore_table(
     table_version: TableVersion,
     spark: SparkSession = Provide[SparkSqlMigrationsContainer.spark],
 ) -> None:
-    spark.sql(f"RESTORE TABLE {table_version.table_name} TO VERSION AS OF {table_version.version}")
+    spark.sql(
+        f"RESTORE TABLE {table_version.table_name} TO VERSION AS OF {table_version.version}"
+    )

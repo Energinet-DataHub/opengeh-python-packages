@@ -1,7 +1,7 @@
 import pyspark.sql.types as T
 import pytest
 
-from opengeh_common.functions.data_frame_wrapper import DataFrameWrapper
+from geh_common.functions.data_frame_wrapper import DataFrameWrapper
 
 
 def test__ctor__when_valid_input__returns_expected_schema_and_data(spark):
@@ -99,7 +99,9 @@ def test__ctor__when_not_nullable_column_and_null_value__throws_exception(
     )
 
     # Act & Assert
-    with pytest.raises(AssertionError, match="Expected column name 'age' to have nullable"):
+    with pytest.raises(
+        AssertionError, match="Expected column name 'age' to have nullable"
+    ):
         DataFrameWrapper(df, used_schema)
 
 

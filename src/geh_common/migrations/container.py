@@ -1,8 +1,8 @@
 from dependency_injector import containers, providers
 from pyspark.sql import SparkSession
 
-import opengeh_common.migrations as spark_sql_migrations
-from opengeh_common.migrations.models.spark_sql_migrations_configuration import (
+import geh_common.migrations as spark_sql_migrations
+from geh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
 

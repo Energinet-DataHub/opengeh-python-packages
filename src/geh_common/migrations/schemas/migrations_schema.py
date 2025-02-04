@@ -1,6 +1,6 @@
 import pyspark.sql.types as T
 
-from opengeh_common.migrations.constants.migrations_constants import ColNames
+from geh_common.migrations.constants.migrations_constants import ColNames
 
 schema_migration_schema = T.StructType(
     [

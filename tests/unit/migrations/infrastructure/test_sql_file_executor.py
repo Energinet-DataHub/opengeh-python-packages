@@ -1,10 +1,10 @@
 import pytest
 from pyspark.sql import SparkSession
 
-import opengeh_common.migrations.infrastructure.sql_file_executor as sut
+import geh_common.migrations.infrastructure.sql_file_executor as sut
 import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
-from opengeh_common.migrations.container import create_and_configure_container
-from opengeh_common.migrations.models.spark_sql_migrations_configuration import (
+from geh_common.migrations.container import create_and_configure_container
+from geh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
 from tests.unit.migrations.constants import TEST_SCRIPTS_DIR
@@ -88,7 +88,9 @@ def test__substitute_placeholders__should_replace_placeholders_in_query(
 ) -> None:
     # Arrange
     _test_configuration()
-    sql = f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
+    sql = (
+        f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
+    )
 
     # Act
     query = sut._substitute_placeholders(sql)

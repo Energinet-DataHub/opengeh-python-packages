@@ -1,5 +1,5 @@
-import opengeh_common.migrations.infrastructure.apply_migration_scripts as apply_migrations
-import opengeh_common.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
+import geh_common.migrations.infrastructure.apply_migration_scripts as apply_migrations
+import geh_common.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
 
 
 def migrate() -> None:

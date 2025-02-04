@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 from pyspark.sql import SparkSession
 
-import opengeh_common.migrations.infrastructure.uncommitted_migration_scripts as sut
+import geh_common.migrations.infrastructure.uncommitted_migration_scripts as sut
 import tests.unit.migrations.helpers.spark_helper as spark_helper
 import tests.unit.migrations.helpers.table_helper as table_helper
-from opengeh_common.migrations.schemas.migrations_schema import (
+from geh_common.migrations.schemas.migrations_schema import (
     schema_migration_schema,
 )
 from tests.unit.migrations.helpers.schema_migration_costants import (
@@ -141,7 +141,9 @@ def test__get_uncommitted_migrations__when_one_migrations_needed__return_one() -
         sut.get_all_migration_scripts.__name__,
         return_value=[migration1, migration2],
     )
-    patch.object(sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1])
+    patch.object(
+        sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1]
+    )
 
     # Act
     actual = sut.get_uncommitted_migration_scripts()
@@ -150,7 +152,9 @@ def test__get_uncommitted_migrations__when_one_migrations_needed__return_one() -
     assert len(actual) == 1
 
 
-def test__get_uncommitted_migrations__when_multiple_migrations__return_in_correct_order() -> None:
+def test__get_uncommitted_migrations__when_multiple_migrations__return_in_correct_order() -> (
+    None
+):
     # Arrange
     migration1 = "202311100900_migration_1"
     migration2 = "202311200900_migration_2"

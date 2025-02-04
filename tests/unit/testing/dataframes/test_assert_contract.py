@@ -1,7 +1,7 @@
 import pyspark.sql.types as t
 import pytest
 
-from opengeh_common.testing.dataframes import assert_contract
+from geh_common.testing.dataframes import assert_contract
 
 some_contract = t.StructType(
     [

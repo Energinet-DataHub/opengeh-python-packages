@@ -3,9 +3,9 @@ from typing import List
 from dependency_injector.wiring import Provide, inject
 from pyspark.sql import SparkSession
 
-import opengeh_common.migrations.infrastructure.sql_file_executor as sql_file_executor
-from opengeh_common.migrations.container import SparkSqlMigrationsContainer
-from opengeh_common.migrations.models.configuration import Configuration
+import geh_common.migrations.infrastructure.sql_file_executor as sql_file_executor
+from geh_common.migrations.container import SparkSqlMigrationsContainer
+from geh_common.migrations.models.configuration import Configuration
 
 
 def apply_migration_scripts(uncommitted_migrations: List[str]) -> None:

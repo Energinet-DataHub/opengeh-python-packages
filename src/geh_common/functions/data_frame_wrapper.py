@@ -16,7 +16,7 @@ import pyspark.sql.functions as f
 import pyspark.sql.types as t
 from pyspark.sql import DataFrame
 
-from opengeh_common.testing.dataframes.assert_schemas import assert_schema
+from geh_common.testing.dataframes.assert_schemas import assert_schema
 
 
 class DataFrameWrapper:
@@ -75,7 +75,8 @@ class DataFrameWrapper:
         """
         for expected_field in schema:
             if expected_field.nullable and all(
-                actual_field.name != expected_field.name for actual_field in df.schema.fields
+                actual_field.name != expected_field.name
+                for actual_field in df.schema.fields
             ):
                 df = df.withColumn(
                     expected_field.name,

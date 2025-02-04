@@ -4,7 +4,7 @@ from typing import Tuple
 import pyspark.sql.functions as f
 from pyspark.sql import DataFrame
 
-from opengeh_common.testing.dataframes.assert_schemas import assert_schema
+from geh_common.testing.dataframes.assert_schemas import assert_schema
 
 
 @dataclass
@@ -38,7 +38,10 @@ def assert_dataframes_and_schemas(
         print(f"Number of rows in actual: {actual.count()}")  # noqa
         print(f"Number of rows in expected: {expected.count()}")  # noqa
 
-    if configuration.columns_to_skip is not None and len(configuration.columns_to_skip) > 0:
+    if (
+        configuration.columns_to_skip is not None
+        and len(configuration.columns_to_skip) > 0
+    ):
         actual = actual.drop(*configuration.columns_to_skip)
         expected = expected.drop(*configuration.columns_to_skip)
 
@@ -131,7 +134,9 @@ def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
         print("Expected excess:")  # noqa
         expected_excess.show(3000, False)
 
-    assert actual_excess.count() == 0 and expected_excess.count() == 0, "Dataframes data are not equal"
+    assert actual_excess.count() == 0 and expected_excess.count() == 0, (
+        "Dataframes data are not equal"
+    )
 
 
 def _assert_no_duplicates(df: DataFrame) -> None:
@@ -141,11 +146,18 @@ def _assert_no_duplicates(df: DataFrame) -> None:
 
 
 def _show_duplicates(df: DataFrame) -> DataFrame:
-    duplicates = df.groupby(df.columns).count().where(f.col("count") > 1).withColumnRenamed("count", "duplicate_count")
+    duplicates = (
+        df.groupby(df.columns)
+        .count()
+        .where(f.col("count") > 1)
+        .withColumnRenamed("count", "duplicate_count")
+    )
     return duplicates
 
 
-def _drop_columns_if_the_same(df1: DataFrame, df2: DataFrame) -> Tuple[DataFrame, DataFrame]:
+def _drop_columns_if_the_same(
+    df1: DataFrame, df2: DataFrame
+) -> Tuple[DataFrame, DataFrame]:
     column_names = df1.columns
     for column_name in column_names:
         df1_column = df1.select(column_name).collect()
