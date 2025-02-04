@@ -11,8 +11,8 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from opengeh_common.functions.read_csv import read_csv
-from opengeh_common.functions.read_csv_test import read_csv_test
+from opengeh_common.functions.read_csv import read_csv_path
+from opengeh_common.functions.read_csv_test import read_csv_path_test
 from opengeh_common.testing.dataframes import AssertDataframesConfiguration, assert_dataframes_and_schemas
 from tests.constants import READ_CSV_TEST_DATA
 
@@ -59,7 +59,7 @@ def test_read_csv_with_ignored(spark):
     path = READ_CSV_TEST_DATA / "with_ignored.csv"
 
     # Act
-    actual = read_csv_test(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
+    actual = read_csv_path_test(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
 
     # Assert
     assert actual == expected, f"Expected {expected}, got {actual}."
@@ -67,7 +67,7 @@ def test_read_csv_with_ignored(spark):
 
 def test_no_array(spark):
     path = READ_CSV_TEST_DATA / "no_array.csv"
-    df = read_csv_test(spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE)
+    df = read_csv_path_test(spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE)
     assert df.schema == schema, "Schema does not match"
 
     test_df = spark.createDataFrame([(1, "a", True)], schema=schema)
@@ -92,7 +92,7 @@ def test_with_array_string(spark):
     )
 
     path = READ_CSV_TEST_DATA / "with_array_string.csv"
-    df = read_csv(spark, str(path), schema, sep=";")
+    df = read_csv_path(spark, str(path), schema, sep=";")
     assert df.schema == schema, "Schema does not match"
 
     test_df = spark.createDataFrame([(1, "a", True, ["a", "b", None], ["a", "b", "c"])], schema=schema)
@@ -122,7 +122,7 @@ def test_read_csv_with_nullabilities(spark):
     configuration.ignore_nullability = False
 
     # Act
-    actual = read_csv(spark, str(path), nullability_schema)
+    actual = read_csv_path(spark, str(path), nullability_schema)
 
     # Assert
     expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
@@ -134,7 +134,7 @@ def test_read_csv_fewer_columns_should_fail(spark):
     path = READ_CSV_TEST_DATA / "fewer_columns.csv"
     # Act & Assert
     with pytest.raises(ValueError):
-        read_csv(spark, str(path), schema)
+        read_csv_path(spark, str(path), schema)
 
 
 def test_read_csv_more_columns(spark):
@@ -142,7 +142,7 @@ def test_read_csv_more_columns(spark):
     path = READ_CSV_TEST_DATA / "more_columns.csv"
     expected_data = [(1, "a", True, 1, 1.1, False, "string")]
     # Act
-    actual = read_csv(spark, str(path), schema, ignore_additional_columns=False)
+    actual = read_csv_path(spark, str(path), schema, ignore_additional_columns=False)
     # Assert
     schema_with_extra = (
         schema.add(T.StructField("extra_int", T.IntegerType(), True))

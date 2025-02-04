@@ -2,7 +2,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-from opengeh_common.functions.read_csv import read_csv
+from opengeh_common.functions.read_csv import read_csv_path
 
 
 def _remove_ignored_columns(df, schema, ignored_value="[IGNORED]") -> DataFrame:
@@ -41,6 +41,6 @@ def read_csv_path_test(
     Returns:
         DataFrame: The Spark DataFrame.
     """
-    df = read_csv(spark, path, schema, sep, ignore_additional_columns)
+    df = read_csv_path(spark, path, schema, sep, ignore_additional_columns)
     df = _remove_ignored_columns(df, schema, ignored_value)
     return df
