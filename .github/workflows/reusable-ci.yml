@@ -46,10 +46,6 @@ on:
         description: The Azure KeyVault URL for the integration test environment
         required: false
         default: ""
-    secrets:
-      dh3serviceaccount_privatekey:
-        required: true
-        description: Used in ci_base job to authenticate with the DataHub3 service account
 
 permissions:
   id-token: write
@@ -59,16 +55,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  #
-  # License and Markdown Check
-  #
-  ci_base:
-    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v14
-    with:
-      skip_license_check: true
-    secrets:
-      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
-
   #
   # Build Package Matrix
   #

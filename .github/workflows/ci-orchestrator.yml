@@ -9,6 +9,16 @@ on:
 
 jobs:
   #
+  # License and Markdown Check
+  #
+  ci_base:
+    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v14
+    with:
+      skip_license_check: true
+    secrets:
+      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
+
+  #
   # Reusable CI
   #
   ci_unit:
@@ -17,8 +27,6 @@ jobs:
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests/unit
-    secrets:
-      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
   ci_integration:
     name: Integration tests
@@ -30,8 +38,6 @@ jobs:
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
       azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
-    secrets:
-      dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
   # Branch policy status check
   allow_merge_ci_orchestrator:
