@@ -33,7 +33,7 @@ def configure_logging(
     cloud_role_name: str,
     tracer_name: str,
     applicationinsights_connection_string: str | None = None,
-    extras: dict[str, Any] | None = None,
+    extras: dict[str, Any] = {},
     force_configuration: bool = False,
 ) -> None:
     """Configure logging to use OpenTelemetry and Azure Monitor.
@@ -57,9 +57,8 @@ def configure_logging(
         return
 
     # Configure structured logging data to be included in every log message.
-    if extras is not None:
-        global _EXTRAS
-        _EXTRAS = extras.copy()
+    global _EXTRAS
+    _EXTRAS = extras.copy()
 
     # Add cloud role name when logging
     os.environ["OTEL_SERVICE_NAME"] = cloud_role_name

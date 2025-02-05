@@ -2,7 +2,6 @@ import os
 import unittest.mock as mock
 
 from geh_common.telemetry.logging_configuration import (
-    _EXTRAS,
     _IS_INSTRUMENTED,
     add_extras,
     configure_logging,
@@ -42,7 +41,7 @@ def test_get_extras__when_no_extras_none_are_returned():
     # Arrange
     cloud_role_name = "test_role"
     tracer_name = "test_tracer"
-    initial_extras = _EXTRAS
+    initial_extras = {}
     configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Act
