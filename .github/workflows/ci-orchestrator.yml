@@ -31,6 +31,7 @@ jobs:
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests/unit
+      create_named_release: false
 
   #
   # Reusable CI
@@ -45,6 +46,8 @@ jobs:
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
       azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
+      create_named_release: false
+
 
   # Branch policy status check
   allow_merge_ci_orchestrator:
