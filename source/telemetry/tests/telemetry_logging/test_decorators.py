@@ -1,5 +1,4 @@
 import pytest
-import os
 from unittest.mock import patch
 from unittest import mock
 from telemetry_logging.decorators import use_span, start_trace
@@ -134,44 +133,42 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             )
 
 
+@patch("telemetry_logging.decorators.Logger")
+@patch("telemetry_logging.decorators.span_record_exception")
 def test_logging_is_configured_error_thrown_span_records_exception(
+    mock_span_record_exception,
+    mock_logger,
     mock_env_args,
 ):
-    with (
-        patch("telemetry_logging.decorators.Logger") as mock_logger,
-        patch(
-            "telemetry_logging.decorators.span_record_exception"
-        ) as mock_span_record_exception,
-    ):
-        log_instance_in_test = mock_logger.return_value
+    log_instance_in_test = mock_logger.return_value
 
-        # Prepare
-        @start_trace(initial_span_name="app_sample_function")
-        def app_sample_function(initial_span=None):
-            assert (1 + 1) == 2
-            raise Exception  # Mimmic an raised exception during runtime
-            return "I am an app sample function. Doing important calculations"
+    # Prepare
+    @start_trace(initial_span_name="app_sample_function")
+    def app_sample_function(initial_span=None):
+        assert (1 + 1) == 2
+        raise Exception  # Mimmic an raised exception during runtime
+        return "I am an app sample function. Doing important calculations"
 
-        def entry_point():
-            # Initial LoggingSettings
-            settings = LoggingSettings()
-            settings.applicationinsights_connection_string = (
-                None  # For testing purposes
+    def entry_point():
+        # Initial LoggingSettings
+        settings = LoggingSettings()
+        settings.applicationinsights_connection_string = (
+            None  # For testing purposes
+        )
+
+        configure_logging(
+            logging_settings=settings,
+            extras={"key1": "value1", "key2": "value2"},
+        )
+        app_sample_function()
+
+    # Mimic machine setting environment variables
+    with mock.patch.dict("os.environ", mock_env_args, clear=False):
+        with pytest.raises(SystemExit):
+            entry_point()
+            # Assert
+            mock_logger.assert_called_once_with("app_sample_function")
+            log_instance_in_test.info.assert_called_once_with(
+                "Started executing function: app_sample_function"
             )
-
-            configure_logging(
-                logging_settings=settings,
-                extras={"key1": "value1", "key2": "value2"},
-            )
-            app_sample_function()
-
-        # Mimic machine setting environment variables
-        with mock.patch.dict("os.environ", mock_env_args, clear=False):
-            with pytest.raises(SystemExit):
-                entry_point()
-                # Assert
-                mock_logger.assert_called_once_with("app_sample_function")
-                log_instance_in_test.info.assert_called_once_with(
-                    "Started executing function: app_sample_function"
-                )
-                mock_span_record_exception.assert_called_once()
+            mock_span_record_exception.assert_called_once()
