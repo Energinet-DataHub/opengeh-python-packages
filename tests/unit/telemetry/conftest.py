@@ -7,5 +7,5 @@ def clear_azure_env():
 
     yield
     for key in os.environ.keys():
-        if key.startswith("AZURE_"):
+        if key.startswith("AZURE_") or key == "OTEL_SERVICE_NAME":
             os.environ.pop(key)
