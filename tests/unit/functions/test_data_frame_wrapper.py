@@ -1,7 +1,7 @@
 import pyspark.sql.types as T
 import pytest
 
-from opengeh_common.functions.data_frame_wrapper import DataFrameWrapper
+from geh_common.functions.data_frame_wrapper import DataFrameWrapper
 
 
 def test__ctor__when_valid_input__returns_expected_schema_and_data(spark):

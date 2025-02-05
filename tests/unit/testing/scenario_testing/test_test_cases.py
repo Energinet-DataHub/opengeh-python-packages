@@ -1,6 +1,6 @@
 from pyspark.sql import types as T
 
-from opengeh_common.testing.scenario_testing.TestCases import TestCase, TestCases
+from geh_common.testing.scenario_testing.TestCases import TestCase, TestCases
 from tests.unit.testing.scenario_testing.constants import SCENARIO_TESTING_DATA
 
 

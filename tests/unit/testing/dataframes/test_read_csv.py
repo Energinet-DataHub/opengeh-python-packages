@@ -10,7 +10,7 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from opengeh_common.testing.dataframes import (
+from geh_common.testing.dataframes import (
     AssertDataframesConfiguration,
     assert_dataframes_and_schemas,
     read_csv,

@@ -7,8 +7,8 @@ from typing import Callable, cast
 import pytest
 from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
 
-import opengeh_common.telemetry.logging_configuration as config
-from opengeh_common.telemetry.logger import Logger
+import geh_common.telemetry.logging_configuration as config
+from geh_common.telemetry.logger import Logger
 from tests.integration.telemetry.integration_test_configuration import (
     IntegrationTestConfiguration,
 )

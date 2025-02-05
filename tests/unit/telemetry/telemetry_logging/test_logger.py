@@ -16,7 +16,7 @@ from unittest.mock import patch
 
 import pytest
 
-from opengeh_common.telemetry.logger import Logger
+from geh_common.telemetry.logger import Logger
 
 
 @pytest.mark.parametrize(

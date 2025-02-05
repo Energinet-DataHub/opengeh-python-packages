@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from opengeh_common.testing.covernator.TestCases import TestCases
+from geh_common.testing.covernator.TestCases import TestCases
 from tests.unit.testing.covernator.constants import COVERNATOR_TEST_DATA
 from tests.unit.testing.covernator.data.cases import Cases
 

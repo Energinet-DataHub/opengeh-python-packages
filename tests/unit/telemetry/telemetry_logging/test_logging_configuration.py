@@ -1,7 +1,7 @@
 import os
 import unittest.mock as mock
 
-from opengeh_common.telemetry.logging_configuration import (
+from geh_common.telemetry.logging_configuration import (
     _IS_INSTRUMENTED,
     add_extras,
     configure_logging,
@@ -143,7 +143,7 @@ def test_start_span__span_is_started_with_force_configuration():
         assert span is not None
 
 
-@mock.patch("opengeh_common.telemetry.logging_configuration.configure_azure_monitor")
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_configure_logging__when_connection_string_is_provided__azure_monitor_is_configured(
     mock_configure_azure_monitor,
 ):
@@ -163,7 +163,7 @@ def test_configure_logging__when_connection_string_is_provided__azure_monitor_is
     mock_configure_azure_monitor.assert_called_once_with(connection_string=connection_string)
 
 
-@mock.patch("opengeh_common.telemetry.logging_configuration.configure_azure_monitor")
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
     mock_configure_azure_monitor,
 ):
@@ -189,7 +189,7 @@ def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
     assert os.environ["OTEL_SERVICE_NAME"] == initial_cloud_role_name
 
 
-@mock.patch("opengeh_common.telemetry.logging_configuration.configure_azure_monitor")
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_force_configure(
     mock_configure_azure_monitor,
 ):

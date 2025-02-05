@@ -2,6 +2,11 @@ name: CI orchestrator
 
 on:
   pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - closed
     branches:
       - main
   merge_group:
@@ -21,12 +26,21 @@ jobs:
   #
   # Reusable CI
   #
-  ci_tests:
-    name: Integration tests
+  ci_unit:
+    uses: ./.github/workflows/reusable-ci.yml
+    with:
+      packages_directory: ${{ github.workspace }}
+      tests_directory: tests/unit
+
+  #
+  # Reusable CI
+  #
+  ci_integration:
     uses: ./.github/workflows/reusable-ci.yml
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests
+      environment: AzureAuth
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
@@ -35,7 +49,7 @@ jobs:
   # Branch policy status check
   allow_merge_ci_orchestrator:
     runs-on: ubuntu-latest
-    needs: [ci_base, ci_tests]
+    needs: [ci_base, ci_unit, ci_integration]
     if: |
       always()
     steps:

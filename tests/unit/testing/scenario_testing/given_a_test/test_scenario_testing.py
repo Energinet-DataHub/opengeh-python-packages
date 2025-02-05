@@ -5,8 +5,8 @@ from pyspark.sql import SparkSession
 from pyspark.sql import types as T
 
 # These imports are the parts of the Scenario Testing framework that we want to test.
-from opengeh_common.testing.dataframes import assert_dataframes_and_schemas, read_csv
-from opengeh_common.testing.scenario_testing import TestCase, TestCases, get_then_names
+from geh_common.testing.dataframes import assert_dataframes_and_schemas, read_csv
+from geh_common.testing.scenario_testing import TestCase, TestCases, get_then_names
 
 _schema = T.StructType().add("a", "string").add("b", "string").add("c", "integer")
 _schema2 = T.StructType(

@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from opengeh_common.testing.scenario_testing import get_then_names
+from geh_common.testing.scenario_testing import get_then_names
 
 
 @pytest.mark.parametrize("test_case_name", get_then_names())

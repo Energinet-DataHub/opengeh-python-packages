@@ -3,10 +3,10 @@ from unittest.mock import patch
 
 from pyspark.sql import SparkSession
 
-import opengeh_common.migrations.infrastructure.uncommitted_migration_scripts as sut
+import geh_common.migrations.infrastructure.uncommitted_migration_scripts as sut
 import tests.unit.migrations.helpers.spark_helper as spark_helper
 import tests.unit.migrations.helpers.table_helper as table_helper
-from opengeh_common.migrations.schemas.migrations_schema import (
+from geh_common.migrations.schemas.migrations_schema import (
     schema_migration_schema,
 )
 from tests.unit.migrations.helpers.schema_migration_costants import (
@@ -98,7 +98,7 @@ def test__get_all_migrations__returns_expected_migrations() -> None:
             ]
 
     with patch(
-        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.files",
+        "geh_common.migrations.infrastructure.uncommitted_migration_scripts.files",
         _MockFiles,
     ):
         expected_migrations = ["migration1", "migration2"]
@@ -116,11 +116,11 @@ def test__get_uncommitted_migrations__when_no_migrations_needed__return_zero() -
     migration2 = "migration2"
 
     with patch(
-        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
+        "geh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
     ) as get_all_migration_scripts:
         get_all_migration_scripts.return_value = [migration1, migration2]
         with patch(
-            "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
+            "geh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
         ) as get_committed_migration_scripts:
             get_committed_migration_scripts.return_value = [migration1, migration2]
 
@@ -156,11 +156,11 @@ def test__get_uncommitted_migrations__when_multiple_migrations__return_in_correc
     migration2 = "202311200900_migration_2"
 
     with patch(
-        "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
+        "geh_common.migrations.infrastructure.uncommitted_migration_scripts.get_all_migration_scripts"
     ) as get_all_migration_scripts:
         get_all_migration_scripts.return_value = [migration1, migration2]
         with patch(
-            "opengeh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
+            "geh_common.migrations.infrastructure.uncommitted_migration_scripts._get_committed_migration_scripts"
         ) as get_committed_migration_scripts:
             get_committed_migration_scripts.return_value = []
 

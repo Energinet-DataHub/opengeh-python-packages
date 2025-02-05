@@ -408,6 +408,51 @@ wheels = [
 ]
 
 [[package]]
+name = "geh-common"
+version = "4.0.0"
+source = { editable = "." }
+dependencies = [
+    { name = "azure-core" },
+    { name = "azure-identity" },
+    { name = "azure-keyvault-secrets" },
+    { name = "azure-monitor-opentelemetry" },
+    { name = "azure-monitor-query" },
+    { name = "databricks-sdk" },
+    { name = "delta-spark" },
+    { name = "dependency-injector" },
+    { name = "pyspark" },
+    { name = "pyyaml" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "azure-core", specifier = ">=1.30.0,<2.0.0" },
+    { name = "azure-identity", specifier = ">=1.16.1,<2.0.0" },
+    { name = "azure-keyvault-secrets", specifier = ">=4.7.0,<5.0.0" },
+    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<2.0.0" },
+    { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
+    { name = "databricks-sdk", specifier = ">=0.42.0" },
+    { name = "delta-spark", specifier = ">=3.1,<4.0" },
+    { name = "dependency-injector", specifier = ">=4.43.0,<5.0" },
+    { name = "pyspark", specifier = ">=3.5.0" },
+    { name = "pyyaml", specifier = ">=6.0.2" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pytest", specifier = ">=8.3.4" },
+    { name = "pytest-cov", specifier = ">=6.0.0" },
+    { name = "ruff", specifier = ">=0.9.4" },
+]
+
+[[package]]
 name = "google-auth"
 version = "2.38.0"
 source = { registry = "https://pypi.org/simple" }
@@ -510,51 +555,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/6d/fa/fbf4001037904031639e6bfbfc02badfc7e12f137a8afa254df6c4c8a670/oauthlib-3.2.2.tar.gz", hash = "sha256:9859c40929662bec5d64f34d01c99e093149682a3f38915dc0655d5a633dd918", size = 177352 }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7e/80/cab10959dc1faead58dc8384a781dfbf93cb4d33d50988f7a69f1b7c9bbe/oauthlib-3.2.2-py3-none-any.whl", hash = "sha256:8139f29aac13e25d502680e9e19963e83f16838d48a0d71c287fe40e7067fbca", size = 151688 },
-]
-
-[[package]]
-name = "opengeh-common"
-version = "4.0.0"
-source = { editable = "." }
-dependencies = [
-    { name = "azure-core" },
-    { name = "azure-identity" },
-    { name = "azure-keyvault-secrets" },
-    { name = "azure-monitor-opentelemetry" },
-    { name = "azure-monitor-query" },
-    { name = "databricks-sdk" },
-    { name = "delta-spark" },
-    { name = "dependency-injector" },
-    { name = "pyspark" },
-    { name = "pyyaml" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "azure-core", specifier = ">=1.30.0,<2.0.0" },
-    { name = "azure-identity", specifier = ">=1.16.1,<2.0.0" },
-    { name = "azure-keyvault-secrets", specifier = ">=4.7.0,<5.0.0" },
-    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<2.0.0" },
-    { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
-    { name = "databricks-sdk", specifier = ">=0.42.0" },
-    { name = "delta-spark", specifier = ">=3.1,<4.0" },
-    { name = "dependency-injector", specifier = ">=4.43.0,<5.0" },
-    { name = "pyspark", specifier = ">=3.5.0" },
-    { name = "pyyaml", specifier = ">=6.0.2" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "pytest", specifier = ">=8.3.4" },
-    { name = "pytest-cov", specifier = ">=6.0.0" },
-    { name = "ruff", specifier = ">=0.9.4" },
 ]
 
 [[package]]

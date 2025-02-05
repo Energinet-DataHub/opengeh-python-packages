@@ -1,6 +1,6 @@
 from pyspark.sql import types as T
 
-from opengeh_common.testing.dataframes import (
+from geh_common.testing.dataframes import (
     assert_dataframes_and_schemas,
     write_to_delta,
 )
