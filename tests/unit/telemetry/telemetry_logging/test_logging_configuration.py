@@ -17,7 +17,7 @@ def test_configure_logging__then_environmental_variables_are_set():
     tracer_name = "test_tracer"
 
     # Act
-    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name)
+    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == cloud_role_name
@@ -28,10 +28,10 @@ def test_configure_logging__configure_does_update_environmental_variables():
     initial_cloud_role_name = "test_role"
     updated_cloud_role_name = "updated_test_role"
     tracer_name = "test_tracer"
-    configure_logging(cloud_role_name=initial_cloud_role_name, tracer_name=tracer_name)
+    configure_logging(cloud_role_name=initial_cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Act
-    configure_logging(cloud_role_name=updated_cloud_role_name, tracer_name=tracer_name)
+    configure_logging(cloud_role_name=updated_cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == updated_cloud_role_name
@@ -42,7 +42,7 @@ def test_get_extras__when_no_extras_none_are_returned():
     cloud_role_name = "test_role"
     tracer_name = "test_tracer"
     initial_extras = {}
-    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name)
+    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Act
     actual_extras = get_extras()
@@ -56,7 +56,12 @@ def test_get_extras__when_set_extras_are_returned():
     cloud_role_name = "test_role"
     tracer_name = "test_tracer"
     initial_extras = {"key": "value"}
-    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name, extras=initial_extras)
+    configure_logging(
+        cloud_role_name=cloud_role_name,
+        tracer_name=tracer_name,
+        extras=initial_extras,
+        force_configuration=True,
+    )
 
     # Act
     actual_extras = get_extras()
@@ -72,7 +77,7 @@ def test_configure_logging__when_no_connection_string_is_instrumented_does_not_r
     initial_is_instrumented = _IS_INSTRUMENTED
 
     # Act
-    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name)
+    configure_logging(cloud_role_name=cloud_role_name, tracer_name=tracer_name, force_configuration=True)
 
     # Assert
     actual_is_instrumented = _IS_INSTRUMENTED
@@ -86,7 +91,12 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept():
     combined_extras = initial_extras | new_extras
 
     # Act
-    configure_logging(cloud_role_name="test_role", tracer_name="test_tracer", extras=initial_extras)
+    configure_logging(
+        cloud_role_name="test_role",
+        tracer_name="test_tracer",
+        extras=initial_extras,
+        force_configuration=True,
+    )
     add_extras(new_extras)
 
     # Assert
@@ -98,7 +108,7 @@ def test_get_tracer__then_a_tracer_is_returned():
     tracer_name = "test_tracer"
 
     # Act
-    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name)
+    configure_logging(cloud_role_name="test_role", tracer_name=tracer_name, force_configuration=True)
     tracer = get_tracer()
 
     # Assert
@@ -157,6 +167,7 @@ def test_configure_logging__when_connection_string_is_provided__azure_monitor_is
         cloud_role_name=cloud_role_name,
         tracer_name=tracer_name,
         applicationinsights_connection_string=connection_string,
+        force_configuration=True,
     )
 
     # Assert
@@ -176,6 +187,7 @@ def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
         cloud_role_name=initial_cloud_role_name,
         tracer_name=tracer_name,
         applicationinsights_connection_string=connection_string,
+        force_configuration=True,
     )
 
     # Act
@@ -202,6 +214,7 @@ def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_fo
         cloud_role_name=initial_cloud_role_name,
         tracer_name=tracer_name,
         applicationinsights_connection_string=connection_string,
+        force_configuration=True,
     )
 
     # Act
