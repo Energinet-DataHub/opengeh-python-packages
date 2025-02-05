@@ -16,5 +16,5 @@ def test_span_record__exception_with_exception():
     span.record_exception.assert_called_once()
     recorded_exception, attributes = span.record_exception.call_args
     assert recorded_exception[0] == exception
-    assert "CategoryName" in attributes['attributes']
-    assert attributes['attributes']["CategoryName"].startswith("Energinet.DataHub.")
+    assert "CategoryName" in attributes["attributes"]
+    assert attributes["attributes"]["CategoryName"].startswith("Energinet.DataHub.")

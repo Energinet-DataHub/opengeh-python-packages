@@ -16,7 +16,12 @@ import contextlib
 import logging
 import os
 from typing import Any, Iterator, Tuple, Type, Optional
-from pydantic_settings import BaseSettings, CliSettingsSource, PydanticBaseSettingsSource, SettingsConfigDict
+from pydantic_settings import (
+    BaseSettings,
+    CliSettingsSource,
+    PydanticBaseSettingsSource,
+    SettingsConfigDict,
+)
 from pydantic import Field
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
@@ -30,16 +35,19 @@ _EXTRAS: dict[str, Any] = {}
 _IS_INSTRUMENTED: bool = False
 _TRACER: Tracer | None = None
 _TRACER_NAME: str
-_LOGGING_CONFIGURED: bool = False # Flag to track if logging is configured
+_LOGGING_CONFIGURED: bool = False  # Flag to track if logging is configured
+
 
 def set_logging_configured(configured: bool) -> None:
     """Sets the global flag indicating logging has been configured."""
     global _LOGGING_CONFIGURED
     _LOGGING_CONFIGURED = configured
 
+
 def get_logging_configured() -> bool:
     """Returns the current logging configuration state."""
     return _LOGGING_CONFIGURED
+
 
 class LoggingSettings(BaseSettings):
     """
@@ -47,11 +55,16 @@ class LoggingSettings(BaseSettings):
     Parameters can come from both runtime (CLI) or from environment variables.
     The priority is CLI parameters first and then environment variables.
     """
+
     cloud_role_name: str
-    applicationinsights_connection_string: str = Field(alias="applicationinsights-connection-string", default=None)
+    applicationinsights_connection_string: str = Field(
+        alias="applicationinsights-connection-string", default=None
+    )
     subsystem: str
     orchestration_instance_id: UUID = Field(alias="orchestration-instance-id")
-    force_configuration: bool = Field(alias="force-configuration", default=False)
+    force_configuration: bool = Field(
+        alias="force-configuration", default=False
+    )
     model_config = SettingsConfigDict(
         populate_by_name=True,  # Allow access using both alias and field name
     )
@@ -65,8 +78,13 @@ class LoggingSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        return (CliSettingsSource(settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True),
-                env_settings, init_settings)
+        return (
+            CliSettingsSource(
+                settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True
+            ),
+            env_settings,
+            init_settings,
+        )
 
 
 def configure_logging(
@@ -101,14 +119,22 @@ def configure_logging(
 
     # Configure OpenTelemetry to log to Azure Monitor.
     if logging_settings.applicationinsights_connection_string is not None:
-        configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
+        configure_azure_monitor(
+            connection_string=logging_settings.applicationinsights_connection_string
+        )
         _IS_INSTRUMENTED = True
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Adding orchestration ID as an extra when provided through LoggingSettings: This is required for the Telemetry logs to show up in Application Insights
-    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
+    add_extras(
+        {
+            "orchestration_instance_id": str(
+                logging_settings.orchestration_instance_id
+            )
+        }
+    )
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
@@ -134,5 +160,7 @@ def get_tracer() -> Tracer:
 
 @contextlib.contextmanager
 def start_span(name: str) -> Iterator[Span]:
-    with get_tracer().start_as_current_span(name, attributes=get_extras()) as span:
+    with get_tracer().start_as_current_span(
+        name, attributes=get_extras()
+    ) as span:
         yield span

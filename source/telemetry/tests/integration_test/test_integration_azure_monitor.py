@@ -31,22 +31,27 @@ INTEGRATION_TEST_CLOUD_ROLE_NAME = "test-cloud-role-name"
 INTEGRATION_TEST_TRACER_NAME = "test-tracer-name"
 LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
 
+
 @pytest.fixture()
 def fixture_logging_settings(integration_test_configuration):
     # Get the application insights string, which can be retrieved from the integration_test_configuration fixture
     applicationinsights_connection_string = (
         integration_test_configuration.get_applicationinsights_connection_string()
     )
-    os.environ['APPLICATIONINSIGHTS_CONNECTION_STRING'] = applicationinsights_connection_string
-    os.environ['CLOUD_ROLE_NAME'] = INTEGRATION_TEST_CLOUD_ROLE_NAME
-    os.environ['SUBSYSTEM'] = INTEGRATION_TEST_TRACER_NAME
-    os.environ['ORCHESTRATION_INSTANCE_ID'] = str(uuid.uuid4())
+    os.environ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = (
+        applicationinsights_connection_string
+    )
+    os.environ["CLOUD_ROLE_NAME"] = INTEGRATION_TEST_CLOUD_ROLE_NAME
+    os.environ["SUBSYSTEM"] = INTEGRATION_TEST_TRACER_NAME
+    os.environ["ORCHESTRATION_INSTANCE_ID"] = str(uuid.uuid4())
     logging_settings = config.LoggingSettings()
     return logging_settings
+
 
 @pytest.fixture()
 def fixture_extras():
     return {"key": "value"}
+
 
 def _wait_for_condition(
     logs_client: LogsQueryClient,
@@ -103,7 +108,8 @@ def _wait_for_condition(
 
 def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings, fixture_extras
+    fixture_logging_settings,
+    fixture_extras,
 ) -> None:
     # Arrange
     logging_settings = fixture_logging_settings
@@ -156,7 +162,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[str], None],
     severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings
+    fixture_logging_settings,
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
@@ -196,14 +202,14 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
         workspace_id=workspace_id,
         query=query,
         expected_count=1,
-        step=timedelta(seconds=10)
+        step=timedelta(seconds=10),
     )
 
 
 def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_test_configuration: IntegrationTestConfiguration,
-        fixture_logging_settings,
-        fixture_extras
+    fixture_logging_settings,
+    fixture_extras,
 ) -> None:
     # Arrange
     log_count = 5
@@ -248,8 +254,8 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
 
 def test__decorators_integration_test(
     integration_test_configuration: IntegrationTestConfiguration,
-        fixture_logging_settings,
-        fixture_extras
+    fixture_logging_settings,
+    fixture_extras,
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
