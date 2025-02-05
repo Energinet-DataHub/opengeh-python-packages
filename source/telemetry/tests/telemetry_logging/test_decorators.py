@@ -3,7 +3,10 @@ import os
 from unittest.mock import patch
 from unittest import mock
 from telemetry_logging.decorators import use_span, start_trace
-from telemetry_logging.logging_configuration import configure_logging, LoggingSettings
+from telemetry_logging.logging_configuration import (
+    configure_logging,
+    LoggingSettings,
+)
 
 
 # Mocking the Logger and start_span
@@ -23,7 +26,7 @@ def mock_start_span():
 def mock_env_args():
     env_args = {
         "CLOUD_ROLE_NAME": "cloud_role_name from environment",
-        "APPLICATIONINSIGHTS_CONNECTION_STRING": "applicationinsights_connection_string from environment",
+        "APPLICATIONINSIGHTS_CONNECTION_STRING": "connection_string",
         "SUBSYSTEM": "subsystem from environment",
         "ORCHESTRATION_INSTANCE_ID": "4a540892-2c0a-46a9-9257-c4e13051d76b",
     }
@@ -109,7 +112,6 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             return "I am an app sample function. Doing important calculations"
 
         def entry_point():
-            print("I am an entry point function, who is supposed to configure logging")
             # Initial LoggingSettings
             settings = LoggingSettings()
             settings.applicationinsights_connection_string = (
@@ -117,7 +119,8 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             )
 
             configure_logging(
-                logging_settings=settings, extras={"key1": "value1", "key2": "value2"}
+                logging_settings=settings,
+                extras={"key1": "value1", "key2": "value2"},
             )
             app_sample_function()
 
@@ -131,7 +134,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             )
 
 
-def test_start_trace__when_logging_is_configured_error_thrown_span_records_exception(
+def test_logging_is_configured_error_thrown_span_records_exception(
     mock_env_args,
 ):
     with (
@@ -140,10 +143,7 @@ def test_start_trace__when_logging_is_configured_error_thrown_span_records_excep
             "telemetry_logging.decorators.span_record_exception"
         ) as mock_span_record_exception,
     ):
-        # Intercepts Logger(func.__name__)
-        log_instance_in_test = (
-            mock_logger.return_value
-        )  # Intercepts log = Logger(func.__name__)
+        log_instance_in_test = mock_logger.return_value
 
         # Prepare
         @start_trace(initial_span_name="app_sample_function")
@@ -153,7 +153,6 @@ def test_start_trace__when_logging_is_configured_error_thrown_span_records_excep
             return "I am an app sample function. Doing important calculations"
 
         def entry_point():
-            print("I am an entry point function, who is supposed to configure logging")
             # Initial LoggingSettings
             settings = LoggingSettings()
             settings.applicationinsights_connection_string = (
@@ -161,7 +160,8 @@ def test_start_trace__when_logging_is_configured_error_thrown_span_records_excep
             )
 
             configure_logging(
-                logging_settings=settings, extras={"key1": "value1", "key2": "value2"}
+                logging_settings=settings,
+                extras={"key1": "value1", "key2": "value2"},
             )
             app_sample_function()
 
