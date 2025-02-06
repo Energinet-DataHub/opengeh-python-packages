@@ -115,6 +115,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install tools
+        uses: ./.github/actions/asdf-install-tools
+
       - name: Check if ${{ matrix.inputs.name }} has changed
         uses: dorny/paths-filter@v3
         id: changes
