@@ -1,3 +1,8 @@
+"""Represents a test case for a specific scenario.
+
+The expected data is lazy-loaded from a CSV file as it may not exist in all scenarios.
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 
