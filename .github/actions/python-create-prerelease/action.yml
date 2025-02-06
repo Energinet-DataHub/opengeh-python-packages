@@ -10,11 +10,10 @@ inputs:
   issue-number:
     description: The issue or PR number
     required: true
-  create_named_release:
+  create_versioned_release:
     description: |
-      Use the name of the package in the release name. Default is true.
-      This results in the following release name: "{package_name}_{version}_{issue_number}".
-      Otherwise, the release name will be "{version}_{issue_number}".
+      If true, the release name will be "{package_name}_{version}_{issue_number}".
+      Otherwise, the release name will be "{package_name}_{issue_number}".
     required: false
     default: "true"
   github_token:
@@ -32,10 +31,10 @@ runs:
       shell: bash
       run: |
         VERSION=$(cat ${{ matrix.inputs.path }}/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
-        if [[ "${{ inputs.create_named_release }}" == "true" ]]; then
-          echo "RELEASE_VERSION=${{ inputs.name }}_${{ inputs.issue-number }}" >> $GITHUB_ENV
+        if [[ "${{ inputs.create_versioned_release }}" == "true" ]]; then
+          echo "RELEASE_VERSION=${{ inputs.name }}_${VERSION}_${{ inputs.issue-number }}" >> $GITHUB_ENV
         else
-          echo "RELEASE_VERSION=${VERSION}_${{ inputs.issue-number }}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${{ inputs.name }}_${{ inputs.issue-number }}" >> $GITHUB_ENV
         fi
         echo "RELEASE_ZIP_FILENAME=${{ inputs.name }}_${{ inputs.issue-number }}.zip" >> $GITHUB_ENV
         echo "RELEASE_FOLDER_PATH=${{ inputs.github_workspace }}/${{ inputs.name }}-release/artifacts" >> $GITHUB_ENV

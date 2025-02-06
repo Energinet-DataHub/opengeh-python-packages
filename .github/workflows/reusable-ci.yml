@@ -30,19 +30,17 @@ on:
         type: boolean
         description: |
           Create a prerelease for each package with changes. Default is false.
-          This will create a prerelease for each package with changes under the
-          tag "{package_name}_{version}_{issue_number}" or "{version}_{issue_number}"
-          depending on the value of create_named_release.
+          This will create a prerelease for each package with changes under the tag "{package_name}_{issue_number}" 
+          or "{package_name}_{version}_{issue_number}" depending on the value of create_versioned_release.
         required: false
         default: true
-      create_named_release:
+      create_versioned_release:
         type: boolean
         description: |
-          Use the name of the package in the release name. Default is true.
-          This results in the following release name: "{package_name}_{version}_{issue_number}".
-          Otherwise, the release name will be "{version}_{issue_number}".
+          If true, the release name will be "{package_name}_{version}_{issue_number}".
+          Otherwise, the release name will be "{package_name}_{issue_number}".
         required: false
-        default: true
+        default: false
       environment:
         type: string
         description: |
@@ -127,7 +125,7 @@ jobs:
               - ${{ matrix.inputs.path }}/**
 
       - name: Check Version
-        if: ${{ steps.changes.outputs.is_changed == 'true' && !inputs.create_named_release }}
+        if: ${{ steps.changes.outputs.is_changed == 'true' && inputs.create_versioned_release }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -167,4 +165,4 @@ jobs:
           name: ${{ matrix.inputs.name }}
           path: ${{ matrix.inputs.path }}
           issue-number: ${{ github.event.number }}
-          create_named_release: ${{ inputs.create_named_release }}
+          create_versioned_release: ${{ inputs.create_versioned_release }}
