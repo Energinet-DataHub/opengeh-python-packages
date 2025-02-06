@@ -6,7 +6,7 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Check for .tool-versions
+    - name: Check for existence of .tool-versions file
       id: check_tool_versions
       shell: bash
       run: |
