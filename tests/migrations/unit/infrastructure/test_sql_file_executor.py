@@ -2,12 +2,12 @@ import pytest
 from pyspark.sql import SparkSession
 
 import geh_common.migrations.infrastructure.sql_file_executor as sut
-import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
+import tests.migrations.unit.builders.spark_sql_migrations_configuration_builder as spark_configuration_builder
 from geh_common.migrations.container import create_and_configure_container
 from geh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
 )
-from tests.unit.migrations.constants import TEST_SCRIPTS_DIR
+from tests.migrations.unit.constants import MIGRATION_TEST_SCRIPTS_DIR
 
 storage_account = "storage_account"
 shared_storage_account = "shared_storage_account"
@@ -15,7 +15,7 @@ shared_storage_account = "shared_storage_account"
 
 def _test_configuration() -> SparkSqlMigrationsConfiguration:
     configuration = spark_configuration_builder.build(
-        migration_scripts_folder_path=TEST_SCRIPTS_DIR,
+        migration_scripts_folder_path=MIGRATION_TEST_SCRIPTS_DIR,
         substitutions={
             "{bronze_location}": f"{storage_account}/bronze/",
             "{silver_location}": f"{storage_account}/silver/",
@@ -35,7 +35,7 @@ def test__execute__should_creates_schema(spark: SparkSession) -> None:
     migration_name = "create_schema"
 
     # Act
-    sut.execute(migration_name, TEST_SCRIPTS_DIR)
+    sut.execute(migration_name, MIGRATION_TEST_SCRIPTS_DIR)
 
     # Assert
     assert spark.catalog.databaseExists("spark_catalog.test_schema")
@@ -49,7 +49,7 @@ def test__execute__when_multiple_queries__should_create_all_queries(
     migration_name = "multiple_queries"
 
     # Act
-    sut.execute(migration_name, TEST_SCRIPTS_DIR)
+    sut.execute(migration_name, MIGRATION_TEST_SCRIPTS_DIR)
 
     # Assert
     assert spark.catalog.databaseExists("spark_catalog.test_schema")
@@ -64,7 +64,7 @@ def test__execute__when_multiline_query__should_execute_query(
     migration_name = "multiline_query"
 
     # Act
-    sut.execute(migration_name, TEST_SCRIPTS_DIR)
+    sut.execute(migration_name, MIGRATION_TEST_SCRIPTS_DIR)
 
     # Assert
     assert spark.catalog.tableExists("spark_catalog.test_schema.test_table")
@@ -88,7 +88,9 @@ def test__substitute_placeholders__should_replace_placeholders_in_query(
 ) -> None:
     # Arrange
     _test_configuration()
-    sql = f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
+    sql = (
+        f"CREATE SCHEMA IF NOT EXISTS spark_catalog.test_schema LOCATION {placeholder}"
+    )
 
     # Act
     query = sut._substitute_placeholders(sql)

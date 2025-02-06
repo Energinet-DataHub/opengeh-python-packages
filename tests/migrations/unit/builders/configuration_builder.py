@@ -1,7 +1,7 @@
-import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
+import tests.migrations.unit.builders.spark_sql_migrations_configuration_builder as spark_sql_migrations_configuration_builder
 from geh_common.migrations.models.configuration import Configuration
-from tests.unit.migrations.constants import TEST_SCRIPTS_DIR
-from tests.unit.migrations.helpers.schema_migration_costants import (
+from tests.migrations.unit.constants import MIGRATION_TEST_SCRIPTS_DIR
+from tests.migrations.unit.helpers.schema_migration_costants import (
     SchemaMigrationConstants,
 )
 
@@ -9,7 +9,7 @@ substitution_variables = {"substitution_variables": "substitution_variables"}
 
 
 def build(
-    migration_scripts_folder_path: str = f"{TEST_SCRIPTS_DIR}.migration_scripts",
+    migration_scripts_folder_path: str = f"{MIGRATION_TEST_SCRIPTS_DIR}.migration_scripts",
     migration_schema_name: str = SchemaMigrationConstants.schema_name,
     migration_table_name: str = SchemaMigrationConstants.table_name,
     table_prefix: str = "",

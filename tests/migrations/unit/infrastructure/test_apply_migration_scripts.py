@@ -1,8 +1,8 @@
 from pyspark.sql import SparkSession
 
 import geh_common.migrations.infrastructure.apply_migration_scripts as sut
-import tests.unit.migrations.builders.spark_sql_migrations_configuration_builder as configuration_builder
-import tests.unit.migrations.helpers.table_helper as table_helper
+import tests.migrations.unit.builders.spark_sql_migrations_configuration_builder as configuration_builder
+import tests.migrations.unit.helpers.table_helper as table_helper
 from geh_common.migrations.container import create_and_configure_container
 from geh_common.migrations.models.spark_sql_migrations_configuration import (
     SparkSqlMigrationsConfiguration,
@@ -10,8 +10,8 @@ from geh_common.migrations.models.spark_sql_migrations_configuration import (
 from geh_common.migrations.schemas.migrations_schema import (
     schema_migration_schema,
 )
-from tests.unit.migrations.constants import TEST_SCRIPTS_DIR
-from tests.unit.migrations.helpers.spark_helper import reset_spark_catalog
+from tests.migrations.unit.constants import MIGRATION_TEST_SCRIPTS_DIR
+from tests.migrations.unit.helpers.spark_helper import reset_spark_catalog
 
 shared_storage_account = "shared_storage_account"
 storage_account = "storage_account"
@@ -19,7 +19,7 @@ storage_account = "storage_account"
 
 def _test_configuration(spark: SparkSession) -> SparkSqlMigrationsConfiguration:
     configuration = configuration_builder.build(
-        migration_scripts_folder_path=TEST_SCRIPTS_DIR,
+        migration_scripts_folder_path=MIGRATION_TEST_SCRIPTS_DIR,
     )
     create_and_configure_container(configuration)
 

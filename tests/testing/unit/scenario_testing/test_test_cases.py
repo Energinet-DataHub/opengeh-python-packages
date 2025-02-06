@@ -1,7 +1,7 @@
 from pyspark.sql import types as T
 
 from geh_common.testing.scenario_testing.TestCases import TestCase, TestCases
-from tests.unit.testing.scenario_testing.constants import SCENARIO_TESTING_DATA
+from tests.testing.unit.scenario_testing.constants import SCENARIO_TESTING_DATA
 
 
 def test_test_cases(spark):
