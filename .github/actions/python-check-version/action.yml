@@ -27,6 +27,8 @@ runs:
         CURRENT_PATH=$GITHUB_WORKSPACE/current/${{ inputs.path }}
         OLD_VERSION=$(cat $MAIN_PATH/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
         NEW_VERSION=$(cat $CURRENT_PATH/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+        rm -rf $GITHUB_WORKSPACE/current
+        rm -rf $GITHUB_WORKSPACE/main
         if [ "$OLD_VERSION" == "$NEW_VERSION" ]; then
           echo "Version $NEW_VERSION is the same as $OLD_VERSION"
           exit 1
