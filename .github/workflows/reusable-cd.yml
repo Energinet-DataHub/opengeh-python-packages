@@ -38,6 +38,12 @@ on:
           Whether to dispatch a deployment event.
         required: false
         default: false
+      postfix_latest:
+        type: boolean
+        description: |
+          Whether to postfix the release name with "_latest".
+        required: false
+        default: false
       environment_repository_path:
         type: string
         description: |
@@ -111,6 +117,7 @@ jobs:
         uses: ./.github/actions/promote-prerelease
         with:
           release_name: ${{ matrix.inputs.name }}
+          postfix_latest: ${{ inputs.postfix_latest }}
 
       - name: Check Dispatch Variables
         id: check_dispatch_variables
