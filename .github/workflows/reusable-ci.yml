@@ -126,6 +126,12 @@ jobs:
             is_changed:
               - ${{ matrix.inputs.path }}/**
 
+      - name: Check version bump for ${{ matrix.inputs.name }}
+        uses: ./.github/actions/python-check-version
+        if: ${{ steps.changes.outputs.is_changed == 'true' }}
+        with:
+          path: ${{ matrix.inputs.path }}
+
       - name: Login to access Azure resources
         uses: azure/login@v2
         if: ${{ steps.changes.outputs.is_changed == 'true' && inputs.azure_spn_id != '' && inputs.azure_tenant_id != '' && inputs.azure_subscription_id != '' }}
