@@ -53,22 +53,22 @@ on:
         default: ""
       azure_spn_id:
         type: string
-        description: The Azure SPN ID for the integration test environment
+        description: The Azure SPN ID for the integration test environment. Requires environment to be "AzureAuth".
         required: false
         default: ""
       azure_tenant_id:
         type: string
-        description: The Azure tenant ID for the integration test environment
+        description: The Azure tenant ID for the integration test environment. Requires environment to be "AzureAuth".
         required: false
         default: ""
       azure_subscription_id:
         type: string
-        description: The Azure subscription ID for the integration test environment
+        description: The Azure subscription ID for the integration test environment. Requires environment to be "AzureAuth".
         required: false
         default: ""
       azure_keyvault_url:
         type: string
-        description: The Azure KeyVault URL for the integration test environment
+        description: The Azure KeyVault URL for the integration test environment. Requires environment to be "AzureAuth".
         required: false
         default: ""
 
