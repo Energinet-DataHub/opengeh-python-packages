@@ -1,32 +1,37 @@
 {
   "name": "geh_common",
-  "dockerComposeFile": [
-    "../.docker/docker-compose.yml"
-  ],
-  "service": "geh_common",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile",
+    "args": {
+      "UBUNTU_VERSION": "24.04",
+      "ASDF_VERSION": "0.15.0"
+    }
+  },
   "remoteUser": "vscode",
   "shutdownAction": "none",
-  "workspaceFolder": "/workspace",
+  "postCreateCommand": "~/scripts/post-create.sh",
   "postStartCommand": "uv sync",
   "containerEnv": {
+    "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+    "ASDF_DATA_DIR": "/home/vscode/.cache/asdf",
     "UV_CACHE_DIR": "/home/vscode/.cache/uv",
     "MYPY_CACHE_DIR": "/home/vscode/.cache/mypy",
     "RUFF_CACHE_DIR": "/home/vscode/.cache/ruff",
     "PYTHONPYCACHEPREFIX": "/home/vscode/.cache/pycache"
   },
   "mounts": [
-    // Persist the command history across container restarts - useful for bash history
+    // Persist the bash/zsh history between sessions
     "source=geh_common-bashhistory,target=/commandhistory,type=volume",
     // Mount the SSH keys for Git - allows you to clone private repositories via ssh
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-    // Mount the local system cache directory - speeds up the build process
-    "source=../.cache,target=/home/vscode/.cache,type=bind,consistency=cached"
+    // Mount the local cache directory - speeds up the build process
+    "source=${localWorkspaceFolder}/.cache,target=/home/vscode/.cache,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {
       "extensions": [
         "GitHub.copilot",
-        "ms-python.mypy-type-checker",
         "charliermarsh.ruff",
         "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
@@ -37,18 +42,15 @@
         "python.terminal.activateEnvInCurrentTerminal": true,
         "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
         "python.venvPath": "/home/vscode/.venv",
-        "terminal.integrated.inheritEnv": true,
         "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.inheritEnv": true,
         "terminal.integrated.profiles.linux": {
-          "bash": {
-            "path": "bash",
-            "icon": "terminal-bash"
-          },
           "zsh": {
             "path": "zsh"
           },
-          "fish": {
-            "path": "fish"
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
           },
           "tmux": {
             "path": "tmux",

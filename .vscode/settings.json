@@ -17,20 +17,19 @@
     // Ruff Settings
     "ruff.lineLength": 120,
     "ruff.lint.run": "onSave",
-    // Python settings
-    "python.terminal.activateEnvInCurrentTerminal": true,
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "python.languageServer": "Pylance", // Use Pylance as the language server        
-    "python.analysis.languageServerMode": "full", // Use the full language server mode
-    "python.analysis.autoFormatStrings": true, // Automatically format strings
+    "ruff.organizeImports": true,
     "[python]": {
+        "editor.formatOnSave": true,
         "editor.defaultFormatter": "charliermarsh.ruff",
         "editor.codeActionsOnSave": {
-            "source.fixAll.ruff": "always" // Run the Ruff formatter on save
+            "source.organizeImports": "explicit", // Organize imports on save
+            "source.fixAll": "explicit" // Run the Ruff formatter on save
         }
-    }
+    },
+    // Python settings
+    "python.languageServer": "Pylance", // Use Pylance as the language server        
+    "python.testing.pytestEnabled": true,
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.languageServerMode": "full", // Use the full language server mode
+    "python.analysis.autoFormatStrings": true // Automatically format strings
 }
