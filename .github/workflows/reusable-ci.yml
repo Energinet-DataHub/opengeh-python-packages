@@ -30,7 +30,7 @@ on:
         type: boolean
         description: |
           Create a prerelease for each package with changes. Default is false.
-          This will create a prerelease for each package with changes under the tag "{package_name}_{issue_number}" 
+          This will create a prerelease for each package with changes under the tag "{package_name}_{issue_number}"
           or "{package_name}_{version}_{issue_number}" depending on the value of create_versioned_release.
         required: false
         default: true
