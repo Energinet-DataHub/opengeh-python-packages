@@ -102,7 +102,7 @@ jobs:
   ci_test:
     name: Test Packages
     runs-on: ubuntu-24.04
-    needs: ci_matrix
+    needs: [ci_matrix, ci_version]
     # Environment is used when using OIDC to login and access the integration test environment
     environment: ${{ inputs.environment }}
     env:
@@ -126,11 +126,22 @@ jobs:
             is_changed:
               - ${{ matrix.inputs.path }}/**
 
-      - name: Check version bump for ${{ matrix.inputs.name }}
-        uses: ./.github/actions/python-check-version
+      - name: Check Version
         if: ${{ steps.changes.outputs.is_changed == 'true' }}
-        with:
-          path: ${{ matrix.inputs.path }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LATEST_RELEASE=$(gh release list --json isLatest,name -q '.[] | select(.isLatest) | .name' -L 1000)
+          NEW_VERSION=$(cat ${{inputs.path}}/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+          if [[ ${{ inputs.create_named_release }} == 'true' ]]; then
+            OLD_VERSION=$(echo $LATEST_RELEASE | grep -o "${{ matrix.inputs.name }}_[0-9]*\.[0-9]*\.[0-9]*" | cut -d'_' -f2)
+          else
+            OLD_VERSION=$(echo $LATEST_RELEASE | grep -o "[0-9]*\.[0-9]*\.[0-9]*" | cut -d'_' -f2)
+          fi
+          if [ "$OLD_VERSION" == "$NEW_VERSION" ]; then
+            echo "Version $NEW_VERSION is the same as $OLD_VERSION"
+            exit 1
+          fi
 
       - name: Login to access Azure resources
         uses: azure/login@v2
