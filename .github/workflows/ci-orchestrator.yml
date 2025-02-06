@@ -2,11 +2,6 @@ name: CI orchestrator
 
 on:
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-      - closed
     branches:
       - main
   merge_group:
