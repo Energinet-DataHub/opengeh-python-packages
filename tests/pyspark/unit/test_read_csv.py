@@ -11,13 +11,13 @@ from pyspark.sql.types import (
     TimestampType,
 )
 
-from geh_common.functions.read_csv import read_csv_path
-from geh_common.functions.read_csv_test import read_csv_path_test
+from geh_common.pyspark.read_csv import read_csv_path
+from geh_common.pyspark.read_csv_test import read_csv_path_test
 from geh_common.testing.dataframes import (
     AssertDataframesConfiguration,
     assert_dataframes_and_schemas,
 )
-from tests.functions import FUNCTIONS_DATA_DIR
+from tests.pyspark import FUNCTIONS_DATA_DIR
 
 schema = T.StructType(
     [

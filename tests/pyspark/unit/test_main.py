@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pyspark.sql import functions as F
 
-from geh_common.functions.transformations import (
+from geh_common.pyspark.transformations import (
     begining_of_year,
     convert_localtime_to_utc,
     convert_utc_to_localtime,

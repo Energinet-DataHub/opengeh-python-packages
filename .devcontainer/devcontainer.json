@@ -34,39 +34,9 @@
         "ms-vscode-remote.remote-containers"
       ],
       "settings": {
-        "search.exclude": {
-          "**/.git": true,
-          "**/.cache": true,
-          "**/.venv": true
-        },
-        "git.openRepositoryInParentFolders": "always", // Open the repository in the parent folder
-        "files.eol": "\n", // Use LF line endings
-        "files.autoSave": "onFocusChange", // Automatically save files when focus changes
-        "editor.tabSize": 2,
-        "editor.rulers": [
-          120
-        ],
-        "editor.formatOnSave": true,
-        "ruff.lineLength": 120,
-        "ruff.lint.run": "onSave",
         "python.terminal.activateEnvInCurrentTerminal": true,
         "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
-        "python.testing.pytestArgs": [
-          "tests"
-        ],
         "python.venvPath": "/home/vscode/.venv",
-        "python.testing.unittestEnabled": false,
-        "python.testing.pytestEnabled": true,
-        "github.copilot.editor.enableAutoCompletions": true,
-        "python.languageServer": "Pylance", // Use Pylance as the language server        
-        "python.analysis.languageServerMode": "full", // Use the full language server mode
-        "python.analysis.autoFormatStrings": true, // Automatically format strings
-        "[python]": {
-          "editor.defaultFormatter": "charliermarsh.ruff",
-          "editor.codeActionsOnSave": {
-            "source.fixAll.ruff": "always" // Run the Ruff formatter on save
-          }
-        },
         "terminal.integrated.inheritEnv": true,
         "terminal.integrated.defaultProfile.linux": "zsh",
         "terminal.integrated.profiles.linux": {
