@@ -32,9 +32,7 @@ def _wait_for_condition(
     The function keeps invoking the callback until it returns without raising an exception.
     """
 
-    def _assert_row_count(
-        actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int
-    ) -> None:
+    def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
         actual = cast(LogsQueryResult, actual)
         table = actual.tables[0]
         row = table.rows[0]
@@ -42,12 +40,8 @@ def _wait_for_condition(
         count = cast(int, value)
         assert count == expected_count
 
-    def _assert_logged(
-        logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int
-    ) -> None:
-        actual = logs_client.query_workspace(
-            workspace_id, query, timespan=LOOK_BACK_FOR_QUERY
-        )
+    def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int) -> None:
+        actual = logs_client.query_workspace(workspace_id, query, timespan=LOOK_BACK_FOR_QUERY)
         _assert_row_count(actual, expected_count)
 
     start_time = time.time()
@@ -80,9 +74,7 @@ def test__exception_adds_log_to_app_exceptions(
     # Arrange
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    applicationinsights_connection_string = integration_test_configuration.get_applicationinsights_connection_string()
 
     config.configure_logging(
         cloud_role_name=INTEGRATION_TEST_CLOUD_ROLE_NAME,
@@ -140,9 +132,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     message = "test message"
     key = "key"
     extras = {key: "value"}
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    applicationinsights_connection_string = integration_test_configuration.get_applicationinsights_connection_string()
 
     config.configure_logging(
         cloud_role_name=new_unique_cloud_role_name,
@@ -189,9 +179,7 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     new_uuid = uuid.uuid4()
     new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
     message = "test message"
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
+    applicationinsights_connection_string = integration_test_configuration.get_applicationinsights_connection_string()
 
     config.configure_logging(
         cloud_role_name=new_unique_cloud_role_name,
