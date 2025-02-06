@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from tests.integration.telemetry.integration_test_configuration import (
+from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
 )
 
@@ -41,7 +41,9 @@ def integration_test_configuration(
     Proceeds even if certain Azure-related keys are not present in the settings file.
     """
 
-    settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    settings_file_path = (
+        Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    )
 
     def _load_settings_from_file(file_path: Path) -> dict:
         if file_path.exists():
@@ -71,7 +73,9 @@ def integration_test_configuration(
             os.environ[key] = value
 
     if "AZURE_KEYVAULT_URL" in settings:
-        return IntegrationTestConfiguration(azure_keyvault_url=settings["AZURE_KEYVAULT_URL"])
+        return IntegrationTestConfiguration(
+            azure_keyvault_url=settings["AZURE_KEYVAULT_URL"]
+        )
 
     logging.error(
         f"Integration test configuration could not be loaded from {settings_file_path} or environment variables."
