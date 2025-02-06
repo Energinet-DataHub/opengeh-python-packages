@@ -135,8 +135,13 @@ jobs:
           NEW_VERSION=$(cat ${{ matrix.inputs.path }}/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
           OLD_VERSION=$(echo $LATEST_RELEASE | grep -o "[0-9]*\.[0-9]*\.[0-9]*" | cut -d'_' -f2)
           if [ "$OLD_VERSION" == "$NEW_VERSION" ]; then
-            echo "Version $NEW_VERSION is the same as $OLD_VERSION. To create a new release, update the version in pyproject.toml."
+            echo "Version $NEW_VERSION is the same as $OLD_VERSION. Please update the version in pyproject.toml."
             exit 1
+          elif [ "$(printf '%s\n' "$OLD_VERSION" "$NEW_VERSION" | sort -V | head -n1)" != "$OLD_VERSION" ]; then
+            echo "Version $NEW_VERSION is older than $OLD_VERSION. Please update the version in pyproject.toml."
+            exit 1
+          else
+              echo "Version $NEW_VERSION is newer than $OLD_VERSION. Proceeding with the release..."
           fi
 
       - name: Login to access Azure resources
