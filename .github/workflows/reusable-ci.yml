@@ -132,7 +132,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           LATEST_RELEASE=$(gh release list --json isLatest,name -q '.[] | select(.isLatest) | .name' -L 1000)
-          NEW_VERSION=$(cat ${{inputs.path}}/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
+          NEW_VERSION=$(cat ${{ matrix.inputs.path }}/pyproject.toml| grep -o "version.*" | cut -d'=' -f2 | tr -d '"' | tr -d ' ')
           if [[ ${{ inputs.create_named_release }} == 'true' ]]; then
             OLD_VERSION=$(echo $LATEST_RELEASE | grep -o "${{ matrix.inputs.name }}_[0-9]*\.[0-9]*\.[0-9]*" | cut -d'_' -f2)
           else
