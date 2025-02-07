@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "4.0.0"
+version = "4.1.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -23,11 +23,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = [
-    "pytest>=8.3.4",
-    "pytest-cov>=6.0.0",
-    "ruff>=0.9.4",
-]
+dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.4"]
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
