@@ -78,21 +78,17 @@ class PydanticParsingSettings(
         """Determines the priority of loading field values in the returned order of settings"""
         return CliSettingsSource(settings_cls), env_settings, init_settings
 
-    pass
-
 
 class LoggingSettings(PydanticParsingSettings):
     """
-    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters.
-    Parameters can come from both runtime (CLI) or from environment variables.
-    The priority is CLI parameters first and then environment variables.
+    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging.
     """
 
     cloud_role_name: str
     applicationinsights_connection_string: str | None = None
     subsystem: str
     orchestration_instance_id: UUID
-    force_configuration: bool
+    force_configuration: bool = False
 
 
 def configure_logging(
@@ -144,6 +140,8 @@ def configure_logging(
                 )
             }
         )
+    if logging_settings.subsystem is not None:
+        add_extras({"subsystem": str(logging_settings.subsystem)})
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
