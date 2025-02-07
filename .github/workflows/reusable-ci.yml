@@ -123,9 +123,11 @@ jobs:
           filters: |
             is_changed:
               - ${{ matrix.inputs.path }}/**
+            is_src_changed:
+              - ${{ matrix.inputs.path }}/src/**
 
       - name: Check Version
-        if: ${{ steps.changes.outputs.is_changed == 'true' && inputs.create_versioned_release }}
+        if: ${{ steps.changes.outputs.is_src_changed == 'true' && inputs.create_versioned_release }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

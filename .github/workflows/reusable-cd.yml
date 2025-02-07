@@ -136,7 +136,7 @@ jobs:
         id: check_dispatch_variables
         run: |
           SHOULD_DISPATCH=false
-          if [[ ${{ inputs.environment_repository_path }} != "" && ${{ inputs.dh3serviceaccount_appid }} != "" && ${{ secrets.dh3serviceaccount_privatekey }} != "" ]]; then
+          if [[ "${{ inputs.environment_repository_path }}" && "${{ inputs.dh3serviceaccount_appid }}" && "${{ secrets.dh3serviceaccount_privatekey }}" ]]; then
             SHOULD_DISPATCH=true
           fi
           echo "SHOULD_DISPATCH=$SHOULD_DISPATCH" >>$GITHUB_OUTPUT
