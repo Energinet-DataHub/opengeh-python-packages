@@ -127,7 +127,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Promote prerelease
-        uses: ./.github/actions/promote-prerelease
+        uses: ./.github/actions/github-promote-prerelease
         with:
           release_name: ${{ matrix.inputs.name }}
           postfix_latest: ${{ inputs.postfix_latest }}
