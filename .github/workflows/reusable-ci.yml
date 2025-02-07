@@ -16,7 +16,7 @@ on:
           be tested, and given successful tests, a prerelease will be created
           with under the tag "<package_name>_<pull_request_number>".
           Defaults to workspace root.
-        required: true
+        required: false
         default: ${{ github.workspace }}
       tests_directory:
         type: string
