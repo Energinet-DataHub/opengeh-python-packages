@@ -131,7 +131,7 @@ def configure_logging(
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
-    # Adding orchestration ID as an extra when provided through LoggingSettings: This is required for the Telemetry logs to show up in Application Insights
+    # Add extras from logging_settings if present
     if logging_settings.orchestration_instance_id is not None:
         add_extras(
             {
