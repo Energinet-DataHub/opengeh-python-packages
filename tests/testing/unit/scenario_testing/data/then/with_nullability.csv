@@ -1,0 +1,9 @@
+string_type_nullable;string_type;integer_type_nullable;integer_type;timestamp_type_nullable;timestamp_type;decimal_type_nullable;decimal_type;float_type_nullable;float_type;boolean_type_nullable;boolean_type
+nullable_string;non_nullable_string;1;10;2023-01-01 00:00:00;2023-01-01 00:00:00;1.23;4.56;1.1;2.2;True;False
+;non_nullable_string;2;20;;2023-01-02 00:00:00;;5.67;;3.3;False;False
+nullable_string;non_nullable_string;;30;2023-01-03 00:00:00;2023-01-03 00:00:00;7.89;0.12;4.4;5.5;;True
+nullable_string;non_nullable_string;3;40;2023-01-04 00:00:00;2023-01-04 00:00:00;9.01;3.45;6.6;3.4;True;False
+;non_nullable_string;4;50;2023-01-05 00:00:00;2023-01-05 00:00:00;;7.89;;7.7;False;True
+;non_nullable_string;;60;;2023-01-06 00:00:00;;5.45;;8.8;;True
+nullable_string;non_nullable_string;5;70;2023-01-07 00:00:00;2023-01-07 00:00:00;0.00;0.00;0.0;0.0;True;False
+;non_nullable_string;6;80;2023-01-08 00:00:00;2023-01-08 00:00:00;123456789.123456789;987654321.987654321;12345.6789;98765.4321;False;True

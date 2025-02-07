@@ -31,18 +31,14 @@ LOGGER = logging.getLogger(__name__)
 
 
 def get_all_refs(url: str) -> list[str]:
-    """
-    Get all the references for a given webpage
-    """
+    """Get all the references for a given webpage."""
     resp = requests.get(url)
     soup = BeautifulSoup(resp.text, "html.parser")
     return [a["href"] for a in soup.find_all("a", href=True)]
 
 
 def get_latest_spark_version() -> str:
-    """
-    Returns the last stable version of Spark using spark archive
-    """
+    """Return the last stable version of Spark using spark archive."""
     LOGGER.info("Downloading Spark versions information")
     all_refs = get_all_refs("https://archive.apache.org/dist/spark/")
     stable_versions = [
@@ -51,9 +47,7 @@ def get_latest_spark_version() -> str:
         if ref.startswith("spark-") and "incubating" not in ref and "preview" not in ref
     ]
     # Compare versions semantically
-    latest_version = max(
-        stable_versions, key=lambda ver: [int(sub_ver) for sub_ver in ver.split(".")]
-    )
+    latest_version = max(stable_versions, key=lambda ver: [int(sub_ver) for sub_ver in ver.split(".")])
     LOGGER.info(f"Latest version: {latest_version}")
     return latest_version
 
@@ -64,8 +58,8 @@ def download_spark(
     scala_version: str,
     spark_download_url: str,
 ) -> str:
-    """
-    Downloads and unpacks spark
+    """Download and unpack spark.
+
     The resulting spark directory name is returned
     """
     LOGGER.info("Downloading and unpacking Spark")
@@ -74,11 +68,11 @@ def download_spark(
         spark_dir_name += f"-scala{scala_version}"
     LOGGER.info(f"Spark directory name: {spark_dir_name}")
     spark_url = f"{spark_download_url}/spark-{spark_version}/{spark_dir_name}.tgz"
-    
+
     LOGGER.info(f"Downloading Spark from {spark_url}")
     tmp_file = Path("/tmp/spark.tar.gz")
     urllib.request.urlretrieve(spark_url, "/tmp/spark.tar.gz")
-    
+
     subprocess.check_call(
         [
             "tar",
@@ -98,8 +92,8 @@ def download_spark(
 
 
 def configure_spark(spark_dir_name: str, spark_home: Path) -> None:
-    """
-    Creates a ${SPARK_HOME} symlink to a versioned spark directory
+    """Create a ${SPARK_HOME} symlink to a versioned spark directory.
+
     Creates a 10spark-config.sh symlink to source PYTHONPATH automatically
     """
     LOGGER.info("Configuring Spark")
@@ -107,9 +101,7 @@ def configure_spark(spark_dir_name: str, spark_home: Path) -> None:
 
     # Add a link in the before_notebook hook in order to source PYTHONPATH automatically
     CONFIG_SCRIPT = "/usr/local/bin/before-notebook.d/10spark-config.sh"
-    subprocess.check_call(
-        ["ln", "-s", spark_home / "sbin/spark-config.sh", CONFIG_SCRIPT]
-    )
+    subprocess.check_call(["ln", "-s", spark_home / "sbin/spark-config.sh", CONFIG_SCRIPT])
 
 
 if __name__ == "__main__":
@@ -130,6 +122,4 @@ if __name__ == "__main__":
         scala_version=args.scala_version,
         spark_download_url=args.spark_download_url,
     )
-    configure_spark(
-        spark_dir_name=spark_dir_name, spark_home=Path(os.environ["SPARK_HOME"])
-    )
+    configure_spark(spark_dir_name=spark_dir_name, spark_home=Path(os.environ["SPARK_HOME"]))
