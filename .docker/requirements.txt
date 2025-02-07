@@ -38,6 +38,5 @@ pyspark>=3.5.0
 databricks-sdk==0.41.0
 
 # Custom Packages
-#opengeh-telemetry @ git+https://git@github.com/Energinet-DataHub/opengeh-python-packages@3.0.1#subdirectory=source/telemetry
 opengeh-telemetry @ git+https://git@github.com/Energinet-DataHub/opengeh-python-packages.git@cbang/simplify_entry_point2#subdirectory=source/telemetry
 opengeh-testcommon @ git+https://github.com/Energinet-DataHub/opengeh-python-packages@3.3.0#subdirectory=source/testcommon
