@@ -24,7 +24,6 @@ jobs:
   cd_reusable:
     name: Continuous Deployment
     uses: ./.github/workflows/reusable-cd.yml
-    needs: [ci_reusable]
     with:
       subsystem_name: common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
