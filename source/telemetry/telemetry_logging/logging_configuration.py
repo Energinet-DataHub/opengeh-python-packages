@@ -49,25 +49,22 @@ def get_logging_configured() -> bool:
     return _LOGGING_CONFIGURED
 
 
-class LoggingSettings(BaseSettings):
+class PydanticParsingSettings(
+    BaseSettings,
+    cli_parse_args=True,
+    cli_kebab_case=True,
+    cli_ignore_unknown_args=True,
+):
     """
-    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters.
-    Parameters can come from both runtime (CLI) or from environment variables.
-    The priority is CLI parameters first and then environment variables.
-    """
+    Base class for application settings.
 
-    cloud_role_name: str
-    applicationinsights_connection_string: str = Field(
-        alias="applicationinsights-connection-string", default=None
-    )
-    subsystem: str
-    orchestration_instance_id: UUID = Field(alias="orchestration-instance-id")
-    force_configuration: bool = Field(
-        alias="force-configuration", default=False
-    )
-    model_config = SettingsConfigDict(
-        populate_by_name=True,  # Allow access using both alias and field name
-    )
+    Supports:
+    - CLI parsing with arguments using kebab-case.
+    - Environment variables using SNAKE_UPPER_CASE.
+    - Ignoring unknown CLI arguments. This behavior can be overridden by setting `cli_ignore_unknown_args=False`
+      in the class definition of the derived settings class. Example:
+      `class LoggingSettings(ApplicationSettings, cli_ignore_unknown_args=False):`
+    """
 
     @classmethod
     def settings_customise_sources(
@@ -78,13 +75,24 @@ class LoggingSettings(BaseSettings):
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        return (
-            CliSettingsSource(
-                settings_cls, cli_parse_args=True, cli_ignore_unknown_args=True
-            ),
-            env_settings,
-            init_settings,
-        )
+        """Determines the priority of loading field values in the returned order of settings"""
+        return CliSettingsSource(settings_cls), env_settings, init_settings
+
+    pass
+
+
+class LoggingSettings(PydanticParsingSettings):
+    """
+    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters.
+    Parameters can come from both runtime (CLI) or from environment variables.
+    The priority is CLI parameters first and then environment variables.
+    """
+
+    cloud_role_name: str
+    applicationinsights_connection_string: str | None = None
+    subsystem: str
+    orchestration_instance_id: UUID
+    force_configuration: bool
 
 
 def configure_logging(
@@ -128,13 +136,14 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Adding orchestration ID as an extra when provided through LoggingSettings: This is required for the Telemetry logs to show up in Application Insights
-    add_extras(
-        {
-            "orchestration_instance_id": str(
-                logging_settings.orchestration_instance_id
-            )
-        }
-    )
+    if logging_settings.orchestration_instance_id is not None:
+        add_extras(
+            {
+                "orchestration_instance_id": str(
+                    logging_settings.orchestration_instance_id
+                )
+            }
+        )
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
