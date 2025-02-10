@@ -1,12 +1,13 @@
-import pytest
-from unittest.mock import patch
 from unittest import mock
-from telemetry_logging.logging_configuration import (
-    configure_logging,
-    LoggingSettings,
-)
+from unittest.mock import patch
 
-from geh_common.telemetry.decorators import use_span, start_trace
+import pytest
+
+from geh_common.telemetry.decorators import start_trace, use_span
+from geh_common.telemetry.logging_configuration import (
+    LoggingSettings,
+    configure_logging,
+)
 
 
 # Mocking the Logger and start_span
@@ -47,9 +48,7 @@ def test_use_span__when_name_is_defined(mock_logger, mock_start_span):
     # Assert
     mock_start_span.assert_called_once_with("test_span")
     mock_logger.assert_called_once_with("test_span")
-    mock_logger_instance.info.assert_called_once_with(
-        "Started executing function: test_span"
-    )
+    mock_logger_instance.info.assert_called_once_with("Started executing function: test_span")
     assert result == "test"
 
 
@@ -74,7 +73,6 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
 
 
 def test_start_trace__when_logging_not_configured():
-
     # Prepare
     @start_trace()
     def app_sample_function(initial_span=None):
@@ -82,9 +80,7 @@ def test_start_trace__when_logging_not_configured():
         return "I am an app sample function. Doing important calculations"
 
     def entry_point():
-        print(
-            "I am an entry point function, who is supposed to configure logging - but I don't in this case"
-        )
+        print("I am an entry point function, who is supposed to configure logging - but I don't in this case")
         app_sample_function()
 
     # Act and assert
@@ -93,12 +89,8 @@ def test_start_trace__when_logging_not_configured():
 
 
 def test_start_trace__when_logging_is_configured(mock_env_args):
-    with patch(
-        "telemetry_logging.decorators.Logger"
-    ) as mock_logger:  # Intercepts Logger(func.__name__)
-        log_instance_in_test = (
-            mock_logger.return_value
-        )  # Intercepts log = Logger(func.__name__)
+    with patch("telemetry_logging.decorators.Logger") as mock_logger:  # Intercepts Logger(func.__name__)
+        log_instance_in_test = mock_logger.return_value  # Intercepts log = Logger(func.__name__)
 
         # Prepare
         @start_trace()
@@ -109,9 +101,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
         def entry_point():
             # Initial LoggingSettings
             settings = LoggingSettings()
-            settings.applicationinsights_connection_string = (
-                None  # For testing purposes
-            )
+            settings.applicationinsights_connection_string = None  # For testing purposes
 
             configure_logging(
                 logging_settings=settings,
@@ -124,9 +114,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             entry_point()
             # Assert
             mock_logger.assert_called_once_with("app_sample_function")
-            log_instance_in_test.info.assert_called_once_with(
-                "Started executing function: app_sample_function"
-            )
+            log_instance_in_test.info.assert_called_once_with("Started executing function: app_sample_function")
 
 
 @patch("telemetry_logging.decorators.Logger")
@@ -148,9 +136,7 @@ def test_logging_is_configured_error_thrown_span_records_exception(
     def entry_point():
         # Initial LoggingSettings
         settings = LoggingSettings()
-        settings.applicationinsights_connection_string = (
-            None  # For testing purposes
-        )
+        settings.applicationinsights_connection_string = None  # For testing purposes
 
         configure_logging(
             logging_settings=settings,
@@ -164,7 +150,5 @@ def test_logging_is_configured_error_thrown_span_records_exception(
             entry_point()
             # Assert
             mock_logger.assert_called_once_with("app_sample_function")
-            log_instance_in_test.info.assert_called_once_with(
-                "Started executing function: app_sample_function"
-            )
+            log_instance_in_test.info.assert_called_once_with("Started executing function: app_sample_function")
             mock_span_record_exception.assert_called_once()
