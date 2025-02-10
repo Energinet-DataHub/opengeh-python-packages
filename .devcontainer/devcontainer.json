@@ -1,56 +1,67 @@
 {
-	"name": "Spark Python Dev",
-	"build": {
-		"dockerfile": "../.docker/Dockerfile",
-		"args": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"matangover.mypy",
-				"ms-python.flake8",
-				"ms-dotnettools.dotnet-interactive-vscode",
-				"ms-python.python",
-				"ms-python.black-formatter",
-				"littlefoxteam.vscode-python-test-adapter",
-				"hbenl.vscode-test-explorer",
-				"eamodio.gitlens",
-				"ms-python.vscode-pylance",
-				"HashiCorp.terraform",
-				"christian-kohler.path-intellisense",
-				"Gruntfuggly.todo-tree",
-				"DavidAnson.vscode-markdownlint",
-				"kevinglasson.cornflakes-linter",
-				"KevinRose.vsc-python-indent",
-				"sonarsource.sonarlint-vscode",
-				"ms-azuretools.vscode-docker"
-			],
-			// Set *default* container specific settings.json values on container create.
-			"settings": {
-				"terminal.integrated.shell.linux": "/bin/bash",
-				"editor.formatOnSave": false,
-				"[python]": {
-					"editor.formatOnSave": true
-				},
-				"python.formatting.provider": "black",
-				"python.defaultInterpreterPath": "/opt/conda/bin/python",
-				"python.languageServer": "Pylance",
-				"markdownlint.config": {
-					"MD007": {
-						"indent": 4
-					}
-				}
-			}
-		}
-	},
-	"containerEnv": {
-		"GRANT_SUDO": "yes"
-	},
-	"forwardPorts": [
-		5568
-	],
-	"appPort": [
-		"5568:5050"
-	],
-	"containerUser": "root"
+  "name": "geh_common",
+  "build": {
+    "context": "..",
+    "dockerfile": "Dockerfile",
+    "args": {
+      "UBUNTU_VERSION": "24.04",
+      "ASDF_VERSION": "0.15.0"
+    }
+  },
+  "remoteUser": "vscode",
+  "shutdownAction": "none",
+  "postCreateCommand": "~/scripts/post-create.sh",
+  "postStartCommand": "uv sync",
+  "containerEnv": {
+    "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
+    "ASDF_DATA_DIR": "/home/vscode/.cache/asdf",
+    "UV_CACHE_DIR": "/home/vscode/.cache/uv",
+    "MYPY_CACHE_DIR": "/home/vscode/.cache/mypy",
+    "RUFF_CACHE_DIR": "/home/vscode/.cache/ruff",
+    "PYTHONPYCACHEPREFIX": "/home/vscode/.cache/pycache"
+  },
+  "mounts": [
+    // Persist the bash/zsh history between sessions
+    "source=geh_common-bashhistory,target=/commandhistory,type=volume",
+    // Mount the SSH keys for Git - allows you to clone private repositories via ssh
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    // Mount the local cache directory - speeds up the build process
+    "source=${localWorkspaceFolder}/.cache,target=/home/vscode/.cache,type=bind,consistency=cached"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "GitHub.copilot",
+        "charliermarsh.ruff",
+        "redhat.vscode-yaml",
+        "tamasfe.even-better-toml",
+        "ms-python.python",
+        "ms-vscode-remote.remote-containers"
+      ],
+      "settings": {
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+        "python.venvPath": "/home/vscode/.venv",
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.inheritEnv": true,
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "zsh"
+          },
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "tmux": {
+            "path": "tmux",
+            "icon": "terminal-tmux"
+          },
+          "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+          }
+        }
+      }
+    }
+  }
 }
