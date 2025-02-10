@@ -15,17 +15,12 @@
 import contextlib
 import logging
 import os
-from typing import Any, Iterator, Tuple, Type
-from pydantic_settings import (
-    BaseSettings,
-    CliSettingsSource,
-    PydanticBaseSettingsSource
-)
-
+from typing import Any, Iterator
 from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
+from geh_common.telemetry.pydantic_settings_parsing import PydanticParsingSettings
 
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
@@ -48,42 +43,10 @@ def get_logging_configured() -> bool:
     return _LOGGING_CONFIGURED
 
 
-class PydanticParsingSettings(
-    BaseSettings,
-    cli_parse_args=True,
-    cli_kebab_case=True,
-    cli_ignore_unknown_args=True,
-    cli_implicit_flags=True,
-):
-    """
-    Base class for application settings.
-
-    Supports:
-    - CLI parsing with arguments using kebab-case.
-    - Environment variables using SNAKE_UPPER_CASE.
-    - Ignoring unknown CLI arguments. This behavior can be overridden by setting `cli_ignore_unknown_args=False`
-      in the class definition of the derived settings class. Example:
-      `class LoggingSettings(ApplicationSettings, cli_ignore_unknown_args=False):`
-    """
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls: Type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
-    ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        """Determines the priority of loading field values in the returned order of settings"""
-        return CliSettingsSource(settings_cls), env_settings, init_settings
-
-
 class LoggingSettings(PydanticParsingSettings):
     """
     LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging.
     """
-
     cloud_role_name: str
     applicationinsights_connection_string: str | None = None
     subsystem: str
