@@ -54,6 +54,7 @@ class PydanticParsingSettings(
     cli_parse_args=True,
     cli_kebab_case=True,
     cli_ignore_unknown_args=True,
+    cli_implicit_flags=True,
 ):
     """
     Base class for application settings.
