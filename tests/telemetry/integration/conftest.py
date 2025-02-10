@@ -42,7 +42,7 @@ def integration_test_configuration(
     Proceeds even if certain Azure-related keys are not present in the settings file.
     """
 
-    settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    settings_file_path = Path(telemetry_tests_path) / "integration" / "integrationtest.local.settings.yml"
 
     def _load_settings_from_file(file_path: Path) -> dict:
         if file_path.exists():
