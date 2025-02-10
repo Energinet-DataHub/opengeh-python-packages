@@ -1,17 +1,15 @@
+import os
 import sys
 import time
 import uuid
-import os
 from datetime import timedelta
-
-from tests.integration_test_configuration import IntegrationTestConfiguration
-
-
-from geh_common.telemetry.decorators import start_trace, use_span
 from typing import Callable, cast
+
 import pytest
 from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
+
 import geh_common.telemetry.logging_configuration as config
+from geh_common.telemetry.decorators import start_trace, use_span
 from geh_common.telemetry.logger import Logger
 from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
@@ -26,12 +24,8 @@ LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
 @pytest.fixture()
 def fixture_logging_settings(integration_test_configuration):
     # Get the application insights string, which can be retrieved from the integration_test_configuration fixture
-    applicationinsights_connection_string = (
-        integration_test_configuration.get_applicationinsights_connection_string()
-    )
-    os.environ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = (
-        applicationinsights_connection_string
-    )
+    applicationinsights_connection_string = integration_test_configuration.get_applicationinsights_connection_string()
+    os.environ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = applicationinsights_connection_string
     os.environ["CLOUD_ROLE_NAME"] = INTEGRATION_TEST_CLOUD_ROLE_NAME
     os.environ["SUBSYSTEM"] = INTEGRATION_TEST_TRACER_NAME
     os.environ["ORCHESTRATION_INSTANCE_ID"] = str(uuid.uuid4())

@@ -1,10 +1,4 @@
-from typing import Tuple, Type
-
-from pydantic_settings import (
-    BaseSettings,
-    CliSettingsSource,
-    PydanticBaseSettingsSource
-)
+from pydantic_settings import BaseSettings
 
 
 class PydanticParsingSettings(
@@ -14,8 +8,7 @@ class PydanticParsingSettings(
     cli_ignore_unknown_args=True,
     cli_implicit_flags=True,
 ):
-    """
-    Base class for application settings.
+    """Base class for application settings.
 
     Supports:
     - CLI parsing with arguments using kebab-case.
@@ -25,14 +18,4 @@ class PydanticParsingSettings(
       `class LoggingSettings(ApplicationSettings, cli_ignore_unknown_args=False):`
     """
 
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls: Type[BaseSettings],
-        init_settings: PydanticBaseSettingsSource,
-        env_settings: PydanticBaseSettingsSource,
-        dotenv_settings: PydanticBaseSettingsSource,
-        file_secret_settings: PydanticBaseSettingsSource,
-    ) -> Tuple[PydanticBaseSettingsSource, ...]:
-        """Determines the priority of loading field values in the returned order of settings"""
-        return CliSettingsSource(settings_cls), env_settings, init_settings
+    pass

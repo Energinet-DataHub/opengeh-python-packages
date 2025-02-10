@@ -176,3 +176,6 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Integration test file
+tests/telemetry/integration/integrationtest.local.settings.yml

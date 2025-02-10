@@ -17,11 +17,12 @@ import logging
 import os
 from typing import Any, Iterator
 from uuid import UUID
+
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
-from geh_common.telemetry.pydantic_settings_parsing import PydanticParsingSettings
 
+from geh_common.telemetry.pydantic_settings_parsing import PydanticParsingSettings
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
@@ -44,9 +45,8 @@ def get_logging_configured() -> bool:
 
 
 class LoggingSettings(PydanticParsingSettings):
-    """
-    LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging.
-    """
+    """LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging."""
+
     cloud_role_name: str
     applicationinsights_connection_string: str | None = None
     subsystem: str
@@ -59,8 +59,7 @@ def configure_logging(
     logging_settings: LoggingSettings,
     extras: dict[str, Any] | None = None,
 ) -> None:
-    """
-    Configure logging to use OpenTelemetry and Azure Monitor.
+    """Configure logging to use OpenTelemetry and Azure Monitor.
     :param logging_settings: Logging settings object
     :param extras: Custom structured logging data to be included in every log message.
     :return:
@@ -85,9 +84,7 @@ def configure_logging(
 
     # Configure OpenTelemetry to log to Azure Monitor.
     if logging_settings.applicationinsights_connection_string is not None:
-        configure_azure_monitor(
-            connection_string=logging_settings.applicationinsights_connection_string
-        )
+        configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
         _IS_INSTRUMENTED = True
 
     # Reduce Py4J logging. py4j logs a lot of information.
@@ -95,13 +92,7 @@ def configure_logging(
 
     # Add extras from logging_settings if present
     if logging_settings.orchestration_instance_id is not None:
-        add_extras(
-            {
-                "orchestration_instance_id": str(
-                    logging_settings.orchestration_instance_id
-                )
-            }
-        )
+        add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
     if logging_settings.subsystem is not None:
         add_extras({"subsystem": str(logging_settings.subsystem)})
 
@@ -129,7 +120,5 @@ def get_tracer() -> Tracer:
 
 @contextlib.contextmanager
 def start_span(name: str) -> Iterator[Span]:
-    with get_tracer().start_as_current_span(
-        name, attributes=get_extras()
-    ) as span:
+    with get_tracer().start_as_current_span(name, attributes=get_extras()) as span:
         yield span
