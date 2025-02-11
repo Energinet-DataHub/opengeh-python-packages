@@ -80,7 +80,6 @@ def test_start_trace__when_logging_not_configured():
         return "I am an app sample function. Doing important calculations"
 
     def entry_point():
-        print("I am an entry point function, who is supposed to configure logging - but I don't in this case")
         app_sample_function()
 
     # Act and assert

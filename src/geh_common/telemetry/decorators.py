@@ -1,14 +1,17 @@
 import inspect
 import sys
-from typing import Callable, Any, Tuple, Dict
+from typing import Any, Callable, Dict, Tuple
+
+from opentelemetry.trace import SpanKind
+
+from geh_common.telemetry.logger import Logger
 from geh_common.telemetry.logging_configuration import (
-    start_span,
-    get_tracer,
     get_logging_configured,
+    get_tracer,
+    start_span,
 )
 from geh_common.telemetry.span_recording import span_record_exception
-from opentelemetry.trace import SpanKind
-from geh_common.telemetry.logger import Logger
+
 
 def use_span(name: str | None = None) -> Callable[..., Any]:
     """Create a decorator that starts a span before executing the decorated function.
@@ -30,10 +33,10 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
 
 
 def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
-    """
+    """Set up initial span.
+
     Decorator that checks if the logging_configuration.configure_logging method has been called prior to starting the
-    trace
-    Provides an initial span based on the provided initial_span_name parameter
+    trace. Provides an initial span based on the provided initial_span_name parameter.
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:

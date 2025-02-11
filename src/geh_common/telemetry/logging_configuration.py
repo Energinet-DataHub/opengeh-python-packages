@@ -34,13 +34,13 @@ _LOGGING_CONFIGURED: bool = False  # Flag to track if logging is configured
 
 
 def set_logging_configured(configured: bool) -> None:
-    """Sets the global flag indicating logging has been configured."""
+    """Set the global flag indicating logging has been configured."""
     global _LOGGING_CONFIGURED
     _LOGGING_CONFIGURED = configured
 
 
 def get_logging_configured() -> bool:
-    """Returns the current logging configuration state."""
+    """Return the current logging configuration state."""
     return _LOGGING_CONFIGURED
 
 
@@ -60,6 +60,7 @@ def configure_logging(
     extras: dict[str, Any] | None = None,
 ) -> None:
     """Configure logging to use OpenTelemetry and Azure Monitor.
+    
     :param logging_settings: Logging settings object
     :param extras: Custom structured logging data to be included in every log message.
     :return:
