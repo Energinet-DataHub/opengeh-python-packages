@@ -40,9 +40,7 @@ def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        func_signature = inspect.signature(
-            func
-        )  # Get function signature of function applying the decorator
+        func_signature = inspect.signature(func)  # Get function signature of function applying the decorator
         accepts_initial_span = (
             "initial_span" in func_signature.parameters
         )  # Check if initial_span is in function params
@@ -53,9 +51,7 @@ def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
             name_to_use = initial_span_name or func.__name__
             if logging_configured:
                 # Start the tracer span using the current function name
-                with get_tracer().start_as_current_span(
-                    name_to_use, kind=SpanKind.SERVER
-                ) as initial_span:
+                with get_tracer().start_as_current_span(name_to_use, kind=SpanKind.SERVER) as initial_span:
                     # Log the start of the function execution
                     log = Logger(name_to_use)
                     log.info(f"Started executing function: {name_to_use}")
@@ -76,9 +72,7 @@ def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
                         span_record_exception(e, initial_span)
                         sys.exit(4)
             else:
-                raise NotImplementedError(
-                    "Logging has not been configured before use of decorator."
-                )
+                raise NotImplementedError("Logging has not been configured before use of decorator.")
 
         return wrapper
 

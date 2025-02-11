@@ -60,7 +60,7 @@ def configure_logging(
     extras: dict[str, Any] | None = None,
 ) -> None:
     """Configure logging to use OpenTelemetry and Azure Monitor.
-    
+
     :param logging_settings: Logging settings object
     :param extras: Custom structured logging data to be included in every log message.
     :return:
