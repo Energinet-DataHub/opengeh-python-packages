@@ -22,7 +22,7 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
 
-from geh_common.telemetry.pydantic_settings_parsing import PydanticParsingSettings
+from geh_common.parsing.pydantic_settings_parsing import PydanticParsingSettings
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
