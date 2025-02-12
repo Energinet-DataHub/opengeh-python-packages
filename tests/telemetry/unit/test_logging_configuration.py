@@ -1,6 +1,8 @@
 import os
+from unittest import mock
 from uuid import uuid4
 
+from geh_common.telemetry import logging_configuration
 from geh_common.telemetry.logging_configuration import (
     _IS_INSTRUMENTED,
     LoggingSettings,
@@ -8,7 +10,19 @@ from geh_common.telemetry.logging_configuration import (
     configure_logging,
     get_extras,
     get_logging_configured,
+    get_tracer,
+    set_logging_configured,
+    start_span,
 )
+
+
+def cleanup_logging() -> None:
+    set_logging_configured(False)
+    logging_configuration._EXTRAS = {}
+    logging_configuration._IS_INSTRUMENTED = False
+    logging_configuration._TRACER = None
+    logging_configuration._TRACER_NAME = ""
+    os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
 def test_verify_no_logging_configured_in_isolated_test_start():
@@ -82,7 +96,7 @@ def test_get_extras__when_set_extras_are_returned(unit_logging_configuration):
 
 
 def test_configure_logging__when_no_connection_string_is_instrumented_does_not_reconfigure(unit_logging_configuration):
-    # Verifies that the initial log configuration fom the unit_logging_configuration will remain not instrumented, even though we force_configured
+    # Verifies that the initial log configuration fom the unit_logging_configuration will remain not instrumented, even though we force configuration with an empty connection string
     # Arrange
     initial_is_instrumented = _IS_INSTRUMENTED
 
@@ -123,148 +137,132 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(unit_loggin
     assert expected_extras == actual_extras
 
 
+def test_get_tracer__then_a_tracer_is_returned(unit_logging_configuration):
+    # Arrange
+    tracer = get_tracer()
+
+    # Assert
+    assert tracer is not None
+
+
+def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure(unit_logging_configuration):
+    # Arrange
+    updated_logging_config = LoggingSettings(
+        cloud_role_name="test_role_updated",
+        subsystem="test_subsystem_updated",
+        applicationinsights_connection_string=None,
+        orchestration_instance_id=uuid4(),
+        force_configuration=True,
+    )
+    # Act
+    configure_logging(logging_settings=updated_logging_config)
+    tracer = get_tracer()
+
+    # Assert
+    assert tracer is not None
+
+
+def test_start_span__span_is_started(unit_logging_configuration):
+    # Assert
+    tracer = get_tracer()
+    with start_span("test_span") as span:
+        assert span is not None
+    assert tracer is not None
+
+
+def test_start_span__span_is_started_with_force_configuration(unit_logging_configuration):
+    # Arrange
+    updated_logging_config = LoggingSettings(
+        cloud_role_name="test_role_updated",
+        subsystem="test_subsystem_updated",
+        applicationinsights_connection_string=None,
+        orchestration_instance_id=uuid4(),
+        force_configuration=True,
+    )
+    # Act
+    configure_logging(logging_settings=updated_logging_config)
+
+    # Assert
+    with start_span("test_span") as span:
+        assert span is not None
+
+
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
+def test_configure_logging__when_connection_string_is_provided__azure_monitor_is_configured(
+    mock_configure_azure_monitor,
+):
+    # Arrange
+    connection_string = "overridden_connection_string"
+
+    # Arrange
+    logging_config = LoggingSettings(
+        cloud_role_name="test_role_updated",
+        subsystem="test_subsystem_updated",
+        applicationinsights_connection_string=connection_string,
+        orchestration_instance_id=uuid4(),
+    )
+
+    # Act
+    configure_logging(logging_settings=logging_config)
+
+    # Assert
+    mock_configure_azure_monitor.assert_called_once_with(connection_string=connection_string)
+
+    # Clean up manually
+    cleanup_logging()
+
+
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
+def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
+    mock_configure_azure_monitor, unit_logging_configuration_with_connection_string
+):
+    # Arrange
+    # Fixture unit_logging_configuration_with_connection_string sets the configuration initally, with expected value
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
+    initial_cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    # Arrange new logging config
+    updated_logging_config = LoggingSettings(
+        cloud_role_name="test_role_updated",
+        subsystem="test_subsystem_updated",
+        applicationinsights_connection_string="newConnectionString",
+        orchestration_instance_id=uuid4(),
+    )
+    # Act
+    configure_logging(logging_settings=updated_logging_config)
+
+    # Assert
+    assert os.environ["OTEL_SERVICE_NAME"] != updated_logging_config.cloud_role_name
+    assert os.environ["OTEL_SERVICE_NAME"] == initial_cloud_role_name
+
+
 def test_verify_no_logging_configured_in_isolated_test_end():
     isConfigured = get_logging_configured()
     assert not isConfigured
     assert get_extras() == {}
 
 
-# def test_get_tracer__then_a_tracer_is_returned(mock_logging_settings, mock_logging_extras):
-#     # Arrange
-#     tracer_name = "test_tracer"
-#     mock_logging_settings.subsystem = tracer_name
+@mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
+def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_force_configure(
+    mock_configure_azure_monitor, unit_logging_configuration_with_connection_string
+):
+    # Arrange
+    # Fixture unit_logging_configuration_with_connection_string sets the configuration initally
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
+    initial_cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    # Arrange new logging config
+    updated_logging_config = LoggingSettings(
+        cloud_role_name="test_role_updated",
+        subsystem="test_subsystem_updated",
+        applicationinsights_connection_string="newConnectionString",
+        orchestration_instance_id=uuid4(),
+        force_configuration=True,
+    )
+    # Act
+    configure_logging(logging_settings=updated_logging_config)
 
-#     # Act
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-#     tracer = get_tracer()
-
-#     # Assert
-#     assert tracer is not None
-
-
-# def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure(mock_logging_settings, mock_logging_extras):
-#     # Arrange
-#     tracer_name = "test_tracer"
-#     mock_logging_settings.subsystem = tracer_name
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     mock_logging_settings.force_configuration = True
-#     # Act
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-#     tracer = get_tracer()
-
-#     # Assert
-#     assert tracer is not None
-
-#     # Clean up
-#     # Reset force_configuration for the fixture
-#     mock_logging_settings.force_configuration = False
-
-
-# def test_start_span__span_is_started(mock_logging_settings, mock_logging_extras):
-#     # Arrange
-#     tracer_name = "test_tracer"
-#     mock_logging_settings.subsystem = tracer_name
-
-#     # Act
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     # Assert
-#     with start_span("test_span") as span:
-#         assert span is not None
-
-
-# def test_start_span__span_is_started_with_force_configuration(mock_logging_settings, mock_logging_extras):
-#     # Arrange
-#     tracer_name = "test_tracer"
-#     mock_logging_settings.subsystem = tracer_name
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     # Act
-#     mock_logging_settings.force_configuration = True
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-#     # Assert
-#     with start_span("test_span") as span:
-#         assert span is not None
-
-#     # Clean up
-#     # Reset force_configuration for the fixture
-#     mock_logging_settings.force_configuration = False
-
-
-# @mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
-# def test_configure_logging__when_connection_string_is_provided__azure_monitor_is_configured(
-#     mock_configure_azure_monitor, mock_logging_settings, mock_logging_extras
-# ):
-#     # Arrange
-#     connection_string = "overridden_connection_string"
-#     mock_logging_settings.applicationinsights_connection_string = connection_string
-
-#     # Act
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     # Assert
-#     mock_configure_azure_monitor.assert_called_once_with(connection_string=connection_string)
-
-
-# @mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
-# def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
-#     mock_configure_azure_monitor, mock_logging_settings, mock_logging_extras
-# ):
-#     # Arrange
-#     initial_cloud_role_name = "test_role"
-#     updated_cloud_role_name = "updated_test_role"
-#     tracer_name = "test_tracer"
-#     connection_string = "connection_string"
-
-#     mock_logging_settings.cloud_role_name = initial_cloud_role_name
-#     mock_logging_settings.applicationinsights_connection_string = connection_string
-#     mock_logging_settings.subsystem = tracer_name
-#     # Force reconfiguration of logging prior to test
-#     mock_logging_settings.force_configuration = True
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-#     mock_logging_settings.force_configuration = False
-
-#     # Act
-#     # Update mock to verify that configure_logging() will not change env var "OTEL_SERVICE_NAME"
-#     mock_logging_settings.cloud_role_name = updated_cloud_role_name
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     # Assert
-#     assert os.environ["OTEL_SERVICE_NAME"] == initial_cloud_role_name
-
-#     # Cleanup
-#     mock_logging_settings.force_configuration = False  # Cleanup post test
-
-
-# @mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
-# def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_force_configure(
-#     mock_configure_azure_monitor, mock_logging_settings, mock_logging_extras
-# ):
-#     # Arrange
-#     initial_cloud_role_name = "test_role"
-#     updated_cloud_role_name = "updated_test_role"
-#     tracer_name = "test_tracer"
-#     connection_string = "connection_string"
-
-#     mock_logging_settings.cloud_role_name = initial_cloud_role_name
-#     mock_logging_settings.applicationinsights_connection_string = connection_string
-#     mock_logging_settings.subsystem = tracer_name
-#     # Force reconfiguration of logging prior to test
-#     mock_logging_settings.force_configuration = True
-
-#     # Act
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-#     mock_logging_settings.cloud_role_name = updated_cloud_role_name
-#     mock_logging_settings.force_configuration = True
-#     configure_logging(logging_settings=mock_logging_settings, extras=mock_logging_extras)
-
-#     # Assert
-#     assert os.environ["OTEL_SERVICE_NAME"] == updated_cloud_role_name
-
-#     # Clean up
-#     # Reset force_configuration for the fixture
-#     mock_logging_settings.force_configuration = False
+    # Assert
+    assert os.environ["OTEL_SERVICE_NAME"] != initial_cloud_role_name
+    assert os.environ["OTEL_SERVICE_NAME"] == updated_logging_config.cloud_role_name
 
 
 # def test_configure_logging_check_if_logging_configured(mock_logging_settings, mock_logging_extras):
