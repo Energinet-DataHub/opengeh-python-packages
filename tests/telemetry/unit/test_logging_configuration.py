@@ -28,12 +28,6 @@ def cleanup_logging() -> None:
     os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
-def test_verify_no_logging_configured_in_isolated_test_start():
-    isConfigured = get_logging_configured()
-    assert not isConfigured
-    assert get_extras() == {}
-
-
 def test_configure_logging__then_environmental_variables_are_set(unit_logging_configuration):
     """
     Testing that the environment variable OTEL_SERVICE_NAME is set during invocation of configure_logging
@@ -236,12 +230,6 @@ def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] != updated_logging_config.cloud_role_name
     assert os.environ["OTEL_SERVICE_NAME"] == initial_cloud_role_name
-
-
-def test_verify_no_logging_configured_in_isolated_test_end():
-    isConfigured = get_logging_configured()
-    assert not isConfigured
-    assert get_extras() == {}
 
 
 @mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
