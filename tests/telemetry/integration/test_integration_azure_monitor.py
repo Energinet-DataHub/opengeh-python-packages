@@ -24,7 +24,7 @@ def _wait_for_condition(
     workspace_id: str,
     query: str,
     expected_count: int,
-    timeout: timedelta = timedelta(minutes=2),
+    timeout: timedelta = timedelta(minutes=5),
     step: timedelta = timedelta(seconds=10),
 ) -> None:
     """
