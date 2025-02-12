@@ -1,41 +1,63 @@
-import os
+import logging
 import sys
 import time
 import uuid
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Callable, cast
 
 import pytest
 from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
 
-import geh_common.telemetry.logging_configuration as config
 from geh_common.telemetry.decorators import start_trace, use_span
 from geh_common.telemetry.logger import Logger
+from geh_common.telemetry.logging_configuration import LoggingSettings, configure_logging, start_span
+from tests.telemetry.conftest import cleanup_logging
 from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
 )
 
 INTEGRATION_TEST_LOGGER_NAME = "test-logger"
-INTEGRATION_TEST_CLOUD_ROLE_NAME = "test-cloud-role-name"
-INTEGRATION_TEST_TRACER_NAME = "test-tracer-name"
-LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
+INTEGRATION_TEST_CLOUD_ROLE_NAME = "integration-test-python-packages"
+LOOK_BACK_FOR_QUERY = timedelta(minutes=10)
+
+
+@pytest.fixture(scope="function")
+def fixture_logger():
+    yield Logger(INTEGRATION_TEST_LOGGER_NAME)
 
 
 @pytest.fixture()
-def fixture_logging_settings(integration_test_configuration):
-    # Get the application insights string, which can be retrieved from the integration_test_configuration fixture
-    applicationinsights_connection_string = integration_test_configuration.get_applicationinsights_connection_string()
-    os.environ["APPLICATIONINSIGHTS_CONNECTION_STRING"] = applicationinsights_connection_string
-    os.environ["CLOUD_ROLE_NAME"] = INTEGRATION_TEST_CLOUD_ROLE_NAME
-    os.environ["SUBSYSTEM"] = INTEGRATION_TEST_TRACER_NAME
-    os.environ["ORCHESTRATION_INSTANCE_ID"] = str(uuid.uuid4())
-    logging_settings = config.LoggingSettings()
-    return logging_settings
+def integration_logging_configuration_setup(integration_test_configuration, scope="function"):
+    new_uuid = uuid.uuid4()
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
+    logging_settings = LoggingSettings(
+        cloud_role_name=unique_cloud_role_name,
+        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
+        subsystem="integration_test_subsystem",
+        orchestration_instance_id=uuid.uuid4(),
+    )
+    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+    logging.getLogger().handlers.clear()
+    yield configure_logging(logging_settings=logging_settings), logging_settings
+    cleanup_logging()
 
 
 @pytest.fixture()
-def fixture_extras():
-    return {"key": "value"}
+def integration_logging_configuration_setup_with_extras(integration_test_configuration, scope="function"):
+    key = "key"
+    extras = {key: "value"}
+    new_uuid = uuid.uuid4()
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
+    logging_settings = LoggingSettings(
+        cloud_role_name=unique_cloud_role_name,
+        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
+        subsystem="integration_test_subsystem",
+        orchestration_instance_id=uuid.uuid4(),
+    )
+    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+    logging.getLogger().handlers.clear()
+    yield configure_logging(logging_settings=logging_settings, extras=extras), logging_settings, extras
+    cleanup_logging()
 
 
 def _wait_for_condition(
@@ -43,7 +65,7 @@ def _wait_for_condition(
     workspace_id: str,
     query: str,
     expected_count: int,
-    timeout: timedelta = timedelta(minutes=2),
+    timeout: timedelta = timedelta(minutes=5),
     step: timedelta = timedelta(seconds=10),
 ) -> None:
     """
@@ -84,25 +106,20 @@ def _wait_for_condition(
                 )
                 raise
             time.sleep(step.seconds)
-            print(f"Condition not met after {elapsed_ms} ms. Retrying...")  # noqa
+            print(f"Condition not met after {elapsed_ms} ms. Retrying... Time: {datetime.now()}")  # noqa
 
 
 def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings,
-    fixture_extras,
+    integration_logging_configuration_setup,
 ) -> None:
-    # Arrange
-    logging_settings = fixture_logging_settings
-    logging_settings.force_configuration = True
-    extras = fixture_extras
+    _, logging_settings_from_fixture = integration_logging_configuration_setup
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
-
-    config.configure_logging(logging_settings=logging_settings, extras=extras)
+    cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
     # Act
-    with config.start_span(__name__) as span:
+    with start_span(__name__) as span:
         try:
             raise ValueError(message)
         except ValueError as e:
@@ -114,7 +131,7 @@ def test__exception_adds_log_to_app_exceptions(
 
     query = f"""
         AppExceptions
-        | where AppRoleName == "{INTEGRATION_TEST_CLOUD_ROLE_NAME}"
+        | where AppRoleName == "{cloud_role_name}"
         | where ExceptionType == "ValueError"
         | where OuterMessage == "{message}"
         | count
@@ -143,20 +160,18 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     logging_level: Callable[[Logger, str], None],
     severity_level: int,
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings,
+    integration_logging_configuration_setup_with_extras,
+    fixture_logger,
 ) -> None:
+    _, logging_settings_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+    logger = fixture_logger
     # Arrange
     new_uuid = uuid.uuid4()
-    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
-    message = "test message"
-    key = "key"
-    extras = {key: "value"}
-    new_settings = fixture_logging_settings
-    new_settings.cloud_role_name = new_unique_cloud_role_name
-    new_settings.force_configuration = True
+    message = f"test message {new_uuid}"
+    cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
-    config.configure_logging(logging_settings=new_settings, extras=extras)
-    logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
+    extras = extras_from_fixture
+    key = list(extras.keys())[0]  # Get the keyname of the extras dict
 
     # Act
     logging_level(logger, message)
@@ -168,7 +183,7 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     query = f"""
         AppTraces
         | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-        | where AppRoleName == "{new_unique_cloud_role_name}"
+        | where AppRoleName == "{cloud_role_name}"
         | where Message == "{message}"
         | where Properties.{key} == "{extras[key]}"
         | where SeverityLevel == {severity_level}
@@ -189,22 +204,16 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
 
 def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings,
-    fixture_extras,
+    integration_logging_configuration_setup_with_extras,
+    fixture_logger,
 ) -> None:
+    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+    logger = fixture_logger
     # Arrange
     log_count = 5
     new_uuid = uuid.uuid4()
-    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
-    message = "test message"
-    new_settings = fixture_logging_settings
-    new_settings.cloud_role_name = new_unique_cloud_role_name
-    new_settings.force_configuration = True
-    extras = fixture_extras
-
-    config.configure_logging(logging_settings=new_settings, extras=extras)
-
-    logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
+    message = f"test message {new_uuid}"
+    cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
     # Act
     for _ in range(log_count):
@@ -217,7 +226,7 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     query = f"""
         AppTraces
         | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-        | where AppRoleName == "{new_unique_cloud_role_name}"
+        | where AppRoleName == "{cloud_role_name}"
         | where Message == "{message}"
         | count
         """
@@ -235,27 +244,25 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
 
 def test__decorators_integration_test(
     integration_test_configuration: IntegrationTestConfiguration,
-    fixture_logging_settings,
-    fixture_extras,
+    integration_logging_configuration_setup_with_extras,
+    fixture_logger,
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
-    new_unique_cloud_role_name = f"{INTEGRATION_TEST_CLOUD_ROLE_NAME}-{new_uuid}"
-
-    new_settings = fixture_logging_settings
-    new_settings.cloud_role_name = new_unique_cloud_role_name
-    new_settings.force_configuration = True
-    extras = fixture_extras
-
-    # Configuring logging, setting the name of the trace based on new_settings.cloud_role_name
-    config.configure_logging(logging_settings=new_settings, extras=extras)
-    logger = Logger(INTEGRATION_TEST_LOGGER_NAME)
+    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+    logger = fixture_logger
+    cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
     # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
     # taking the name of the function using the decorator @start_trace: app_sample_function
 
-    test_message_start_trace = "test message app_sample_function"
-    test_message_use_span = "test message app_sample_subfunction"
+    decorator_message_start_trace = "Started executing function: app_sample_function"
+    test_message_start_trace = f"test message app_sample_function {new_uuid}"
+
+    decorator_message_use_span = (
+        "Started executing function: test__decorators_integration_test.<locals>.app_sample_subfunction"
+    )
+    test_message_use_span = f"test message app_sample_subfunction {new_uuid}"
 
     @start_trace()
     def app_sample_function(initial_span=None):
@@ -276,18 +283,30 @@ def test__decorators_integration_test(
     # Assert
     logs_client = LogsQueryClient(integration_test_configuration.credential)
 
-    query_start_trace = f"""
+    query_start_trace_decorator_message = f"""
             AppTraces
-            | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-            | where AppRoleName == "{new_unique_cloud_role_name}"
+            | where AppRoleName == "{cloud_role_name}"
+            | where Message == "{decorator_message_start_trace}"
+            | count
+            """
+
+    query_start_trace_test_message = f"""
+            AppTraces
+            | where AppRoleName == "{cloud_role_name}"
             | where Message == "{test_message_start_trace}"
             | count
             """
 
-    query_use_span = f"""
+    query_use_span_decorator_message = f"""
                 AppTraces
-                | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-                | where AppRoleName == "{new_unique_cloud_role_name}"
+                | where AppRoleName == "{cloud_role_name}"
+                | where Message == "{decorator_message_use_span}"
+                | count
+                """
+
+    query_use_span_test_message = f"""
+                AppTraces
+                | where AppRoleName == "{cloud_role_name}"
                 | where Message == "{test_message_use_span}"
                 | count
                 """
@@ -299,14 +318,27 @@ def test__decorators_integration_test(
     _wait_for_condition(
         logs_client=logs_client,
         workspace_id=workspace_id,
-        query=query_start_trace,
+        query=query_start_trace_decorator_message,
         expected_count=1,
     )
 
-    # Assert, but timeout if not succeeded
     _wait_for_condition(
         logs_client=logs_client,
         workspace_id=workspace_id,
-        query=query_use_span,
+        query=query_start_trace_test_message,
+        expected_count=1,
+    )
+
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query_use_span_decorator_message,
+        expected_count=1,
+    )
+
+    _wait_for_condition(
+        logs_client=logs_client,
+        workspace_id=workspace_id,
+        query=query_use_span_test_message,
         expected_count=1,
     )

@@ -21,6 +21,7 @@ from uuid import UUID
 from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
+from pydantic import Field
 
 from geh_common.parsing.pydantic_settings_parsing import PydanticParsingSettings
 
@@ -48,7 +49,7 @@ class LoggingSettings(PydanticParsingSettings):
     """LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging."""
 
     cloud_role_name: str
-    applicationinsights_connection_string: str | None = None
+    applicationinsights_connection_string: str | None = Field(repr=False, default=None)
     subsystem: str
     orchestration_instance_id: UUID
     force_configuration: bool = False
