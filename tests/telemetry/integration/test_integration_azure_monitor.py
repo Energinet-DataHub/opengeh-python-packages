@@ -2,7 +2,7 @@ import logging
 import sys
 import time
 import uuid
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Callable, cast
 
 import pytest
@@ -106,7 +106,7 @@ def _wait_for_condition(
                 )
                 raise
             time.sleep(step.seconds)
-            print(f"Condition not met after {elapsed_ms} ms. Retrying... Time: {datetime.now()}")  # noqa
+            print(f"Condition not met after {elapsed_ms} ms. Retrying...")  # noqa
 
 
 def test__exception_adds_log_to_app_exceptions(

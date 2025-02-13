@@ -92,11 +92,9 @@ def configure_logging(
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
-    # Add extras from logging_settings if present
-    if logging_settings.orchestration_instance_id is not None:
-        add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
-    if logging_settings.subsystem is not None:
-        add_extras({"subsystem": str(logging_settings.subsystem)})
+    # Add extras to log messages
+    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
+    add_extras({"subsystem": str(logging_settings.subsystem)})
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
