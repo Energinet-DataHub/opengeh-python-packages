@@ -80,7 +80,7 @@ class DatabricksApiClient:
         catalog: str,
         schema: str,
         statement: str,
-    ) -> None:
+    ) -> "DatabricksApiClient":
         """Execute a SQL statement for data seeding.
 
         Args:
@@ -102,6 +102,8 @@ class DatabricksApiClient:
 
             if response.status.state == "FAILED":
                 raise Exception(f"Seeding failed: {response.status.error}")
+
+            return self
 
         except Exception as e:
             raise Exception(f"Failed to execute seeding statement: {str(e)}")
