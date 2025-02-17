@@ -22,7 +22,7 @@ on:
 jobs:
   cd_reusable:
     name: Continuous Deployment
-    uses: ./.github/workflows/reusable-cd.yml
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@ci/python-cicd
     with:
       subsystem_name: common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test

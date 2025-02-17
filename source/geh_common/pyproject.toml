@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "4.1.0"
+version = "4.1.1"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -65,3 +65,6 @@ exclude = ["notebooks/*"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv.workspace]
+members = ["source/geh_common"]

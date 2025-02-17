@@ -1,16 +1,17 @@
 {
   "name": "geh_common",
   "build": {
-    "context": "..",
-    "dockerfile": "Dockerfile",
+    "context": "../..",
+    "dockerfile": "../Dockerfile",
     "args": {
       "UBUNTU_VERSION": "24.04",
       "ASDF_VERSION": "0.15.0"
     }
   },
   "remoteUser": "vscode",
-  "shutdownAction": "none",
-  "postCreateCommand": "~/scripts/post-create.sh",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace/source/geh_common",
+  "postCreateCommand": "~/scripts/post-create.sh ~",
   "postStartCommand": "uv sync",
   "containerEnv": {
     "UV_PROJECT_ENVIRONMENT": "/home/vscode/.venv",
