@@ -32,7 +32,8 @@ addopts = [
     "--cov-report=xml:coverage.xml",
     "--cov=geh_common",
     "-ra", # Show extra test summary info as specified by -ra
-    "-vv -s", # Verbose output and print to console
+    "-vv", # Verbose output for tests
+    "-s", # Print to console 
     "-x" # Stop running tests after the first failure
 ]
 cache_dir = ".cache/pytest"
