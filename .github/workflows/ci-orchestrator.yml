@@ -22,7 +22,7 @@ jobs:
   # Reusable CI
   #
   ci_unit:
-    uses: ./.github/workflows/reusable-ci.yml
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@ci/python-cicd
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests/**/unit
@@ -32,7 +32,7 @@ jobs:
   # Reusable CI
   #
   ci_integration:
-    uses: ./.github/workflows/reusable-ci.yml
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@ci/python-cicd
     with:
       packages_directory: ${{ github.workspace }}
       tests_directory: tests
