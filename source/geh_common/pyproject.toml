@@ -27,7 +27,14 @@ dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.4"]
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
-addopts = "--cov-report=term --cov-report=xml:coverage.xml --cov=geh_common -ra -vv -s"
+addopts = [
+    "--cov-report=term",
+    "--cov-report=xml:coverage.xml",
+    "--cov=geh_common",
+    "-ra", # Show extra test summary info as specified by -ra
+    "-vv -s", # Verbose output and print to console
+    "-x" # Stop running tests after the first failure
+]
 cache_dir = ".cache/pytest"
 
 [tool.coverage.report]
