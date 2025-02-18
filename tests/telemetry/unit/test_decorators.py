@@ -126,7 +126,7 @@ def test_logging_is_configured_error_thrown_span_records_exception(
     log_instance_in_test = mock_logger.return_value
 
     # Prepare
-    @start_trace(initial_span_name="app_sample_function")
+    @start_trace()
     def app_sample_function(initial_span=None):
         assert (1 + 1) == 2
         raise Exception  # Mimmic an raised exception during runtime

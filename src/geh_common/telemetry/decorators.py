@@ -61,7 +61,7 @@ def start_trace() -> Callable[..., Any]:
             with get_tracer().start_as_current_span(name_to_use, kind=SpanKind.SERVER) as initial_span:
                 # Log the start of the function execution
                 log = Logger(name_to_use)
-                log.info(f"Started executing from module: {name_to_use}")
+                log.info(f"Started executing function: {name_to_use}")
 
                 # Call the original function with both positional and keyword arguments
                 try:

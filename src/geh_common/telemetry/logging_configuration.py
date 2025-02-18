@@ -123,7 +123,7 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Add extras to log messages
-    add_extras({"orchestration_instance_id": logging_settings.orchestration_instance_id})
+    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
     add_extras({"subsystem": logging_settings.subsystem})
 
     # Mark logging state as configured
