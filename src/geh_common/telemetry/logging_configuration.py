@@ -23,7 +23,7 @@ from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
 from pydantic import Field
 
-from geh_common.parsing.pydantic_settings_parsing import PydanticParsingSettings
+from geh_common.application.pydantic_settings_parsing import ApplicationSettings
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
@@ -45,8 +45,38 @@ def get_logging_configured() -> bool:
     return _LOGGING_CONFIGURED
 
 
-class LoggingSettings(PydanticParsingSettings):
-    """LoggingSettings class uses Pydantic BaseSettings to configure and validate parameters in relation to setup of logging."""
+class LoggingSettings(ApplicationSettings):
+    """Configuration settings for logging, including OpenTelemetry and Azure Monitor integration.
+
+    This class extends `PydanticParsingSettings` to define and validate the necessary logging parameters.
+    It can be instantiated without explicitly passing arguments, provided that the required settings
+    are available via environment variables or CLI arguments.
+
+    Attributes:
+        cloud_role_name (str): The role name used for cloud-based logging.
+        applicationinsights_connection_string (str | None): The connection string for Azure Application Insights.
+            If `None`, logs will not be sent to Azure Monitor, which is useful for local testing.
+        subsystem (str): The name of the subsystem or application component.
+        orchestration_instance_id (UUID): A unique identifier for the orchestration instance.
+        force_configuration (bool): If `True`, forces logging configuration even if it has already been set.
+
+    Example:
+        ```python
+        import os
+        from logging_config import LoggingSettings, configure_logging
+
+        # Ensure required environment variables are set
+        os.environ["CLOUD_ROLE_NAME"] = "MyService"
+        os.environ["SUBSYSTEM"] = "Measurements"
+        os.environ["ORCHESTRATION_INSTANCE_ID"] = "123e4567-e89b-12d3-a456-426614174000"
+
+        # Instantiate settings (automatically pulls from env vars)
+        logging_settings = LoggingSettings()
+
+        # Configure logging with the settings
+        configure_logging(logging_settings=logging_settings)
+        ```
+    """
 
     cloud_role_name: str
     applicationinsights_connection_string: str | None = Field(repr=False, default=None)
@@ -93,8 +123,8 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Add extras to log messages
-    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
-    add_extras({"subsystem": str(logging_settings.subsystem)})
+    add_extras({"orchestration_instance_id": logging_settings.orchestration_instance_id})
+    add_extras({"subsystem": logging_settings.subsystem})
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED

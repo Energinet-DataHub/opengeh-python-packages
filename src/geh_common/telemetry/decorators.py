@@ -1,4 +1,3 @@
-import inspect
 import sys
 from typing import Any, Callable, Dict, Tuple
 
@@ -32,47 +31,49 @@ def use_span(name: str | None = None) -> Callable[..., Any]:
     return decorator
 
 
-def start_trace(initial_span_name: str | None = None) -> Callable[..., Any]:
-    """Set up initial span.
+def start_trace() -> Callable[..., Any]:
+    """Start an OpenTelemetry span for tracing function execution.
 
-    Decorator that checks if the logging_configuration.configure_logging method has been called prior to starting the
-    trace. Provides an initial span based on the provided initial_span_name parameter.
+    This decorator sets up a tracer (if not initialized) and starts a new span before executing
+    the decorated function. If no active trace exists, a new one is created. It also ensures logging
+    is configured, raising an error if not. The span name defaults to the function's name.
+
+    Args:
+        initial_span_name (str | None): Optional name for the span. Defaults to the function's name.
+
+    Returns:
+        Callable[..., Any]: A wrapped function that starts a span before execution.
+
+    Raises:
+        NotImplementedError: If logging is not configured before using the decorator.
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        func_signature = inspect.signature(func)  # Get function signature of function applying the decorator
-        accepts_initial_span = (
-            "initial_span" in func_signature.parameters
-        )  # Check if initial_span is in function params
-
         def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
             # Retrieve the logging_configured flag from logging_configuration to see if configure_logging() has been called
             logging_configured = get_logging_configured()
-            name_to_use = initial_span_name or func.__name__
-            if logging_configured:
-                # Start the tracer span using the current function name
-                with get_tracer().start_as_current_span(name_to_use, kind=SpanKind.SERVER) as initial_span:
-                    # Log the start of the function execution
-                    log = Logger(name_to_use)
-                    log.info(f"Started executing function: {name_to_use}")
+            name_to_use = func.__name__
 
-                    # Add the span and message to kwargs in order to be able to pass it back to func, only if the function accepts it
-                    if accepts_initial_span:
-                        kwargs["initial_span"] = initial_span
-
-                    # Call the original function with both positional and keyword arguments
-                    try:
-                        return func(*args, **kwargs)
-                    except SystemExit as e:
-                        if e.code != 0:
-                            span_record_exception(e, initial_span)
-                        sys.exit(e.code)
-
-                    except Exception as e:
-                        span_record_exception(e, initial_span)
-                        sys.exit(4)
-            else:
+            if not logging_configured:
                 raise NotImplementedError("Logging has not been configured before use of decorator.")
+
+            # Start the tracer span using the current function name
+            with get_tracer().start_as_current_span(name_to_use, kind=SpanKind.SERVER) as initial_span:
+                # Log the start of the function execution
+                log = Logger(name_to_use)
+                log.info(f"Started executing from module: {name_to_use}")
+
+                # Call the original function with both positional and keyword arguments
+                try:
+                    return func(*args, **kwargs)
+                except SystemExit as e:
+                    if e.code != 0:
+                        span_record_exception(e, initial_span)
+                    sys.exit(e.code)
+
+                except Exception as e:
+                    span_record_exception(e, initial_span)
+                    sys.exit(4)
 
         return wrapper
 

@@ -1,7 +1,7 @@
 from pydantic_settings import BaseSettings
 
 
-class PydanticParsingSettings(
+class ApplicationSettings(
     BaseSettings,
     cli_parse_args=True,
     cli_kebab_case=True,

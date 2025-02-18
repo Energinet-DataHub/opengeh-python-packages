@@ -55,6 +55,9 @@ coverage.xml
 .pytest_cache/
 cover/
 
+# Integration test file
+tests/telemetry/integration/integrationtest.local.settings.yml
+
 # Translations
 *.mo
 *.pot
@@ -176,6 +179,3 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
-
-# Integration test file
-tests/telemetry/integration/integrationtest.local.settings.yml
