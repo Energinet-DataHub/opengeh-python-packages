@@ -22,12 +22,10 @@ This code snippet demonstrates the initial configuration of logging using the te
    - Inside each function, a `Logger` instance can be created, inheriting settings and extras from the span.  
    - Log messages are recorded, capturing relevant execution details.  
 
-
 ```python
 from geh_common.telemetry.logging_configuration import LoggingSettings, configure_logging
 from geh_common.telemetry.span_recording import span_record_exception
 from geh_common.telemetry import Logger, use_span
-
 
 def entry_point() -> None:
     # Setup the configuration for logging, by instantiating a LoggingSettings object. This object reads settings from CLI / env vars
@@ -38,7 +36,6 @@ def entry_point() -> None:
     configure_logging(logging_settings=logging_settings, extras=some_extras)
     orchestrate_business_logic()
 
-
 # Use the start_trace() decorator, which will create an OpenTelemetry tracer if it has not yet been created.
 # Then, it creates an initial span using the decorated function's name "orchestrate_business_logic".
 # Create a logger (will inherit extras and name from the span and logging configuration setup initially).
@@ -48,7 +45,6 @@ def orchestrate_business_logic() -> None:
     log = Logger(__name__)
     log.info("Inside method orchestrate_business_logic - I will now orchestrate the execution of some other code")
     run_method()
-
 
 # run_method will create a nested span named "run_method" within the initial span "orchestrate_business_logic".
 @use_span()

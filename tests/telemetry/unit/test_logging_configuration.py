@@ -63,7 +63,7 @@ def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration
 
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": str(logging_settings_from_fixture.subsystem),
     }
 
     # Act
@@ -79,7 +79,7 @@ def test_get_extras__when_set_extras_are_returned(unit_logging_configuration):
     # Add the orchestration_instance_id and subsystem expected to be added automatically by configure_logging
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": str(logging_settings_from_fixture.subsystem),
     }
     extras_to_add = {"extra1": "extra value1"}
 
@@ -120,7 +120,7 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(unit_loggin
 
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": str(logging_settings_from_fixture.subsystem),
     }
     new_extras = {"new_key": "new_value"}
 

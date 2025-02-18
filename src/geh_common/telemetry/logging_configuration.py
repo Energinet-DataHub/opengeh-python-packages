@@ -68,7 +68,9 @@ class LoggingSettings(ApplicationSettings):
         # Ensure required environment variables are set
         os.environ["CLOUD_ROLE_NAME"] = "MyService"
         os.environ["SUBSYSTEM"] = "Measurements"
-        os.environ["ORCHESTRATION_INSTANCE_ID"] = "123e4567-e89b-12d3-a456-426614174000"
+
+        # A parameter to the execution could be passed like this:
+        # --orchestration-instance-id = "123e4567-e89b-12d3-a456-426614174000"
 
         # Instantiate settings (automatically pulls from env vars)
         logging_settings = LoggingSettings()
@@ -81,7 +83,7 @@ class LoggingSettings(ApplicationSettings):
     cloud_role_name: str
     applicationinsights_connection_string: str | None = Field(repr=False, default=None)
     subsystem: str
-    orchestration_instance_id: UUID
+    orchestration_instance_id: UUID | None = None
     force_configuration: bool = False
 
 
@@ -123,8 +125,9 @@ def configure_logging(
     logging.getLogger("py4j").setLevel(logging.WARNING)
 
     # Add extras to log messages
-    add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
-    add_extras({"subsystem": logging_settings.subsystem})
+    if logging_settings.orchestration_instance_id is not None:
+        add_extras({"orchestration_instance_id": str(logging_settings.orchestration_instance_id)})
+    add_extras({"Subsystem": logging_settings.subsystem})
 
     # Mark logging state as configured
     global _LOGGING_CONFIGURED
