@@ -36,8 +36,7 @@ spark_config = SparkSqlMigrationsConfiguration(
     catalog_name="spark_catalog",
 )
 
-create_and_configure_container(spark_config)
-migration_pipeline.migrate()
+migration_pipeline.migrate(spark_config)
 
 
 ```
