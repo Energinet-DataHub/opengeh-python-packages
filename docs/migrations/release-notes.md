@@ -1,5 +1,13 @@
 # Spark SQL Migrations Release Notes
 
+## Version 3.1.0
+
+Following changes were made to simplify the package's usage and reduce the consumer's need to understand its
+implementation details
+
+- Removed the use of `create_and_configure_container` for the consumer.
+- The `migrate` function now takes `SparkSqlMigrationsConfigurations` as a parameter.
+
 ## Version 3.0.0
 
 Breaking changes
