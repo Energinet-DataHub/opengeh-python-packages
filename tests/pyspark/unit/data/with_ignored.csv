@@ -1,4 +1,4 @@
-a;b;c
-1;[IGNORED];True
-2;[IGNORED];True
-3;[IGNORED];False
+a;b;c;
+1;[IGNORED];True;
+2;[IGNORED];True;
+3;[IGNORED];False;
