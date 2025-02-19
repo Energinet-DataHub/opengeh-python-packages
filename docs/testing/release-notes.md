@@ -1,5 +1,9 @@
 # Testcommon Release Notes
 
+## Version 0.3.2
+
+Fix ignored column functionality
+
 ## Version 0.3.1
 
 Added test for `write_to_delta` and the added functionality to `get_then_names`
