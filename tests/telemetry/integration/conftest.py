@@ -18,7 +18,8 @@ def telemetry_path() -> str:
     `os.chdir()`. The correctness also relies on the prerequisite that this function is
     actually located in a file located directly in the tests folder.
     """
-    return "source/telemetry"
+    telemetry_folder_path = Path(__file__).parent.parent
+    return str(telemetry_folder_path)
 
 
 @pytest.fixture(scope="session")
@@ -29,7 +30,7 @@ def telemetry_tests_path(telemetry_path: str) -> str:
     `os.chdir()`. The correctness also relies on the prerequisite that this function is
     actually located in a file located directly in the tests folder.
     """
-    return f"{telemetry_path}/tests"
+    return f"{telemetry_path}"
 
 
 @pytest.fixture(scope="session")
@@ -41,7 +42,7 @@ def integration_test_configuration(
     Proceeds even if certain Azure-related keys are not present in the settings file.
     """
 
-    settings_file_path = Path(telemetry_tests_path) / "integrationtest.local.settings.yml"
+    settings_file_path = Path(telemetry_tests_path) / "integration" / "integrationtest.local.settings.yml"
 
     def _load_settings_from_file(file_path: Path) -> dict:
         if file_path.exists():
