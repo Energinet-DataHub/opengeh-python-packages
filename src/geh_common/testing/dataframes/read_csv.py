@@ -34,8 +34,11 @@ def read_csv(
 
     raw_df = raw_df.drop(*ignored_cols)
 
+    # Filter out ignored columns from the schema
+    filtered_schema = T.StructType([field for field in schema.fields if field.name not in ignored_cols])
+
     transforms = []
-    for field in schema.fields:
+    for field in filtered_schema.fields:
         if field.name in raw_df.columns:
             if isinstance(field.dataType, T.ArrayType):
                 transforms.append(F.from_json(F.col(field.name), field.dataType).alias(field.name))
@@ -43,4 +46,4 @@ def read_csv(
                 transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
 
     df = raw_df.select(*transforms)
-    return spark.createDataFrame(df.rdd, schema=schema, verifySchema=True)
+    return spark.createDataFrame(df.rdd, schema=filtered_schema, verifySchema=True)
