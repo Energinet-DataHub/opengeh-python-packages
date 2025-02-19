@@ -24,7 +24,7 @@ def _wait_for_condition(
     workspace_id: str,
     query: str,
     expected_count: int,
-    timeout: timedelta = timedelta(minutes=2),
+    timeout: timedelta = timedelta(minutes=5),
     step: timedelta = timedelta(seconds=10),
 ) -> None:
     """
@@ -63,7 +63,9 @@ def _wait_for_condition(
                     f"Condition failed to be met before timeout. Timed out after {elapsed_ms} ms",
                     file=sys.stderr,
                 )
-                raise
+                raise Exception(
+                    f"Condition failed to be met before timeout. Timed out after {elapsed_ms} ms. Query: {query}"
+                )  # noqa
             time.sleep(step.seconds)
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")  # noqa
 
