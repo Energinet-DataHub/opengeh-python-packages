@@ -58,6 +58,7 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
         applicationinsights_connection_string="connection_string",
         subsystem="test_subsystem_updated",
         orchestration_instance_id=uuid4(),
+        tracer_name="tracer_name",
     )
     # Act (control that configure_azure_monitor() is not called using a patch)
     with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):

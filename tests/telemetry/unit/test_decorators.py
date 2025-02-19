@@ -29,7 +29,6 @@ def mock_env_args():
         "CLOUD_ROLE_NAME": "cloud_role_name from environment",
         "APPLICATIONINSIGHTS_CONNECTION_STRING": "connection_string",
         "SUBSYSTEM": "subsystem from environment",
-        "ORCHESTRATION_INSTANCE_ID": "4a540892-2c0a-46a9-9257-c4e13051d76b",
     }
     yield env_args
 
@@ -75,7 +74,7 @@ def test_use_span__when_name_is_not_defined(mock_logger, mock_start_span):
 def test_start_trace__when_logging_not_configured():
     # Prepare
     @start_trace()
-    def app_sample_function(initial_span=None):
+    def app_sample_function():
         assert (1 + 1) == 2
         return "I am an app sample function. Doing important calculations"
 
@@ -88,7 +87,10 @@ def test_start_trace__when_logging_not_configured():
 
 
 def test_start_trace__when_logging_is_configured(mock_env_args):
-    with patch("geh_common.telemetry.decorators.Logger") as mock_logger:  # Intercepts Logger(func.__name__)
+    with (
+        patch("geh_common.telemetry.decorators.Logger") as mock_logger,
+        patch("geh_common.telemetry.logging_configuration.configure_azure_monitor") as mock_configure_azure_monitor,
+    ):  # Intercepts Logger(func.__name__)
         log_instance_in_test = mock_logger.return_value  # Intercepts log = Logger(func.__name__)
 
         # Prepare
@@ -99,8 +101,8 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
 
         def entry_point():
             # Initial LoggingSettings
-            settings = LoggingSettings()
-            settings.applicationinsights_connection_string = None  # For testing purposes
+            settings = LoggingSettings(tracer_name="tracer_name_for_unit_test")
+            settings.applicationinsights_connection_string = "connection_string"  # For testing purposes
 
             configure_logging(
                 logging_settings=settings,
@@ -127,7 +129,7 @@ def test_logging_is_configured_error_thrown_span_records_exception(
 
     # Prepare
     @start_trace()
-    def app_sample_function(initial_span=None):
+    def app_sample_function():
         assert (1 + 1) == 2
         raise Exception  # Mimmic an raised exception during runtime
         return "I am an app sample function. Doing important calculations"
@@ -135,7 +137,7 @@ def test_logging_is_configured_error_thrown_span_records_exception(
     def entry_point():
         # Initial LoggingSettings
         settings = LoggingSettings()
-        settings.applicationinsights_connection_string = None  # For testing purposes
+        settings.applicationinsights_connection_string = "connection_string"  # For testing purposes
 
         configure_logging(
             logging_settings=settings,

@@ -58,7 +58,7 @@ class LoggingSettings(ApplicationSettings):
             If `None`, logs will not be sent to Azure Monitor, which is useful for local testing.
         subsystem (str): The name of the subsystem or application component.
         orchestration_instance_id (UUID): A unique identifier for the orchestration instance.
-        force_configuration (bool): If `True`, forces logging configuration even if it has already been set.
+        tracer_name: name to use for the open telemetry tracer.
 
     Example:
         ```python
@@ -73,7 +73,7 @@ class LoggingSettings(ApplicationSettings):
         # --orchestration-instance-id = "123e4567-e89b-12d3-a456-426614174000"
 
         # Instantiate settings (automatically pulls from env vars)
-        logging_settings = LoggingSettings()
+        logging_settings = LoggingSettings(tracer_name="tracer_name_for_job_name")
 
         # Configure logging with the settings
         configure_logging(logging_settings=logging_settings)
@@ -84,7 +84,6 @@ class LoggingSettings(ApplicationSettings):
     applicationinsights_connection_string: str = Field(repr=False)
     subsystem: str
     orchestration_instance_id: UUID | None = None
-    # TODO: Skal vi se om vi kan droppe global variabel _TRACER_NAME - læs docs.
 
 
 def configure_logging(
@@ -101,7 +100,7 @@ def configure_logging(
     This is useful for unit testing.
     """
     global _TRACER_NAME
-    _TRACER_NAME = logging_settings.subsystem
+    _TRACER_NAME = logging_settings.cloud_role_name
 
     # Only configure logging if not already instrumented
     global _IS_INSTRUMENTED
