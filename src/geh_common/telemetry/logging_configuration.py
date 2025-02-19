@@ -81,10 +81,11 @@ class LoggingSettings(ApplicationSettings):
     """
 
     cloud_role_name: str
-    applicationinsights_connection_string: str | None = Field(repr=False, default=None)
+    applicationinsights_connection_string: str = Field(repr=False)
     subsystem: str
     orchestration_instance_id: UUID | None = None
-    force_configuration: bool = False
+    force_configuration: bool = False  # TODO: Se om vi kan få den udryddet
+    # TODO: Skal vi se om vi kan droppe global variabel _TRACER_NAME - læs docs.
 
 
 def configure_logging(

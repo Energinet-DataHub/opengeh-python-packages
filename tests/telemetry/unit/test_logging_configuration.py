@@ -28,7 +28,9 @@ def cleanup_logging() -> None:
     os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
-def test_configure_logging__then_environmental_variables_are_set(unit_logging_configuration):
+def test_configure_logging__then_environmental_variables_are_set(
+    unit_logging_configuration_with_connection_string,
+):
     """
     Testing that the environment variable OTEL_SERVICE_NAME is set during invocation of configure_logging
     """
@@ -36,34 +38,40 @@ def test_configure_logging__then_environmental_variables_are_set(unit_logging_co
     expected_cloud_role_name = "test_role"
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == expected_cloud_role_name
+    # TODO: Patch and mock + assert configure_azure_monitor is called
+    # TODO: Renamed to initialization of opentelemetry
 
 
-def test_configure_logging__configure_does_update_environmental_variables(unit_logging_configuration):
+def test_configure_logging__configure_does_update_environmental_variables(
+    unit_logging_configuration_with_connection_string,
+):
     # Arrange
-    _, logging_settings_from_fixture = unit_logging_configuration
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
 
     # Create an updated logging_configuration, checking if it gets updated with a force_configuration = True
     updated_logging_config = LoggingSettings(
         cloud_role_name="test_role_updated",
+        applicationinsights_connection_string="connection_string",
         subsystem="test_subsystem_updated",
         force_configuration=True,
         orchestration_instance_id=uuid4(),
     )
     # Act
-    configure_logging(logging_settings=updated_logging_config)
+    with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
+        configure_logging(logging_settings=updated_logging_config)
 
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == updated_logging_config.cloud_role_name
     assert os.environ["OTEL_SERVICE_NAME"] != logging_settings_from_fixture.cloud_role_name
 
 
-def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration):
+def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration_with_connection_string):
     # Arrange
-    _, logging_settings_from_fixture = unit_logging_configuration
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
 
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "Subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": logging_settings_from_fixture.subsystem,
     }
 
     # Act
@@ -73,9 +81,9 @@ def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration
     assert actual_extras == default_expected_extras
 
 
-def test_get_extras__when_set_extras_are_returned(unit_logging_configuration):
+def test_get_extras__when_set_extras_are_returned(unit_logging_configuration_with_connection_string):
     # Arrange
-    _, logging_settings_from_fixture = unit_logging_configuration
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
     # Add the orchestration_instance_id and subsystem expected to be added automatically by configure_logging
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
@@ -92,8 +100,10 @@ def test_get_extras__when_set_extras_are_returned(unit_logging_configuration):
     assert actual_extras == expected_extras
 
 
-def test_configure_logging__when_no_connection_string_is_instrumented_does_not_reconfigure(unit_logging_configuration):
-    # Verifies that the initial log configuration fom the unit_logging_configuration will remain not instrumented, even though we force configuration with an empty connection string
+def test_configure_logging__when_no_connection_string_is_instrumented_does_not_reconfigure(
+    unit_logging_configuration_with_connection_string,
+):
+    # Verifies that the initial log configuration fom the unit_logging_configuration_with_connection_string will remain not instrumented, even though we force configuration with an empty connection string
     # Arrange
     initial_is_instrumented = _IS_INSTRUMENTED
 
@@ -101,7 +111,7 @@ def test_configure_logging__when_no_connection_string_is_instrumented_does_not_r
     updated_logging_config = LoggingSettings(
         cloud_role_name="test_role_updated",
         subsystem="test_subsystem_updated",
-        applicationinsights_connection_string=None,
+        applicationinsights_connection_string="connection_string",
         orchestration_instance_id=uuid4(),
         force_configuration=True,
     )
@@ -114,9 +124,13 @@ def test_configure_logging__when_no_connection_string_is_instrumented_does_not_r
     assert actual_is_instrumented == initial_is_instrumented
 
 
-def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(unit_logging_configuration_with_extras):
+def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(
+    unit_logging_configuration_with_connection_string_with_extras,
+):
     # Arrange
-    _, logging_settings_from_fixture, initial_extras_from_fixture = unit_logging_configuration_with_extras
+    _, logging_settings_from_fixture, initial_extras_from_fixture = (
+        unit_logging_configuration_with_connection_string_with_extras
+    )
 
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
@@ -134,7 +148,7 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(unit_loggin
     assert expected_extras == actual_extras
 
 
-def test_get_tracer__then_a_tracer_is_returned(unit_logging_configuration):
+def test_get_tracer__then_a_tracer_is_returned(unit_logging_configuration_with_connection_string):
     # Arrange
     tracer = get_tracer()
 
@@ -142,12 +156,14 @@ def test_get_tracer__then_a_tracer_is_returned(unit_logging_configuration):
     assert tracer is not None
 
 
-def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure(unit_logging_configuration):
+def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure(
+    unit_logging_configuration_with_connection_string,
+):
     # Arrange
     updated_logging_config = LoggingSettings(
         cloud_role_name="test_role_updated",
         subsystem="test_subsystem_updated",
-        applicationinsights_connection_string=None,
+        applicationinsights_connection_string="new_connection_string",
         orchestration_instance_id=uuid4(),
         force_configuration=True,
     )
@@ -159,7 +175,7 @@ def test_get_tracer__then_a_tracer_is_returned_also_with_force_configure(unit_lo
     assert tracer is not None
 
 
-def test_start_span__span_is_started(unit_logging_configuration):
+def test_start_span__span_is_started(unit_logging_configuration_with_connection_string):
     # Assert
     tracer = get_tracer()
     with start_span("test_span") as span:
@@ -167,12 +183,12 @@ def test_start_span__span_is_started(unit_logging_configuration):
     assert tracer is not None
 
 
-def test_start_span__span_is_started_with_force_configuration(unit_logging_configuration):
+def test_start_span__span_is_started_with_force_configuration(unit_logging_configuration_with_connection_string):
     # Arrange
     updated_logging_config = LoggingSettings(
         cloud_role_name="test_role_updated",
         subsystem="test_subsystem_updated",
-        applicationinsights_connection_string=None,
+        applicationinsights_connection_string="new_connection_string",
         orchestration_instance_id=uuid4(),
         force_configuration=True,
     )
@@ -214,7 +230,7 @@ def test_configure_logging__cloud_role_name_is_not_updated_when_reconfigured(
     mock_configure_azure_monitor, unit_logging_configuration_with_connection_string
 ):
     # Arrange
-    # Fixture unit_logging_configuration_with_connection_string sets the configuration initally, with expected value
+    # Fixture unit_logging_configuration_with_connection_string_with_connection_string sets the configuration initally, with expected value
     _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
     initial_cloud_role_name = logging_settings_from_fixture.cloud_role_name
     # Arrange new logging config
@@ -237,7 +253,7 @@ def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_fo
     mock_configure_azure_monitor, unit_logging_configuration_with_connection_string
 ):
     # Arrange
-    # Fixture unit_logging_configuration_with_connection_string sets the configuration initally
+    # Fixture unit_logging_configuration_with_connection_string_with_connection_string sets the configuration initally
     _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
     initial_cloud_role_name = logging_settings_from_fixture.cloud_role_name
     # Arrange new logging config
@@ -256,7 +272,7 @@ def test_configure_logging__cloud_role_name_is_updated_when_reconfigured_with_fo
     assert os.environ["OTEL_SERVICE_NAME"] == updated_logging_config.cloud_role_name
 
 
-def test_configure_logging_check_if_logging_configured(unit_logging_configuration):
+def test_configure_logging_check_if_logging_configured(unit_logging_configuration_with_connection_string):
     # Arrange
     expected_logging_is_configured = True
 
