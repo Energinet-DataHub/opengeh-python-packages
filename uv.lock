@@ -447,7 +447,7 @@ requires-dist = [
     { name = "azure-core", specifier = ">=1.30.0,<2.0.0" },
     { name = "azure-identity", specifier = ">=1.16.1,<2.0.0" },
     { name = "azure-keyvault-secrets", specifier = ">=4.7.0,<5.0.0" },
-    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<2.0.0" },
+    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<1.6.5" },
     { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
     { name = "databricks-sdk", specifier = ">=0.42.0" },
     { name = "delta-spark", specifier = ">=3.1,<4.0" },
