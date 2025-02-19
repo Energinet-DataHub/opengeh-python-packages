@@ -26,7 +26,7 @@ def fixture_logger():
     yield Logger(INTEGRATION_TEST_LOGGER_NAME)
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def integration_logging_configuration_setup(integration_test_configuration, scope="function"):
     new_uuid = uuid.uuid4()
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
@@ -42,7 +42,7 @@ def integration_logging_configuration_setup(integration_test_configuration, scop
     cleanup_logging()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 def integration_logging_configuration_setup_with_extras(integration_test_configuration, scope="function"):
     key = "key"
     extras = {key: "value"}

@@ -84,7 +84,6 @@ class LoggingSettings(ApplicationSettings):
     applicationinsights_connection_string: str = Field(repr=False)
     subsystem: str
     orchestration_instance_id: UUID | None = None
-    force_configuration: bool = False  # TODO: Se om vi kan få den udryddet
     # TODO: Skal vi se om vi kan droppe global variabel _TRACER_NAME - læs docs.
 
 
@@ -104,9 +103,9 @@ def configure_logging(
     global _TRACER_NAME
     _TRACER_NAME = logging_settings.subsystem
 
-    # Only configure logging once unless forced.
+    # Only configure logging if not already instrumented
     global _IS_INSTRUMENTED
-    if _IS_INSTRUMENTED and not logging_settings.force_configuration:
+    if _IS_INSTRUMENTED:
         return
 
     # Configure structured logging data to be included in every log message.
