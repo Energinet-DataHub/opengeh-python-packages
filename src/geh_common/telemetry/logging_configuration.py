@@ -72,8 +72,8 @@ class LoggingSettings(ApplicationSettings):
     Attributes:
         cloud_role_name (str): The role name used for cloud-based logging. Please use a cloud_role_name that is unique for the job being executed. This will be searchable in Applicaiton Insights as the "Role Name"
         applicationinsights_connection_string (str): The connection string for Azure Application Insights.
-        subsystem (str): The name of the subsystem or application component. This can be used to search for events in Application Insights using "Select property" -> "Subsystem"
-        orchestration_instance_id (UUID | None): A unique identifier for the orchestration instance.
+        subsystem (str): The name of the subsystem or application component. This can be used to search for events in Application Insights using "Select property" -> "Subsystem".
+        orchestration_instance_id (UUID | None): A unique identifier for the orchestration instance. Also searchable under Properties in Application Insights if added.
 
     Example:
         ```python
