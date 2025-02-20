@@ -8,14 +8,12 @@ from geh_common.telemetry.logging_configuration import (
     configure_logging,
     set_extras,
     set_is_instrumented,
-    set_logging_configured,
     set_tracer,
     set_tracer_name,
 )
 
 
 def cleanup_logging() -> None:
-    set_logging_configured(False)
     set_extras({})
     set_is_instrumented(False)
     set_tracer(None)

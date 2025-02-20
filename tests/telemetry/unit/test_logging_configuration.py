@@ -6,26 +6,15 @@ from uuid import uuid4
 import pytest
 from pydantic_core import ValidationError
 
-from geh_common.telemetry import logging_configuration
 from geh_common.telemetry.logging_configuration import (
     LoggingSettings,
     add_extras,
     configure_logging,
     get_extras,
-    get_logging_configured,
+    get_is_instrumented,
     get_tracer,
-    set_logging_configured,
     start_span,
 )
-
-
-def cleanup_logging() -> None:
-    set_logging_configured(False)
-    logging_configuration._EXTRAS = {}
-    logging_configuration._IS_INSTRUMENTED = False
-    logging_configuration._TRACER = None
-    logging_configuration._TRACER_NAME = ""
-    os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
 @patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
@@ -149,7 +138,7 @@ def test_configure_logging_check_if_logging_configured(unit_logging_configuratio
     expected_logging_is_configured = True
 
     # Assert
-    actual_logging_is_configured = get_logging_configured()
+    actual_logging_is_configured = get_is_instrumented()
     assert actual_logging_is_configured == expected_logging_is_configured
 
 

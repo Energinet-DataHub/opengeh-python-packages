@@ -31,19 +31,17 @@ _EXTRAS: dict[str, Any] = {}
 _IS_INSTRUMENTED: bool = False
 _TRACER: Tracer | None = None
 _TRACER_NAME: str
-_LOGGING_CONFIGURED: bool = False  # Flag to track if logging is configured
-
-
-def set_logging_configured(is_configured: bool) -> None:
-    """Set the current logging configuration state."""
-    global _LOGGING_CONFIGURED
-    _LOGGING_CONFIGURED = is_configured
 
 
 def set_extras(extras: dict[str, Any]) -> None:
     """Set the extras dictionary."""
     global _EXTRAS
     _EXTRAS = extras
+
+
+def get_is_instrumented() -> bool:
+    """Return the current logging configuration state."""
+    return _IS_INSTRUMENTED
 
 
 def set_is_instrumented(is_instrumented: bool) -> None:
@@ -64,11 +62,6 @@ def set_tracer_name(tracer_name: str) -> None:
     _TRACER_NAME = tracer_name
 
 
-def get_logging_configured() -> bool:
-    """Return the current logging configuration state."""
-    return _LOGGING_CONFIGURED
-
-
 class LoggingSettings(ApplicationSettings):
     """Configuration settings for logging, including OpenTelemetry and Azure Monitor integration.
 
@@ -77,9 +70,9 @@ class LoggingSettings(ApplicationSettings):
     are available via environment variables or CLI arguments.
 
     Attributes:
-        cloud_role_name (str): The role name used for cloud-based logging. Please use a cloud_role_name that is unique for the job being executed.
+        cloud_role_name (str): The role name used for cloud-based logging. Please use a cloud_role_name that is unique for the job being executed. This will be searchable in Applicaiton Insights as the "Role Name"
         applicationinsights_connection_string (str): The connection string for Azure Application Insights.
-        subsystem (str): The name of the subsystem or application component.
+        subsystem (str): The name of the subsystem or application component. This can be used to search for events in Application Insights using "Select property" -> "Subsystem"
         orchestration_instance_id (UUID | None): A unique identifier for the orchestration instance.
 
     Example:
@@ -125,8 +118,7 @@ def configure_logging(
     _TRACER_NAME = logging_settings.cloud_role_name
 
     # Only configure logging if not already instrumented
-    global _IS_INSTRUMENTED
-    if _IS_INSTRUMENTED:
+    if get_is_instrumented():
         return
 
     # Configure structured logging data to be included in every log message.
@@ -139,7 +131,6 @@ def configure_logging(
 
     # Configure OpenTelemetry to log to Azure Monitor.
     configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
-    _IS_INSTRUMENTED = True
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
@@ -150,8 +141,7 @@ def configure_logging(
     add_extras({"Subsystem": logging_settings.subsystem})
 
     # Mark logging state as configured
-    global _LOGGING_CONFIGURED
-    _LOGGING_CONFIGURED = True
+    set_is_instrumented(True)
 
 
 def get_extras() -> dict[str, Any]:

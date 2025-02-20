@@ -5,7 +5,7 @@ from opentelemetry.trace import SpanKind
 
 from geh_common.telemetry.logger import Logger
 from geh_common.telemetry.logging_configuration import (
-    get_logging_configured,
+    get_is_instrumented,
     get_tracer,
     start_span,
 )
@@ -48,7 +48,7 @@ def start_trace() -> Callable[..., Any]:
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
         def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
             # Retrieve the logging_configured flag from logging_configuration to see if configure_logging() has been called
-            logging_configured = get_logging_configured()
+            logging_configured = get_is_instrumented()
             name_to_use = func.__name__
 
             if not logging_configured:

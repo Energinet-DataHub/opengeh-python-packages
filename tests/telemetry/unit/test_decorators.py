@@ -8,8 +8,7 @@ from geh_common.telemetry.logging_configuration import (
     LoggingSettings,
     configure_logging,
 )
-
-from .test_logging_configuration import cleanup_logging
+from tests.telemetry.conftest import cleanup_logging
 
 
 # Mocking the Logger and start_span
