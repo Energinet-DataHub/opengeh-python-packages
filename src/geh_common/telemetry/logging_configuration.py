@@ -23,7 +23,7 @@ from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
 from pydantic import Field
 
-from geh_common.application.pydantic_settings_parsing import ApplicationSettings
+from geh_common.application.settings import ApplicationSettings
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
@@ -34,10 +34,34 @@ _TRACER_NAME: str
 _LOGGING_CONFIGURED: bool = False  # Flag to track if logging is configured
 
 
-def set_logging_configured(configured: bool) -> None:
-    """Set the global flag indicating logging has been configured."""
+def set_logging_configured(is_configured: bool) -> None:
+    """Set the current logging configuration state."""
     global _LOGGING_CONFIGURED
-    _LOGGING_CONFIGURED = configured
+    _LOGGING_CONFIGURED = is_configured
+
+
+def set_extras(extras: dict[str, Any]) -> None:
+    """Set the extras dictionary."""
+    global _EXTRAS
+    _EXTRAS = extras
+
+
+def set_is_instrumented(is_instrumented: bool) -> None:
+    """Set the instrumentation state."""
+    global _IS_INSTRUMENTED
+    _IS_INSTRUMENTED = is_instrumented
+
+
+def set_tracer(tracer: Tracer | None) -> None:
+    """Set the tracer instance."""
+    global _TRACER
+    _TRACER = tracer
+
+
+def set_tracer_name(tracer_name: str) -> None:
+    """Set the tracer name."""
+    global _TRACER_NAME
+    _TRACER_NAME = tracer_name
 
 
 def get_logging_configured() -> bool:
@@ -48,17 +72,15 @@ def get_logging_configured() -> bool:
 class LoggingSettings(ApplicationSettings):
     """Configuration settings for logging, including OpenTelemetry and Azure Monitor integration.
 
-    This class extends `PydanticParsingSettings` to define and validate the necessary logging parameters.
+    This class extends `ApplicationSettings` to define and validate the necessary logging parameters.
     It can be instantiated without explicitly passing arguments, provided that the required settings
     are available via environment variables or CLI arguments.
 
     Attributes:
-        cloud_role_name (str): The role name used for cloud-based logging. Is also used for setting the name of the tracer
-        applicationinsights_connection_string (str | None): The connection string for Azure Application Insights.
-            If `None`, logs will not be sent to Azure Monitor, which is useful for local testing.
+        cloud_role_name (str): The role name used for cloud-based logging. Please use a cloud_role_name that is unique for the job being executed.
+        applicationinsights_connection_string (str): The connection string for Azure Application Insights.
         subsystem (str): The name of the subsystem or application component.
-        orchestration_instance_id (UUID): A unique identifier for the orchestration instance.
-        tracer_name: name to use for the open telemetry tracer.
+        orchestration_instance_id (UUID | None): A unique identifier for the orchestration instance.
 
     Example:
         ```python
@@ -116,9 +138,8 @@ def configure_logging(
     os.environ["OTEL_SERVICE_NAME"] = logging_settings.cloud_role_name
 
     # Configure OpenTelemetry to log to Azure Monitor.
-    if logging_settings.applicationinsights_connection_string is not None:
-        configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
-        _IS_INSTRUMENTED = True
+    configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
+    _IS_INSTRUMENTED = True
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)

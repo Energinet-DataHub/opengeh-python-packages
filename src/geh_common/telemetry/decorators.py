@@ -36,10 +36,7 @@ def start_trace() -> Callable[..., Any]:
 
     This decorator sets up a tracer (if not initialized) and starts a new span before executing
     the decorated function. If no active trace exists, a new one is created. It also ensures logging
-    is configured, raising an error if not. The span name defaults to the function's name.
-
-    Args:
-        initial_span_name (str | None): Optional name for the span. Defaults to the function's name.
+    is configured, raising an error if not.
 
     Returns:
         Callable[..., Any]: A wrapped function that starts a span before execution.

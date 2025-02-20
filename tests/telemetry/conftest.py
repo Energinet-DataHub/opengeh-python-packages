@@ -3,16 +3,23 @@ from unittest import mock
 
 import pytest
 
-from geh_common.telemetry import logging_configuration
-from geh_common.telemetry.logging_configuration import LoggingSettings, configure_logging, set_logging_configured
+from geh_common.telemetry.logging_configuration import (
+    LoggingSettings,
+    configure_logging,
+    set_extras,
+    set_is_instrumented,
+    set_logging_configured,
+    set_tracer,
+    set_tracer_name,
+)
 
 
 def cleanup_logging() -> None:
     set_logging_configured(False)
-    logging_configuration._EXTRAS = {}
-    logging_configuration._IS_INSTRUMENTED = False
-    logging_configuration._TRACER = None
-    logging_configuration._TRACER_NAME = ""
+    set_extras({})
+    set_is_instrumented(False)
+    set_tracer(None)
+    set_tracer_name("")
     os.environ.pop("OTEL_SERVICE_NAME", None)
 
 

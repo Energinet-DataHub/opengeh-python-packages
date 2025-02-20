@@ -1,3 +1,3 @@
-from geh_common.application import pydantic_settings_parsing
+from geh_common.application import settings
 
-__all__ = [pydantic_settings_parsing.__name__]  # type: ignore
+__all__ = [settings.__name__]  # type: ignore
