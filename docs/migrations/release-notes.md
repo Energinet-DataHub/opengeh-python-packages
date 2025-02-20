@@ -1,5 +1,11 @@
 # Spark SQL Migrations Release Notes
 
+## Version 5.0.1
+
+Bug fix:
+
+- The incorrect import caused the consumer build to fail
+
 ## Version 5.0.0
 
 Following changes were made to simplify the package's usage and reduce the consumer's need to understand its
