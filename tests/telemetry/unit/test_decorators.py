@@ -101,7 +101,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
 
         def entry_point():
             # Initial LoggingSettings
-            settings = LoggingSettings(tracer_name="tracer_name_for_unit_test")
+            settings = LoggingSettings()
             settings.applicationinsights_connection_string = "connection_string"  # For testing purposes
 
             configure_logging(

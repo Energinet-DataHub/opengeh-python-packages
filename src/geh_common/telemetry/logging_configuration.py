@@ -53,7 +53,7 @@ class LoggingSettings(ApplicationSettings):
     are available via environment variables or CLI arguments.
 
     Attributes:
-        cloud_role_name (str): The role name used for cloud-based logging.
+        cloud_role_name (str): The role name used for cloud-based logging. Is also used for setting the name of the tracer
         applicationinsights_connection_string (str | None): The connection string for Azure Application Insights.
             If `None`, logs will not be sent to Azure Monitor, which is useful for local testing.
         subsystem (str): The name of the subsystem or application component.

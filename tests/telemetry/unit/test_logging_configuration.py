@@ -37,11 +37,11 @@ def test_configure_logging__then_environmental_variables_are_set_and_configure_a
     Testing that the environment variable OTEL_SERVICE_NAME is set during invocation of configure_logging
     """
     # Arrange
-    expected_cloud_role_name = "test_role"
+    _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
+    expected_cloud_role_name = logging_settings_from_fixture.cloud_role_name
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == expected_cloud_role_name
     mock_configure_azure_monitor.assert_called_once
-    # TODO: Renamed to initialization of opentelemetry
 
 
 @patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
@@ -58,7 +58,6 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
         applicationinsights_connection_string="connection_string",
         subsystem="test_subsystem_updated",
         orchestration_instance_id=uuid4(),
-        tracer_name="tracer_name",
     )
     # Act (control that configure_azure_monitor() is not called using a patch)
     with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
@@ -92,7 +91,7 @@ def test_get_extras__when_set_extras_are_returned(unit_logging_configuration_wit
     # Add the orchestration_instance_id and subsystem expected to be added automatically by configure_logging
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "Subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": logging_settings_from_fixture.subsystem,
     }
     extras_to_add = {"extra1": "extra value1"}
 
@@ -115,7 +114,7 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(
 
     default_expected_extras = {
         "orchestration_instance_id": str(logging_settings_from_fixture.orchestration_instance_id),
-        "Subsystem": str(logging_settings_from_fixture.subsystem),
+        "Subsystem": logging_settings_from_fixture.subsystem,
     }
     new_extras = {"new_key": "new_value"}
 
