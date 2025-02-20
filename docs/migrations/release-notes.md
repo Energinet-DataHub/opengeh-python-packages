@@ -1,6 +1,6 @@
 # Spark SQL Migrations Release Notes
 
-## Version 3.1.0
+## Version 5.0.0
 
 Following changes were made to simplify the package's usage and reduce the consumer's need to understand its
 implementation details
