@@ -1,7 +1,7 @@
 import geh_common.migrations.infrastructure.apply_migration_scripts as apply_migrations
 import geh_common.migrations.infrastructure.uncommitted_migration_scripts as uncommitted_migrations
+from geh_common.migrations import SparkSqlMigrationsConfiguration
 from geh_common.migrations.container import create_and_configure_container
-from src.geh_common.migrations import SparkSqlMigrationsConfiguration
 
 
 def migrate(configuration: SparkSqlMigrationsConfiguration) -> None:
