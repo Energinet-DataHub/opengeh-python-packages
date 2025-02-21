@@ -6,4 +6,4 @@ from geh_common.migrations.models.spark_sql_migrations_configuration import (
 __all__ = [
     "schema_migration_pipeline",
     "SparkSqlMigrationsConfiguration",
-]  # type: ignore
+]
