@@ -414,7 +414,7 @@ wheels = [
 
 [[package]]
 name = "geh-common"
-version = "4.1.1"
+version = "5.0.1"
 source = { editable = "." }
 dependencies = [
     { name = "azure-core" },
@@ -441,7 +441,7 @@ requires-dist = [
     { name = "azure-core", specifier = ">=1.30.0,<2.0.0" },
     { name = "azure-identity", specifier = ">=1.16.1,<2.0.0" },
     { name = "azure-keyvault-secrets", specifier = ">=4.7.0,<5.0.0" },
-    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<2.0.0" },
+    { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0,<1.6.5" },
     { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
     { name = "databricks-sdk", specifier = ">=0.42.0" },
     { name = "delta-spark", specifier = ">=3.1,<4.0" },
@@ -816,7 +816,7 @@ name = "portalocker"
 version = "2.10.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "pywin32", marker = "sys_platform == 'win32'" },
+    { name = "pywin32", marker = "platform_system == 'Windows'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/ed/d3/c6c64067759e87af98cc668c1cc75171347d0f1577fab7ca3749134e3cd4/portalocker-2.10.1.tar.gz", hash = "sha256:ef1bf844e878ab08aee7e40184156e1151f228f103aa5c6bd0724cc330960f8f", size = 40891 }
 wheels = [
