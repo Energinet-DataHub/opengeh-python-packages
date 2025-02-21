@@ -6,6 +6,6 @@ from geh_common.testing.delta_lake.delta_lake_operations import (
 )
 
 __all__ = [
-    create_database.__name__,
-    create_table.__name__,
-]  # type: ignore
+    "create_database",
+    "create_table",
+]

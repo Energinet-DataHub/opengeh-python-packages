@@ -12,10 +12,10 @@ from geh_common.testing.dataframes.write_to_delta import (
 )
 
 __all__ = [
-    AssertDataframesConfiguration.__name__,
-    assert_dataframes_and_schemas.__name__,
-    assert_contract.__name__,
-    assert_schema.__name__,
-    read_csv.__name__,
-    write_when_files_to_delta.__name__,
-]  # type: ignore
+    "AssertDataframesConfiguration",
+    "assert_dataframes_and_schemas",
+    "assert_contract",
+    "assert_schema",
+    "read_csv",
+    "write_when_files_to_delta",
+]

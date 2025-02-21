@@ -1,3 +1,3 @@
 from .databricks_api_client import DatabricksApiClient
 
-__all__ = [DatabricksApiClient.__name__]
+__all__ = ["DatabricksApiClient"]

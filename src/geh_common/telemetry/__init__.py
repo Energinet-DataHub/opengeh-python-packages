@@ -8,7 +8,7 @@ from geh_common.telemetry.logger import Logger
 from geh_common.telemetry.span_recording import span_record_exception
 
 __all__ = [
-    Logger.__name__,
-    use_span.__name__,
-    span_record_exception.__name__,
-]  # type: ignore
+    "Logger",
+    "use_span",
+    "span_record_exception",
+]
