@@ -60,6 +60,20 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
     cleanup_logging()
 
 
+def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
+    actual = cast(LogsQueryResult, actual)
+    table = actual.tables[0]
+    row = table.rows[0]
+    value = row["Count"]
+    count = cast(int, value)
+    assert count == expected_count
+
+
+def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int) -> None:
+    actual = logs_client.query_workspace(workspace_id, query, timespan=LOOK_BACK_FOR_QUERY)
+    _assert_row_count(actual, expected_count)
+
+
 def _wait_for_condition(
     logs_client: LogsQueryClient,
     workspace_id: str,
@@ -72,19 +86,6 @@ def _wait_for_condition(
     Wait for a condition to be met, or timeout.
     The function keeps invoking the callback until it returns without raising an exception.
     """
-
-    def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
-        actual = cast(LogsQueryResult, actual)
-        table = actual.tables[0]
-        row = table.rows[0]
-        value = row["Count"]
-        count = cast(int, value)
-        assert count == expected_count
-
-    def _assert_logged(logs_client: LogsQueryClient, workspace_id: str, query: str, expected_count: int) -> None:
-        actual = logs_client.query_workspace(workspace_id, query, timespan=LOOK_BACK_FOR_QUERY)
-        _assert_row_count(actual, expected_count)
-
     start_time = time.time()
     while True:
         elapsed_ms = int((time.time() - start_time) * 1000)
@@ -265,7 +266,7 @@ def test__decorators_integration_test(
     test_message_use_span = f"test message app_sample_subfunction {new_uuid}"
 
     @start_trace()
-    def app_sample_function(initial_span=None):
+    def app_sample_function():
         assert (1 + 1) == 2
         log_message = test_message_start_trace
         logger.info(log_message)
@@ -315,30 +316,19 @@ def test__decorators_integration_test(
     workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
     # Assert, but timeout if not succeeded
+    # wait_for_condition only needed for the first query as the delay of the logs query client will be over when the first assert succeeds
     _wait_for_condition(
         logs_client=logs_client,
         workspace_id=workspace_id,
         query=query_start_trace_decorator_message,
         expected_count=1,
     )
-
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query_start_trace_test_message,
-        expected_count=1,
+    _assert_logged(
+        logs_client=logs_client, workspace_id=workspace_id, query=query_start_trace_test_message, expected_count=1
     )
-
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query_use_span_decorator_message,
-        expected_count=1,
+    _assert_logged(
+        logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_decorator_message, expected_count=1
     )
-
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query_use_span_test_message,
-        expected_count=1,
+    _assert_logged(
+        logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_test_message, expected_count=1
     )

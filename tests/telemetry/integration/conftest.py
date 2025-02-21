@@ -9,28 +9,17 @@ from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
 )
 
-
-@pytest.fixture(scope="session")
-def telemetry_path() -> str:
-    """
-    Returns the source/telemetry/ folder path.
-    Please note that this only works if current folder haven't been changed prior using
-    `os.chdir()`. The correctness also relies on the prerequisite that this function is
-    actually located in a file located directly in the tests folder.
-    """
-    telemetry_folder_path = Path(__file__).parent.parent
-    return str(telemetry_folder_path)
+from ...constants import TESTS_ROOT_DIR
 
 
 @pytest.fixture(scope="session")
-def telemetry_tests_path(telemetry_path: str) -> str:
+def telemetry_tests_path() -> str:
     """
-    Returns the tests folder path.
-    Please note that this only works if current folder haven't been changed prior using
-    `os.chdir()`. The correctness also relies on the prerequisite that this function is
-    actually located in a file located directly in the tests folder.
+    Returns the tests folder path for telemetry.
+    Please note that this only works if the constant TESTS_ROOT_DIR in constants module is maintained.
     """
-    return f"{telemetry_path}"
+    telemetry_tests_path = TESTS_ROOT_DIR / "telemetry"
+    return f"{telemetry_tests_path}"
 
 
 @pytest.fixture(scope="session")

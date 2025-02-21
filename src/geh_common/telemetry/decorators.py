@@ -46,7 +46,7 @@ def start_trace() -> Callable[..., Any]:
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:
+        def wrapper(*args: Tuple[Any], **kwargs: Dict[str, Any]) -> Any:  # TODO: Add comment about this
             # Retrieve the logging_configured flag from logging_configuration to see if configure_logging() has been called
             logging_configured = get_is_instrumented()
             name_to_use = func.__name__
