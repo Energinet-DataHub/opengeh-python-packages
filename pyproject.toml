@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.1.1"
+version = "5.2.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -16,6 +16,8 @@ dependencies = [
     "azure-monitor-query>=1.2.0,<2.0.0",
     "pyyaml>=6.0.2",
     "databricks-sdk>=0.42.0",
+    "pydantic-settings>=2.7.1",
+    "pydantic>=2.10.6",
 ]
 
 [build-system]
