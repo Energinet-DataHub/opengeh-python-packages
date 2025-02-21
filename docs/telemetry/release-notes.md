@@ -1,6 +1,6 @@
 # Telemetry Release Notes
 
-## Version 5.1.0
+## Version 5.1.2
 
 - Updated logging setup to use Pydantic Settings class and introduced start_trace decorator to simplify logging setup
 
