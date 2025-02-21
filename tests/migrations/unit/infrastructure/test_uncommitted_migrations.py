@@ -136,18 +136,21 @@ def test__get_uncommitted_migrations__when_one_migrations_needed__return_one() -
     migration1 = "migration1"
     migration2 = "migration2"
 
-    patch.object(
+    with patch.object(
         sut,
         sut.get_all_migration_scripts.__name__,
         return_value=[migration1, migration2],
-    )
-    patch.object(sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1])
+    ) as mock_get_all_migration_scripts:
+        with patch.object(
+            sut, sut._get_committed_migration_scripts.__name__, return_value=[migration1]
+        ) as mock_get_committed_migration_scripts:
+            # Act
+            actual = sut.get_uncommitted_migration_scripts()
 
-    # Act
-    actual = sut.get_uncommitted_migration_scripts()
-
-    # Assert
-    assert len(actual) == 1
+            # Assert
+            assert len(actual) == 1
+            mock_get_all_migration_scripts.assert_called_once()
+            mock_get_committed_migration_scripts.assert_called_once()
 
 
 def test__get_uncommitted_migrations__when_multiple_migrations__return_in_correct_order() -> None:

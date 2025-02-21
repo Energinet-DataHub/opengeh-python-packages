@@ -25,9 +25,10 @@ schema = T.StructType(
     ]
 )
 
-schema_without_ignored = T.StructType(
+schema_with_ignored_column = T.StructType(
     [
         T.StructField("a", T.IntegerType(), False),
+        T.StructField("b", T.IntegerType(), True),
         T.StructField("c", T.BooleanType(), True),
     ]
 )
@@ -60,7 +61,7 @@ def test_read_csv_with_ignored(spark):
     path = SCENARIO_TESTING_DATA / "then" / "with_ignored.csv"
 
     # Act
-    actual = read_csv(spark, str(path), schema_without_ignored, ignored_value=IGNORED_VALUE).collect()
+    actual = read_csv(spark, str(path), schema_with_ignored_column, ignored_value=IGNORED_VALUE).collect()
 
     # Assert
     assert actual == expected, f"Expected {expected}, got {actual}."
