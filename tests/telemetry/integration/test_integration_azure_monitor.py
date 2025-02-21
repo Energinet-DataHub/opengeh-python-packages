@@ -18,7 +18,8 @@ from tests.telemetry.integration.integration_test_configuration import (
 
 INTEGRATION_TEST_LOGGER_NAME = "test-logger"
 INTEGRATION_TEST_CLOUD_ROLE_NAME = "integration-test-python-packages"
-LOOK_BACK_FOR_QUERY = timedelta(minutes=10)
+SUBSYSTEM = "integration_test_subsystem"
+LOOK_BACK_FOR_QUERY = timedelta(minutes=5)
 
 
 @pytest.fixture(scope="function")
@@ -33,7 +34,7 @@ def integration_logging_configuration_setup(integration_test_configuration, scop
     logging_settings = LoggingSettings(
         cloud_role_name=unique_cloud_role_name,
         applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
-        subsystem="integration_test_subsystem",
+        subsystem=SUBSYSTEM,
         orchestration_instance_id=uuid.uuid4(),
     )
     # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
@@ -51,7 +52,7 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
     logging_settings = LoggingSettings(
         cloud_role_name=unique_cloud_role_name,
         applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
-        subsystem="integration_test_subsystem",
+        subsystem=SUBSYSTEM,
         orchestration_instance_id=uuid.uuid4(),
     )
     # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
@@ -267,14 +268,12 @@ def test__decorators_integration_test(
 
     @start_trace()
     def app_sample_function():
-        assert (1 + 1) == 2
         log_message = test_message_start_trace
         logger.info(log_message)
         app_sample_subfunction()
 
     @use_span()
     def app_sample_subfunction():
-        assert (2 + 2) == 4
         log_message = test_message_use_span
         logger.info(log_message)
 

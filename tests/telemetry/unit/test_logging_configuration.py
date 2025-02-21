@@ -22,9 +22,6 @@ def test_configure_logging__then_environmental_variables_are_set_and_configure_a
     mock_configure_azure_monitor,
     unit_logging_configuration_with_connection_string,
 ):
-    """
-    Testing that the environment variable OTEL_SERVICE_NAME is set during invocation of configure_logging
-    """
     # Arrange
     _, logging_settings_from_fixture = unit_logging_configuration_with_connection_string
     expected_cloud_role_name = logging_settings_from_fixture.cloud_role_name
@@ -144,7 +141,7 @@ def test_configure_logging_check_if_logging_configured(unit_logging_configuratio
 
 def test_logging_settings_without_any_params():
     """
-    Test that LoggingSettings fails instantiation without any paframeters or environment variables
+    Test that LoggingSettings fails instantiation without any parameters or environment variables
     """
     # Act
     with pytest.raises(ValidationError):

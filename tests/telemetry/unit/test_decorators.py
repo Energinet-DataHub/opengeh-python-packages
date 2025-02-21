@@ -138,7 +138,6 @@ def test_logging_is_configured_error_thrown_span_records_exception(
     # Prepare
     @start_trace()
     def app_sample_function():
-        assert (1 + 1) == 2
         raise Exception  # Mimmic an raised exception during runtime
         return "I am an app sample function. Doing important calculations"
 
