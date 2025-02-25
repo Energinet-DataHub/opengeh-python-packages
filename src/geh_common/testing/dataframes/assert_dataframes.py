@@ -29,14 +29,16 @@ def assert_dataframes_and_schemas(
 ) -> None:
     assert actual is not None, "Actual data frame is None"
     assert expected is not None, "Expected data frame is None"
+    actual_rows = actual.count()
+    expected_rows = expected.count()
 
     if configuration is None:
         configuration = AssertDataframesConfiguration()
 
     if configuration.show_actual_and_expected_count:
         print("\n")  # noqa
-        print(f"Number of rows in actual: {actual.count()}")  # noqa
-        print(f"Number of rows in expected: {expected.count()}")  # noqa
+        print(f"Number of rows in actual: {actual_rows}")  # noqa
+        print(f"Number of rows in expected: {expected_rows}")  # noqa
 
     if configuration.columns_to_skip is not None and len(configuration.columns_to_skip) > 0:
         actual = actual.drop(*configuration.columns_to_skip)
@@ -75,7 +77,7 @@ def assert_dataframes_and_schemas(
         expected.show(3000, False)
 
     try:
-        _assert_no_duplicates(actual)
+        _assert_no_duplicates(actual, actual_rows)
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
@@ -85,7 +87,7 @@ def assert_dataframes_and_schemas(
         raise
 
     try:
-        _assert_no_duplicates(expected)
+        _assert_no_duplicates(expected, expected_rows)
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
@@ -108,13 +110,13 @@ def assert_dataframes_and_schemas(
         raise
 
     try:
-        assert actual.count() == expected.count()
+        assert actual_rows == expected_rows
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
 
         print(  # noqa
-            f"NUMBER OF ROWS MISMATCH: Actual: {actual.count()}, Expected: {expected.count()}"
+            f"NUMBER OF ROWS MISMATCH: Actual: {actual_rows}, Expected: {expected_rows}"
         )
         raise
 
@@ -123,19 +125,21 @@ def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
     actual_excess = actual.subtract(expected)
     expected_excess = expected.subtract(actual)
 
-    if actual_excess.count() > 0:
+    actual_excess_count = actual_excess.count()
+    expected_excess_count = expected_excess.count()
+
+    if actual_excess_count > 0:
         print("Actual excess:")  # noqa
         actual_excess.show(3000, False)
 
-    if expected_excess.count() > 0:
+    if expected_excess_count > 0:
         print("Expected excess:")  # noqa
         expected_excess.show(3000, False)
 
-    assert actual_excess.count() == 0 and expected_excess.count() == 0, "Dataframes data are not equal"
+    assert actual_excess_count == 0 and expected_excess_count == 0, "Dataframes data are not equal"
 
 
-def _assert_no_duplicates(df: DataFrame) -> None:
-    original_count = df.count()
+def _assert_no_duplicates(df: DataFrame, original_count: int) -> None:
     distinct_count = df.dropDuplicates().count()
     assert original_count == distinct_count, "The DataFrame contains duplicate rows"
 
