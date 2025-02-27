@@ -8,6 +8,10 @@
       "ASDF_VERSION": "0.16.2"
     }
   },
+  "runArgs": [
+    "--name",
+    "geh_common"
+  ],
   "remoteUser": "vscode",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace/source/geh_common",
