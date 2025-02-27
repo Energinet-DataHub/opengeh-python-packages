@@ -25,7 +25,7 @@ jobs:
     name: Unit tests
     uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@ci/python-cicd
     with:
-      packages_directory: ${{ github.workspace }}/source
+      packages_directory: source
       create_versioned_release: true
       pytest_addopts: --ignore-glob='**/integration/**'
 
@@ -36,7 +36,7 @@ jobs:
     name: Integration tests
     uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@ci/python-cicd
     with:
-      packages_directory: ${{ github.workspace }}/source
+      packages_directory: source
       environment: AzureAuth
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
