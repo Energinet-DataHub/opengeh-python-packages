@@ -16,7 +16,6 @@
     "github.copilot.editor.enableAutoCompletions": true,
     // Ruff Settings
     "ruff.lineLength": 120,
-    "ruff.lint.run": "onSave",
     "ruff.organizeImports": true,
     "[python]": {
         "editor.formatOnSave": true,
