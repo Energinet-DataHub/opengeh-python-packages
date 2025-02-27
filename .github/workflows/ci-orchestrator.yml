@@ -18,6 +18,16 @@ jobs:
     secrets:
       dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
+  # ci_docker:
+  #   uses: ./.github/workflows/docker-build-push.yml
+  #   with:
+  #     context: container-images/asdf-devcontainer
+  #     image_name: asdf-devcontainer
+  #     image_tag: 0.0.1
+  #     build-args: |
+  #       UBUNTU_VERSION=24.04
+  #       ASDF_VERSION=0.16.2
+
   #
   # Reusable CI
   #
