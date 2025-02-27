@@ -106,9 +106,7 @@ def _wait_for_condition(
                     f"Condition failed to be met before timeout. Timed out after {elapsed_ms} ms",
                     file=sys.stderr,
                 )
-                raise Exception(
-                    f"Condition failed to be met before timeout. Timed out after {elapsed_ms} ms. Query: {query}"
-                )  # noqa
+                raise
             time.sleep(step.seconds)
             print(f"Condition not met after {elapsed_ms} ms. Retrying...")  # noqa
 
