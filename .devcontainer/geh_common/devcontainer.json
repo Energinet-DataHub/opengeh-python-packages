@@ -5,7 +5,7 @@
     "dockerfile": "../Dockerfile",
     "args": {
       "UBUNTU_VERSION": "24.04",
-      "ASDF_VERSION": "0.15.0"
+      "ASDF_VERSION": "0.16.2"
     }
   },
   "remoteUser": "vscode",
@@ -56,10 +56,6 @@
           "tmux": {
             "path": "tmux",
             "icon": "terminal-tmux"
-          },
-          "pwsh": {
-            "path": "pwsh",
-            "icon": "terminal-powershell"
           }
         },
         // Editor settings
