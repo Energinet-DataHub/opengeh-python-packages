@@ -74,36 +74,30 @@ class DatabricksApiClient:
 
         raise TimeoutError(f"Job did not complete within {timeout} seconds.")
 
-    def seed(
+    def execute_statement(
         self,
         warehouse_id: str,
-        catalog: str,
-        schema: str,
         statement: str,
     ) -> "DatabricksApiClient":
-        """Execute a SQL statement for data seeding.
+        """Execute a SQL statement.
 
         Args:
             warehouse_id (str): Databricks warehouse/cluster ID
-            catalog (str): Databricks catalog name
-            schema (str): Database schema name
             statement (str): SQL statement to execute
 
         Returns:
-            DatabricksApiClientWithSeeding: Self reference for method chaining
+            DatabricksApiClient: Self reference for method chaining
         """
         try:
             response = self.client.statement_execution.execute_statement(
                 warehouse_id=warehouse_id,
-                catalog=catalog,
-                schema=schema,
                 statement=statement,
             )
 
             if response.status.state == "FAILED":
-                raise Exception(f"Seeding failed: {response.status.error}")
+                raise Exception(f"Statement execution failed: {response.status.error}")
 
             return self
 
         except Exception as e:
-            raise Exception(f"Failed to execute seeding statement: {str(e)}")
+            raise Exception(f"Failed to execute statement: {str(e)}")
