@@ -2,7 +2,7 @@
 
 ## Version 5.3.0
 
-*Breaking Changes*
+### Breaking Changes
 
 - Moved `databricks_api_client` from `testing.container_test` to `databricks`.
 - Renamed `seed` method in `databricks_api_client` to `execute_statement`.
