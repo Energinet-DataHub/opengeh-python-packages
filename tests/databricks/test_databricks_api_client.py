@@ -155,7 +155,3 @@ class TestDatabricksApiClient(unittest.TestCase):
         # Assert
         self.assertEqual(run_id, 12345)
         mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=False)
-
-
-if __name__ == "__main__":
-    unittest.main()
