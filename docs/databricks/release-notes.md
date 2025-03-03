@@ -1,5 +1,9 @@
 # Databricks Release Notes
 
+## Version 5.3.2
+
+- Change the `start_job` method to allow the `python_params` argument to be optional.
+
 ## Version 5.3.1
 
 - Add `cancel_job_run`. The function waits for the job run to be cancelled by default.
