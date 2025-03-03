@@ -25,7 +25,7 @@ class DatabricksApiClient:
         raise Exception(f"Job '{job_name}' not found.")
 
     def get_job_run_id(self, job_id: int, active_only: bool = True) -> int:
-        """Get the run ID of a Databricks job.
+        """Get the first run ID for a Databricks job.
 
         Args:
             job_id (int): The ID of the job.
