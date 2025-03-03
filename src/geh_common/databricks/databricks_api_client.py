@@ -41,7 +41,7 @@ class DatabricksApiClient:
         else:
             return run.run_id
 
-    def start_job(self, job_id: int, python_params: list[str]) -> int:
+    def start_job(self, job_id: int, python_params: list[str] | None = None) -> int:
         """Start a Databricks job.
 
         Args:
