@@ -144,7 +144,7 @@ def test__get_job_run_id__returns_run_id(MockWorkspaceClient):
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_job_run_id__when_no_runs_found__raises_exception(MockWorkspaceClient):
+def test__get_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([])
@@ -152,10 +152,11 @@ def test__get_job_run_id__when_no_runs_found__raises_exception(MockWorkspaceClie
     job_id = 67890
     sut = create_sut()
 
-    # Act & Assert
-    with pytest.raises(Exception) as context:
-        sut.get_job_run_id(job_id)
-        assert f"No active runs found for job ID {job_id}" in str(context.from_exception(context.value))
+    # Act
+    run_id = sut.get_job_run_id(job_id)
+
+    # Assert
+    assert run_id is None
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
