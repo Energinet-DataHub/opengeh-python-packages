@@ -3,7 +3,7 @@
 ## Version 5.3.1
 
 - Add `cancel_job_run`. The function waits for the job run to be cancelled by default.
-- Add `get_job_run_id` to get the first run id for a Databricks job.
+- Add `get_latest_job_run_id` to get the latest run id for a Databricks job.
 
 ## Version 5.3.0
 

@@ -127,7 +127,7 @@ def test__wait_for_job_state__when_life_cycle_state_is_none__raises_exception_fo
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_job_run_id__returns_run_id(MockWorkspaceClient):
+def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([MagicMock(run_id=12345)])
@@ -136,7 +136,7 @@ def test__get_job_run_id__returns_run_id(MockWorkspaceClient):
     sut = create_sut()
 
     # Act
-    run_id = sut.get_job_run_id(job_id)
+    run_id = sut.get_latest_job_run_id(job_id)
 
     # Assert
     assert run_id == 12345
@@ -144,7 +144,7 @@ def test__get_job_run_id__returns_run_id(MockWorkspaceClient):
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
+def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([])
@@ -153,14 +153,16 @@ def test__get_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
     sut = create_sut()
 
     # Act
-    run_id = sut.get_job_run_id(job_id)
+    run_id = sut.get_latest_job_run_id(job_id)
 
     # Assert
     assert run_id is None
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_job_run_id_when_active_only_is_false__should_call_with_active_only_set_to_false(MockWorkspaceClient):
+def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_active_only_set_to_false(
+    MockWorkspaceClient,
+):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([MagicMock(run_id=12345)])
@@ -169,7 +171,7 @@ def test__get_job_run_id_when_active_only_is_false__should_call_with_active_only
     sut = create_sut()
 
     # Act
-    run_id = sut.get_job_run_id(job_id, active_only=False)
+    run_id = sut.get_latest_job_run_id(job_id, active_only=False)
 
     # Assert
     assert run_id == 12345
