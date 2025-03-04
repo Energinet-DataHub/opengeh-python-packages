@@ -1,8 +1,20 @@
 import copy
+import re
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
+
+
+def preprocess_file(path: str) -> str:
+    r"""Preprocess the file to normalize line endings to \n."""
+    with open(path, encoding="utf-8") as file:
+        content = file.read()
+    content = re.sub(r"\r\n", "\n", content)
+    temp_path = path + ".tmp"
+    with open(temp_path, "w", encoding="utf-8") as file:
+        file.write(content)
+    return temp_path
 
 
 def read_csv_path(
@@ -25,6 +37,8 @@ def read_csv_path(
     Returns:
         DataFrame: The Spark DataFrame.
     """
+    path = preprocess_file(path)
+
     conf = {
         "format": "csv",
         "header": "true",
@@ -37,6 +51,7 @@ def read_csv_path(
     }
     schema = copy.deepcopy(schema)
     raw_df = spark.read.load(path, **conf)
+    raw_df.show()
     transforms = []
     for field in schema.fields:
         if field.name in raw_df.columns:
