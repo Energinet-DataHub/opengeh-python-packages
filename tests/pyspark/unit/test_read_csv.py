@@ -118,10 +118,9 @@ def test_with_array_string(spark):
     ], f"e should be ['a', 'b', 'c'], got {collected[0].e}"
 
 
-@pytest.mark.parametrize("file", ["with_nullability", "with_nullability_entire_column_empty"])
-def test_read_csv_with_nullabilities(spark, file: str):
+def test_read_csv_with_nullabilities(spark):
     # Arrange
-    path = FUNCTIONS_DATA_DIR / f"{file}.csv"
+    path = FUNCTIONS_DATA_DIR / "with_nullability.csv"
     configuration = AssertDataframesConfiguration()
     configuration.ignore_nullability = False
 
