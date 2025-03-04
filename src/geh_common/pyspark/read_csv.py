@@ -51,7 +51,7 @@ def read_csv_path(
     }
     schema = copy.deepcopy(schema)
     raw_df = spark.read.load(path, **conf)
-    raw_df.show()
+
     transforms = []
     for field in schema.fields:
         if field.name in raw_df.columns:
