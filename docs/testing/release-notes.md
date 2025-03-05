@@ -1,5 +1,11 @@
 # Testcommon Release Notes
 
+## Version 5.3.0
+
+### Breaking Changes
+
+- Moved `databricks_api_client` from `testing.container_test` to `databricks`.
+
 ## Version 0.3.2
 
 Fix ignored column functionality
