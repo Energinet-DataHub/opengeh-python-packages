@@ -16,34 +16,34 @@ on:
   workflow_call:
     inputs:
       context:
-        description: "The context of the workflow"
+        description: The context of the workflow
         type: string
         required: true
       image_name:
-        description: "The name of the image to build and push"
+        description: The name of the image to build and push
         type: string
         required: true
       image_tag:
-        description: "The tag of the image to build and push"
+        description: The tag of the image to build and push
         type: string
         required: true
       dockerfile:
-        description: "The name of the Dockerfile to use"
+        description: Path to the Dockerfile. (default {context}/Dockerfile)
         type: string
         required: False
-        default: "Dockerfile"
+        default: ""
       registry:
-        description: "The registry to push the image to"
+        description: The registry to push the image to
         type: string
         required: False
-        default: "ghcr.io"
+        default: ghcr.io
       organization:
-        description: "The organization to push the image to"
+        description: The organization to push the image to
         type: string
         required: False
-        default: "energinet-datahub"
+        default: energinet-datahub
       build-args:
-        description: "The build arguments to pass to the Docker build"
+        description: The build arguments to pass to the Docker build
         type: string
         required: False
         default: ""
@@ -59,6 +59,16 @@ jobs:
     runs-on: ubuntu-latest
     name: Build and Push ${{ inputs.image_name }}:${{ inputs.image_tag }}
     steps:
+      - name: Set Dockerfile Path
+        shell: bash
+        id: set_dockerfile
+        run: |
+          if [ -z "${{ inputs.dockerfile }}" ]; then
+            echo "DOCKERFILE_PATH=${{ inputs.context }}/Dockerfile" >> $GITHUB_OUTPUT
+          else
+            echo "DOCKERFILE_PATH=${{ inputs.dockerfile }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -69,6 +79,7 @@ jobs:
           filters: |
             is_changed:
               - ${{ inputs.context }}/**
+              - ${{ steps.set_dockerfile.outputs.DOCKERFILE_PATH }}
 
       - name: Check if PR is merged
         id: is_merged
@@ -115,6 +126,7 @@ jobs:
           context: container-images/pyspark-slim
           platforms: linux/amd64,linux/arm64
           push: ${{ steps.is_merged.outputs.push_image }}
+          file: ${{ steps.set_dockerfile.outputs.DOCKERFILE_PATH }}
           tags: |
             ${{ steps.check_tag.outputs.IMAGE_FQN }}:${{ inputs.image_tag }}
             ${{ steps.check_tag.outputs.IMAGE_FQN }}:latest
