@@ -12,9 +12,9 @@
     "--name",
     "geh_common"
   ],
-  "remoteUser": "vscode",
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
   "workspaceFolder": "/workspace/source/geh_common",
+  "remoteUser": "vscode",
   "postCreateCommand": "~/scripts/post-create.sh ~",
   "postStartCommand": "uv sync",
   "containerEnv": {
@@ -41,27 +41,17 @@
         "redhat.vscode-yaml",
         "tamasfe.even-better-toml",
         "ms-python.python",
-        "ms-vscode-remote.remote-containers"
+        "ms-vscode-remote.remote-containers",
+        "janisdd.vscode-edit-csv",
+        "mechatroner.rainbow-csv",
+        "eamodio.gitlens"
       ],
       "settings": {
-        "python.terminal.activateEnvInCurrentTerminal": true,
-        "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
-        "python.venvPath": "/home/vscode/.venv",
-        "terminal.integrated.defaultProfile.linux": "zsh",
-        "terminal.integrated.inheritEnv": true,
-        "terminal.integrated.profiles.linux": {
-          "zsh": {
-            "path": "zsh"
-          },
-          "bash": {
-            "path": "bash",
-            "icon": "terminal-bash"
-          },
-          "tmux": {
-            "path": "tmux",
-            "icon": "terminal-tmux"
-          }
-        },
+        "csv-edit.readOption_hasHeader": "true",
+        "python.testing.pytestArgs": [
+          "tests",
+          "--no-cov"
+        ],
         // Editor settings
         "editor.formatOnSave": true,
         "editor.tabSize": 2,
@@ -71,7 +61,8 @@
         "search.exclude": {
           "**/.git": true,
           "**/.cache": true,
-          "**/.venv": true
+          "**/.venv": true,
+          "**/build": true
         },
         "git.openRepositoryInParentFolders": "always", // Open the repository in the parent folder
         "files.eol": "\n", // Use LF line endings
@@ -89,11 +80,34 @@
           }
         },
         // Python settings
+        "python.terminal.activateEnvInCurrentTerminal": true,
+        "python.defaultInterpreterPath": "/home/vscode/.venv/bin/python",
+        "python.venvPath": "/home/vscode/.venv",
         "python.languageServer": "Pylance", // Use Pylance as the language server        
         "python.testing.pytestEnabled": true,
         "python.analysis.typeCheckingMode": "basic",
         "python.analysis.languageServerMode": "full", // Use the full language server mode
-        "python.analysis.autoFormatStrings": true // Automatically format strings
+        "python.analysis.autoFormatStrings": true, // Automatically format strings
+        // Terminal settings
+        "terminal.integrated.defaultProfile.linux": "zsh",
+        "terminal.integrated.inheritEnv": true,
+        "terminal.integrated.profiles.linux": {
+          "zsh": {
+            "path": "zsh"
+          },
+          "bash": {
+            "path": "bash",
+            "icon": "terminal-bash"
+          },
+          "tmux": {
+            "path": "tmux",
+            "icon": "terminal-tmux"
+          },
+          "pwsh": {
+            "path": "pwsh",
+            "icon": "terminal-powershell"
+          }
+        }
       }
     }
   }
