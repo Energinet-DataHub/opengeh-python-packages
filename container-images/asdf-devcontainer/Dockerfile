@@ -5,6 +5,10 @@ FROM mcr.microsoft.com/devcontainers/base:ubuntu-${UBUNTU_VERSION}
 
 ARG ASDF_VERSION=0.16.0
 
+# Configure user
+ENV USER=vscode
+ENV HOME=/home/$USER
+
 # Install System Dependencies
 RUN apt-get update \
   && apt-get install -y \
@@ -17,13 +21,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* \
   && apt-get clean
 
-# Change to non-root user
-ENV USER=vscode
-ENV HOME=/home/$USER
-
 # Add tool-versions and startup script
-COPY --chown=${USER}:${USER} .tool-versions $HOME/.tool-versions
-COPY --chown=${USER}:${USER} .devcontainer/scripts $HOME/scripts
+COPY --chown=${USER}:${USER} scripts $HOME/scripts
 RUN chmod +x $HOME/scripts/*
 
 # Install asdf
@@ -32,8 +31,7 @@ RUN $HOME/scripts/install-asdf.sh $ASDF_VERSION \
   && echo 'export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"' >> $HOME/.zshrc
 
 # Install Databricks CLI
-RUN curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh \
-  && curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+RUN curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
 
 # Persist command history
 RUN mkdir /commandhistory \

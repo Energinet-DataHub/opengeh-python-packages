@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.3.1"
+version = "5.3.2"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -29,7 +29,15 @@ dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.4"]
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
-addopts = "--cov-report=term --cov-report=xml:coverage.xml --cov=geh_common -ra -vv -s"
+addopts = [
+    "--cov-report=term",
+    "--cov-report=xml:coverage.xml",
+    "--cov=geh_common",
+    "-ra", # Show extra test summary info as specified by -ra
+    "-vv", # Verbose output for tests
+    "-s", # Print to console 
+    "-x" # Stop running tests after the first failure
+]
 cache_dir = ".cache/pytest"
 
 [tool.coverage.report]
@@ -67,3 +75,6 @@ exclude = ["notebooks/*"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
+
+[tool.uv.workspace]
+members = ["source/geh_common"]

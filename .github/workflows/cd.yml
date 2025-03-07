@@ -22,13 +22,15 @@ on:
 jobs:
   cd_reusable:
     name: Continuous Deployment
-    uses: ./.github/workflows/reusable-cd.yml
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@v14
     with:
+      packages_directory: source
       subsystem_name: common
       notification_email: 5543d1b6.energinet.onmicrosoft.com@emea.teams.ms # Wholesale - Dev Test
       sender_email: ${{ vars.email_internal_sender }}
-      dispatch_deployment_event: false
       postfix_latest: false
+      dispatch_deployment_event: false
+      create_versioned_release: true
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}
       send_grid_api_key: ${{ secrets.sendgrid_instance_system_notifications_api_key }}
