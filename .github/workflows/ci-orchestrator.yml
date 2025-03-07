@@ -18,24 +18,35 @@ jobs:
     secrets:
       dh3serviceaccount_privatekey: ${{ secrets.dh3serviceaccount_privatekey }}
 
+  # ci_docker:
+  #   uses: ./.github/workflows/docker-build-push.yml
+  #   with:
+  #     context: container-images/asdf-devcontainer
+  #     image_name: asdf-devcontainer
+  #     image_tag: 0.0.1
+  #     build-args: |
+  #       UBUNTU_VERSION=24.04
+  #       ASDF_VERSION=0.16.2
+
   #
   # Reusable CI
   #
   ci_unit:
-    uses: ./.github/workflows/reusable-ci.yml
+    name: Unit tests
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
     with:
-      packages_directory: ${{ github.workspace }}
-      tests_directory: tests/**/unit
+      packages_directory: source
       create_versioned_release: true
+      pytest_addopts: --ignore-glob='**/integration/**'
 
   #
   # Reusable CI
   #
   ci_integration:
-    uses: ./.github/workflows/reusable-ci.yml
+    name: Integration tests
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
     with:
-      packages_directory: ${{ github.workspace }}
-      tests_directory: tests
+      packages_directory: source
       environment: AzureAuth
       azure_tenant_id: ${{ vars.integration_test_azure_tenant_id }}
       azure_subscription_id: ${{ vars.integration_test_azure_subscription_id }}
