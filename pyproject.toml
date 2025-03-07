@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.3.2"
+version = "5.3.1"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -9,7 +9,7 @@ dependencies = [
     "pyspark>=3.5.0",
     "delta-spark>=3.1,<4.0",
     "dependency_injector>=4.43.0,<5.0",
-    "azure-monitor-opentelemetry>=1.6.0",
+    "azure-monitor-opentelemetry=1.6.5",
     "azure-core>=1.30.0,<2.0.0",
     "azure-identity>=1.16.1,<2.0.0",
     "azure-keyvault-secrets>=4.7.0,<5.0.0",
@@ -29,15 +29,7 @@ dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.4"]
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
-addopts = [
-    "--cov-report=term",
-    "--cov-report=xml:coverage.xml",
-    "--cov=geh_common",
-    "-ra", # Show extra test summary info as specified by -ra
-    "-vv", # Verbose output for tests
-    "-s", # Print to console 
-    "-x" # Stop running tests after the first failure
-]
+addopts = "--cov-report=term --cov-report=xml:coverage.xml --cov=geh_common -ra -vv -s"
 cache_dir = ".cache/pytest"
 
 [tool.coverage.report]
@@ -75,6 +67,3 @@ exclude = ["notebooks/*"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
-
-[tool.uv.workspace]
-members = ["source/geh_common"]
