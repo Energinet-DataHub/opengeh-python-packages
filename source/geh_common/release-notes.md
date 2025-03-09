@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 5.3.3
+
+Improves performance of `geh_common.testing.assert_dataframes()` by materializing actual and expected
+once instead of multiple times during assertion.
+
 ## Version 5.3.2
 
 - Refactored project to use new Github Actions CI/CD pipelines

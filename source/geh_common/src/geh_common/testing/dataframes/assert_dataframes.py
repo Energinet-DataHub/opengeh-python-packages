@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-import pyspark.sql.functions as f
+import pandas as pd
 from pyspark.sql import DataFrame
 
 from geh_common.testing.dataframes.assert_schemas import assert_schema
@@ -29,8 +29,13 @@ def assert_dataframes_and_schemas(
 ) -> None:
     assert actual is not None, "Actual data frame is None"
     assert expected is not None, "Expected data frame is None"
-    actual_rows = actual.count()
-    expected_rows = expected.count()
+
+    # Convert Spark DataFrames to Pandas DataFrames
+    actual_pd = actual.toPandas()
+    expected_pd = expected.toPandas()
+
+    actual_rows = len(actual_pd)
+    expected_rows = len(expected_pd)
 
     if configuration is None:
         configuration = AssertDataframesConfiguration()
@@ -41,17 +46,14 @@ def assert_dataframes_and_schemas(
         print(f"Number of rows in expected: {expected_rows}")  # noqa
 
     if configuration.columns_to_skip is not None and len(configuration.columns_to_skip) > 0:
-        actual = actual.drop(*configuration.columns_to_skip)
-        expected = expected.drop(*configuration.columns_to_skip)
+        actual_pd = actual_pd.drop(columns=configuration.columns_to_skip)
+        expected_pd = expected_pd.drop(columns=configuration.columns_to_skip)
 
     if configuration.ignore_extra_columns_in_actual:
-        # When there are ignored columns, the actual dataframe will have
-        # more columns than the expected dataframe. Therefore, in order to
-        # compare the extra columns are removed from the actual dataframe.
-        actual_columns = set(actual.columns)
-        expected_columns = set(expected.columns)
+        actual_columns = set(actual_pd.columns)
+        expected_columns = set(expected_pd.columns)
         columns_to_drop = actual_columns - expected_columns
-        actual = actual.drop(*columns_to_drop)
+        actual_pd = actual_pd.drop(columns=list(columns_to_drop))
 
     try:
         assert_schema(
@@ -72,91 +74,66 @@ def assert_dataframes_and_schemas(
 
     if configuration.show_actual_and_expected:
         print("ACTUAL:")  # noqa
-        actual.show(3000, False)
+        print(actual_pd)  # noqa
         print("EXPECTED:")  # noqa
-        expected.show(3000, False)
+        print(expected_pd)  # noqa
 
     try:
-        _assert_no_duplicates(actual, actual_rows)
+        _assert_no_duplicates(actual_pd, actual_rows)
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
+            actual_pd, expected_pd = _drop_columns_if_the_same(actual_pd, expected_pd)
 
         print("DUPLICATED ROWS IN ACTUAL:")  # noqa
-        _show_duplicates(actual).show(3000, False)
+        print(_show_duplicates(actual_pd))  # noqa
         raise
 
     try:
-        _assert_no_duplicates(expected, expected_rows)
+        _assert_no_duplicates(expected_pd, expected_rows)
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
+            actual_pd, expected_pd = _drop_columns_if_the_same(actual_pd, expected_pd)
 
         print("DUPLICATED ROWS IN EXPECTED:")  # noqa
-        _show_duplicates(expected).show(3000, False)
+        print(_show_duplicates(expected_pd))  # noqa
         raise
 
-    try:
-        _assert_dataframes(actual, expected)
-    except AssertionError:
-        if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
-
-        print("DATA MISMATCH:")  # noqa
-        print("IN ACTUAL BUT NOT IN EXPECTED:")  # noqa
-        actual.subtract(expected).show(3000, False)
-        print("IN EXPECTED BUT NOT IN ACTUAL:")  # noqa
-        expected.subtract(actual).show(3000, False)
-        raise
-
-    try:
-        assert actual_rows == expected_rows
-    except AssertionError:
-        if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
-
-        print(  # noqa
-            f"NUMBER OF ROWS MISMATCH: Actual: {actual_rows}, Expected: {expected_rows}"
-        )
-        raise
+    _assert_dataframes(actual_pd, expected_pd)
 
 
-def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
-    actual_excess = actual.subtract(expected)
-    expected_excess = expected.subtract(actual)
+def _assert_dataframes(actual: pd.DataFrame, expected: pd.DataFrame) -> None:
+    actual_excess = actual[~actual.isin(expected.to_dict(orient="list")).all(axis=1)]
+    expected_excess = expected[~expected.isin(actual.to_dict(orient="list")).all(axis=1)]
 
-    actual_excess_count = actual_excess.count()
-    expected_excess_count = expected_excess.count()
+    actual_excess_count = len(actual_excess)
+    expected_excess_count = len(expected_excess)
 
     if actual_excess_count > 0:
         print("Actual excess:")  # noqa
-        actual_excess.show(3000, False)
+        print(actual_excess)
 
     if expected_excess_count > 0:
         print("Expected excess:")  # noqa
-        expected_excess.show(3000, False)
+        print(expected_excess)
 
     assert actual_excess_count == 0 and expected_excess_count == 0, "Dataframes data are not equal"
 
 
-def _assert_no_duplicates(df: DataFrame, original_count: int) -> None:
-    distinct_count = df.dropDuplicates().count()
+def _assert_no_duplicates(df: pd.DataFrame, original_count: int) -> None:
+    distinct_count = df.drop_duplicates().shape[0]
     assert original_count == distinct_count, "The DataFrame contains duplicate rows"
 
 
-def _show_duplicates(df: DataFrame) -> DataFrame:
-    duplicates = df.groupby(df.columns).count().where(f.col("count") > 1).withColumnRenamed("count", "duplicate_count")
-    return duplicates
+def _show_duplicates(df: pd.DataFrame) -> pd.DataFrame:
+    duplicates = df[df.duplicated(keep=False)]
+    duplicates["duplicate_count"] = duplicates.groupby(list(df.columns)).transform("count")
+    return duplicates.drop_duplicates()
 
 
-def _drop_columns_if_the_same(df1: DataFrame, df2: DataFrame) -> Tuple[DataFrame, DataFrame]:
-    column_names = df1.columns
-    for column_name in column_names:
-        df1_column = df1.select(column_name).collect()
-        df2_column = df2.select(column_name).collect()
-
-        if df1_column == df2_column:
-            df1 = df1.drop(column_name)
-            df2 = df2.drop(column_name)
+def _drop_columns_if_the_same(df1: pd.DataFrame, df2: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    for column_name in df1.columns:
+        if df1[column_name].equals(df2[column_name]):
+            df1 = df1.drop(columns=[column_name])
+            df2 = df2.drop(columns=[column_name])
 
     return df1, df2

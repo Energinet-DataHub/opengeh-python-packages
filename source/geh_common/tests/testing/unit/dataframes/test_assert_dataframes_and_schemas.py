@@ -30,8 +30,11 @@ def test_with_ignored_ignore_extra_columns_in_actual_true(spark):
     expected = spark.createDataFrame(expected_data, schema=expected_schema)
     actual = spark.createDataFrame(actual_data, schema=actual_schema)
 
+    configuration = AssertDataframesConfiguration()
+    configuration.ignore_extra_columns_in_actual = True
+
     # Act & Assert
-    assert_dataframes_and_schemas(actual, expected)
+    assert_dataframes_and_schemas(actual, expected, configuration)
 
 
 def test_with_ignore_extra_columns_in_actual_false_throws_exception(spark):
