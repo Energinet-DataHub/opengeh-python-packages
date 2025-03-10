@@ -34,6 +34,14 @@ def assert_dataframes_and_schemas(
     actual_pd = actual.toPandas()
     expected_pd = expected.toPandas()
 
+    # Convert list columns to hashable types (tuples) - othwerwise, the comparison will fail
+    for col in actual_pd.columns:
+        if isinstance(actual_pd[col].iloc[0], list):
+            actual_pd[col] = actual_pd[col].apply(tuple)
+    for col in expected_pd.columns:
+        if isinstance(expected_pd[col].iloc[0], list):
+            expected_pd[col] = expected_pd[col].apply(tuple)
+
     actual_rows = len(actual_pd)
     expected_rows = len(expected_pd)
 
@@ -50,10 +58,11 @@ def assert_dataframes_and_schemas(
         expected_pd = expected_pd.drop(columns=configuration.columns_to_skip)
 
     if configuration.ignore_extra_columns_in_actual:
-        actual_columns = set(actual_pd.columns)
-        expected_columns = set(expected_pd.columns)
-        columns_to_drop = actual_columns - expected_columns
-        actual_pd = actual_pd.drop(columns=list(columns_to_drop))
+        columns_to_drop = set(actual_pd.columns) - set(expected_pd.columns)
+        if len(columns_to_drop) > 0:
+            foo = tuple(sorted(columns_to_drop.))
+            print(f"Columns in actual that are not in expected: {foo}")
+            actual_pd = actual_pd.drop(columns=foo)
 
     try:
         assert_schema(
