@@ -29,6 +29,11 @@ def assert_dataframes_and_schemas(
 ) -> None:
     assert actual is not None, "Actual data frame is None"
     assert expected is not None, "Expected data frame is None"
+
+    # Ensure that potential expensive transformations are only executed once during assertion
+    actual = actual.cache()
+    expected = expected.cache()
+
     actual_rows = actual.count()
     expected_rows = expected.count()
 
