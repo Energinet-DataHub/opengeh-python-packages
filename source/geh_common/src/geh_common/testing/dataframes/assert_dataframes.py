@@ -110,11 +110,11 @@ def _assert_dataframes(actual: pd.DataFrame, expected: pd.DataFrame) -> None:
 
     if actual_excess_count > 0:
         print("Actual excess:")  # noqa
-        print(actual_excess)
+        print(actual_excess)  # noqa
 
     if expected_excess_count > 0:
         print("Expected excess:")  # noqa
-        print(expected_excess)
+        print(expected_excess)  # noqa
 
     assert actual_excess_count == 0 and expected_excess_count == 0, "Dataframes data are not equal"
 
