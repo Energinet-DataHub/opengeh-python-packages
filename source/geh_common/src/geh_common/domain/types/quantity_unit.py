@@ -8,4 +8,3 @@ class QuantityUnit(Enum):
     KVARH = "KVARH"
     MWH = "MWH"
     TONNE = "TONNE"
-    
