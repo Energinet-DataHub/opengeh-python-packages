@@ -35,8 +35,7 @@ addopts = [
     "--cov=geh_common",
     "-ra", # Show extra test summary info as specified by -ra
     "-vv", # Verbose output for tests
-    "-s", # Print to console 
-    "-x" # Stop running tests after the first failure
+    "-s", # Print to console
 ]
 cache_dir = ".cache/pytest"
 
