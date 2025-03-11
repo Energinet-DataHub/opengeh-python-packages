@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.3.2"
+version = "5.3.3"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -35,8 +35,7 @@ addopts = [
     "--cov=geh_common",
     "-ra", # Show extra test summary info as specified by -ra
     "-vv", # Verbose output for tests
-    "-s", # Print to console 
-    "-x" # Stop running tests after the first failure
+    "-s", # Print to console
 ]
 cache_dir = ".cache/pytest"
 
