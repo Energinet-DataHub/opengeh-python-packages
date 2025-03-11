@@ -46,19 +46,6 @@ implementation details
 - Removed the use of `create_and_configure_container` for the consumer.
 - The `migrate` function now takes `SparkSqlMigrationsConfigurations` as a parameter.
 
-## Version ???
-
-**Subpackage**: `geh_common.pyspark`
-
-- Added DataFrame Wrapper
-
-## Version ???
-
-**Subpackage**: `geh_common.pyspark`
-
-- Bootstraped project.
-- Added functions and tests.
-
 ## Version 3.0.0
 
 **Subpackage**: `geh_common.migrations`
