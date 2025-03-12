@@ -24,7 +24,6 @@ class MeteringPointType(Enum):
     NET_LOSS_CORRECTION = "net_loss_correction"
     OTHER_CONSUMPTION = "other_consumption"
     OTHER_PRODUCTION = "other_production"
-    EFFECT_PAYMENT = "effect_payment"
     EXCHANGE_REACTIVE_ENERGY = "exchange_reactive_energy"
     COLLECTIVE_NET_PRODUCTION = "collective_net_production"
     COLLECTIVE_NET_CONSUMPTION = "collective_net_consumption"
