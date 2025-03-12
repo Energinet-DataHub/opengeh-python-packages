@@ -1,8 +1,42 @@
 # GEH Common Release Notes
 
-## Version 5.3.5
+## Version 5.4.1
 
 - Removing `KILO_WATT_HOUR` enum as the `KWH` should be used instead.
+
+## Version 5.4.0
+
+**Subpackage**: `geh_common.testing`
+
+Added decorator `@testing` to log content of data frames returned from function invocations.
+
+Example usage:
+
+```python
+from geh_common.testing.dataframes import configure_testing, testing
+
+
+@testing()
+def my_function(spark: SparkSession) -> DataFrame:
+    return spark.read.parquet("data.parquet")
+
+
+if __name__ == "__main__":
+    configure_testing(True)
+    my_function()
+```
+
+Example output:
+
+```text
+>>>In some_module.py:91: my_function(...) returned:                         
++---+----+
+|id |name|
++---+----+
+|1  |a   |
+|2  |b   |
++---+----+
+```
 
 ## Version 5.3.4
 
