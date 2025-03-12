@@ -7,6 +7,7 @@
 Added decorator `@testing` to log content of data frames returned from function invocations.
 
 Example usage:
+
 ```python
 from geh_common.testing.dataframes import configure_testing, testing
 
@@ -22,7 +23,8 @@ if __name__ == "__main__":
 ```
 
 Example output:
-```
+
+```text
 >>>In some_module.py:91: my_function(...) returned:                         
 +---+----+
 |id |name|
