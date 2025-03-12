@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.3.5
+
+- Removing `KILO_WATT_HOUR` enum as the `KWH` should be used instead.
+
 ## Version 5.3.4
 
 - Added more valid types to `source/geh_common/src/geh_common/domain/types/`
