@@ -1,5 +1,12 @@
 # GEH Common Release Notes
 
+## Version 5.4.2
+
+**Subpackage**: `geh_common.testing`
+
+Fixes bug in decorator `@testing`, which prevented if from working when it was imported before
+`configure_testing()` was executed.
+
 ## Version 5.4.1
 
 - Removing `KILO_WATT_HOUR` enum as the `KWH` should be used instead.
