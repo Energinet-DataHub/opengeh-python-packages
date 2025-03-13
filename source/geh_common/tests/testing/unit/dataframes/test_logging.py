@@ -26,6 +26,8 @@ def test_configure_testing():
 
 def test_testing_decorator_not_testing():
     # Arrange
+    configure_testing(False)
+
     @testing()
     def dummy_function() -> str:
         return "test"

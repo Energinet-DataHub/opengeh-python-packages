@@ -39,11 +39,11 @@ def testing() -> Callable[..., Any]:
     """
 
     def decorator(func):
-        if not TESTING:
-            return func
-
         def wrapper(*args, **kwargs):
             result = func(*args, **kwargs)
+            if not TESTING:
+                return result
+
             if isinstance(result, DataFrame):
                 _log_dataframe(result, func.__name__)
             return result
