@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.4.1
+
+- Removing `KILO_WATT_HOUR` enum as the `KWH` should be used instead.
+
 ## Version 5.4.0
 
 **Subpackage**: `geh_common.testing`
