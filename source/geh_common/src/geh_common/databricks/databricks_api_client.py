@@ -114,8 +114,7 @@ class DatabricksApiClient:
         Args:
                     warehouse_id (str): Databricks warehouse/cluster ID.
                     statement (str): SQL statement to execute.
-                    disposition (Disposition): The fetch disposition. Currectly only supports the Disposition.INLINE mode.
-
+                    disposition (Disposition): The fetch disposition. Currently only supports the Disposition.INLINE mode.
         Returns:
                     StatementResponse: A StatementResponse object containing a `statement_id` and `status`.
                     Optionally, it may contain a `manifest` object that provides the schema and metadata of the result
