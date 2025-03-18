@@ -2,6 +2,7 @@ import time
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.jobs import RunLifeCycleState, RunResultState
+from databricks.sdk.service.sql import Disposition, StatementResponse, StatementState
 
 
 class DatabricksApiClient:
@@ -106,26 +107,30 @@ class DatabricksApiClient:
         self,
         warehouse_id: str,
         statement: str,
-    ) -> "DatabricksApiClient":
-        """Execute a SQL statement.
+        disposition: Disposition = Disposition.INLINE,
+    ) -> StatementResponse:
+        """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
             warehouse_id (str): Databricks warehouse/cluster ID
             statement (str): SQL statement to execute
+            disposition (str):
 
         Returns:
-            DatabricksApiClient: Self reference for method chaining
+            list[dict]: Json array
         """
+        if disposition != Disposition.INLINE:
+            raise NotImplementedError("Execute statement only supports disposition INLINE")
+
         try:
             response = self.client.statement_execution.execute_statement(
-                warehouse_id=warehouse_id,
-                statement=statement,
+                warehouse_id=warehouse_id, statement=statement, disposition=disposition
             )
 
-            if response.status.state == "FAILED":
+            if response.status.state == StatementState.FAILED:
                 raise Exception(f"Statement execution failed: {response.status.error}")
 
-            return self
+            return response
 
         except Exception as e:
             raise Exception(f"Failed to execute statement: {str(e)}")
