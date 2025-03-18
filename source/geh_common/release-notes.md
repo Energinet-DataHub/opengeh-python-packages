@@ -8,6 +8,9 @@
 
 - Fixed a bug where invalid queries did not raise an exception.
 
+- Extended databricks_api_client.execute_statement to be able to wait for response in the event that the warehouse needs
+to start.  
+
 ## Version 5.4.2
 
 **Subpackage**: `geh_common.testing`
