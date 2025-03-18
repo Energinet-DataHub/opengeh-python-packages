@@ -112,12 +112,15 @@ class DatabricksApiClient:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
-            warehouse_id (str): Databricks warehouse/cluster ID
-            statement (str): SQL statement to execute
-            disposition (str):
+                    warehouse_id (str): Databricks warehouse/cluster ID.
+                    statement (str): SQL statement to execute.
+                    disposition (Disposition): The fetch disposition. Currectly only supports the Disposition.INLINE mode.
 
         Returns:
-            list[dict]: Json array
+                    StatementResponse: A StatementResponse object containing a `statement_id` and `status`.
+                    Optionally, it may contain a `manifest` object that provides the schema and metadata of the result
+                    set, and a `result` object containing the result data. Notice, the result data currently only
+                    supports the INLINE mode.
         """
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
