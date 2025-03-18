@@ -1,5 +1,13 @@
 # GEH Common Release Notes
 
+## Version 5.4.3
+
+**Subpackage**: `geh_common.databricks`
+
+- Updated the return type of databricks_api_client.execute_statement to StatementResponse, enabling the method to return data.
+
+- Fixed a bug where invalid queries did not raise an exception.
+
 ## Version 5.4.2
 
 **Subpackage**: `geh_common.testing`
