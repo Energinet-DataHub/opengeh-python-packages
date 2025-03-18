@@ -1,4 +1,5 @@
 import time
+from typing import Optional
 
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.jobs import RunLifeCycleState, RunResultState
@@ -103,24 +104,46 @@ class DatabricksApiClient:
 
         raise TimeoutError(f"Job did not complete within {timeout} seconds.")
 
+    def get_statement(
+        self,
+        statement_id: str,
+    ) -> StatementResponse:
+        """Retrieve the result of a previously executed statement.
+
+        Args:
+            statement_id (str): The ID of the statement to retrieve.
+
+        Returns:
+            StatementResponse: The response object containing status and results.
+        """
+        return self.client.statement_execution.get_statement(statement_id)
+
     def execute_statement(
         self,
         warehouse_id: str,
         statement: str,
         disposition: Disposition = Disposition.INLINE,
+        wait_for_response: Optional[bool] = False,
+        timeout: Optional[int] = 360,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
-                    warehouse_id (str): Databricks warehouse/cluster ID.
-                    statement (str): SQL statement to execute.
-                    disposition (Disposition): The fetch disposition. Currectly only supports the Disposition.INLINE mode.
+            warehouse_id (str): The ID of the Databricks warehouse or cluster.
+            statement (str): The SQL statement to execute.
+            disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
+            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to False.
+            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 360.
 
         Returns:
-                    StatementResponse: A StatementResponse object containing a `statement_id` and `status`.
-                    Optionally, it may contain a `manifest` object that provides the schema and metadata of the result
-                    set, and a `result` object containing the result data. Notice, the result data currently only
-                    supports the INLINE mode.
+            StatementResponse: A StatementResponse object. It may optionally contain a `statement_id`, `status`,
+            `manifest` (object that provides the schema and metadata of the result set), and a `result`
+            (object containing the result data). Notice, the result data currently only supports the INLINE mode.
+
+        Raises:
+            NotImplementedError: If a non-INLINE disposition is specified.
+            TimeoutError: If the statement execution exceeds the timeout limit.
+            Exception: For any execution failure.
         """
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
@@ -129,6 +152,18 @@ class DatabricksApiClient:
             response = self.client.statement_execution.execute_statement(
                 warehouse_id=warehouse_id, statement=statement, disposition=disposition
             )
+            # If the warehouse is not started, we wait for it to start and report the response.
+            if wait_for_response:
+                runtime = 0
+                while response.status.state in [
+                    StatementState.PENDING,
+                    StatementState.RUNNING,
+                ]:
+                    if runtime > timeout:
+                        raise TimeoutError(f"Statement execution timed out after {timeout} seconds.")
+                    time.sleep(10)
+                    runtime = runtime + 10
+                    response = self.get_statement(response.statement_id)
 
             if response.status.state == StatementState.FAILED:
                 raise Exception(f"Statement execution failed: {response.status.error}")
