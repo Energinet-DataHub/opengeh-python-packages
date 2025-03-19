@@ -10,7 +10,11 @@ class TestModel(BaseModel):
     grid_area_codes: GridAreaCodes
 
 
-def test__when_valid_grid_area_codes__returns_expected():
+class TestModelWithOptionalGridAreaCodes(BaseModel):
+    grid_area_codes: GridAreaCodes | None = None
+
+
+def test__when_valid_grid_area_codes__returns_expected() -> None:
     # Arrange
     valid_codes = ["123", "456", "789"]
 
@@ -21,7 +25,7 @@ def test__when_valid_grid_area_codes__returns_expected():
     assert model.grid_area_codes == valid_codes
 
 
-def test__when_valid_grid_area_codes_from_string__returns_list_of_grid_area_codes():
+def test__when_valid_grid_area_codes_from_string__returns_list_of_grid_area_codes() -> None:
     # Arrange
     valid_codes_string = "123,456,789"
     expected_codes = ["123", "456", "789"]
@@ -33,26 +37,39 @@ def test__when_valid_grid_area_codes_from_string__returns_list_of_grid_area_code
     assert model.grid_area_codes == expected_codes
 
 
-def test__when_empty_grid_area_codes__returns_empty_list():
-    # Arrange
-    empty_codes = []
-
-    # Act
-    model = TestModel(grid_area_codes=empty_codes)
-
-    # Assert
-    assert model.grid_area_codes == empty_codes
-
-
-def test__when_none_grid_area_codes__returns_none():
+def test__when_none_grid_area_codes_and_optional__returns_none() -> None:
     # Arrange
     none_codes = None
 
     # Act
-    model = TestModel(grid_area_codes=none_codes)
+    model = TestModelWithOptionalGridAreaCodes(grid_area_codes=none_codes)
 
     # Assert
     assert model.grid_area_codes is None
+
+
+def test__when_empty_grid_area_codes__raises_exception() -> None:
+    # Arrange
+    empty_codes = []
+
+    # Act
+    with pytest.raises(ValidationError) as exc_info:
+        TestModel(grid_area_codes=empty_codes)
+
+    # Assert
+    assert "Input should be a valid list" in str(exc_info.value)
+
+
+def test__when_none_grid_area_codes_and_mandatory__raises_exception() -> None:
+    # Arrange
+    none_codes = None
+
+    # Act
+    with pytest.raises(ValidationError) as exc_info:
+        TestModel(grid_area_codes=none_codes)
+
+    # Assert
+    assert "Input should be a valid list" in str(exc_info.value)
 
 
 @pytest.mark.parametrize(
