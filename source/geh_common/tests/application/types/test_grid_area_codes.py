@@ -1,0 +1,103 @@
+from typing import Any
+
+import pytest
+from pydantic import BaseModel, ValidationError
+
+from geh_common.application import GridAreaCodes
+
+
+class TestModel(BaseModel):
+    grid_area_codes: GridAreaCodes
+
+
+def test__when_valid_grid_area_codes__returns_expected():
+    # Arrange
+    valid_codes = ["123", "456", "789"]
+
+    # Act
+    model = TestModel(grid_area_codes=valid_codes)
+
+    # Assert
+    assert model.grid_area_codes == valid_codes
+
+
+def test__when_valid_grid_area_codes_from_string__returns_list_of_grid_area_codes():
+    # Arrange
+    valid_codes_string = "123,456,789"
+    expected_codes = ["123", "456", "789"]
+
+    # Act
+    model = TestModel(grid_area_codes=valid_codes_string)
+
+    # Assert
+    assert model.grid_area_codes == expected_codes
+
+
+def test__when_empty_grid_area_codes__returns_empty_list():
+    # Arrange
+    empty_codes = []
+
+    # Act
+    model = TestModel(grid_area_codes=empty_codes)
+
+    # Assert
+    assert model.grid_area_codes == empty_codes
+
+
+def test__when_none_grid_area_codes__returns_none():
+    # Arrange
+    none_codes = None
+
+    # Act
+    model = TestModel(grid_area_codes=none_codes)
+
+    # Assert
+    assert model.grid_area_codes is None
+
+
+@pytest.mark.parametrize(
+    "invalid_code",
+    [
+        "12",  # not three characters
+        "4567",  # not three characters
+        "89a",  # not all digits
+    ],
+)
+def test__when_invalid_grid_area_codes__raises_exception(invalid_code: Any) -> None:
+    # Act & Assert
+    with pytest.raises(ValidationError) as exc_info:
+        TestModel(grid_area_codes=[invalid_code])
+
+    assert "Unexpected grid area code" in str(exc_info.value) or "Grid area codes must be strings" in str(
+        exc_info.value
+    )
+
+
+def test__when_list_of_valid_int__returns_list_of_strings():
+    # Arrange
+    valid_codes_string = [123, 456, 789]
+    expected_codes = ["123", "456", "789"]
+
+    # Act
+    model = TestModel(grid_area_codes=valid_codes_string)
+
+    # Assert
+    assert model.grid_area_codes == expected_codes
+
+
+@pytest.mark.parametrize(
+    "invalid_code",
+    [
+        1234,  # not three digits
+        1,  # not three digits
+        12,  # not three digits
+    ],
+)
+def test__when_invalid_int__raise_exception(invalid_code: Any) -> None:
+    # Act & Assert
+    with pytest.raises(ValidationError) as exc_info:
+        TestModel(grid_area_codes=[invalid_code])
+
+    assert "Unexpected grid area code" in str(exc_info.value) or "Grid area codes must be strings" in str(
+        exc_info.value
+    )

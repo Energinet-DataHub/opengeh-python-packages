@@ -37,7 +37,8 @@ def _validate_grid_area_codes(v: list[str] | None) -> list[str] | None:
     if v is None:
         return v
     for code in v:
-        assert isinstance(code, str), f"Grid area codes must be strings, not {type(code)}"
+        if not isinstance(code, str):
+            raise TypeError(f"Grid area codes must be strings, not {type(code)}")
         if len(code) != 3 or not code.isdigit():
             raise ValueError(
                 f"Unexpected grid area code: '{code}'. Grid area codes must consist of 3 digits (000-999)."
@@ -46,7 +47,7 @@ def _validate_grid_area_codes(v: list[str] | None) -> list[str] | None:
 
 
 GridAreaCodes = Annotated[
-    list[str], BeforeValidator(_convert_grid_area_codes), AfterValidator(_validate_grid_area_codes), NoDecode
+    list[str], BeforeValidator(_convert_grid_area_codes), AfterValidator(_validate_grid_area_codes), NoDecode()
 ]
 """
 Annotated type for a list of grid area codes.
