@@ -1,5 +1,39 @@
 # GEH Common Release Notes
 
+## Version 5.4.3
+
+**Subpackage**: `geh_common.testing`
+
+Adds a utility function called `get_spark_test_session` that can be used to get a SparkSession for testing purposes.
+
+Example usage:
+
+```python
+# In a function that uses Spark
+from geh_common.testing import get_spark_test_session
+
+def test_my_function():
+    spark, _ = get_spark_test_session()
+    assert my_function(spark).count() == 2
+
+# As a fixture in a test file `conftest.py`
+@pytest.fixture(scope="session")
+def spark():
+    session, data_dir = get_spark_test_session()
+    yield session
+    session.stop()
+    shutil.rmtree(data_dir)
+
+# As a fixture when pytest-xdist is enabled
+_session, data_dir = get_spark_test_session()
+
+@pytest.fixture(scope="session")
+def spark():
+    yield _session
+    _session.stop()
+    shutil.rmtree(data_dir)
+```
+
 ## Version 5.4.2
 
 **Subpackage**: `geh_common.testing`
