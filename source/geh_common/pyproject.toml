@@ -26,6 +26,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "psutil>=6.1.1",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
     "pytest-xdist>=3.6.1",
@@ -41,8 +42,8 @@ addopts = [
     "-ra",                           # Show extra test summary info as specified by -ra
     "-vv",                           # Verbose output for tests
     "-s",                            # Print to console
-    "-n=auto",                       # Run tests in parallel
-    "--dist=loadscope",              # Pop tests off the queue in chunks
+    "-n=logical",                    # Run tests in parallel
+    "--dist",                        # Pop tests off the queue in chunks
 ]
 cache_dir = ".cache/pytest"
 
