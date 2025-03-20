@@ -180,7 +180,7 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__should_fail_on_invalid_query(MockWorkspaceClient):
+def test__execute_statement__when_query_is_invalid__should_raise_exception(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
