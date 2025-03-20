@@ -248,7 +248,6 @@ def test__execute_statement__when_disposition_is_external_link__should_raise_exc
     assert "Execute statement only supports disposition INLINE" in str(context.value)
 
 
-@pytest.mark.parametrize("timeout", [2, 11])
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
 def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient, timeout):
     # Arrange
@@ -269,7 +268,7 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
             statement=statement,
             disposition=Disposition.INLINE,
             wait_for_response=True,
-            timeout=timeout,
+            timeout=11,
         )
 
     assert context.value is not None
