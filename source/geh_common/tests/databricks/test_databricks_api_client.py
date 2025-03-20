@@ -230,7 +230,7 @@ def test__should_succeed_on_valid_query(MockWorkspaceClient):
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__should_fail_if_disposition_is_external_links(MockWorkspaceClient):
+def test__should_raise_exception_if_disposition_is_external_links(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
@@ -249,3 +249,44 @@ def test__should_fail_if_disposition_is_external_links(MockWorkspaceClient):
 
     assert context.value is not None
     assert "Execute statement only supports disposition INLINE" in str(context.value)
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__should_raise_exception_after_exceeding_timeout_input(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.RUNNING
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+    mock_client.statement_execution.get_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    statement = "query"
+
+    # Act & Assert
+    # Asserts for timeout = 2
+    with pytest.raises(Exception) as context:
+        sut.execute_statement(
+            warehouse_id="fake_warehouse_id",
+            statement=statement,
+            disposition=Disposition.INLINE,
+            wait_for_response=True,
+            timeout=2,
+        )
+
+    assert context.value is not None
+    assert "Statement execution timed out after" in str(context.value)
+
+    # Asserts for timeout = 11
+    with pytest.raises(Exception) as context:
+        sut.execute_statement(
+            warehouse_id="fake_warehouse_id",
+            statement=statement,
+            disposition=Disposition.INLINE,
+            wait_for_response=True,
+            timeout=11,
+        )
+
+    assert context.value is not None
+    assert "Statement execution timed out after" in str(context.value)

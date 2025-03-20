@@ -159,16 +159,19 @@ class DatabricksApiClient:
                     StatementState.PENDING,
                     StatementState.RUNNING,
                 ]:
-                    if runtime > timeout:
+                    if runtime >= timeout:
                         raise TimeoutError(f"Statement execution timed out after {timeout} seconds.")
                     time.sleep(10)
                     runtime = runtime + 10
                     response = self.get_statement(response.statement_id)
 
-            if response.status.state == StatementState.FAILED:
-                raise Exception(f"Statement execution failed: {response.status.error}")
+            # if response.status.state == StatementState.FAILED:
+            #     raise Exception(f"Statement execution failed: {response.status.error}")
 
-            return response
+            if response.status.state == StatementState.SUCCEEDED:
+                return response
+            else:
+                raise Exception(f"Statement execution failed: {response.status.error}")
 
         except Exception as e:
             raise Exception(f"Failed to execute statement: {str(e)}")
