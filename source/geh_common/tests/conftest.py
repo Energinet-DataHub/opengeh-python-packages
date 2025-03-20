@@ -1,4 +1,6 @@
+import builtins
 import shutil
+import sys
 from typing import Generator
 
 import pytest
@@ -25,3 +27,17 @@ def spark() -> Generator[SparkSession, None, None]:
     yield _spark
     _spark.stop()
     shutil.rmtree(data_dir, ignore_errors=True)
+
+
+@pytest.fixture(scope="session", autouse=True)
+def fix_print():
+    """
+    pytest-xdist disables stdout capturing by default, which means that print() statements
+    are not captured and displayed in the terminal.
+    That's because xdist cannot support -s for technical reasons wrt the process execution mechanism
+    https://github.com/pytest-dev/pytest-xdist/issues/354
+    """
+    original_print = print
+    with pytest.MonkeyPatch.context() as m:
+        m.setattr(builtins, "print", lambda *args, **kwargs: original_print(*args, **{"file": sys.stderr, **kwargs}))
+        yield
