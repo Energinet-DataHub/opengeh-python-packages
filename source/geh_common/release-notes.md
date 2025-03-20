@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.4.3
+
+**Subpackage**: `geh_common.application`
+
+Added new GridAreaCodes type with a validator
+
 ## Version 5.4.2
 
 **Subpackage**: `geh_common.testing`
