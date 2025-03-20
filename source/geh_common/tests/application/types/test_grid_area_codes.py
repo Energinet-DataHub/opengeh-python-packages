@@ -14,6 +14,10 @@ class TestModelWithOptionalGridAreaCodes(BaseModel):
     grid_area_codes: GridAreaCodes | None = None
 
 
+class TestModelWithoutGridAreaCodes(BaseModel):
+    grid_area_codes: list[str] | None = None
+
+
 def test__when_valid_grid_area_codes__returns_expected() -> None:
     # Arrange
     valid_codes = ["123", "456", "789"]
@@ -118,3 +122,14 @@ def test__when_invalid_int__raise_exception(invalid_code: Any) -> None:
     assert "Unexpected grid area code" in str(exc_info.value) or "Grid area codes must be strings" in str(
         exc_info.value
     )
+
+
+def test__when_not_gridareacodes_type___returns_expected() -> None:
+    # Arrange
+    valid_codes = ["12", "whatever", "789"]
+
+    # Act
+    model = TestModelWithoutGridAreaCodes(grid_area_codes=valid_codes)
+
+    # Assert
+    assert model.grid_area_codes == valid_codes
