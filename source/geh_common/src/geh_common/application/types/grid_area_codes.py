@@ -59,4 +59,14 @@ Validators:
 - BeforeValidator: Converts the input value to a list of grid area codes.
 - AfterValidator: Validates the list of grid area codes.
 - NoDecode: Prevents decoding of the input value.
+
+Example:
+```python
+class MySettings(BaseSettings):
+    grid_area_codes: GridAreaCodes
+
+args = MySettings(grid_area_codes="123,456,789")
+print(args.grid_area_codes)
+# Output: ['123', '456', '789']
+```
 """
