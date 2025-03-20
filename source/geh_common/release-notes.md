@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.4.4
+## Version 5.4.5
 
 **Subpackage**: `geh_common.testing`
 
