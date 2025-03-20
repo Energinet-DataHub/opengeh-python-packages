@@ -249,7 +249,7 @@ def test__execute_statement__when_disposition_is_external_link__should_raise_exc
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient, timeout):
+def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
