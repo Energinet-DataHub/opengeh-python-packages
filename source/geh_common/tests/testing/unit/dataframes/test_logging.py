@@ -1,6 +1,7 @@
 import inspect
 from unittest.mock import patch
 
+import pytest
 from pyspark.sql import DataFrame, SparkSession
 
 from geh_common.testing.dataframes.logging import (
@@ -74,6 +75,7 @@ def test_testing_decorator_without_dataframe():
         mock_log_dataframe.assert_not_called()
 
 
+@pytest.mark.noautofixt
 def test_log_dataframe(spark, capsys):
     # Arrange
     configure_testing(True)
