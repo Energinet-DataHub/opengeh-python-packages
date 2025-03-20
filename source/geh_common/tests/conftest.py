@@ -30,7 +30,7 @@ def spark() -> Generator[SparkSession, None, None]:
 
 
 @pytest.fixture(scope="session", autouse=True)
-def fix_print():
+def original_print():
     """
     pytest-xdist disables stdout capturing by default, which means that print() statements
     are not captured and displayed in the terminal.
@@ -40,4 +40,5 @@ def fix_print():
     original_print = print
     with pytest.MonkeyPatch.context() as m:
         m.setattr(builtins, "print", lambda *args, **kwargs: original_print(*args, **{"file": sys.stderr, **kwargs}))
-        yield
+        yield original_print
+        m.undo()
