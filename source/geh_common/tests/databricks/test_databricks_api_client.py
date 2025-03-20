@@ -230,7 +230,7 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__should_raise_exception_if_disposition_is_external_links(MockWorkspaceClient):
+def test__execute_statement__when_disposition_is_external_link__should_raise_exception(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
