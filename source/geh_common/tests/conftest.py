@@ -1,8 +1,10 @@
+import shutil
 from typing import Generator
 
 import pytest
-from delta import configure_spark_with_delta_pip
 from pyspark.sql import SparkSession
+
+from geh_common.testing.spark.spark_test_session import get_spark_test_session
 
 
 @pytest.fixture(scope="module", autouse=True)
@@ -12,19 +14,14 @@ def clear_cache(spark: SparkSession):
     spark.catalog.clearCache()
 
 
+_spark, data_dir = get_spark_test_session()
+
+
 @pytest.fixture(scope="session")
 def spark() -> Generator[SparkSession, None, None]:
     """
     Create a Spark session with Delta Lake enabled.
     """
-    session = (
-        SparkSession.builder.master("local[2]")  # type: ignore
-        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
-        .config(
-            "spark.sql.catalog.spark_catalog",
-            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-        )
-    )
-    session = configure_spark_with_delta_pip(session).getOrCreate()
-    yield session
-    session.stop()
+    yield _spark
+    _spark.stop()
+    shutil.rmtree(data_dir, ignore_errors=True)
