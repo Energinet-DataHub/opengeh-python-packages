@@ -204,7 +204,7 @@ def test__execute_statement__when_query_is_invalid__should_raise_exception(MockW
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__should_succeed_on_valid_query(MockWorkspaceClient):
+def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
