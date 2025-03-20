@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from databricks.sdk.service.sql import Disposition, StatementState
 
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
 
@@ -176,3 +177,99 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
     # Assert
     assert run_id == 12345
     mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=False)
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__execute_statement__when_query_is_invalid__should_raise_exception(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.FAILED
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    invalid_query = "invalid query"
+
+    # Act & Assert
+    with pytest.raises(Exception) as context:
+        sut.execute_statement(warehouse_id="fake_warehouse_id", statement=invalid_query)
+
+    assert context.value is not None
+    assert "Statement execution failed" in str(context.value)
+
+    mock_client.statement_execution.execute_statement.assert_called_once_with(
+        warehouse_id="fake_warehouse_id", statement=invalid_query, disposition=Disposition.INLINE
+    )
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    valid_query = "valid query"
+
+    # Act & Assert
+    response = sut.execute_statement(warehouse_id="fake_warehouse_id", statement=valid_query)
+
+    assert response is not None
+    assert response.status.state is StatementState.SUCCEEDED
+
+    mock_client.statement_execution.execute_statement.assert_called_once_with(
+        warehouse_id="fake_warehouse_id", statement=valid_query, disposition=Disposition.INLINE
+    )
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__execute_statement__when_disposition_is_external_link__should_raise_exception(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.FAILED
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    statement = "query"
+
+    # Act & Assert
+    with pytest.raises(NotImplementedError) as context:
+        sut.execute_statement(
+            warehouse_id="fake_warehouse_id", statement=statement, disposition=Disposition.EXTERNAL_LINKS
+        )
+
+    assert context.value is not None
+    assert "Execute statement only supports disposition INLINE" in str(context.value)
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.RUNNING
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+    mock_client.statement_execution.get_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    statement = "query"
+
+    # Act & Assert
+    with pytest.raises(Exception) as context:
+        sut.execute_statement(
+            warehouse_id="fake_warehouse_id",
+            statement=statement,
+            disposition=Disposition.INLINE,
+            wait_for_response=True,
+            timeout=11,
+        )
+
+    assert context.value is not None
+    assert "Statement execution timed out after" in str(context.value)
