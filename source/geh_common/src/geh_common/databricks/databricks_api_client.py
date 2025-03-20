@@ -165,9 +165,6 @@ class DatabricksApiClient:
                     runtime = runtime + 10
                     response = self.get_statement(response.statement_id)
 
-            # if response.status.state == StatementState.FAILED:
-            #     raise Exception(f"Statement execution failed: {response.status.error}")
-
             if response.status.state == StatementState.SUCCEEDED:
                 return response
             else:
