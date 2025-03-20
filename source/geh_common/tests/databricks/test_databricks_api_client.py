@@ -216,10 +216,7 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     valid_query = "valid query"
 
     # Act & Assert
-    try:
-        response = sut.execute_statement(warehouse_id="fake_warehouse_id", statement=valid_query)
-    except Exception as e:
-        pytest.fail(f"An exception was raised: {e}")
+    response = sut.execute_statement(warehouse_id="fake_warehouse_id", statement=valid_query)
 
     assert response is not None
     assert response.status.state is StatementState.SUCCEEDED
@@ -251,8 +248,9 @@ def test__execute_statement__when_disposition_is_external_link__should_raise_exc
     assert "Execute statement only supports disposition INLINE" in str(context.value)
 
 
+@pytest.mark.parametrize("timeout", [2, 11])
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient):
+def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient, timeout):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
@@ -265,27 +263,13 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
     statement = "query"
 
     # Act & Assert
-    # Asserts for timeout = 2
     with pytest.raises(Exception) as context:
         sut.execute_statement(
             warehouse_id="fake_warehouse_id",
             statement=statement,
             disposition=Disposition.INLINE,
             wait_for_response=True,
-            timeout=2,
-        )
-
-    assert context.value is not None
-    assert "Statement execution timed out after" in str(context.value)
-
-    # Asserts for timeout = 11
-    with pytest.raises(Exception) as context:
-        sut.execute_statement(
-            warehouse_id="fake_warehouse_id",
-            statement=statement,
-            disposition=Disposition.INLINE,
-            wait_for_response=True,
-            timeout=11,
+            timeout=timeout,
         )
 
     assert context.value is not None
