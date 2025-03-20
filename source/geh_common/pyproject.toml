@@ -18,6 +18,7 @@ dependencies = [
     "databricks-sdk>=0.42.0",
     "pydantic-settings>=2.7.1",
     "pydantic>=2.10.6",
+    "polars>=1.25.2",                       # will be removed, just temporary to create the version which still creates csv files
 ]
 
 [build-system]
