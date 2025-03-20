@@ -41,6 +41,8 @@ addopts = [
     "-ra",                           # Show extra test summary info as specified by -ra
     "-vv",                           # Verbose output for tests
     "-s",                            # Print to console
+    "-n=auto",                       # Run tests in parallel
+    "--dist=loadscope",              # Pop tests off the queue in chunks
 ]
 cache_dir = ".cache/pytest"
 
