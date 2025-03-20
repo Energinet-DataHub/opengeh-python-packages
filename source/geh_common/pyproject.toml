@@ -43,7 +43,7 @@ addopts = [
     "-vv",                           # Verbose output for tests
     "-s",                            # Print to console
     "-n=logical",                    # Run tests in parallel
-    "--dist",                        # Pop tests off the queue in chunks
+    "--dist=load",                   # Pop tests off the queue in chunks
 ]
 cache_dir = ".cache/pytest"
 
