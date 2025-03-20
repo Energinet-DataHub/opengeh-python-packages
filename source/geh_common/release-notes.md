@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.4.3
+## Version 5.4.4
 
 **Subpackage**: `geh_common.databricks`
 
@@ -10,6 +10,12 @@
 
 - Extended databricks_api_client.execute_statement to be able to wait for response in the event that the warehouse needs
 to start.  
+
+## Version 5.4.3
+
+**Subpackage**: `geh_common.application`
+
+Added new GridAreaCodes type with a validator
 
 ## Version 5.4.2
 
