@@ -4,7 +4,7 @@
 
 **Subpackage**: `geh_common.testing`
 
-Decorator `@testing` has been extended to support `DataFrameWrapper` and a selector function to 
+Decorator `@testing` has been extended to support `DataFrameWrapper` and a selector function to
 extract data frames from composite function results.
 
 ## Version 5.4.4
