@@ -1,8 +1,10 @@
 import inspect
+from typing import Tuple
 from unittest.mock import patch
 
 from pyspark.sql import DataFrame, SparkSession
 
+from geh_common.pyspark.data_frame_wrapper import DataFrameWrapper
 from geh_common.testing.dataframes.logging import (
     configure_testing,
     testing,
@@ -100,3 +102,48 @@ def test_log_dataframe(spark, capsys, monkeypatch, original_print):
     assert "name" in captured.out
     assert "1" in captured.out
     assert "a" in captured.out
+
+
+##################################
+
+
+class MyDataFrameWrapper(DataFrameWrapper):
+    def __init__(self, df: DataFrame):
+        super().__init__(df=df, schema=df.schema)
+
+
+def test_decorator_when_function_return_dataframewrapper(spark: SparkSession) -> None:
+    # Arrange
+    configure_testing(True)
+    df = spark.createDataFrame([(1, "a"), (2, "b")], ["id", "name"])
+    wrapper = MyDataFrameWrapper(df)
+
+    @testing()
+    def dummy_function() -> DataFrameWrapper:
+        return wrapper
+
+    with patch("geh_common.testing.dataframes.logging._log_dataframe") as mock_log_dataframe:
+        # Act
+        dummy_function()
+
+        # Assert
+        mock_log_dataframe.assert_called_once()
+
+
+def test_decorator_when_used_multiple_times(spark: SparkSession) -> None:
+    # Arrange
+    configure_testing(True)
+    df = spark.createDataFrame([(1, "a"), (2, "b")], ["id", "name"])
+    wrapper = MyDataFrameWrapper(df)
+
+    @testing(selector=lambda result: result[0])
+    @testing(selector=lambda result: result[1])
+    def dummy_function() -> Tuple[DataFrame, DataFrameWrapper]:
+        return df, wrapper
+
+    with patch("geh_common.testing.dataframes.logging._log_dataframe") as mock_log_dataframe:
+        # Act
+        dummy_function()
+
+        # Assert
+        assert mock_log_dataframe.call_count == 2

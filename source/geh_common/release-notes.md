@@ -49,6 +49,13 @@ def spark():
     shutil.rmtree(data_dir)
 ```
 
+## Version 5.4.5
+
+**Subpackage**: `geh_common.testing`
+
+Decorator `@testing` has been extended to support `DataFrameWrapper` and a selector function to
+extract data frames from composite function results.
+
 ## Version 5.4.4
 
 **Subpackage**: `geh_common.databricks`
