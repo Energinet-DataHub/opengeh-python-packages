@@ -123,8 +123,8 @@ class DatabricksApiClient:
         warehouse_id: str,
         statement: str,
         disposition: Disposition = Disposition.INLINE,
-        wait_for_response: Optional[bool] = False,
-        timeout: Optional[int] = 360,
+        wait_for_response: Optional[bool] = True,
+        timeout: Optional[int] = 600,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
@@ -168,7 +168,9 @@ class DatabricksApiClient:
             if response.status.state == StatementState.SUCCEEDED:
                 return response
             else:
-                raise Exception(f"Statement execution failed: {response.status.error}")
+                raise Exception(
+                    f"Statement execution failed. Status: {response.status.state}. Error: {response.status.error}"
+                )
 
         except Exception as e:
             raise Exception(f"Failed to execute statement: {str(e)}")
