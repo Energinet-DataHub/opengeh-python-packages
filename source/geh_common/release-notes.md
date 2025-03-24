@@ -1,5 +1,16 @@
 # GEH Common Release Notes
 
+## Version 5.4.7
+
+**Subpackage**: `geh_common.databricks`
+
+- Updated error message to include state. 
+
+- Increased the default timeout value. 
+
+- Now wait_for_response it set to true by default.
+
+
 ## Version 5.4.6
 
 **Subpackage**: `geh_common.domain.types`
