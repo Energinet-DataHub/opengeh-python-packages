@@ -49,6 +49,12 @@ def spark():
     shutil.rmtree(data_dir)
 ```
 
+## Version 5.4.6
+
+**Subpackage**: `geh_common.domain.types`
+
+Extends enum `OrchestrationTypes` with more types and descriptions.
+
 ## Version 5.4.5
 
 **Subpackage**: `geh_common.testing`
