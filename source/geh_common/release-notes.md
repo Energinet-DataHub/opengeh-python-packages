@@ -10,7 +10,6 @@
 
 - Now wait_for_response it set to true by default.
 
-
 ## Version 5.4.6
 
 **Subpackage**: `geh_common.domain.types`
