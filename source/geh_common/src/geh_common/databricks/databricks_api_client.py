@@ -132,8 +132,8 @@ class DatabricksApiClient:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
-            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to False.
-            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 360.
+            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to True.
+            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 600.
 
         Returns:
             StatementResponse: A StatementResponse object. It may optionally contain a `statement_id`, `status`,

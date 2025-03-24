@@ -4,9 +4,9 @@
 
 **Subpackage**: `geh_common.databricks`
 
-- Updated error message to include state. 
+- Updated error message to include state.
 
-- Increased the default timeout value. 
+- Increased the default timeout value.
 
 - Now wait_for_response it set to true by default.
 
