@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.4.9
+
+**Subpackage**: `geh_common.domain.types`
+
+Extends enum `MeteringPointTypes` with one more type used in DH2.
+
 ## Version 5.4.8
 
 **Subpackage**: `geh_common.testing`
