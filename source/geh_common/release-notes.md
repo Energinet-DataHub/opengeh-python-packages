@@ -4,7 +4,7 @@
 
 **Subpackage**: `geh_common.domain.types`
 
-Extends enum `MeteringPointTypes` with one more type and description.
+Extends enum `MeteringPointTypes` with one more type used in DH2.
 
 ## Version 5.4.8
 
