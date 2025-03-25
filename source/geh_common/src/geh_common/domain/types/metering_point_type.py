@@ -12,6 +12,7 @@ class MeteringPointType(Enum):
     ELECTRICAL_HEATING = "electrical_heating"
     EXCHANGE = "exchange"  # Parent
     EXCHANGE_REACTIVE_ENERGY = "exchange_reactive_energy"
+    INTERNAL_USE = "internal_use"
     NET_CONSUMPTION = "net_consumption"
     NET_FROM_GRID = "net_from_grid"
     NET_LOSS_CORRECTION = "net_loss_correction"
