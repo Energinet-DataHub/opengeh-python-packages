@@ -123,8 +123,8 @@ class DatabricksApiClient:
         warehouse_id: str,
         statement: str,
         disposition: Disposition = Disposition.INLINE,
-        wait_for_response: Optional[bool] = False,
-        timeout: Optional[int] = 360,
+        wait_for_response: Optional[bool] = True,
+        timeout: Optional[int] = 600,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
@@ -132,8 +132,8 @@ class DatabricksApiClient:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
-            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to False.
-            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 360.
+            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to True.
+            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 600.
 
         Returns:
             StatementResponse: A StatementResponse object. It may optionally contain a `statement_id`, `status`,
@@ -168,7 +168,9 @@ class DatabricksApiClient:
             if response.status.state == StatementState.SUCCEEDED:
                 return response
             else:
-                raise Exception(f"Statement execution failed: {response.status.error}")
+                raise Exception(
+                    f"Statement execution failed. Status: {response.status.state}. Error: {response.status.error}"
+                )
 
         except Exception as e:
             raise Exception(f"Failed to execute statement: {str(e)}")
