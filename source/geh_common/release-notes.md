@@ -1,5 +1,54 @@
 # GEH Common Release Notes
 
+## Version 5.4.8
+
+**Subpackage**: `geh_common.testing`
+
+Adds a utility function called `get_spark_test_session` that can be used to get a SparkSession for testing purposes.
+
+Example usage:
+
+```python
+# In a function that uses Spark
+from geh_common.testing import get_spark_test_session
+
+def test_my_function():
+    spark, _ = get_spark_test_session()
+    assert my_function(spark).count() == 2
+
+# As a fixture in a test file `conftest.py`
+@pytest.fixture(scope="session")
+def spark():
+    session, data_dir = get_spark_test_session()
+    yield session
+    session.stop()
+    shutil.rmtree(data_dir)
+
+# As a fixture when pytest-xdist is enabled
+# NOTE: When using pytest-xdist, the `-s` flag for pytest does not work. 
+# As a workaround, you can add the following fixture to your `conftest.py` file:
+# @pytest.fixture(scope="session", autouse=True)
+# def original_print():
+#     """
+#     pytest-xdist disables stdout capturing by default, which means that print() statements
+#     are not captured and displayed in the terminal.
+#     That's because xdist cannot support -s for technical reasons wrt the process execution mechanism
+#     https://github.com/pytest-dev/pytest-xdist/issues/354
+#     """
+#     original_print = print
+#     with pytest.MonkeyPatch.context() as m:
+#         m.setattr(builtins, "print", lambda *args, **kwargs: original_print(*args, **{"file": sys.stderr, **kwargs}))
+#         yield original_print
+#         m.undo()
+_session, data_dir = get_spark_test_session()
+
+@pytest.fixture(scope="session")
+def spark():
+    yield _session
+    _session.stop()
+    shutil.rmtree(data_dir)
+```
+
 ## Version 5.4.7
 
 **Subpackage**: `geh_common.databricks`
