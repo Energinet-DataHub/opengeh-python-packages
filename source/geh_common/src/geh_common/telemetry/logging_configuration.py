@@ -95,14 +95,16 @@ class LoggingSettings(ApplicationSettings):
         ```
     """
 
-    cloud_role_name: str = Field(init=False)
-    applicationinsights_connection_string: str = Field(init=False)
-    subsystem: str = Field(init=False)
-    orchestration_instance_id: Optional[UUID] = Field(init=False, default=None)
+    cloud_role_name: str = Field()
+    applicationinsights_connection_string: str = Field(init=False, repr=False)
+    subsystem: str = Field()
+    orchestration_instance_id: Optional[UUID] = Field(default=None)
 
 
 def configure_logging(
     *,
+    cloud_role_name: str,
+    subsystem: str,
     extras: dict[str, Any] | None = None,
 ) -> None:
     """Configure logging to use OpenTelemetry and Azure Monitor.
@@ -115,7 +117,7 @@ def configure_logging(
     """
     global _TRACER_NAME
 
-    logging_settings = LoggingSettings()
+    logging_settings = LoggingSettings(cloud_role_name=cloud_role_name, subsystem=subsystem)
     _TRACER_NAME = logging_settings.cloud_role_name
 
     # Only configure logging if not already instrumented
