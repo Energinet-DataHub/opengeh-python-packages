@@ -15,7 +15,7 @@
 import contextlib
 import logging
 import os
-from typing import Any, Iterator
+from typing import Any, Iterator, Optional
 from uuid import UUID
 
 from azure.monitor.opentelemetry import configure_azure_monitor
@@ -95,15 +95,14 @@ class LoggingSettings(ApplicationSettings):
         ```
     """
 
-    cloud_role_name: str
-    applicationinsights_connection_string: str = Field(repr=False)
-    subsystem: str
-    orchestration_instance_id: UUID | None = None
+    cloud_role_name: str = Field(init=False)
+    applicationinsights_connection_string: str = Field(init=False)
+    subsystem: str = Field(init=False)
+    orchestration_instance_id: Optional[UUID] = Field(init=False, default=None)
 
 
 def configure_logging(
     *,
-    logging_settings: LoggingSettings,
     extras: dict[str, Any] | None = None,
 ) -> None:
     """Configure logging to use OpenTelemetry and Azure Monitor.
@@ -115,6 +114,8 @@ def configure_logging(
     This is useful for unit testing.
     """
     global _TRACER_NAME
+
+    logging_settings = LoggingSettings()
     _TRACER_NAME = logging_settings.cloud_role_name
 
     # Only configure logging if not already instrumented
