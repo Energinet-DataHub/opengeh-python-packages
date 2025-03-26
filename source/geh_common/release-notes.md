@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.5.0
+
+**Subpackage**: `geh_common.domain.types`
+
+Modifies enum `QuantityUnit` to map to the correct abbreviation values.
+
 ## Version 5.4.9
 
 **Subpackage**: `geh_common.domain.types`
