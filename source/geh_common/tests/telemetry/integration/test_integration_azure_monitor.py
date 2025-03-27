@@ -4,13 +4,14 @@ import time
 import uuid
 from datetime import timedelta
 from typing import Callable, cast
+from unittest.mock import patch
 
 import pytest
 from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
 
 from geh_common.telemetry.decorators import start_trace, use_span
 from geh_common.telemetry.logger import Logger
-from geh_common.telemetry.logging_configuration import LoggingSettings, configure_logging, start_span
+from geh_common.telemetry.logging_configuration import configure_logging, start_span
 from tests.telemetry.conftest import cleanup_logging
 from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
@@ -30,34 +31,41 @@ def fixture_logger():
 @pytest.fixture
 def integration_logging_configuration_setup(integration_test_configuration):
     new_uuid = uuid.uuid4()
+    sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(new_uuid)]
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    logging_settings = LoggingSettings(
-        cloud_role_name=unique_cloud_role_name,
-        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
-        subsystem=SUBSYSTEM,
-        orchestration_instance_id=uuid.uuid4(),
-    )
-    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-    logging.getLogger().handlers.clear()
-    yield configure_logging(logging_settings=logging_settings), logging_settings
-    cleanup_logging()
+    with patch("sys.argv", sys_argv):
+        with pytest.MonkeyPatch.context() as ctx:
+            ctx.setenv(
+                "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                integration_test_configuration.get_applicationinsights_connection_string(),
+            )
+            # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+            logging.getLogger().handlers.clear()
+            yield configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+            cleanup_logging()
 
 
-@pytest.fixture(scope="function")
+# sys arg v.
+@pytest.fixture()
 def integration_logging_configuration_setup_with_extras(integration_test_configuration):
     key = "key"
     extras = {key: "value"}
     new_uuid = uuid.uuid4()
+
+    sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(new_uuid)]
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    logging_settings = LoggingSettings(
-        cloud_role_name=unique_cloud_role_name,
-        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
-        subsystem=SUBSYSTEM,
-        orchestration_instance_id=uuid.uuid4(),
-    )
+    with patch("sys.argv", sys_argv):
+        with pytest.MonkeyPatch.context() as ctx:
+            ctx.setenv(
+                "APPLICATIONINSIGHTS_CONNECTION_STRING",
+                integration_test_configuration.get_applicationinsights_connection_string(),
+            )
     # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
     logging.getLogger().handlers.clear()
-    yield configure_logging(logging_settings=logging_settings, extras=extras), logging_settings, extras
+    yield (
+        configure_logging(cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras),
+        extras,
+    )  # 2nd par beforelogging_settings, extras
     cleanup_logging()
 
 

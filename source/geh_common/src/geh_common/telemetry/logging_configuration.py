@@ -96,7 +96,7 @@ class LoggingSettings(ApplicationSettings):
     """
 
     cloud_role_name: str = Field()
-    applicationinsights_connection_string: str = Field(init=False, repr=False)
+    APPLICATIONINSIGHTS_CONNECTION_STRING: str = Field(init=False, repr=False)
     subsystem: str = Field()
     orchestration_instance_id: Optional[UUID] = Field(default=None)
 
@@ -133,7 +133,7 @@ def configure_logging(
     os.environ["OTEL_SERVICE_NAME"] = logging_settings.cloud_role_name
 
     # Configure OpenTelemetry to log to Azure Monitor.
-    configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
+    configure_azure_monitor(connection_string=logging_settings.APPLICATIONINSIGHTS_CONNECTION_STRING)
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)

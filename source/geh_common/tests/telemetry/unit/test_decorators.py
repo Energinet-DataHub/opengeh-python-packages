@@ -1,3 +1,4 @@
+import os
 from unittest import mock
 from unittest.mock import patch
 
@@ -5,7 +6,6 @@ import pytest
 
 from geh_common.telemetry.decorators import start_trace, use_span
 from geh_common.telemetry.logging_configuration import (
-    LoggingSettings,
     configure_logging,
 )
 from tests.telemetry.conftest import cleanup_logging
@@ -91,6 +91,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
     with (
         patch("geh_common.telemetry.decorators.Logger") as mock_logger,
         patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        patch.dict(os.environ, {"APPLICATIONINSIGHTS_CONNECTION_STRING": "connection_string"}),
     ):
         log_instance_in_test = mock_logger.return_value
 
@@ -101,16 +102,10 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
             return "I am an app sample function. Doing important calculations"
 
         def entry_point():
-            # Initial LoggingSettings
-            settings = LoggingSettings(
-                cloud_role_name="cloud_role_name",
-                applicationinsights_connection_string="connection_string",
-                subsystem="test_subsystem",
-            )
-            settings.applicationinsights_connection_string = "connection_string"  # For testing purposes
-
+            # test. Is connection string set as env variable?
             configure_logging(
-                logging_settings=settings,
+                cloud_role_name="cloud_role_name",
+                subsystem="test_subsystem",
                 extras={"key1": "value1", "key2": "value2"},
             )
             app_sample_function()
@@ -143,15 +138,10 @@ def test_logging_is_configured_error_thrown_span_records_exception(
 
     def entry_point():
         # Initial LoggingSettings
-        settings = LoggingSettings(
-            cloud_role_name="cloud_role_name",
-            applicationinsights_connection_string="connection_string",
-            subsystem="test_subsystem",
-        )
-        settings.applicationinsights_connection_string = "connection_string"  # For testing purposes
-
+        # Is connection string as as env variable?
         configure_logging(
-            logging_settings=settings,
+            cloud_role_name="cloud_role_name",
+            subsystem="test_subsystem",
             extras={"key1": "value1", "key2": "value2"},
         )
         app_sample_function()

@@ -4,7 +4,6 @@ from unittest import mock
 import pytest
 
 from geh_common.telemetry.logging_configuration import (
-    LoggingSettings,
     configure_logging,
     set_extras,
     set_is_instrumented,
@@ -26,7 +25,7 @@ def cleanup_logging() -> None:
     os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
-@pytest.fixture(scope="function")  # We want to reset the fixture object after each function has used it
+@pytest.fixture()  # We want to reset the fixture object after each function has used it
 def unit_logging_configuration_with_connection_string():
     """
     Fixture to setup the logging configuration used for unit tests
@@ -38,19 +37,20 @@ def unit_logging_configuration_with_connection_string():
     with (
         mock.patch("sys.argv", sys_args),
         mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        mock.patch.dict(os.environ, {"APPLICATIONINSIGHTS_CONNECTION_STRING": UNIT_TEST_DUMMY_CONNECTION_STRING}),
     ):
-        logging_settings = LoggingSettings(
-            cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME,
-            subsystem=UNIT_TEST_SUBSYSTEM,
-            applicationinsights_connection_string=UNIT_TEST_DUMMY_CONNECTION_STRING,
+        yield (
+            configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
+            UNIT_TEST_CLOUD_ROLE_NAME,
+            UNIT_TEST_SUBSYSTEM,
+            sys_args[2],
         )
-        yield configure_logging(logging_settings=logging_settings), logging_settings
 
     # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
     cleanup_logging()
 
 
-@pytest.fixture(scope="function")  # We want to reset the fixture object after each function has used it
+@pytest.fixture()  # We want to reset the fixture object after each function has used it
 def unit_logging_configuration_with_connection_string_with_extras():
     """
     Fixture to setup the logging configuration used for unit tests
@@ -63,16 +63,15 @@ def unit_logging_configuration_with_connection_string_with_extras():
     with (
         mock.patch("sys.argv", sys_args),
         mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        mock.patch.dict(os.environ, {"APPLICATIONINSIGHTS_CONNECTION_STRING": UNIT_TEST_DUMMY_CONNECTION_STRING}),
     ):
-        logging_settings = LoggingSettings(
-            cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME,
-            subsystem=UNIT_TEST_SUBSYSTEM,
-            applicationinsights_connection_string=UNIT_TEST_DUMMY_CONNECTION_STRING,
-        )
         yield (
-            configure_logging(logging_settings=logging_settings, extras=initial_extras),
-            logging_settings,
+            configure_logging(
+                subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
+            ),
+            UNIT_TEST_SUBSYSTEM,
             initial_extras,
+            sys_args[2],
         )
 
     # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
