@@ -140,10 +140,11 @@ def test_configure_logging_check_if_logging_configured(unit_logging_configuratio
 def test_configure_logging_check_returns_correct_object():
     # Arrange
     with pytest.MonkeyPatch.context() as ctx:
-        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-        cloud_role_name = "unknown"
-        subsystem = "subsystem"
-        logging_settings = configure_logging(cloud_role_name=cloud_role_name, subsystem=subsystem)
+        with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
+            ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+            cloud_role_name = "unknown"
+            subsystem = "subsystem"
+            logging_settings = configure_logging(cloud_role_name=cloud_role_name, subsystem=subsystem)
 
         # Assert
         assert logging_settings.cloud_role_name == cloud_role_name
