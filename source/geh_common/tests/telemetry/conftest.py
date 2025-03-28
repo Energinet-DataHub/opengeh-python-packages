@@ -32,7 +32,7 @@ def unit_logging_configuration_with_connection_string():
     Fixture sets up the logging, but patches configure_azure_monitor so it will not try to actually configure a real connection
     """
     sys_args = UNIT_TEST_SYS_ARGS
-
+    orchestration_instance_id = sys_args[2]
     # Command line arguments
     with (
         mock.patch("sys.argv", sys_args),
@@ -43,7 +43,7 @@ def unit_logging_configuration_with_connection_string():
             configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
             UNIT_TEST_CLOUD_ROLE_NAME,
             UNIT_TEST_SUBSYSTEM,
-            sys_args[2],
+            orchestration_instance_id,
         )
 
     # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
