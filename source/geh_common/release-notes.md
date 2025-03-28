@@ -5,6 +5,7 @@
 Adding new **Subpackage**: `geh_common.contracts`
 
 Added the following data products:
+
 - `capacity_settlement_v1`
 - `current_v1`
 - `electrical_heating_v1`
