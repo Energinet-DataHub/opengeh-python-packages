@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.4.2"
+version = "5.5.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -26,7 +26,13 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [dependency-groups]
-dev = ["pytest>=8.3.4", "pytest-cov>=6.0.0", "ruff>=0.9.4"]
+dev = [
+    "psutil>=6.1.1",
+    "pytest>=8.3.4",
+    "pytest-cov>=6.0.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.9.4",
+]
 
 [tool.pytest.ini_options]
 # -s ensures that print("<text>") is written to output.
@@ -37,6 +43,8 @@ addopts = [
     "-ra",                           # Show extra test summary info as specified by -ra
     "-vv",                           # Verbose output for tests
     "-s",                            # Print to console
+    "-n=logical",                    # Run tests in parallel
+    "--dist=worksteal",              # Pop tests off the queue in chunks
 ]
 cache_dir = ".cache/pytest"
 

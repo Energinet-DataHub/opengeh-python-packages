@@ -1,6 +1,9 @@
 import inspect
 from pathlib import Path
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    from geh_common.pyspark.data_frame_wrapper import DataFrameWrapper
 
 from pyspark.sql import DataFrame
 
@@ -19,8 +22,11 @@ def configure_testing(is_testing: bool = TESTING, rows: int = ROWS) -> None:
     ROWS = rows
 
 
-def testing() -> Callable[..., Any]:
+def testing(selector: Callable[..., "DataFrame | DataFrameWrapper"] | None = None) -> Callable[..., Any]:
     """Use this decorator to log data frame return value of functions.
+
+    Args:
+        selector: A function to select the `pyspark.sql.DataFrame` or `DataFrameWrapper` from the function result
 
     Example:
     ```python
@@ -38,14 +44,29 @@ def testing() -> Callable[..., Any]:
     ```
     """
 
-    def decorator(func):
-        def wrapper(*args, **kwargs):
+    def decorator(func) -> Callable[..., Any]:
+        """Decorate to log data frame return value of functions.
+
+        Provide function `selector` to select the `pyspark.sql.DataFrame` or `DataFrameWrapper` from the function result.
+        Apply multiple decorators to log multiple data frames from a composite result.
+        """
+
+        def wrapper(*args, **kwargs) -> Any:
             result = func(*args, **kwargs)
             if not TESTING:
                 return result
 
-            if isinstance(result, DataFrame):
-                _log_dataframe(result, func.__name__)
+            data = selector(result) if selector else result
+
+            if isinstance(data, DataFrame):
+                _log_dataframe(data, func.__name__)
+
+            # Import DataFrameWrapper locally to prevent circular import error
+            from geh_common.pyspark.data_frame_wrapper import DataFrameWrapper
+
+            if isinstance(data, DataFrameWrapper):
+                _log_dataframe(data.df, func.__name__)
+
             return result
 
         return wrapper

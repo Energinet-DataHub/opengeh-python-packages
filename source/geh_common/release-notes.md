@@ -1,5 +1,106 @@
 # GEH Common Release Notes
 
+## Version 5.5.0
+
+**Subpackage**: `geh_common.domain.types`
+
+Modifies enum `QuantityUnit` to map to the correct abbreviation values.
+
+## Version 5.4.9
+
+**Subpackage**: `geh_common.domain.types`
+
+Extends enum `MeteringPointTypes` with one more type used in DH2.
+
+## Version 5.4.8
+
+**Subpackage**: `geh_common.testing`
+
+Adds a utility function called `get_spark_test_session` that can be used to get a SparkSession for testing purposes.
+
+Example usage:
+
+```python
+# In a function that uses Spark
+from geh_common.testing import get_spark_test_session
+
+def test_my_function():
+    spark, _ = get_spark_test_session()
+    assert my_function(spark).count() == 2
+
+# As a fixture in a test file `conftest.py`
+@pytest.fixture(scope="session")
+def spark():
+    session, data_dir = get_spark_test_session()
+    yield session
+    session.stop()
+    shutil.rmtree(data_dir)
+
+# As a fixture when pytest-xdist is enabled
+# NOTE: When using pytest-xdist, the `-s` flag for pytest does not work. 
+# As a workaround, you can add the following fixture to your `conftest.py` file:
+# @pytest.fixture(scope="session", autouse=True)
+# def original_print():
+#     """
+#     pytest-xdist disables stdout capturing by default, which means that print() statements
+#     are not captured and displayed in the terminal.
+#     That's because xdist cannot support -s for technical reasons wrt the process execution mechanism
+#     https://github.com/pytest-dev/pytest-xdist/issues/354
+#     """
+#     original_print = print
+#     with pytest.MonkeyPatch.context() as m:
+#         m.setattr(builtins, "print", lambda *args, **kwargs: original_print(*args, **{"file": sys.stderr, **kwargs}))
+#         yield original_print
+#         m.undo()
+_session, data_dir = get_spark_test_session()
+
+@pytest.fixture(scope="session")
+def spark():
+    yield _session
+    _session.stop()
+    shutil.rmtree(data_dir)
+```
+
+## Version 5.4.7
+
+**Subpackage**: `geh_common.databricks`
+
+- Updated error message to include state.
+
+- Increased the default timeout value.
+
+- Now wait_for_response it set to true by default.
+
+## Version 5.4.6
+
+**Subpackage**: `geh_common.domain.types`
+
+Extends enum `OrchestrationTypes` with more types and descriptions.
+
+## Version 5.4.5
+
+**Subpackage**: `geh_common.testing`
+
+Decorator `@testing` has been extended to support `DataFrameWrapper` and a selector function to
+extract data frames from composite function results.
+
+## Version 5.4.4
+
+**Subpackage**: `geh_common.databricks`
+
+- Updated the return type of databricks_api_client.execute_statement to StatementResponse, enabling the method to return data.
+
+- Fixed a bug where invalid queries did not raise an exception.
+
+- Extended databricks_api_client.execute_statement to be able to wait for response in the event that the warehouse needs
+to start.  
+
+## Version 5.4.3
+
+**Subpackage**: `geh_common.application`
+
+Added new GridAreaCodes type with a validator
+
 ## Version 5.4.2
 
 **Subpackage**: `geh_common.testing`
