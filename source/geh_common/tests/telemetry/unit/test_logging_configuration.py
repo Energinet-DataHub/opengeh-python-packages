@@ -137,6 +137,19 @@ def test_configure_logging_check_if_logging_configured(unit_logging_configuratio
     assert actual_logging_is_configured == expected_logging_is_configured
 
 
+def test_configure_logging_check_returns_correct_object():
+    # Arrange
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        cloud_role_name = "unknown"
+        subsystem = "subsystem"
+        logging_settings = configure_logging(cloud_role_name=cloud_role_name, subsystem=subsystem)
+
+        # Assert
+        assert logging_settings.cloud_role_name == cloud_role_name
+        assert logging_settings.subsystem == subsystem
+
+
 def test_logging_settings_without_any_params():
     """
     Test that LoggingSettings fails instantiation without any parameters or environment variables

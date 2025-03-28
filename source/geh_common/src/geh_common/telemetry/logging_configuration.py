@@ -106,12 +106,12 @@ def configure_logging(
     cloud_role_name: str,
     subsystem: str,
     extras: dict[str, Any] | None = None,
-) -> None:
+) -> LoggingSettings:
     """Configure logging to use OpenTelemetry and Azure Monitor.
 
     :param logging_settings: Logging settings object
     :param extras: Custom structured logging data to be included in every log message.
-    :return:
+    :return: LoggingSettings object
     If connection string is None, then logging will not be sent to Azure Monitor.
     This is useful for unit testing.
     """

@@ -122,7 +122,7 @@ def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup,
 ) -> None:
-    _, logging_settings_from_fixture = integration_logging_configuration_setup
+    logging_settings_from_fixture = integration_logging_configuration_setup
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
     cloud_role_name = logging_settings_from_fixture.cloud_role_name
