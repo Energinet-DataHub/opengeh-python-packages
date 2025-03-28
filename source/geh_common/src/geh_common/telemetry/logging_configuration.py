@@ -15,7 +15,7 @@
 import contextlib
 import logging
 import os
-from typing import Any, Iterator, Optional
+from typing import Any, Iterator
 from uuid import UUID
 
 from azure.monitor.opentelemetry import configure_azure_monitor
@@ -94,11 +94,11 @@ class LoggingSettings(ApplicationSettings):
         configure_logging(logging_settings=logging_settings)
         ```
     """
-    
+
     cloud_role_name: str = Field()
     applicationinsights_connection_string: str = Field(init=False, repr=False)
     subsystem: str = Field()
-    orchestration_instance_id: UUID | None= Field(default=None)
+    orchestration_instance_id: UUID | None = Field(default=None)
 
 
 def configure_logging(
@@ -147,6 +147,7 @@ def configure_logging(
     set_is_instrumented(True)
 
     return logging_settings
+
 
 def get_extras() -> dict[str, Any]:
     return _EXTRAS.copy()
