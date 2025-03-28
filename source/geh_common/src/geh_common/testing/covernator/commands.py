@@ -106,7 +106,9 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     for path in base_path.rglob("coverage/all_cases*.yml"):
         group = str(path.relative_to(base_path)).split("/coverage/")[0]
         all_scenarios.append(
-            pl.DataFrame(find_all_scenarios(base_path / group)).with_columns(pl.lit(group).alias("Group"))
+            pl.DataFrame(find_all_scenarios(base_path / group / "scenario_tests")).with_columns(
+                pl.lit(group).alias("Group")
+            )
         )
         all_cases.append(pl.DataFrame(find_all_cases(path)).with_columns(pl.lit(group).alias("Group")))
 

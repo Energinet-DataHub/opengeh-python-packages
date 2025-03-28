@@ -16,7 +16,9 @@ from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
 def test_covernator_all_scenarios():
-    result = find_all_scenarios(Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files"))
+    result = find_all_scenarios(
+        Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests")
+    )
 
     assert len(result) == 2
     assert result == [
@@ -97,7 +99,7 @@ class CovernatorFileWritingTestCase(TestCase):
 
     def test_write_scenario_files(self):
         create_result_and_all_scenario_files(
-            self.tmp_dir, Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files")
+            self.tmp_dir, Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests")
         )
 
         case_coverage_file = self.tmp_dir / "case_coverage.csv"
