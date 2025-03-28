@@ -98,3 +98,30 @@ def create_result_and_all_scenario_files(folder_to_save_files_in: Path, base_pat
         pl.col("cases_tested").alias("CaseCoverage"),
     )
     case_coverage.write_csv(folder_to_save_files_in / "case_coverage.csv", include_header=True)
+
+
+def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
+    all_scenarios = []
+    all_cases = []
+    for path in base_path.rglob("coverage/all_cases*.yml"):
+        group = str(path.relative_to(base_path)).split("/coverage/")[0]
+        all_scenarios.append(
+            pl.DataFrame(find_all_scenarios(base_path / group)).with_columns(pl.lit(group).alias("Group"))
+        )
+        all_cases.append(pl.DataFrame(find_all_cases(path)).with_columns(pl.lit(group).alias("Group")))
+
+    df_all_scenarios = (
+        pl.concat(all_scenarios)
+        .explode("cases_tested")
+        .select(
+            pl.col("Group"),
+            pl.col("source").alias("Scenario"),
+            pl.col("cases_tested").alias("CaseCoverage"),
+        )
+    )
+    df_all_scenarios.write_csv(folder_to_save_files_in / "case_coverage.csv", include_header=True)
+
+    df_all_cases = pl.concat(all_cases).select(
+        pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
+    )
+    df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
