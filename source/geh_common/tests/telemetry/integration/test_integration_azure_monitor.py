@@ -45,7 +45,6 @@ def integration_logging_configuration_setup(integration_test_configuration):
             cleanup_logging()
 
 
-# sys arg v.
 @pytest.fixture()
 def integration_logging_configuration_setup_with_extras(integration_test_configuration):
     key = "key"

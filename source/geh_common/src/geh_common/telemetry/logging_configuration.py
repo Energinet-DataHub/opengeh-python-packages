@@ -146,6 +146,7 @@ def configure_logging(
     # Mark logging state as configured
     set_is_instrumented(True)
 
+    return logging_settings
 
 def get_extras() -> dict[str, Any]:
     return _EXTRAS.copy()
