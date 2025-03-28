@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.5.1
+
+**Subpackage**: `geh_common.telemetry`
+
+The method configure_logging now instantiate LoggingSettings.
+
 ## Version 5.5.0
 
 **Subpackage**: `geh_common.domain.types`

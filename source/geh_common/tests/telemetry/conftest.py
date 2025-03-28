@@ -4,7 +4,6 @@ from unittest import mock
 import pytest
 
 from geh_common.telemetry.logging_configuration import (
-    LoggingSettings,
     configure_logging,
     set_extras,
     set_is_instrumented,
@@ -26,31 +25,33 @@ def cleanup_logging() -> None:
     os.environ.pop("OTEL_SERVICE_NAME", None)
 
 
-@pytest.fixture(scope="function")  # We want to reset the fixture object after each function has used it
+@pytest.fixture()  # We want to reset the fixture object after each function has used it
 def unit_logging_configuration_with_connection_string():
     """
     Fixture to setup the logging configuration used for unit tests
     Fixture sets up the logging, but patches configure_azure_monitor so it will not try to actually configure a real connection
     """
     sys_args = UNIT_TEST_SYS_ARGS
-
+    orchestration_instance_id = sys_args[2]
     # Command line arguments
-    with (
-        mock.patch("sys.argv", sys_args),
-        mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-    ):
-        logging_settings = LoggingSettings(
-            cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME,
-            subsystem=UNIT_TEST_SUBSYSTEM,
-            applicationinsights_connection_string=UNIT_TEST_DUMMY_CONNECTION_STRING,
-        )
-        yield configure_logging(logging_settings=logging_settings), logging_settings
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
+        with (
+            mock.patch("sys.argv", sys_args),
+            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        ):
+            yield (
+                configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
+                UNIT_TEST_CLOUD_ROLE_NAME,
+                UNIT_TEST_SUBSYSTEM,
+                orchestration_instance_id,
+            )
 
-    # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
-    cleanup_logging()
+        # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
+        cleanup_logging()
 
 
-@pytest.fixture(scope="function")  # We want to reset the fixture object after each function has used it
+@pytest.fixture()  # We want to reset the fixture object after each function has used it
 def unit_logging_configuration_with_connection_string_with_extras():
     """
     Fixture to setup the logging configuration used for unit tests
@@ -60,20 +61,20 @@ def unit_logging_configuration_with_connection_string_with_extras():
     sys_args = UNIT_TEST_SYS_ARGS
 
     # Command line arguments
-    with (
-        mock.patch("sys.argv", sys_args),
-        mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-    ):
-        logging_settings = LoggingSettings(
-            cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME,
-            subsystem=UNIT_TEST_SUBSYSTEM,
-            applicationinsights_connection_string=UNIT_TEST_DUMMY_CONNECTION_STRING,
-        )
-        yield (
-            configure_logging(logging_settings=logging_settings, extras=initial_extras),
-            logging_settings,
-            initial_extras,
-        )
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
+        with (
+            mock.patch("sys.argv", sys_args),
+            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        ):
+            yield (
+                configure_logging(
+                    subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
+                ),
+                UNIT_TEST_SUBSYSTEM,
+                initial_extras,
+                sys_args[2],
+            )
 
-    # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
-    cleanup_logging()
+        # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
+        cleanup_logging()
