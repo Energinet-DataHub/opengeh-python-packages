@@ -34,20 +34,21 @@ def unit_logging_configuration_with_connection_string():
     sys_args = UNIT_TEST_SYS_ARGS
     orchestration_instance_id = sys_args[2]
     # Command line arguments
-    with (
-        mock.patch("sys.argv", sys_args),
-        mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-        mock.patch.dict(os.environ, {"APPLICATIONINSIGHTS_CONNECTION_STRING": UNIT_TEST_DUMMY_CONNECTION_STRING}),
-    ):
-        yield (
-            configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
-            UNIT_TEST_CLOUD_ROLE_NAME,
-            UNIT_TEST_SUBSYSTEM,
-            orchestration_instance_id,
-        )
+    with pytest.monkeyPatch().context as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
+        with (
+            mock.patch("sys.argv", sys_args),
+            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        ):
+            yield (
+                configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
+                UNIT_TEST_CLOUD_ROLE_NAME,
+                UNIT_TEST_SUBSYSTEM,
+                orchestration_instance_id,
+            )
 
-    # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
-    cleanup_logging()
+        # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
+        cleanup_logging()
 
 
 @pytest.fixture()  # We want to reset the fixture object after each function has used it
@@ -60,19 +61,20 @@ def unit_logging_configuration_with_connection_string_with_extras():
     sys_args = UNIT_TEST_SYS_ARGS
 
     # Command line arguments
-    with (
-        mock.patch("sys.argv", sys_args),
-        mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-        mock.patch.dict(os.environ, {"APPLICATIONINSIGHTS_CONNECTION_STRING": UNIT_TEST_DUMMY_CONNECTION_STRING}),
-    ):
-        yield (
-            configure_logging(
-                subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
-            ),
-            UNIT_TEST_SUBSYSTEM,
-            initial_extras,
-            sys_args[2],
-        )
+    with pytest.monkeyPatch().context as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
+        with (
+            mock.patch("sys.argv", sys_args),
+            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
+        ):
+            yield (
+                configure_logging(
+                    subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
+                ),
+                UNIT_TEST_SUBSYSTEM,
+                initial_extras,
+                sys_args[2],
+            )
 
-    # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
-    cleanup_logging()
+        # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
+        cleanup_logging()
