@@ -120,13 +120,11 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
         cleanup_logging()
 
 
-@patch("geh_common.telemetry.decorators.Logger")
 @patch("geh_common.telemetry.decorators.span_record_exception")
 @patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_logging_is_configured_error_thrown_span_records_exception(
     mock_span_record_exception,
     mock_logger,
-    mock_env_args,
 ):
     log_instance_in_test = mock_logger.return_value
 
