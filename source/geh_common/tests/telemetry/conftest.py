@@ -34,7 +34,7 @@ def unit_logging_configuration_with_connection_string():
     sys_args = UNIT_TEST_SYS_ARGS
     orchestration_instance_id = sys_args[2]
     # Command line arguments
-    with pytest.monkeyPatch().context as ctx:
+    with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
         with (
             mock.patch("sys.argv", sys_args),
@@ -61,7 +61,7 @@ def unit_logging_configuration_with_connection_string_with_extras():
     sys_args = UNIT_TEST_SYS_ARGS
 
     # Command line arguments
-    with pytest.monkeyPatch().context as ctx:
+    with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
         with (
             mock.patch("sys.argv", sys_args),

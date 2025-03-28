@@ -1,4 +1,5 @@
-import os, sys
+import os
+import sys
 from unittest import mock
 from unittest.mock import patch
 
@@ -33,7 +34,6 @@ def test_configure_logging__then_environmental_variables_are_set_and_configure_a
 def test_configure_logging__configure_twice_does_not_reconfigure(
     mock_configure_azure_monitor,
     unit_logging_configuration_with_connection_string,
-    monkeypatch: pytest.monkeyPatch
 ):
     # Arrange
     _, original_cloud_role_name, _, _ = unit_logging_configuration_with_connection_string
@@ -44,15 +44,14 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
         ctx.setattr(sys, "argv", sys_args)
-        with (
-            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-        ):
+
+        with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
             configure_logging(subsystem="test_subsystem_updated", cloud_role_name=cloud_role_name)
-        # PROBLEM: How to extract cloud_role_name when we do not have a logging_config anymore.
-        # Assert that environment variable does not update when log has already been configured ()
-        assert os.environ["OTEL_SERVICE_NAME"] != cloud_role_name  # updated_logging_config.cloud_role_name
-        assert os.environ["OTEL_SERVICE_NAME"] == original_cloud_role_name
-        mock_configure_azure_monitor.assert_not_called
+            # PROBLEM: How to extract cloud_role_name when we do not have a logging_config anymore.
+            # Assert that environment variable does not update when log has already been configured ()
+            assert os.environ["OTEL_SERVICE_NAME"] != cloud_role_name  # updated_logging_config.cloud_role_name
+            assert os.environ["OTEL_SERVICE_NAME"] == original_cloud_role_name
+            mock_configure_azure_monitor.assert_not_called
 
 
 def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration_with_connection_string):

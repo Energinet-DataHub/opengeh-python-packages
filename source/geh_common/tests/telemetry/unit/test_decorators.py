@@ -130,6 +130,7 @@ def test_logging_is_configured_error_thrown_span_records_exception(
 ):
     log_instance_in_test = mock_logger.return_value
 
+    # missing applicationinsights connection string as env variable
     # Prepare
     @start_trace()
     def app_sample_function():
@@ -147,7 +148,8 @@ def test_logging_is_configured_error_thrown_span_records_exception(
         app_sample_function()
 
     # Mimic machine setting environment variables
-    with mock.patch.dict("os.environ", mock_env_args, clear=False):
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
         with pytest.raises(SystemExit):
             entry_point()
             # Assert
