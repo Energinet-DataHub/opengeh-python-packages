@@ -63,13 +63,10 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
         )
         # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
         logging.getLogger().handlers.clear()
-        logging_configurations = (
-            configure_logging(cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras),
+        logging_configurations = configure_logging(
+            cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras
         )
-        yield (
-            logging_configurations,
-            extras,
-        )
+        yield logging_configurations, extras
         cleanup_logging()
 
 
