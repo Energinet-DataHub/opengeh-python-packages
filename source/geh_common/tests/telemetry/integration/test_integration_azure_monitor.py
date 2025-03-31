@@ -36,7 +36,7 @@ def integration_logging_configuration_setup(integration_test_configuration):
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
-        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionString")
         ctx.setattr(sys, "argv", sys_args)
 
         logging_settings = configure_logging(
@@ -60,7 +60,7 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
-        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionString")
         ctx.setattr(sys, "argv", sys_args)
 
         logging_settings = configure_logging(
