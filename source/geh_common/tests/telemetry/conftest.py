@@ -32,7 +32,7 @@ def unit_logging_configuration_with_connection_string():
     Fixture sets up the logging, but patches configure_azure_monitor so it will not try to actually configure a real connection
     """
     orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
-    sys_args = ["program_name", "--orchestration-instance-id", "4a540892-2c0a-46a9-9257-c4e13051d76a"]
+    sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
@@ -56,7 +56,7 @@ def unit_logging_configuration_with_connection_string_with_extras():
     """
     initial_extras = {"extra_key": "extra_value"}
     orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
-    sys_args = ["program_name", "--orchestration-instance-id", "4a540892-2c0a-46a9-9257-c4e13051d76a"]
+    sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)

@@ -96,9 +96,9 @@ class LoggingSettings(ApplicationSettings):
     """
 
     cloud_role_name: str = Field()
-    applicationinsights_connection_string: str = Field(init=False, repr=False)
     subsystem: str = Field()
     orchestration_instance_id: UUID | None = Field(default=None)
+    applicationinsights_connection_string: str = Field(init=False, repr=False)
 
 
 def configure_logging(
