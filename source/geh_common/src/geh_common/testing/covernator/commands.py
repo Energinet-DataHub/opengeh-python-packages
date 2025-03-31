@@ -101,6 +101,8 @@ def create_result_and_all_scenario_files(folder_to_save_files_in: Path, base_pat
 
 
 def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
+    folder_to_save_files_in.mkdir(parents=True, exist_ok=True)
+
     all_scenarios = []
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
