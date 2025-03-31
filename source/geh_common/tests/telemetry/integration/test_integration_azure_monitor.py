@@ -29,8 +29,8 @@ def fixture_logger():
 
 @pytest.fixture
 def integration_logging_configuration_setup(integration_test_configuration):
-    orchestration_instance_id = uuid.uuid4()
-    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
+    orchestration_instance_id = str(uuid.uuid4())
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + orchestration_instance_id
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
@@ -53,8 +53,8 @@ def integration_logging_configuration_setup(integration_test_configuration):
 def integration_logging_configuration_setup_with_extras(integration_test_configuration):
     key = "key"
     extras = {key: "value"}
-    orchestration_instance_id = uuid.uuid4()
-    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
+    orchestration_instance_id = str(uuid.uuid4())
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + orchestration_instance_id
 
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     with pytest.MonkeyPatch.context() as ctx:
