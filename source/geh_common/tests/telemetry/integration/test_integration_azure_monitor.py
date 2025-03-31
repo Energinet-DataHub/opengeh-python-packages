@@ -66,7 +66,7 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
         logging_configurations = configure_logging(
             cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras
         )
-        yield logging_configurations, extras
+        yield logging_configurations, unique_cloud_role_name, extras
         cleanup_logging()
 
 
@@ -178,12 +178,12 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-    logging_settings_from_fixture, extras_from_fixture = next(integration_logging_configuration_setup_with_extras)
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
     logger = fixture_logger
     # Arrange
     new_uuid = uuid.uuid4()
     message = f"test message {new_uuid}"
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    cloud_role_name = cloud_role_name_from_fixture
 
     extras = extras_from_fixture
     key = list(extras.keys())[0]  # Get the keyname of the extras dict
@@ -224,13 +224,13 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-    logging_settings_from_fixture, extras_from_fixture = next(integration_logging_configuration_setup_with_extras)
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
     logger = fixture_logger
     # Arrange
     log_count = 5
     new_uuid = uuid.uuid4()
     message = f"test message {new_uuid}"
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    cloud_role_name = cloud_role_name_from_fixture
 
     # Act
     for _ in range(log_count):
@@ -266,9 +266,9 @@ def test__decorators_integration_test(
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
-    logging_settings_from_fixture, extras_from_fixture = next(integration_logging_configuration_setup_with_extras)
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
     logger = fixture_logger
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    cloud_role_name = cloud_role_name_from_fixture
 
     # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
     # taking the name of the function using the decorator @start_trace: app_sample_function
