@@ -109,7 +109,7 @@ def configure_logging(
 ) -> LoggingSettings:
     """Configure logging to use OpenTelemetry and Azure Monitor.
 
-    Must have applicationinsights_connection_string defined as an environment variable.
+    Must have `APPLICATIONINSIGHTS_CONNECTION_STRING` defined as an environment variable.
 
     Args:
         cloud_role_name: The logging settings object.
