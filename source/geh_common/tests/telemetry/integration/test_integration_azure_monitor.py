@@ -32,19 +32,19 @@ def integration_logging_configuration_setup(integration_test_configuration):
     orchestration_instance_id = uuid.uuid4()
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
     sys_args = ["program_name", "--orchestration-instance-id", str(orchestration_instance_id)]
-    
+
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
-            ctx.setattr(sys, "argv", sys_args)
-            ctx.setenv(
-                "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                integration_test_configuration.get_applicationinsights_connection_string(),
-            )
-            # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-            logging.getLogger().handlers.clear()
-            logging_configurations = configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
-            yield logging_configurations, unique_cloud_role_name
-            cleanup_logging()
+        ctx.setattr(sys, "argv", sys_args)
+        ctx.setenv(
+            "APPLICATIONINSIGHTS_CONNECTION_STRING",
+            integration_test_configuration.get_applicationinsights_connection_string(),
+        )
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+        logging_configurations = configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+        yield logging_configurations, unique_cloud_role_name
+        cleanup_logging()
 
 
 @pytest.fixture(scope="function")
