@@ -20,6 +20,9 @@
 
 *.lss 	text
 
+# Force CSV files to use lf, which is required by the geh_common `read_csv()` function
+*.csv text eol=lf
+
 # Force bash scripts to always use lf line endings so that if a repo is accessed
 # in Unix via a file share from Windows, the scripts will work.
 *.in text eol=lf

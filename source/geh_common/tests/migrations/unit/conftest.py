@@ -1,0 +1,5 @@
+from geh_common.migrations.container import create_and_configure_container
+from tests.migrations.unit.builders import spark_sql_migrations_configuration_builder
+
+_config = spark_sql_migrations_configuration_builder.build()
+create_and_configure_container(_config)
