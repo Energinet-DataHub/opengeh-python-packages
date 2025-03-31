@@ -107,19 +107,19 @@ def configure_logging(
     subsystem: str,
     extras: dict[str, Any] | None = None,
 ) -> LoggingSettings:
-    """
-    Configures logging to use OpenTelemetry and Azure Monitor.
+    """Configure logging to use OpenTelemetry and Azure Monitor.
+
     Must have applicationinsights_connection_string defined as an environment variable.
 
     Args:
         cloud_role_name: The logging settings object.
-        subsystem: Name of sub system.
+        subsystem: Name of the subsystem.
         extras: Custom structured logging data to be included in every log message.
 
     Returns:
         LoggingSettings: The configured logging settings object.
-    """
 
+    """
     global _TRACER_NAME
 
     logging_settings = LoggingSettings(cloud_role_name=cloud_role_name, subsystem=subsystem)
