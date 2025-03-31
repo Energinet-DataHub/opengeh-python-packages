@@ -4,7 +4,6 @@ import time
 import uuid
 from datetime import timedelta
 from typing import Callable, cast
-from unittest.mock import patch
 
 import pytest
 from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQueryResult
@@ -33,16 +32,16 @@ def integration_logging_configuration_setup(integration_test_configuration):
     new_uuid = uuid.uuid4()
     sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(new_uuid)]
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    with patch("sys.argv", sys_argv):
-        with pytest.MonkeyPatch.context() as ctx:
-            ctx.setenv(
-                "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                integration_test_configuration.get_applicationinsights_connection_string(),
-            )
-            # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-            logging.getLogger().handlers.clear()
-            yield unique_cloud_role_name, configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
-            cleanup_logging()
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setattr(sys, "argv", sys_argv)
+        ctx.setenv(
+            "APPLICATIONINSIGHTS_CONNECTION_STRING",
+            integration_test_configuration.get_applicationinsights_connection_string(),
+        )
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+        yield unique_cloud_role_name, configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+        cleanup_logging()
 
 
 @pytest.fixture()
@@ -53,19 +52,19 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
 
     sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(new_uuid)]
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    with patch("sys.argv", sys_argv):
-        with pytest.MonkeyPatch.context() as ctx:
-            ctx.setenv(
-                "APPLICATIONINSIGHTS_CONNECTION_STRING",
-                integration_test_configuration.get_applicationinsights_connection_string(),
-            )
-    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-    logging.getLogger().handlers.clear()
-    yield (
-        configure_logging(cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras),
-        extras,
-    )  # 2nd par beforelogging_settings, extras
-    cleanup_logging()
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setattr(sys, "argv", sys_argv)
+        ctx.setenv(
+            "APPLICATIONINSIGHTS_CONNECTION_STRING",
+            integration_test_configuration.get_applicationinsights_connection_string(),
+        )
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+        yield (
+            configure_logging(cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras),
+            extras,
+        )  # 2nd par beforelogging_settings, extras
+        cleanup_logging()
 
 
 def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
