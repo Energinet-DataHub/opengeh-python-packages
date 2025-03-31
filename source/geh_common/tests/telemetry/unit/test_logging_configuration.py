@@ -23,8 +23,8 @@ def test_configure_logging__then_environmental_variables_are_set_and_configure_a
     unit_logging_configuration_with_connection_string,
 ):
     # Arrange
-    _, cloud_role_name, _, _ = unit_logging_configuration_with_connection_string
-    expected_cloud_role_name = cloud_role_name
+    logging, _ = unit_logging_configuration_with_connection_string
+    expected_cloud_role_name = logging.cloud_role_name
     # Assert
     assert os.environ["OTEL_SERVICE_NAME"] == expected_cloud_role_name
     mock_configure_azure_monitor.assert_called_once
@@ -36,7 +36,7 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
     unit_logging_configuration_with_connection_string,
 ):
     # Arrange
-    _, original_cloud_role_name, _, _ = unit_logging_configuration_with_connection_string
+    logging, orchestration_instance_id = unit_logging_configuration_with_connection_string
     sys_args = ["program_name", "--orchestration-instance-id", "4a540892-2c0a-46a9-9257-c4e13051d76a"]
     cloud_role_name = "test_role_updated"
     # Create an updated logging_configuration, checking if it gets updated with a force_configuration = True
@@ -50,16 +50,16 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
             # PROBLEM: How to extract cloud_role_name when we do not have a logging_config anymore.
             # Assert that environment variable does not update when log has already been configured ()
             assert os.environ["OTEL_SERVICE_NAME"] != cloud_role_name  # updated_logging_config.cloud_role_name
-            assert os.environ["OTEL_SERVICE_NAME"] == original_cloud_role_name
+            assert os.environ["OTEL_SERVICE_NAME"] == logging.cloud_role_name
             mock_configure_azure_monitor.assert_not_called
 
 
 def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration_with_connection_string):
     # Arrange
-    _, _, subsystem, orchestration_instance_id = unit_logging_configuration_with_connection_string
+    logging, orchestration_instance_id = unit_logging_configuration_with_connection_string
     default_expected_extras = {
         "orchestration_instance_id": str(orchestration_instance_id),
-        "Subsystem": subsystem,
+        "Subsystem": logging.subsystem,
     }
 
     # Act
@@ -71,11 +71,11 @@ def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration
 
 def test_get_extras__when_set_extras_are_returned(unit_logging_configuration_with_connection_string):
     # Arrange
-    _, _, subsystem, orchestration_instance_id = unit_logging_configuration_with_connection_string
+    logging, orchestration_instance_id = unit_logging_configuration_with_connection_string
     # Add the orchestration_instance_id and subsystem expected to be added automatically by configure_logging
     default_expected_extras = {
         "orchestration_instance_id": str(orchestration_instance_id),
-        "Subsystem": subsystem,
+        "Subsystem": logging.subsystem,
     }
     extras_to_add = {"extra1": "extra value1"}
 
@@ -92,13 +92,13 @@ def test_add_extras__extras_can_be_added_and_initial_extras_are_kept(
     unit_logging_configuration_with_connection_string_with_extras,
 ):
     # Arrange
-    _, subsystem, initial_extras_from_fixture, orchestration_instance_id = (
+    logging, orchestration_instance_id, initial_extras_from_fixture = (
         unit_logging_configuration_with_connection_string_with_extras
     )
 
     default_expected_extras = {
         "orchestration_instance_id": str(orchestration_instance_id),
-        "Subsystem": subsystem,
+        "Subsystem": logging.subsystem,
     }
     new_extras = {"new_key": "new_value"}
 

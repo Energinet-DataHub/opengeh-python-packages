@@ -42,8 +42,8 @@ def unit_logging_configuration_with_connection_string():
         ):
             yield (
                 configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
-                UNIT_TEST_CLOUD_ROLE_NAME,
-                UNIT_TEST_SUBSYSTEM,
+                # UNIT_TEST_CLOUD_ROLE_NAME,
+                # UNIT_TEST_SUBSYSTEM,
                 orchestration_instance_id,
             )
 
@@ -59,7 +59,7 @@ def unit_logging_configuration_with_connection_string_with_extras():
     """
     initial_extras = {"extra_key": "extra_value"}
     sys_args = UNIT_TEST_SYS_ARGS
-
+    orchestration_instance_id = sys_args[2]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
@@ -71,9 +71,8 @@ def unit_logging_configuration_with_connection_string_with_extras():
                 configure_logging(
                     subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
                 ),
-                UNIT_TEST_SUBSYSTEM,
+                orchestration_instance_id,
                 initial_extras,
-                sys_args[2],
             )
 
         # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False

@@ -41,7 +41,7 @@ def integration_logging_configuration_setup(integration_test_configuration):
             )
             # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
             logging.getLogger().handlers.clear()
-            yield configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+            yield unique_cloud_role_name, configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
             cleanup_logging()
 
 
@@ -122,10 +122,10 @@ def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup,
 ) -> None:
-    logging_settings_from_fixture = integration_logging_configuration_setup
+    unique_cloud_role_name, logging_settings_from_fixture = integration_logging_configuration_setup
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    # cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
     # Act
     with start_span(__name__) as span:
@@ -140,7 +140,7 @@ def test__exception_adds_log_to_app_exceptions(
 
     query = f"""
         AppExceptions
-        | where AppRoleName == "{cloud_role_name}"
+        | where AppRoleName == "{unique_cloud_role_name}"
         | where ExceptionType == "ValueError"
         | where OuterMessage == "{message}"
         | count
@@ -172,43 +172,45 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     integration_logging_configuration_setup_with_extras,
     fixture_logger,
 ) -> None:
-    _, logging_settings_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
-    logger = fixture_logger
-    # Arrange
-    new_uuid = uuid.uuid4()
-    message = f"test message {new_uuid}"
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        _, logging_settings_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+        logger = fixture_logger
+        # Arrange
+        new_uuid = uuid.uuid4()
+        message = f"test message {new_uuid}"
+        cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
-    extras = extras_from_fixture
-    key = list(extras.keys())[0]  # Get the keyname of the extras dict
+        extras = extras_from_fixture
+        key = list(extras.keys())[0]  # Get the keyname of the extras dict
 
-    # Act
-    logging_level(logger, message)
+        # Act
+        logging_level(logger, message)
 
-    # Assert
-    # noinspection PyTypeChecker
-    logs_client = LogsQueryClient(integration_test_configuration.credential)
+        # Assert
+        # noinspection PyTypeChecker
+        logs_client = LogsQueryClient(integration_test_configuration.credential)
 
-    query = f"""
-        AppTraces
-        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-        | where AppRoleName == "{cloud_role_name}"
-        | where Message == "{message}"
-        | where Properties.{key} == "{extras[key]}"
-        | where SeverityLevel == {severity_level}
-        | count
-        """
+        query = f"""
+            AppTraces
+            | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+            | where AppRoleName == "{cloud_role_name}"
+            | where Message == "{message}"
+            | where Properties.{key} == "{extras[key]}"
+            | where SeverityLevel == {severity_level}
+            | count
+            """
 
-    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+        workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
-    # Assert, but timeout if not succeeded
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query,
-        expected_count=1,
-        step=timedelta(seconds=10),
-    )
+        # Assert, but timeout if not succeeded
+        _wait_for_condition(
+            logs_client=logs_client,
+            workspace_id=workspace_id,
+            query=query,
+            expected_count=1,
+            step=timedelta(seconds=10),
+        )
 
 
 def test__add_log_records_to_azure_monitor_keeps_correct_count(
@@ -216,39 +218,41 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_logging_configuration_setup_with_extras,
     fixture_logger,
 ) -> None:
-    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
-    logger = fixture_logger
-    # Arrange
-    log_count = 5
-    new_uuid = uuid.uuid4()
-    message = f"test message {new_uuid}"
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+        logger = fixture_logger
+        # Arrange
+        log_count = 5
+        new_uuid = uuid.uuid4()
+        message = f"test message {new_uuid}"
+        cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
-    # Act
-    for _ in range(log_count):
-        logger.info(message)
+        # Act
+        for _ in range(log_count):
+            logger.info(message)
 
-    # Assert
-    # noinspection PyTypeChecker
-    logs_client = LogsQueryClient(integration_test_configuration.credential)
+        # Assert
+        # noinspection PyTypeChecker
+        logs_client = LogsQueryClient(integration_test_configuration.credential)
 
-    query = f"""
-        AppTraces
-        | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
-        | where AppRoleName == "{cloud_role_name}"
-        | where Message == "{message}"
-        | count
-        """
+        query = f"""
+            AppTraces
+            | where Properties.CategoryName == "Energinet.DataHub.{INTEGRATION_TEST_LOGGER_NAME}"
+            | where AppRoleName == "{cloud_role_name}"
+            | where Message == "{message}"
+            | count
+            """
 
-    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+        workspace_id = integration_test_configuration.get_analytics_workspace_id()
 
-    # Assert, but timeout if not succeeded
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query,
-        expected_count=log_count,
-    )
+        # Assert, but timeout if not succeeded
+        _wait_for_condition(
+            logs_client=logs_client,
+            workspace_id=workspace_id,
+            query=query,
+            expected_count=log_count,
+        )
 
 
 def test__decorators_integration_test(
@@ -256,85 +260,87 @@ def test__decorators_integration_test(
     integration_logging_configuration_setup_with_extras,
     fixture_logger,
 ) -> None:
-    # Arrange
-    new_uuid = uuid.uuid4()
-    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
-    logger = fixture_logger
-    cloud_role_name = logging_settings_from_fixture.cloud_role_name
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+        # Arrange
+        new_uuid = uuid.uuid4()
+        _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+        logger = fixture_logger
+        cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
-    # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
-    # taking the name of the function using the decorator @start_trace: app_sample_function
+        # Use the start_trace to start the trace based on new_settings.cloud_role_name, and start the first span,
+        # taking the name of the function using the decorator @start_trace: app_sample_function
 
-    decorator_message_start_trace = "Started executing function: app_sample_function"
-    test_message_start_trace = f"test message app_sample_function {new_uuid}"
+        decorator_message_start_trace = "Started executing function: app_sample_function"
+        test_message_start_trace = f"test message app_sample_function {new_uuid}"
 
-    decorator_message_use_span = (
-        "Started executing function: test__decorators_integration_test.<locals>.app_sample_subfunction"
-    )
-    test_message_use_span = f"test message app_sample_subfunction {new_uuid}"
+        decorator_message_use_span = (
+            "Started executing function: test__decorators_integration_test.<locals>.app_sample_subfunction"
+        )
+        test_message_use_span = f"test message app_sample_subfunction {new_uuid}"
 
-    @start_trace()
-    def app_sample_function():
-        log_message = test_message_start_trace
-        logger.info(log_message)
-        app_sample_subfunction()
+        @start_trace()
+        def app_sample_function():
+            log_message = test_message_start_trace
+            logger.info(log_message)
+            app_sample_subfunction()
 
-    @use_span()
-    def app_sample_subfunction():
-        log_message = test_message_use_span
-        logger.info(log_message)
+        @use_span()
+        def app_sample_subfunction():
+            log_message = test_message_use_span
+            logger.info(log_message)
 
-    # Act
-    app_sample_function()
+        # Act
+        app_sample_function()
 
-    # Assert
-    logs_client = LogsQueryClient(integration_test_configuration.credential)
+        # Assert
+        logs_client = LogsQueryClient(integration_test_configuration.credential)
 
-    query_start_trace_decorator_message = f"""
-            AppTraces
-            | where AppRoleName == "{cloud_role_name}"
-            | where Message == "{decorator_message_start_trace}"
-            | count
-            """
-
-    query_start_trace_test_message = f"""
-            AppTraces
-            | where AppRoleName == "{cloud_role_name}"
-            | where Message == "{test_message_start_trace}"
-            | count
-            """
-
-    query_use_span_decorator_message = f"""
+        query_start_trace_decorator_message = f"""
                 AppTraces
                 | where AppRoleName == "{cloud_role_name}"
-                | where Message == "{decorator_message_use_span}"
+                | where Message == "{decorator_message_start_trace}"
                 | count
                 """
 
-    query_use_span_test_message = f"""
+        query_start_trace_test_message = f"""
                 AppTraces
                 | where AppRoleName == "{cloud_role_name}"
-                | where Message == "{test_message_use_span}"
+                | where Message == "{test_message_start_trace}"
                 | count
                 """
 
-    # Assert that we can query the specific logs created in the context of the spans
-    workspace_id = integration_test_configuration.get_analytics_workspace_id()
+        query_use_span_decorator_message = f"""
+                    AppTraces
+                    | where AppRoleName == "{cloud_role_name}"
+                    | where Message == "{decorator_message_use_span}"
+                    | count
+                    """
 
-    # Assert, but timeout if not succeeded
-    # wait_for_condition only needed for the first query as the delay of the logs query client will be over when the first assert succeeds
-    _wait_for_condition(
-        logs_client=logs_client,
-        workspace_id=workspace_id,
-        query=query_start_trace_decorator_message,
-        expected_count=1,
-    )
-    _assert_logged(
-        logs_client=logs_client, workspace_id=workspace_id, query=query_start_trace_test_message, expected_count=1
-    )
-    _assert_logged(
-        logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_decorator_message, expected_count=1
-    )
-    _assert_logged(
-        logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_test_message, expected_count=1
-    )
+        query_use_span_test_message = f"""
+                    AppTraces
+                    | where AppRoleName == "{cloud_role_name}"
+                    | where Message == "{test_message_use_span}"
+                    | count
+                    """
+
+        # Assert that we can query the specific logs created in the context of the spans
+        workspace_id = integration_test_configuration.get_analytics_workspace_id()
+
+        # Assert, but timeout if not succeeded
+        # wait_for_condition only needed for the first query as the delay of the logs query client will be over when the first assert succeeds
+        _wait_for_condition(
+            logs_client=logs_client,
+            workspace_id=workspace_id,
+            query=query_start_trace_decorator_message,
+            expected_count=1,
+        )
+        _assert_logged(
+            logs_client=logs_client, workspace_id=workspace_id, query=query_start_trace_test_message, expected_count=1
+        )
+        _assert_logged(
+            logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_decorator_message, expected_count=1
+        )
+        _assert_logged(
+            logs_client=logs_client, workspace_id=workspace_id, query=query_use_span_test_message, expected_count=1
+        )
