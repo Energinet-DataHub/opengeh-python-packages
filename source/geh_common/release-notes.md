@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.5.1
+
+- Change the `start_job` method to allow the `python_params` argument to be optional.
+
 ## Version 5.5.0
 
 **Subpackage**: `geh_common.domain.types`
