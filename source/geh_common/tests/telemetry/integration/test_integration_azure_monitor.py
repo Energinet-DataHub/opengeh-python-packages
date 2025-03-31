@@ -10,7 +10,7 @@ from azure.monitor.query import LogsQueryClient, LogsQueryPartialResult, LogsQue
 
 from geh_common.telemetry.decorators import start_trace, use_span
 from geh_common.telemetry.logger import Logger
-from geh_common.telemetry.logging_configuration import LoggingSettings, configure_logging, start_span
+from geh_common.telemetry.logging_configuration import configure_logging, start_span
 from tests.telemetry.conftest import cleanup_logging
 from tests.telemetry.integration.integration_test_configuration import (
     IntegrationTestConfiguration,
@@ -29,17 +29,23 @@ def fixture_logger():
 
 @pytest.fixture
 def integration_logging_configuration_setup(integration_test_configuration):
-    new_uuid = uuid.uuid4()
-    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    logging_settings = LoggingSettings(
+    orchestration_instance_id = uuid.uuid4()
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
+
+    orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
+    sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
+    # Command line arguments
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionstring")
+        ctx.setattr(sys, "argv", sys_args)
+
+    logging_settings = configure_logging(
         cloud_role_name=unique_cloud_role_name,
-        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
         subsystem=SUBSYSTEM,
-        orchestration_instance_id=uuid.uuid4(),
     )
     # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
     logging.getLogger().handlers.clear()
-    yield configure_logging(logging_settings=logging_settings), logging_settings
+    yield logging_settings, orchestration_instance_id
     cleanup_logging()
 
 
@@ -49,15 +55,21 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
     extras = {key: "value"}
     new_uuid = uuid.uuid4()
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
-    logging_settings = LoggingSettings(
+
+    orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
+    sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
+    # Command line arguments
+    with pytest.MonkeyPatch.context() as ctx:
+        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionstring")
+        ctx.setattr(sys, "argv", sys_args)
+
+    logging_settings = configure_logging(
         cloud_role_name=unique_cloud_role_name,
-        applicationinsights_connection_string=integration_test_configuration.get_applicationinsights_connection_string(),
         subsystem=SUBSYSTEM,
-        orchestration_instance_id=uuid.uuid4(),
     )
     # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
     logging.getLogger().handlers.clear()
-    yield configure_logging(logging_settings=logging_settings, extras=extras), logging_settings, extras
+    yield logging_settings, orchestration_instance_id, extras
     cleanup_logging()
 
 
@@ -114,8 +126,10 @@ def _wait_for_condition(
 def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _, logging_settings_from_fixture = integration_logging_configuration_setup
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    logging_settings_from_fixture, orchestration_id_from_fixture = integration_logging_configuration_setup
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
     cloud_role_name = logging_settings_from_fixture.cloud_role_name
@@ -164,8 +178,12 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup_with_extras,
     fixture_logger,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _, logging_settings_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    logging_settings_from_fixture, orchestration_id_from_fixture, extras_from_fixture = (
+        integration_logging_configuration_setup_with_extras
+    )
     logger = fixture_logger
     # Arrange
     new_uuid = uuid.uuid4()
@@ -208,8 +226,12 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup_with_extras,
     fixture_logger,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    logging_settings_from_fixture, orchestration_id_from_fixture, extras_from_fixture = (
+        integration_logging_configuration_setup_with_extras
+    )
     logger = fixture_logger
     # Arrange
     log_count = 5
