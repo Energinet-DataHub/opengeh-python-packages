@@ -51,9 +51,9 @@ def integration_logging_configuration_setup(integration_test_configuration):
 def integration_logging_configuration_setup_with_extras(integration_test_configuration):
     key = "key"
     extras = {key: "value"}
-    new_uuid = uuid.uuid4()
-    sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(new_uuid)]
-    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
+    orchestration_instance_id = uuid.uuid4()
+    sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(orchestration_instance_id)]
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
 
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setattr(sys, "argv", sys_argv)
@@ -65,6 +65,7 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
         logging.getLogger().handlers.clear()
         yield (
             configure_logging(cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras),
+            str(orchestration_instance_id),
             extras,
         )  # 2nd par beforelogging_settings, extras
         cleanup_logging()
@@ -270,7 +271,7 @@ def test__decorators_integration_test(
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
-    _, logging_settings_from_fixture, _ = integration_logging_configuration_setup_with_extras
+    logging_settings_from_fixture, _, _ = integration_logging_configuration_setup_with_extras
     logger = fixture_logger
     cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
