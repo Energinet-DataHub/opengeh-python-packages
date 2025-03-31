@@ -178,7 +178,9 @@ def test__add_log_record_to_azure_monitor_with_expected_settings(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = (
+        integration_logging_configuration_setup_with_extras
+    )
     logger = fixture_logger
     # Arrange
     new_uuid = uuid.uuid4()
@@ -224,7 +226,9 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = (
+        integration_logging_configuration_setup_with_extras
+    )
     logger = fixture_logger
     # Arrange
     log_count = 5
@@ -266,7 +270,9 @@ def test__decorators_integration_test(
 ) -> None:
     # Arrange
     new_uuid = uuid.uuid4()
-    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = integration_logging_configuration_setup_with_extras
+    logging_settings_from_fixture, cloud_role_name_from_fixture, extras_from_fixture = (
+        integration_logging_configuration_setup_with_extras
+    )
     logger = fixture_logger
     cloud_role_name = cloud_role_name_from_fixture
 
