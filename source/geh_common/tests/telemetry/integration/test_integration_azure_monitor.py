@@ -31,19 +31,19 @@ def fixture_logger():
 def integration_logging_configuration_setup(integration_test_configuration):
     orchestration_instance_id = uuid.uuid4()
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
-
-    orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionString")
         ctx.setattr(sys, "argv", sys_args)
 
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+
         logging_settings = configure_logging(
             cloud_role_name=unique_cloud_role_name,
             subsystem=SUBSYSTEM,
         )
-        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
         logging.getLogger().handlers.clear()
         yield logging_settings, orchestration_instance_id
         cleanup_logging()
@@ -53,22 +53,20 @@ def integration_logging_configuration_setup(integration_test_configuration):
 def integration_logging_configuration_setup_with_extras(integration_test_configuration):
     key = "key"
     extras = {key: "value"}
-    new_uuid = uuid.uuid4()
-    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(new_uuid)
+    orchestration_instance_id = uuid.uuid4()
+    unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
 
-    orchestration_instance_id = "4a540892-2c0a-46a9-9257-c4e13051d76a"
     sys_args = ["program_name", "--orchestration-instance-id", orchestration_instance_id]
-    # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionString")
         ctx.setattr(sys, "argv", sys_args)
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
 
         logging_settings = configure_logging(
             cloud_role_name=unique_cloud_role_name,
             subsystem=SUBSYSTEM,
         )
-        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-        logging.getLogger().handlers.clear()
         yield logging_settings, orchestration_instance_id, extras
         cleanup_logging()
 
