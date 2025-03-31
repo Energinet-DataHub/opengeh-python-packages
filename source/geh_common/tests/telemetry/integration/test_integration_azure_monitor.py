@@ -39,14 +39,14 @@ def integration_logging_configuration_setup(integration_test_configuration):
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionstring")
         ctx.setattr(sys, "argv", sys_args)
 
-    logging_settings = configure_logging(
-        cloud_role_name=unique_cloud_role_name,
-        subsystem=SUBSYSTEM,
-    )
-    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-    logging.getLogger().handlers.clear()
-    yield logging_settings, orchestration_instance_id
-    cleanup_logging()
+        logging_settings = configure_logging(
+            cloud_role_name=unique_cloud_role_name,
+            subsystem=SUBSYSTEM,
+        )
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+        yield logging_settings, orchestration_instance_id
+        cleanup_logging()
 
 
 @pytest.fixture(scope="function")
@@ -63,14 +63,14 @@ def integration_logging_configuration_setup_with_extras(integration_test_configu
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connectionstring")
         ctx.setattr(sys, "argv", sys_args)
 
-    logging_settings = configure_logging(
-        cloud_role_name=unique_cloud_role_name,
-        subsystem=SUBSYSTEM,
-    )
-    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-    logging.getLogger().handlers.clear()
-    yield logging_settings, orchestration_instance_id, extras
-    cleanup_logging()
+        logging_settings = configure_logging(
+            cloud_role_name=unique_cloud_role_name,
+            subsystem=SUBSYSTEM,
+        )
+        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+        logging.getLogger().handlers.clear()
+        yield logging_settings, orchestration_instance_id, extras
+        cleanup_logging()
 
 
 def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
