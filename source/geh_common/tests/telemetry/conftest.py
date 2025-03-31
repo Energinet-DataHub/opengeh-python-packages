@@ -1,4 +1,5 @@
 import os
+import sys
 from unittest import mock
 
 import pytest
@@ -36,16 +37,15 @@ def unit_logging_configuration_with_connection_string():
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
-        with (
-            mock.patch("sys.argv", sys_args),
-            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-        ):
-            yield (
-                configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
-                # UNIT_TEST_CLOUD_ROLE_NAME,
-                # UNIT_TEST_SUBSYSTEM,
-                orchestration_instance_id,
-            )
+        ctx.setattr(sys, "argv", sys_args)
+        ctx.setattr("geh_common.telemetry.logging_configuration.configure_azure_monitor", mock.Mock())
+
+        yield (
+            configure_logging(subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME),
+            # UNIT_TEST_CLOUD_ROLE_NAME,
+            # UNIT_TEST_SUBSYSTEM,
+            orchestration_instance_id,
+        )
 
         # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
         cleanup_logging()
@@ -63,17 +63,16 @@ def unit_logging_configuration_with_connection_string_with_extras():
     # Command line arguments
     with pytest.MonkeyPatch.context() as ctx:
         ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", UNIT_TEST_DUMMY_CONNECTION_STRING)
-        with (
-            mock.patch("sys.argv", sys_args),
-            mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"),
-        ):
-            yield (
-                configure_logging(
-                    subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
-                ),
-                orchestration_instance_id,
-                initial_extras,
-            )
+        ctx.setattr(sys, "argv", sys_args)
+        ctx.setattr("geh_common.telemetry.logging_configuration.configure_azure_monitor", mock.Mock())
+
+        yield (
+            configure_logging(
+                subsystem=UNIT_TEST_SUBSYSTEM, cloud_role_name=UNIT_TEST_CLOUD_ROLE_NAME, extras=initial_extras
+            ),
+            orchestration_instance_id,
+            initial_extras,
+        )
 
         # Clean up logging configuration module after each usage of the fixture, by setting logging configured to False
         cleanup_logging()
