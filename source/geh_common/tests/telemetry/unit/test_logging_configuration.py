@@ -32,8 +32,7 @@ def test_configure_logging__then_environmental_variables_are_set_and_configure_a
 
 @patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_configure_logging__configure_twice_does_not_reconfigure(
-    mock_configure_azure_monitor,
-    unit_logging_configuration_with_connection_string,
+    mock_configure_azure_monitor, unit_logging_configuration_with_connection_string, monkeypatch: pytest.MonkeyPatch
 ):
     # Arrange
     logging, orchestration_instance_id = unit_logging_configuration_with_connection_string
@@ -41,25 +40,24 @@ def test_configure_logging__configure_twice_does_not_reconfigure(
     cloud_role_name = "test_role_updated"
     # Create an updated logging_configuration, checking if it gets updated with a force_configuration = True
     # Act (control that configure_azure_monitor() is not called using a patch)
-    with pytest.MonkeyPatch.context() as ctx:
-        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-        ctx.setattr(sys, "argv", sys_args)
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    monkeypatch.setattr(sys, "argv", sys_args)
+    monkeypatch.setattr("geh_common.telemetry.logging_configuration.configure_azure_monitor", mock.Mock())
 
-        with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
-            configure_logging(subsystem="test_subsystem_updated", cloud_role_name=cloud_role_name)
-            # PROBLEM: How to extract cloud_role_name when we do not have a logging_config anymore.
-            # Assert that environment variable does not update when log has already been configured ()
-            assert os.environ["OTEL_SERVICE_NAME"] != cloud_role_name  # updated_logging_config.cloud_role_name
-            assert os.environ["OTEL_SERVICE_NAME"] == logging.cloud_role_name
-            mock_configure_azure_monitor.assert_not_called
+    configure_logging(subsystem="test_subsystem_updated", cloud_role_name=cloud_role_name)
+    # PROBLEM: How to extract cloud_role_name when we do not have a logging_config anymore.
+    # Assert that environment variable does not update when log has already been configured ()
+    assert os.environ["OTEL_SERVICE_NAME"] != cloud_role_name  # updated_logging_config.cloud_role_name
+    assert os.environ["OTEL_SERVICE_NAME"] == logging.cloud_role_name
+    mock_configure_azure_monitor.assert_not_called
 
 
 def test_get_extras__when_no_extras_none_are_returned(unit_logging_configuration_with_connection_string):
     # Arrange
-    logging, orchestration_instance_id = unit_logging_configuration_with_connection_string
+    logging_configurations, orchestration_instance_id = unit_logging_configuration_with_connection_string
     default_expected_extras = {
         "orchestration_instance_id": str(orchestration_instance_id),
-        "Subsystem": logging.subsystem,
+        "Subsystem": logging_configurations.subsystem,
     }
 
     # Act
@@ -137,18 +135,17 @@ def test_configure_logging_check_if_logging_configured(unit_logging_configuratio
     assert actual_logging_is_configured == expected_logging_is_configured
 
 
-def test_configure_logging_check_returns_correct_object():
+def test_configure_logging_check_returns_correct_object(monkeypatch: pytest.MonkeyPatch):
     # Arrange
-    with pytest.MonkeyPatch.context() as ctx:
-        with mock.patch("geh_common.telemetry.logging_configuration.configure_azure_monitor"):
-            ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-            cloud_role_name = "unknown"
-            subsystem = "subsystem"
-            logging_settings = configure_logging(cloud_role_name=cloud_role_name, subsystem=subsystem)
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    monkeypatch.setattr("geh_common.telemetry.logging_configuration.configure_azure_monitor", mock.Mock())
+    cloud_role_name = "unknown"
+    subsystem = "subsystem"
+    logging_settings = configure_logging(cloud_role_name=cloud_role_name, subsystem=subsystem)
 
-        # Assert
-        assert logging_settings.cloud_role_name == cloud_role_name
-        assert logging_settings.subsystem == subsystem
+    # Assert
+    assert logging_settings.cloud_role_name == cloud_role_name
+    assert logging_settings.subsystem == subsystem
 
 
 def test_logging_settings_without_any_params():

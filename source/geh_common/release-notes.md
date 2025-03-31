@@ -1,10 +1,14 @@
 # GEH Common Release Notes
 
-## Version 5.5.1
+## Version 5.5.2
 
 **Subpackage**: `geh_common.telemetry`
 
 The method configure_logging now instantiate LoggingSettings.
+
+## Version 5.5.1
+
+- Change the `start_job` method to allow the `python_params` argument to be optional.
 
 ## Version 5.5.0
 

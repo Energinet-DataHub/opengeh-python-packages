@@ -123,8 +123,7 @@ def test_start_trace__when_logging_is_configured(mock_env_args):
 @patch("geh_common.telemetry.decorators.span_record_exception")
 @patch("geh_common.telemetry.logging_configuration.configure_azure_monitor")
 def test_logging_is_configured_error_thrown_span_records_exception(
-    mock_span_record_exception,
-    mock_logger,
+    mock_span_record_exception, mock_logger, monkeypatch: pytest.MonkeyPatch
 ):
     log_instance_in_test = mock_logger.return_value
 
@@ -146,13 +145,12 @@ def test_logging_is_configured_error_thrown_span_records_exception(
         app_sample_function()
 
     # Mimic machine setting environment variables
-    with pytest.MonkeyPatch.context() as ctx:
-        ctx.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-        with pytest.raises(SystemExit):
-            entry_point()
-            # Assert
-            mock_logger.assert_called_once_with("app_sample_function")
-            log_instance_in_test.info.assert_called_once_with("Started executing function: app_sample_function")
-            mock_span_record_exception.assert_called_once()
+    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
+    with pytest.raises(SystemExit):
+        entry_point()
+        # Assert
+        mock_logger.assert_called_once_with("app_sample_function")
+        log_instance_in_test.info.assert_called_once_with("Started executing function: app_sample_function")
+        mock_span_record_exception.assert_called_once()
 
     cleanup_logging()

@@ -36,11 +36,12 @@ def integration_logging_configuration_setup(integration_test_configuration):
         ctx.setattr(sys, "argv", sys_argv)
         ctx.setenv(
             "APPLICATIONINSIGHTS_CONNECTION_STRING",
-            integration_test_configuration.get_applicationinsights_connection_string(),
+            "connection_string",
         )
         # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
         logging.getLogger().handlers.clear()
-        yield unique_cloud_role_name, configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+        logging_configurations = configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+        yield logging_configurations, unique_cloud_role_name
         cleanup_logging()
 
 
@@ -121,10 +122,9 @@ def test__exception_adds_log_to_app_exceptions(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup,
 ) -> None:
-    unique_cloud_role_name, logging_settings_from_fixture = integration_logging_configuration_setup
+    logging_configurations_from_fixture, unique_cloud_role_name = integration_logging_configuration_setup
     new_uuid = uuid.uuid4()
     message = f"test exception {new_uuid}"
-    # cloud_role_name = logging_settings_from_fixture.cloud_role_name
 
     # Act
     with start_span(__name__) as span:
