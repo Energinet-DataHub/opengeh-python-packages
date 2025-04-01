@@ -8,7 +8,7 @@ from pyspark.sql import SparkSession
 
 
 def get_spark_test_session(
-    config_overrides: dict = {}, static_data_dir: Path | str | None = None
+    config_overrides: dict = {}, static_data_dir: Path | str | None = None, extra_packages: list[str] | None = None
 ) -> tuple[SparkSession, str]:
     """Get a Spark session for testing.
 
@@ -42,7 +42,9 @@ def get_spark_test_session(
     conf = SparkConf().setAll(pairs=[(k, v) for k, v in config.items()])
 
     # Create the Spark session
-    builder = configure_spark_with_delta_pip(SparkSession.Builder().config(conf=conf).enableHiveSupport())
+    builder = configure_spark_with_delta_pip(
+        SparkSession.Builder().config(conf=conf).enableHiveSupport(), extra_packages=extra_packages
+    )
 
     # Use a single core when running under xdist
     if os.environ.get("PYTEST_XDIST_WORKER") is not None:
