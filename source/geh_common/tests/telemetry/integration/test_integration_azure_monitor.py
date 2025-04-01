@@ -28,46 +28,46 @@ def fixture_logger():
 
 
 @pytest.fixture
-def integration_logging_configuration_setup(integration_test_configuration):
+def integration_logging_configuration_setup(integration_test_configuration, monkeypatch: pytest.MonkeyPatch):
     orchestration_instance_id = uuid.uuid4()
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
     sys_args = ["program_name", "--orchestration-instance-id", str(orchestration_instance_id)]
 
     # Command line arguments
-    with pytest.MonkeyPatch.context() as ctx:
-        ctx.setattr(sys, "argv", sys_args)
-        ctx.setenv(
-            "APPLICATIONINSIGHTS_CONNECTION_STRING",
-            integration_test_configuration.get_applicationinsights_connection_string(),
-        )
-        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-        logging.getLogger().handlers.clear()
-        logging_configurations = configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
-        yield logging_configurations, unique_cloud_role_name
-        cleanup_logging()
+    monkeypatch.setattr(sys, "argv", sys_args)
+    monkeypatch.setenv(
+        "APPLICATIONINSIGHTS_CONNECTION_STRING",
+        integration_test_configuration.get_applicationinsights_connection_string(),
+    )
+    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+    logging.getLogger().handlers.clear()
+    logging_configurations = configure_logging(subsystem=SUBSYSTEM, cloud_role_name=unique_cloud_role_name)
+    yield logging_configurations, unique_cloud_role_name
+    cleanup_logging()
 
 
 @pytest.fixture(scope="function")
-def integration_logging_configuration_setup_with_extras(integration_test_configuration):
+def integration_logging_configuration_setup_with_extras(
+    integration_test_configuration, monkeypatch: pytest.MonkeyPatch
+):
     key = "key"
     extras = {key: "value"}
     orchestration_instance_id = uuid.uuid4()
     sys_argv = ["dummy_script_name", "--orchestration-instance-id", str(orchestration_instance_id)]
     unique_cloud_role_name = INTEGRATION_TEST_CLOUD_ROLE_NAME + "_" + str(orchestration_instance_id)
 
-    with pytest.MonkeyPatch.context() as ctx:
-        ctx.setattr(sys, "argv", sys_argv)
-        ctx.setenv(
-            "APPLICATIONINSIGHTS_CONNECTION_STRING",
-            integration_test_configuration.get_applicationinsights_connection_string(),
-        )
-        # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
-        logging.getLogger().handlers.clear()
-        logging_configurations = configure_logging(
-            cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras
-        )
-        yield logging_configurations, unique_cloud_role_name, extras
-        cleanup_logging()
+    monkeypatch.setattr(sys, "argv", sys_argv)
+    monkeypatch.setenv(
+        "APPLICATIONINSIGHTS_CONNECTION_STRING",
+        integration_test_configuration.get_applicationinsights_connection_string(),
+    )
+    # Remove any previously attached log handlers. Without it, handlers from previous tests can accumulate, causing multiple log messages for each event.
+    logging.getLogger().handlers.clear()
+    logging_configurations = configure_logging(
+        cloud_role_name=unique_cloud_role_name, subsystem=SUBSYSTEM, extras=extras
+    )
+    yield logging_configurations, unique_cloud_role_name, extras
+    cleanup_logging()
 
 
 def _assert_row_count(actual: LogsQueryResult | LogsQueryPartialResult, expected_count: int) -> None:
