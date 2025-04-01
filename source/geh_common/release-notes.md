@@ -10,6 +10,20 @@ Added the following data products:
 - `measurements_gold.current_v1`
 - `measurements_gold.electrical_heating_v1`
 
+## Version 5.5.3
+
+**Subpackages**: `geh_common.testing`
+
+- Added parameter `extra_packages` for the spark session
+
+## Version 5.5.2
+
+Instantiate LoggingSettings inside logging_configure
+
+## Version 5.5.1
+
+- Change the `start_job` method to allow the `python_params` argument to be optional.
+
 ## Version 5.5.0
 
 **Subpackage**: `geh_common.domain.types`
