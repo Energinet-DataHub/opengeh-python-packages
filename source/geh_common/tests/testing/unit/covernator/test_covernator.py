@@ -10,6 +10,7 @@ from geh_common.testing.covernator.commands import (
     create_result_and_all_scenario_files,
     find_all_cases,
     find_all_scenarios,
+    get_data_as_json,
     run_covernator,
 )
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
@@ -76,6 +77,21 @@ def test_covernator_all_cases_from_yaml():
             implemented=True,
         ),
     ]
+
+
+def test_get_data_as_json():
+    covernator_result = get_data_as_json(Path("/workspace/source/geh_common/tests/testing/unit/covernator"))
+
+    assert {
+        "second_scenario_folder": {
+            "cases": {"_total": 2, "covered": 1, "not_covered": 1},
+            "scenarios": {"_total": 1, "some_folder": 1},
+        },
+        "test_files": {
+            "cases": {"_total": 7, "covered": 4, "not_covered": 3},
+            "scenarios": {"_total": 2, "first_layer_folder1": 1, "first_layer_folder2": 1},
+        },
+    } == covernator_result
 
 
 class CovernatorFileWritingTestCase(TestCase):

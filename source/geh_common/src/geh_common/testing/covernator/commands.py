@@ -1,3 +1,5 @@
+import os
+from collections.abc import Generator
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -129,3 +131,51 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
     )
     df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
+
+
+def get_data_as_json(base_path: Path) -> Dict:
+    all_scenarios: Dict[str, List[ScenarioRow]] = {}
+    all_cases: Dict[str, List[CaseRow]] = {}
+    global_stats: Dict[str, Dict[str, Dict[str, int]]] = {}
+
+    for path in base_path.rglob("coverage/all_cases*.yml"):
+        group = str(path.relative_to(base_path)).split("/coverage/")[0]
+        all_scenarios[group] = find_all_scenarios(base_path / group / "scenario_tests")
+        scenarios_by_cases: Dict[str, List[ScenarioRow]] = dict()
+        scenarios_grouped: Dict[str, List[ScenarioRow]] = dict()
+        for scenario_row in all_scenarios[group]:
+            for case in scenario_row.cases_tested:
+                if case not in scenarios_by_cases:
+                    scenarios_by_cases[case] = list()
+                scenarios_by_cases[case].append(scenario_row)
+            scenario = scenario_row.source.split(os.sep)[0]
+            if scenario not in scenarios_grouped:
+                scenarios_grouped[scenario] = []
+            scenarios_grouped[scenario].append(scenario_row)
+
+        cases_by_group: List[CaseRow] = []
+        not_covered_by_scenario = 0
+        for case_row in case_row_with_implementation_bool_generator(find_all_cases(path), scenarios_by_cases):
+            if len(case_row.scenarios) == 0:
+                not_covered_by_scenario += 1
+            cases_by_group.append(case_row)
+
+        all_cases[group] = cases_by_group
+        global_stats[group] = {
+            "cases": {
+                "_total": len(cases_by_group),
+                "not_covered": not_covered_by_scenario,
+                "covered": len(cases_by_group) - not_covered_by_scenario,
+            },
+            "scenarios": {"_total": len(all_scenarios[group])}
+            | {scenario_group: len(scenarios) for scenario_group, scenarios in scenarios_grouped.items()},
+        }
+    return global_stats
+
+
+def case_row_with_implementation_bool_generator(
+    cases: List[CaseRow], scenarios_by_cases: Dict[str, List[ScenarioRow]]
+) -> Generator[CaseRow, None, None]:
+    for case_row in cases:
+        case_row.scenarios = scenarios_by_cases.get(case_row.case, list())
+        yield case_row
