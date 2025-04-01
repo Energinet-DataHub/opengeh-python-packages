@@ -95,26 +95,35 @@ class LoggingSettings(ApplicationSettings):
         ```
     """
 
-    cloud_role_name: str
-    applicationinsights_connection_string: str = Field(repr=False)
-    subsystem: str
-    orchestration_instance_id: UUID | None = None
+    cloud_role_name: str = Field()
+    subsystem: str = Field()
+    orchestration_instance_id: UUID | None = Field(default=None)
+    applicationinsights_connection_string: str = Field(init=False, repr=False)
 
 
 def configure_logging(
     *,
-    logging_settings: LoggingSettings,
+    cloud_role_name: str,
+    subsystem: str,
     extras: dict[str, Any] | None = None,
-) -> None:
+) -> LoggingSettings:
     """Configure logging to use OpenTelemetry and Azure Monitor.
 
-    :param logging_settings: Logging settings object
-    :param extras: Custom structured logging data to be included in every log message.
-    :return:
-    If connection string is None, then logging will not be sent to Azure Monitor.
-    This is useful for unit testing.
+    Must have `APPLICATIONINSIGHTS_CONNECTION_STRING` defined as an environment variable.
+
+    Args:
+        cloud_role_name: The logging settings object.
+        subsystem: Name of the subsystem.
+        extras: Custom structured logging data to be included in every log message.
+
+    Returns:
+        LoggingSettings: The configured logging settings object.
+
     """
     global _TRACER_NAME
+
+    logging_settings = LoggingSettings(cloud_role_name=cloud_role_name, subsystem=subsystem)
+
     _TRACER_NAME = logging_settings.cloud_role_name
 
     # Only configure logging if not already instrumented
@@ -142,6 +151,8 @@ def configure_logging(
 
     # Mark logging state as configured
     set_is_instrumented(True)
+
+    return logging_settings
 
 
 def get_extras() -> dict[str, Any]:
