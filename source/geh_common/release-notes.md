@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.5.3
+
+**Subpackages**: `geh_common.testing`
+
+- Added parameter `extra_packages` for the spark session
+
 ## Version 5.5.2
 
 Instantiate LoggingSettings inside logging_configure
