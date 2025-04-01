@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.5.2
+
+Instantiate LoggingSettings inside logging_configure
+
 ## Version 5.5.1
 
 - Change the `start_job` method to allow the `python_params` argument to be optional.
