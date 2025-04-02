@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.6.0
+
+**Subpackages**: `geh_comming.pyspark`
+
+- Adding read and write stream
+
 ## Version 5.5.3
 
 **Subpackages**: `geh_common.testing`
