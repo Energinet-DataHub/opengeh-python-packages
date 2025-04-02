@@ -6,7 +6,7 @@ nullable = True
 schema = "measurements_calculated"
 
 # View name
-hourly_calculated_measurements_v1 = t.StructType(
+calculated_measurements_v1 = t.StructType(
     [
         # "electrical_heating" | "capacity_settlement" | "net_consumption"
         t.StructField("orchestration_type", t.StringType(), not nullable),
