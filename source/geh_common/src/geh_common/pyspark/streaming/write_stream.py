@@ -11,6 +11,7 @@ def stream(
     batch_operation: Callable[["DataFrame", int], None],
     output_mode: str = "append",
     format: str = "delta",
+) -> bool | None:
     write_stream = (
         dataframe.writeStream.outputMode(output_mode).format(format).option("checkpointLocation", checkpoint_location)
     )
