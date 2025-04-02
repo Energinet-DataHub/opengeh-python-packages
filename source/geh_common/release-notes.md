@@ -2,9 +2,9 @@
 
 ## Version 5.6.0
 
-Adding new **Subpackage**: `geh_common.contracts`
+Adding new **Subpackage**: `geh_common.data_products`
 
-Added the following data products:
+Added the following data product:
 
 - `measurements_gold.current_v1`
 
@@ -59,7 +59,7 @@ def spark():
     shutil.rmtree(data_dir)
 
 # As a fixture when pytest-xdist is enabled
-# NOTE: When using pytest-xdist, the `-s` flag for pytest does not work. 
+# NOTE: When using pytest-xdist, the `-s` flag for pytest does not work.
 # As a workaround, you can add the following fixture to your `conftest.py` file:
 # @pytest.fixture(scope="session", autouse=True)
 # def original_print():
@@ -115,7 +115,7 @@ extract data frames from composite function results.
 - Fixed a bug where invalid queries did not raise an exception.
 
 - Extended databricks_api_client.execute_statement to be able to wait for response in the event that the warehouse needs
-to start.  
+to start.
 
 ## Version 5.4.3
 
@@ -159,7 +159,7 @@ if __name__ == "__main__":
 Example output:
 
 ```text
->>>In some_module.py:91: my_function(...) returned:                         
+>>>In some_module.py:91: my_function(...) returned:
 +---+----+
 |id |name|
 +---+----+
