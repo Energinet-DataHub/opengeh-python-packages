@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.6.0
+## Version 5.6.1
 
 Added data product contracts for:
 
