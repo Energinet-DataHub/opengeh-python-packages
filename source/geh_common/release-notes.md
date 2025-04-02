@@ -1,5 +1,12 @@
 # GEH Common Release Notes
 
+## Version 5.6.1
+
+Added data product contracts for:
+
+- `measurements_calculated.calculated_measurements_v1`
+- `measurements_calculated.missing_measurements_log_v1`
+
 ## Version 5.6.0
 
 Adding new **Subpackage**: `geh_common.data_products`
