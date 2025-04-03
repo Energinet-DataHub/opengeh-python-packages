@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List
 
 
@@ -6,6 +6,7 @@ from typing import List
 class ScenarioRow:
     source: str
     cases_tested: List[str]
+    group: str | None = None
 
 
 @dataclass
@@ -13,4 +14,4 @@ class CaseRow:
     path: str
     case: str
     implemented: bool
-    scenarios: List[ScenarioRow] = field(default_factory=list)
+    group: str | None = None
