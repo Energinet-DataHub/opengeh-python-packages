@@ -100,12 +100,13 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
         group = str(path.relative_to(base_path)).split("/coverage/")[0]
+        group_name = group.split(os.sep)[-1]
         all_scenarios.append(
             pl.DataFrame(find_all_scenarios(base_path / group / "scenario_tests")).with_columns(
-                pl.lit(group).alias("Group")
+                pl.lit(group_name).alias("Group")
             )
         )
-        all_cases.append(pl.DataFrame(find_all_cases(path)).with_columns(pl.lit(group).alias("Group")))
+        all_cases.append(pl.DataFrame(find_all_cases(path)).with_columns(pl.lit(group_name).alias("Group")))
 
     df_all_scenarios = (
         pl.concat(all_scenarios)
@@ -130,77 +131,3 @@ def get_cases_for_one_group(base_path: Path) -> Generator[Tuple[List[ScenarioRow
         all_scenarios = find_all_scenarios(base_path / group / "scenario_tests")
         all_cases = find_all_cases(path)
         yield all_scenarios, all_cases
-
-
-def get_data_as_json(base_path: Path) -> Dict:
-    all_scenarios_by_group: Dict[str, List[ScenarioRow]] = {}
-    all_scenarios: List[ScenarioRow] = []
-    # all_cases: Dict[str, List[CaseRow]] = {}
-    all_cases: List[CaseRow] = []
-
-    global_stats: Dict[str, Dict] = {
-        "_cases_": {
-            "_all_": [],
-            "_grouped_": {
-                "_total_": {
-                    "count": 0,
-                    "not_covered": 0,
-                    "covered": 0,
-                },
-            },
-        },
-        "_scenarios_": {},
-    }
-
-    for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(path.relative_to(base_path)).split("/coverage/")[0]
-        all_scenarios_by_group[group] = find_all_scenarios(base_path / group / "scenario_tests")
-        scenarios_by_cases: Dict[str, List[ScenarioRow]] = dict()
-        scenarios_grouped: Dict[str, List[ScenarioRow]] = dict()
-        for scenario_row in all_scenarios_by_group[group]:
-            scenario_row.group = group
-            all_scenarios.append(scenario_row)
-            for case in scenario_row.cases_tested:
-                if case not in scenarios_by_cases:
-                    scenarios_by_cases[case] = list()
-                scenarios_by_cases[case].append(scenario_row)
-            scenario = scenario_row.source.split(os.sep)[0]
-            if scenario not in scenarios_grouped:
-                scenarios_grouped[scenario] = []
-            scenarios_grouped[scenario].append(scenario_row)
-
-        cases_by_group: List[CaseRow] = []
-        not_covered_by_scenario = 0
-        for case_row in find_all_cases(path):
-            case_row.group = group
-            case_is_not_covered = len(scenarios_by_cases.get(case_row.case, list())) == 0
-            if case_is_not_covered:
-                not_covered_by_scenario += 1
-            cases_by_group.append(case_row)
-            all_cases.append(case_row)
-
-        global_stats["_cases_"]["_all_"].extend(cases_by_group)
-        global_stats["_cases_"]["_grouped_"]["_total_"]["count"] += len(cases_by_group)
-        global_stats["_cases_"]["_grouped_"]["_total_"]["not_covered"] += not_covered_by_scenario
-        global_stats["_cases_"]["_grouped_"]["_total_"]["covered"] += len(cases_by_group) - not_covered_by_scenario
-        global_stats["_cases_"]["_grouped_"][group] = {
-            "count": len(cases_by_group),
-            "covered": len(cases_by_group) - not_covered_by_scenario,
-            "not_covered": not_covered_by_scenario,
-        }
-        # global_stats[group] = {
-        #     "cases": {
-        #         "_total_": len(cases_by_group),
-        #         "not_covered": not_covered_by_scenario,
-        #         "covered": len(cases_by_group) - not_covered_by_scenario,
-        #     },
-        #     "scenarios": {"_total_": len(all_scenarios_by_group[group]), "_all_": all_scenarios}
-        #     | {
-        #         scenario_group: {"count": len(scenarios), "__all__": scenarios}
-        #         for scenario_group, scenarios in scenarios_grouped.items()
-        #     },
-        # }
-    global_stats["_cases_"]["_all_"] = sorted(
-        global_stats["_cases_"]["_all_"], key=lambda x: f"{x.group} {x.path} {x.case}"
-    )
-    return global_stats

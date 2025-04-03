@@ -10,7 +10,6 @@ from geh_common.testing.covernator.commands import (
     create_result_and_all_scenario_files,
     find_all_cases,
     find_all_scenarios,
-    get_data_as_json,
     run_covernator,
 )
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
@@ -77,123 +76,6 @@ def test_covernator_all_cases_from_yaml():
             implemented=True,
         ),
     ]
-
-
-_dummy = [
-    CaseRow(path="Some Group / Some Sub Group", case="Not implemented yet", implemented=False),
-    CaseRow(path="Some Group / Some Sub Group", case="Some Case", implemented=True),
-    CaseRow(path="Case Group A", case="Case A1", implemented=True),
-    CaseRow(path="Case Group A", case="Case A2", implemented=False),
-    CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA1", implemented=True),
-    CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA2", implemented=False),
-    CaseRow(path="Case Group A / Sub Case Group AB", case="Case AB1", implemented=True),
-    CaseRow(path="Case Group B / Sub Case Group BA", case="Case BA1", implemented=False),
-    CaseRow(path="Case Group B / Sub Case Group BB", case="Case BB1", implemented=True),
-]
-
-
-def test_get_data_as_json():
-    covernator_result = get_data_as_json(Path("/workspace/source/geh_common/tests/testing/unit/covernator"))
-
-    assert list(covernator_result.keys()) == ["_cases_", "_scenarios_"]
-
-    assert {
-        "_all_": [
-            CaseRow(
-                path="Some Group / Some Sub Group",
-                case="Not implemented yet",
-                implemented=False,
-                group="second_scenario_folder",
-            ),
-            CaseRow(
-                path="Some Group / Some Sub Group", case="Some Case", implemented=True, group="second_scenario_folder"
-            ),
-            CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA1", implemented=True, group="test_files"),
-            CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA2", implemented=False, group="test_files"),
-            CaseRow(path="Case Group A / Sub Case Group AB", case="Case AB1", implemented=True, group="test_files"),
-            CaseRow(path="Case Group A", case="Case A1", implemented=True, group="test_files"),
-            CaseRow(path="Case Group A", case="Case A2", implemented=False, group="test_files"),
-            CaseRow(path="Case Group B / Sub Case Group BA", case="Case BA1", implemented=False, group="test_files"),
-            CaseRow(path="Case Group B / Sub Case Group BB", case="Case BB1", implemented=True, group="test_files"),
-        ],
-        "_grouped_": {
-            "_total_": {
-                "count": 9,
-                "covered": 5,
-                "not_covered": 4,
-            },
-            "second_scenario_folder": {
-                "count": 2,
-                "covered": 1,
-                "not_covered": 1,
-            },
-            "test_files": {
-                "count": 7,
-                "covered": 4,
-                "not_covered": 3,
-            },
-        },
-    } == covernator_result["_cases_"]
-    assert {"_all_": [], "_grouped_": {""}} == covernator_result["_scenarios_"]
-
-    # assert {
-    #     "_all_cases_": [
-    #         CaseRow(
-    #             path="Some Group / Some Sub Group",
-    #             case="Not implemented yet",
-    #             implemented=False,
-    #             group="second_scenario_folder",
-    #         ),
-    #         CaseRow(
-    #             path="Some Group / Some Sub Group", case="Some Case", implemented=True, group="second_scenario_folder"
-    #         ),
-    #         CaseRow(path="Case Group A", case="Case A1", implemented=True, group="test_files"),
-    #         CaseRow(path="Case Group A", case="Case A2", implemented=False, group="test_files"),
-    #         CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA1", implemented=True, group="test_files"),
-    #         CaseRow(path="Case Group A / Sub Case Group AA", case="Case AA2", implemented=False, group="test_files"),
-    #         CaseRow(path="Case Group A / Sub Case Group AB", case="Case AB1", implemented=True, group="test_files"),
-    #         CaseRow(path="Case Group B / Sub Case Group BA", case="Case BA1", implemented=False, group="test_files"),
-    #         CaseRow(path="Case Group B / Sub Case Group BB", case="Case BB1", implemented=True, group="test_files"),
-    #     ],
-    #     "_all_scenarios_": [
-    #         ScenarioRow(
-    #             source="some_folder",
-    #             cases_tested=["Some Case"],
-    #             group="second_scenario_folder",
-    #         ),
-    #         ScenarioRow(
-    #             source="first_layer_folder1/sub_folder",
-    #             cases_tested=["Case A1", "Case AA1", "Case BB1"],
-    #         ),
-    #         ScenarioRow(
-    #             source="first_layer_folder2",
-    #             cases_tested=["Case AB1"],
-    #         ),
-    #     ],
-    #     "second_scenario_folder": {
-    #         "cases": {
-    #             "_total": 2,
-    #             "covered": 1,
-    #             "not_covered": 1,
-    #         },
-    #         "scenarios": {
-    #             "_total": 1,
-    #             "some_folder": 1,
-    #         },
-    #     },
-    #     "test_files": {
-    #         "cases": {
-    #             "_total": 7,
-    #             "covered": 4,
-    #             "not_covered": 3,
-    #         },
-    #         "scenarios": {
-    #             "_total": 2,
-    #             "first_layer_folder1": 1,
-    #             "first_layer_folder2": 1,
-    #         },
-    #     },
-    # } == covernator_result
 
 
 class CovernatorFileWritingTestCase(TestCase):
