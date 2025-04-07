@@ -1,16 +1,29 @@
 import os
 import tempfile
+from enum import Enum
 from pathlib import Path
 
 from delta import configure_spark_with_delta_pip
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
-log4j_path = os.path.abspath("log4j.properties")
+
+class SparkLogLevel(str, Enum):
+    ALL = "ALL"
+    DEBUG = "DEBUG"
+    ERROR = "ERROR"
+    FATAL = "FATAL"
+    INFO = "INFO"
+    OFF = "OFF"
+    TRACE = "TRACE"
+    WARN = "WARN"
 
 
 def get_spark_test_session(
-    config_overrides: dict = {}, static_data_dir: Path | str | None = None, extra_packages: list[str] | None = None
+    config_overrides: dict = {},
+    static_data_dir: Path | str | None = None,
+    extra_packages: list[str] | None = None,
+    log_level: SparkLogLevel = SparkLogLevel.ERROR,
 ) -> tuple[SparkSession, str]:
     """Get a Spark session for testing.
 
@@ -55,7 +68,7 @@ def get_spark_test_session(
         master = "local[*]"
 
     spark = builder.master(master).getOrCreate()
-    spark.sparkContext.setLogLevel("ERROR")
+    spark.sparkContext.setLogLevel(log_level)
     return spark, data_dir
 
 
