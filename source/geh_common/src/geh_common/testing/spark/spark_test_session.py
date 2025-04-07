@@ -6,6 +6,7 @@ from delta import configure_spark_with_delta_pip
 from pyspark import SparkConf
 from pyspark.sql import SparkSession
 
+log4j_path = os.path.abspath("log4j.properties")
 
 def get_spark_test_session(
     config_overrides: dict = {}, static_data_dir: Path | str | None = None, extra_packages: list[str] | None = None
@@ -61,16 +62,8 @@ def _make_default_config(data_dir: str) -> dict:
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         "spark.sql.catalogImplementation": "in-memory",
-        # "spark.sql.catalogImplementation": "hive",
         "spark.sql.warehouse.dir": f"{data_dir}/spark-warehouse",
         "spark.local.dir": f"{data_dir}/spark-tmp",
-        # "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={data_dir}/metastore;create=true",
-        # "javax.jdo.option.ConnectionUserName": "APP",
-        # "javax.jdo.option.ConnectionPassword": "mine",
-        # Disable schema verification
-        # "hive.metastore.schema.verification": "false",
-        # "hive.metastore.schema.verification.record.version": "false",
-        # "datanucleus.autoCreateSchema": "true",
         # Disable the UI
         "spark.ui.showConsoleProgress": "false",
         "spark.ui.enabled": "false",
