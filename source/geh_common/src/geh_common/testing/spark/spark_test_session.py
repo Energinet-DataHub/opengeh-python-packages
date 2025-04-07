@@ -8,6 +8,7 @@ from pyspark.sql import SparkSession
 
 log4j_path = os.path.abspath("log4j.properties")
 
+
 def get_spark_test_session(
     config_overrides: dict = {}, static_data_dir: Path | str | None = None, extra_packages: list[str] | None = None
 ) -> tuple[SparkSession, str]:
@@ -53,7 +54,9 @@ def get_spark_test_session(
     else:
         master = "local[*]"
 
-    return builder.master(master).getOrCreate(), data_dir
+    spark = builder.master(master).getOrCreate()
+    spark.sparkContext.setLogLevel("ERROR")
+    return spark, data_dir
 
 
 def _make_default_config(data_dir: str) -> dict:
