@@ -2,7 +2,7 @@
 
 ## Version 5.6.2
 
-- changed spark config to remove hive configurations and reduce unnesseray noise in test output.
+- Added argument to set the spark config error level.
 
 ## Version 5.6.1
 
