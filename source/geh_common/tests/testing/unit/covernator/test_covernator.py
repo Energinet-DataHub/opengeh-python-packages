@@ -1,3 +1,4 @@
+import os
 import shutil
 import tempfile
 from pathlib import Path
@@ -14,11 +15,11 @@ from geh_common.testing.covernator.commands import (
 )
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
+covernator_testing_folder = Path(os.path.dirname(os.path.abspath(__file__)))
+
 
 def test_covernator_all_scenarios():
-    result = find_all_scenarios(
-        Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests")
-    )
+    result = find_all_scenarios(covernator_testing_folder / "test_files" / "scenario_tests")
 
     assert len(result) == 2
     assert result == [
@@ -34,9 +35,7 @@ def test_covernator_all_scenarios():
 
 
 def test_covernator_all_cases_from_yaml():
-    result = find_all_cases(
-        Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml")
-    )
+    result = find_all_cases(covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml")
 
     assert len(result) == 7
     assert result == [
@@ -89,7 +88,7 @@ class CovernatorFileWritingTestCase(TestCase):
     def test_write_all_cases(self):
         create_all_cases_file(
             self.tmp_dir,
-            Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml"),
+            covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml",
         )
 
         all_cases_file = self.tmp_dir / "all_cases.csv"
@@ -98,9 +97,7 @@ class CovernatorFileWritingTestCase(TestCase):
         self.assertEqual(all_cases.columns, ["Path", "TestCase"])
 
     def test_write_scenario_files(self):
-        create_result_and_all_scenario_files(
-            self.tmp_dir, Path("/workspace/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests")
-        )
+        create_result_and_all_scenario_files(self.tmp_dir, covernator_testing_folder / "test_files" / "scenario_tests")
 
         case_coverage_file = self.tmp_dir / "case_coverage.csv"
         self.assertTrue(case_coverage_file.exists())
@@ -122,7 +119,7 @@ class CovernatorFileWritingTestCase(TestCase):
         self.assertEqual(case_coverage_rows, expected_case_coverage_rows)
 
     def test_write_file_for_multiple_root_folders(self):
-        run_covernator(self.tmp_dir, Path("/workspace/source/geh_common/tests/testing/unit/covernator"))
+        run_covernator(self.tmp_dir, covernator_testing_folder)
 
         case_coverage_file = self.tmp_dir / "case_coverage.csv"
         self.assertTrue(case_coverage_file.exists())

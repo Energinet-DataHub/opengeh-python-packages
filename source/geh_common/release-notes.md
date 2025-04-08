@@ -4,7 +4,6 @@
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
 
-
 Add the following to the repository that uses covernator to scan QA tests and test coverage:
 
 ```toml
@@ -26,9 +25,6 @@ Optional parameters are:
 - -s / --only-serve => used as a boolean flag. If provided, only runs the streamlit app without generating files (does not make sence without defining the output_dir as there won't be data to read from in a new temporary folder)
 
 This will scan the folder defined in as path (default `./tests`) for scenario tests by searching for files with the name `coverage/all_cases*.yml` to find all cases that should be implemented and looks for all cases that are actually implemented in the `scenario_tests` folder on the same level as the `coverage` folder
-
-
-
 
 ## Version 5.6.2
 
