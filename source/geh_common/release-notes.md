@@ -26,6 +26,11 @@ Optional parameters are:
 
 This will scan the folder defined in as path (default `./tests`) for scenario tests by searching for files with the name `coverage/all_cases*.yml` to find all cases that should be implemented and looks for all cases that are actually implemented in the `scenario_tests` folder on the same level as the `coverage` folder
 
+## Version 5.6.3
+
+- changed contract in measurements_core to be not nullable
+- `measurements_core.measurements_gold.current_v1`
+
 ## Version 5.6.2
 
 - Added argument to set the spark config error level.
