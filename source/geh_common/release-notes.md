@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 5.6.3
+
+- changed contract in measurements_core to be not nullable
+- `measurements_core.measurements_gold.current_v1`
+
 ## Version 5.6.2
 
 - Added argument to set the spark config error level.
