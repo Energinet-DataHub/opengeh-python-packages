@@ -75,6 +75,10 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
         with open(path) as coverage_mapping_file:
             try:
                 coverage_mapping = yaml.safe_load(coverage_mapping_file)
+                if "cases_tested" not in coverage_mapping:
+                    logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
+                    continue
+
                 cases_tested = _get_scenarios_cases_tested(coverage_mapping["cases_tested"])
                 coverage_by_scenario.append(
                     ScenarioRow(
