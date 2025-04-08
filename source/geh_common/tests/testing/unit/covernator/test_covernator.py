@@ -7,8 +7,6 @@ from unittest import TestCase
 import polars as pl
 
 from geh_common.testing.covernator.commands import (
-    create_all_cases_file,
-    create_result_and_all_scenario_files,
     find_all_cases,
     find_all_scenarios,
     run_covernator,
@@ -85,39 +83,6 @@ class CovernatorFileWritingTestCase(TestCase):
         if self.tmp_dir.exists() and self.tmp_dir.is_dir():
             shutil.rmtree(self.tmp_dir)
 
-    def test_write_all_cases(self):
-        create_all_cases_file(
-            self.tmp_dir,
-            covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml",
-        )
-
-        all_cases_file = self.tmp_dir / "all_cases.csv"
-        self.assertTrue(all_cases_file.exists())
-        all_cases = pl.read_csv(all_cases_file, has_header=True)
-        self.assertEqual(all_cases.columns, ["Path", "TestCase"])
-
-    def test_write_scenario_files(self):
-        create_result_and_all_scenario_files(self.tmp_dir, covernator_testing_folder / "test_files" / "scenario_tests")
-
-        case_coverage_file = self.tmp_dir / "case_coverage.csv"
-        self.assertTrue(case_coverage_file.exists())
-        case_coverage = pl.read_csv(case_coverage_file, has_header=True)
-        self.assertEqual(case_coverage.columns, ["Scenario", "CaseCoverage"])
-        case_coverage_rows = case_coverage.sort(["Scenario", "CaseCoverage"]).to_dicts()
-        expected_case_coverage_rows = [
-            {
-                "Scenario": "first_layer_folder1/sub_folder",
-                "CaseCoverage": case_coverage,
-            }
-            for case_coverage in ["Case A1", "Case AA1", "Case BB1"]
-        ] + [
-            {
-                "Scenario": "first_layer_folder2",
-                "CaseCoverage": "Case AB1",
-            }
-        ]
-        self.assertEqual(case_coverage_rows, expected_case_coverage_rows)
-
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 
@@ -156,10 +121,14 @@ class CovernatorFileWritingTestCase(TestCase):
         all_cases = pl.read_csv(all_cases_file, has_header=True)
         self.assertEqual(all_cases.columns, ["Group", "Path", "TestCase"])
         all_cases_rows = all_cases.sort(["Group", "Path", "TestCase"])
-        self.assertEqual(all_cases_rows["Group"].to_list(), ["second_scenario_folder"] * 2 + ["test_files"] * 7)
+        self.assertEqual(
+            all_cases_rows["Group"].to_list(),
+            ["missing_scenarios_group"] + ["second_scenario_folder"] * 2 + ["test_files"] * 7,
+        )
         self.assertEqual(
             all_cases_rows["Path"].to_list(),
             [
+                "New Group",
                 "Some Group / Some Sub Group",
                 "Some Group / Some Sub Group",
                 "Case Group A",
@@ -174,6 +143,7 @@ class CovernatorFileWritingTestCase(TestCase):
         self.assertEqual(
             all_cases_rows["TestCase"].to_list(),
             [
+                "New Scenario",
                 "Not implemented yet",
                 "Some Case",
                 "Case A1",
