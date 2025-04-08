@@ -10,10 +10,12 @@ from geh_common.covernator_streamlit.transformations import (
     get_non_covered_cases,
 )
 
+# output path to save the folder in uses the environment variable OUTPUT_PATH
+# the default value will be replaced by a temporary (or specified) folder when running it locally
 OUTPUT_PATH = os.getenv("OUTPUT_PATH", "{SUBSTITUTTED_OUTPUT_PATH}")
 
 
-def my_streamlit():
+def run_covernator_streamlit():
     st.set_page_config(layout="wide")
     output_path = Path(OUTPUT_PATH)
 
@@ -48,4 +50,4 @@ def my_streamlit():
 
 
 if __name__ == "__main__":
-    my_streamlit()
+    run_covernator_streamlit()

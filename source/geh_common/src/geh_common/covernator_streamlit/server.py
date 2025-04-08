@@ -2,51 +2,53 @@ import logging
 import os
 import subprocess
 import tempfile
-from argparse import ArgumentParser
 from pathlib import Path
+from typing import Optional
+
+from pydantic import AliasChoices, Field
+from pydantic_settings import BaseSettings
 
 from geh_common.testing.covernator import run_covernator
 
 
-def parse_args():
-    p = ArgumentParser(description="Run the Streamlit app.")
-    p.add_argument(
-        "-p",
-        "--path",
+class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=True, cli_implicit_flags=True):
+    """CLI-Tool to generate covernator files and run the streamlit app."""
+
+    test_folder_path: str = Field(
+        description="base path to search for test scenarios",
         default="./tests",
-        help="base path to search for test scenarios. Default to './tests'",
+        validation_alias=AliasChoices("t", "p", "test-folder-path"),
     )
-    p.add_argument(
-        "-o",
-        "--output_dir",
-        default=tempfile.mkdtemp(),
-        help="output directory to store the files. Default to a temporary directory",
-    )
-    p.add_argument(
-        "-g",
-        "--only-generate",
+    output_dir: Optional[str] = Field(
+        description="output directory to store the files. If not set, will create a temporary directory",
         default=None,
-        help="Do not run the streamlit app, only generate the files. Requires --output_dir",
-        action="store_true",
+        validation_alias=AliasChoices("o", "output-dir"),
     )
-    p.add_argument(
-        "-s",
-        "--only-serve",
-        default=None,
-        help="Do not generate the files, only run the streamlit app",
-        action="store_true",
+    generate_only: bool = Field(
+        description="Do not run the streamlit app, only generate the files. Requires --output_dir",
+        default=False,
+        validation_alias=AliasChoices("g", "generate-only"),
     )
-    return p.parse_args()
+    serve_only: bool = Field(
+        description="Do not generate the files, only run the streamlit app. Requires --output_dir",
+        default=False,
+        validation_alias=AliasChoices("s", "serve-only"),
+    )
 
 
-def main():
-    args = parse_args()
-    base_path = Path(args.path)
-    output_dir = Path(args.output_dir)
-    if not args.only_serve:
-        run_covernator(output_dir, base_path)
-    if args.only_generate:
-        return
+def _validate_cli_args(args: CovernatorCliSettings):
+    generate_str = "--generate-only (-g)"
+    serve_str = "--serve-only (-s)"
+    if args.generate_only and args.serve_only:
+        raise ValueError(f"Covernator failed, as both {generate_str} and {serve_str} are set.")
+
+    if args.output_dir is None and (args.serve_only is True or args.generate_only is True):
+        raise ValueError(
+            f"Covernator failed, as --output_dir (-o) is required when {generate_str} or {serve_str} are set."
+        )
+
+
+def _create_and_run_streamlit_app(output_dir: Path):
     streamlit_script = os.path.join(os.path.dirname(__file__), "streamlit_app.py")
     with open(streamlit_script) as f:
         content = f.read()
@@ -59,6 +61,22 @@ def main():
     if res.returncode != 0:
         logging.error("Error running streamlit app")
         raise RuntimeError("Error running streamlit app")
+
+
+def main():
+    cli_args = CovernatorCliSettings()
+    logging.warning(cli_args)
+
+    _validate_cli_args(cli_args)
+
+    base_path = Path(cli_args.test_folder_path)
+    output_dir = Path(cli_args.output_dir or tempfile.mkdtemp())
+
+    if not cli_args.serve_only:
+        run_covernator(output_dir, base_path)
+
+    if not cli_args.generate_only:
+        _create_and_run_streamlit_app(output_dir)
 
 
 if __name__ == "__main__":
