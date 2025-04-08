@@ -1,5 +1,35 @@
 # GEH Common Release Notes
 
+## Version 5.7.0
+
+Added new **Subpackage**: `geh_common.covernator_streamlit`
+
+
+Add the following to the repository that uses covernator to scan QA tests and test coverage:
+
+```toml
+[project.scripts]
+covernator = "geh_common.covernator_streamlit:main"
+```
+
+Run it with:
+
+```sh
+covernator [-o /path/to/save/files/to] [-p /path/to/look/for/scenario_tests] [-g] [-s]
+```
+
+Optional parameters are:
+
+- -p / --path => this changes the folder to look for files (default `./tests`)
+- -o / --output_dir => set the location where the files are being created that are used to run the streamlit app (default to a temporary folder)
+- -g / --only-generate => used as a boolean flag. If provided, only files are created, but no streamlit app is running (does not make sence without defining the output_dir as the data will otherwise be lost)
+- -s / --only-serve => used as a boolean flag. If provided, only runs the streamlit app without generating files (does not make sence without defining the output_dir as there won't be data to read from in a new temporary folder)
+
+This will scan the folder defined in as path (default `./tests`) for scenario tests by searching for files with the name `coverage/all_cases*.yml` to find all cases that should be implemented and looks for all cases that are actually implemented in the `scenario_tests` folder on the same level as the `coverage` folder
+
+
+
+
 ## Version 5.6.2
 
 - Added argument to set the spark config error level.
