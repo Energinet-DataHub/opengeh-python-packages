@@ -138,6 +138,39 @@ parameter in the function header. This will provide us a `TestCases` object, fro
 `test_cases[name]` and call the `assert_dataframes_and_schemas` function to compare the actual dataframe to the csv
 file.
 
+### Covernator
+
+To use the covernator in a repository the following setup is required.
+
+#### 1) Correct folder structure / naming setup
+
+```plaintext
+├── scenario_group
+    ├── coverage/
+        ├── all_cases_scenario_group.yml
+    └── scenario_tests/
+        ├── given_something/
+            └── coverage_mapping.yml
+        └── given_another_thing/
+            └── can_contain_multiple_layers/
+                └── coverage_mapping.yml
+```
+
+To detect a group that contains scenarios there needs to be a folder called `coverage` containing a yaml file that follows this pattern `all_cases*.yml`.
+This file contains all test cases that should eventually be implemented (the `master file` for the group).
+To differentiate a case from a group of cases, a boolean value states whether this case should already exist. Setting a value to true, without actually having an implementation will (in the future) result into a failing pipeline
+Case names in one group have to be unique.
+(see [all_cases_test.yml](/source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml) for an example).
+
+In the same group folder next to coverage there should be a folder called `scenario_tests`. In this folder the implementations are mapped to scenarios by defining them in a scenario folder with a file called `coverage_mapping.yml`.
+This file can contain notes, but is required to have a key `cases_tested`, which defines all cases that are tested in this scenario following the same hierarchy as defined in the according master file. 
+(see [first_layer_folder1/sub_folder/coverage_mapping.yml](/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests//first_layer_folder1/sub_folder/coverage_mapping.yml) and [first_layer_folder2/coverage_mapping.yml](/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests//first_layer_folder2/coverage_mapping.yml))
+
+
+#### 2) CLI setup in pyproject.toml
+
+Rather than calling the python functions from inside python code, the covernator can be used via cli. See [covernator_streamlit/README.md](/docs/covernator_streamlit/README.md) for usage and setup
+
 ## Installation
 
 IMPORTANT: Remember to fill in the newest version in the url.
