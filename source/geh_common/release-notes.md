@@ -4,7 +4,7 @@
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
 
-Add the following to the repository that uses covernator to scan QA tests and test coverage:
+Add the following to the pyproject.toml in the repository that uses covernator to scan QA tests and test coverage:
 
 ```toml
 [project.scripts]

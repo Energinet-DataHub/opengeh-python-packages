@@ -26,10 +26,15 @@ def _get_case_rows_from_main_yaml(
 def find_all_cases(main_yaml_path: Path, group: str | None = None) -> List[CaseRow]:
     """Parse a yaml file containing all scenarios and transform it into a list of cases.
 
+    If yaml path is invalid or content in an invalid format, raise an exception.
+
     Args:
         main_yaml_path (Path): Path to the yaml file containing all scenarios.
         group (str | None): Group name to be added to the case rows if present.
     """
+    if not main_yaml_path.exists():
+        raise FileNotFoundError(f"File {main_yaml_path} does not exist.")
+
     with open(main_yaml_path) as main_file:
         main_yaml_content = yaml.safe_load(main_file)
 
@@ -65,6 +70,10 @@ def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], 
 def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
     """Find all implemented scenarios for the given path.
 
+    Searches for all files named 'coverage_mapping.yml' in the given path and its subdirectories.
+    For each file, it loads the content and extracts the cases tested for each scenario.
+    Ignores the file if it doesn't contain the 'cases_tested' key or if there are no cases.
+
     Args:
         base_path (Path): The path to search for scenarios with the name 'coverage_mapping.yml'.
     """
@@ -75,11 +84,12 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
         with open(path) as coverage_mapping_file:
             try:
                 coverage_mapping = yaml.safe_load(coverage_mapping_file)
-                if "cases_tested" not in coverage_mapping:
+                cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
+                if cases_tested_content is None:
                     logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
                     continue
 
-                cases_tested = _get_scenarios_cases_tested(coverage_mapping["cases_tested"])
+                cases_tested = _get_scenarios_cases_tested(cases_tested_content)
                 coverage_by_scenario.append(
                     ScenarioRow(
                         source=_get_scenario_source_name_from_path(path, base_path),

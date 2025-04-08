@@ -32,6 +32,23 @@ def test_covernator_all_scenarios():
     ]
 
 
+def test_covernator_all_cases_given_invalid_file_path():
+    try:
+        find_all_cases(covernator_testing_folder / "test_files" / "coverage" / "invalid_file.yml")
+        did_raise = False
+    except FileNotFoundError:
+        did_raise = True
+
+    assert did_raise
+
+
+def test_covernator_given_invalid_file():
+    result = find_all_cases(
+        covernator_testing_folder / "test_files" / "scenario_tests" / "wrong_yml" / "coverage_mapping.yml"
+    )
+    assert len(result) == 0
+
+
 def test_covernator_all_cases_from_yaml():
     result = find_all_cases(covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml")
 
