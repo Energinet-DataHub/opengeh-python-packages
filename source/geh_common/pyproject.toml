@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.6.1"
+version = "5.6.2"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 

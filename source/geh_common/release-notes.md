@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.6.2
+
+- Added argument to set the spark config error level.
+
 ## Version 5.6.1
 
 Added data product contracts for:
@@ -23,7 +27,7 @@ Added the following data product:
 
 ## Version 5.5.2
 
-Instantiate LoggingSettings inside logging_configure
+- Instantiate LoggingSettings inside logging_configure
 
 ## Version 5.5.1
 
