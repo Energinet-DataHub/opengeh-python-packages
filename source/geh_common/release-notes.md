@@ -1,5 +1,15 @@
 # GEH Common Release Notes
 
+## Version 5.6.4
+
+Added data product electricity market contracts for:
+- `capacity_settlement_metering_point_periods_v1`
+- `electrical_heating_child_metering_points_v1`
+- `electrical_heating_consumption_metering_point_periods_v1`
+- `missing_measurements_log_metering_point_periods_v1`
+- `net_consumption_group_6_child_metering_points_v1`
+- `net_consumption_group_6_consumption_metering_point_periods_v1`
+
 ## Version 5.6.3
 
 - changed contract in measurements_core to be not nullable
