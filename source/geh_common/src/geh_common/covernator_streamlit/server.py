@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Optional
 
 from pydantic import AliasChoices, Field
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
 from geh_common.testing.covernator import run_covernator
 
@@ -13,10 +13,10 @@ from geh_common.testing.covernator import run_covernator
 class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=True, cli_implicit_flags=True):
     """CLI-Tool to generate covernator files and run the streamlit app."""
 
-    test_folder_path: str = Field(
+    path: str = Field(
         description="base path to search for test scenarios",
         default="./tests",
-        validation_alias=AliasChoices("t", "p", "test-folder-path"),
+        validation_alias=AliasChoices("p", "path"),
     )
     output_dir: Optional[str] = Field(
         description="output directory to store the files. If not set, will create a temporary directory",
@@ -33,6 +33,18 @@ class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=Tr
         default=False,
         validation_alias=AliasChoices("s", "serve-only"),
     )
+
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls: type[BaseSettings],
+        init_settings: PydanticBaseSettingsSource,
+        env_settings: PydanticBaseSettingsSource,
+        dotenv_settings: PydanticBaseSettingsSource,
+        file_secret_settings: PydanticBaseSettingsSource,
+    ) -> tuple[PydanticBaseSettingsSource, ...]:
+        """Need to overwrite the priority, otherwise path with be overwritten by the env var."""
+        return (init_settings,)
 
 
 def _validate_cli_args(args: CovernatorCliSettings):
@@ -65,7 +77,7 @@ def main():
 
     _validate_cli_args(cli_args)
 
-    base_path = Path(cli_args.test_folder_path)
+    base_path = Path(cli_args.path)
     output_dir = Path(cli_args.output_dir or tempfile.mkdtemp())
 
     if not cli_args.serve_only:

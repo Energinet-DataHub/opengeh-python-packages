@@ -4,6 +4,8 @@
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
 
+### CLI Setup & Usage
+
 Add the following to the pyproject.toml in the repository that uses covernator to scan QA tests and test coverage:
 
 ```toml
@@ -19,12 +21,39 @@ covernator [-o /path/to/save/files/to] [-p /path/to/look/for/scenario_tests] [-g
 
 Optional parameters are:
 
-- -t / -p / --test-folder-path => this changes the folder to look for files (default `./tests`)
+- -p / --path => this changes the folder to look for files (default `./tests`)
 - -o / --output-dir => set the location where the files are being created that are used to run the streamlit app (default to a temporary folder)
 - -g / --generate-only => used as a boolean flag. If provided, only files are created, but no streamlit app is running (does not make sence without defining the output_dir as the data will otherwise be lost)
 - -s / --serve-only => used as a boolean flag. If provided, only runs the streamlit app without generating files (does not make sence without defining the output_dir as there won't be data to read from in a new temporary folder)
 
 This will scan the folder defined in as path (default `./tests`) for scenario tests by searching for files with the name `coverage/all_cases*.yml` to find all cases that should be implemented and looks for all cases that are actually implemented in the `scenario_tests` folder on the same level as the `coverage` folder
+
+### Folder Structure
+
+Example of a valid folder structure:
+
+```plaintext
+├── scenario_group
+    ├── coverage/
+        ├── all_cases_scenario_group.yml
+    └── scenario_tests/
+        ├── given_something/
+            └── coverage_mapping.yml
+        └── given_another_thing/
+            └── can_contain_multiple_layers/
+                └── coverage_mapping.yml
+```
+
+- scenario group should have folder called `coverage` containing a yaml file following this pattern: `all_cases*.yml`
+    - the `master file`
+    - contains all cases that should be implemented
+    - (in the future) boolean determines whether pipeline fails if case is not implemented
+    - case names have to be unique in a single master file
+    - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
+- folder `scenario_tests` next to the coverage folder
+    - must contain a key `cases_tested`
+    - mapping between master file and scenarios testing specific cases
+    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
 
 ## Version 5.6.3
 
