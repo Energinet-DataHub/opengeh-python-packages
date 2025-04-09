@@ -2,11 +2,11 @@ import pyspark.sql.types as t
 
 nullable = True
 
-# Schema name
-schema = "measurements_gold"
+database_name = "measurements_gold"
 
-# View name
-current_v1 = t.StructType(
+view_name = "current_v1"
+
+schema = t.StructType(
     # Fields are nullable, but we are checking for nulls in the view
     [
         t.StructField("metering_point_id", t.StringType(), not nullable),
