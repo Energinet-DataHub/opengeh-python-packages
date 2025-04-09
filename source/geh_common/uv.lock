@@ -436,7 +436,7 @@ wheels = [
 
 [[package]]
 name = "geh-common"
-version = "5.6.2"
+version = "5.6.3"
 source = { editable = "." }
 dependencies = [
     { name = "azure-core" },
@@ -470,7 +470,7 @@ requires-dist = [
     { name = "azure-monitor-opentelemetry", specifier = ">=1.6.0" },
     { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
     { name = "databricks-sdk", specifier = ">=0.42.0" },
-    { name = "delta-spark", specifier = ">=3.1,<4.0" },
+    { name = "delta-spark", specifier = ">=3.3,<4.0" },
     { name = "dependency-injector", specifier = ">=4.43.0,<5.0" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "pydantic-settings", specifier = ">=2.7.1" },
