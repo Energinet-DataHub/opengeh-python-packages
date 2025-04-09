@@ -4,8 +4,9 @@ nullable = True
 
 database_name = "electricity_market_measurements_input"
 
-# View
-net_consumption_group_6_consumption_metering_point_periods_v1 = T.StructType(
+view_name = "net_consumption_group_6_consumption_metering_point_periods_v1"
+
+schema = T.StructType(
     [
         #
         # GSRN number

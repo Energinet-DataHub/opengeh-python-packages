@@ -4,8 +4,9 @@ nullable = True
 
 database_name = "electricity_market_measurements_input"
 
-# View
-capacity_settlement_metering_point_periods_v1 = T.StructType(
+view_name = "capacity_settlement_metering_point_periods_v1"
+
+schema = T.StructType(
     [
         # ID of the consumption metering point (parent)
         T.StructField("metering_point_id", T.StringType(), not nullable),

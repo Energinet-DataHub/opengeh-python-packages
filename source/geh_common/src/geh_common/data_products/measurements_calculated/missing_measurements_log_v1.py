@@ -2,11 +2,11 @@ import pyspark.sql.types as t
 
 nullable = True
 
-# Schema name
-schema = "measurements_calculated"
+database_name = "measurements_calculated"
 
-# View name
-missing_measurements_log_v1 = t.StructType(
+vuew_name = "missing_measurements_log_v1"
+
+schema = t.StructType(
     [
         #
         # ID of the orchestration that initiated the calculation job
