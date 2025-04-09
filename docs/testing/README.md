@@ -163,9 +163,8 @@ Case names in one group have to be unique.
 (see [all_cases_test.yml](/source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml) for an example).
 
 In the same group folder next to coverage there should be a folder called `scenario_tests`. In this folder the implementations are mapped to scenarios by defining them in a scenario folder with a file called `coverage_mapping.yml`.
-This file can contain notes, but is required to have a key `cases_tested`, which defines all cases that are tested in this scenario following the same hierarchy as defined in the according master file. 
+This file can contain notes, but is required to have a key `cases_tested`, which defines all cases that are tested in this scenario following the same hierarchy as defined in the according master file.
 (see [first_layer_folder1/sub_folder/coverage_mapping.yml](/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests//first_layer_folder1/sub_folder/coverage_mapping.yml) and [first_layer_folder2/coverage_mapping.yml](/source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests//first_layer_folder2/coverage_mapping.yml))
-
 
 #### 2) CLI setup in pyproject.toml
 
