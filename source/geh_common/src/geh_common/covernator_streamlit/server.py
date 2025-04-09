@@ -1,4 +1,3 @@
-import logging
 import os
 import subprocess
 import tempfile
@@ -56,16 +55,13 @@ def _create_and_run_streamlit_app(output_dir: Path):
     with open(f"{output_dir}/script.py", "w") as f:
         f.write(content)
     command = ["streamlit", "run", f"{output_dir}/script.py"]
-    logging.info(command)
     res = subprocess.run(command, check=True)
     if res.returncode != 0:
-        logging.error("Error running streamlit app")
         raise RuntimeError("Error running streamlit app")
 
 
 def main():
     cli_args = CovernatorCliSettings()
-    logging.warning(cli_args)
 
     _validate_cli_args(cli_args)
 
