@@ -2,7 +2,8 @@
 
 ## Version 5.6.4
 
-Added data product electricity market contracts for:
+Added data product electricity market contracts:
+
 - `capacity_settlement_metering_point_periods_v1`
 - `electrical_heating_child_metering_points_v1`
 - `electrical_heating_consumption_metering_point_periods_v1`
