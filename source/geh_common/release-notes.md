@@ -1,5 +1,16 @@
 # GEH Common Release Notes
 
+## Version 5.6.4
+
+Bump to delta-spark>=3.3.0 dependency to ensure support for adding liquid clustering to
+existing tables without clustering enabled.
+
+With 3.3.0 clustering can be added like:
+
+```sql
+ALTER TABLE your_table_name CLUSTER BY column_name
+```
+
 ## Version 5.6.3
 
 - changed contract in measurements_core to be not nullable
