@@ -11,9 +11,13 @@ def create_table(
     database_name: str,
     table_name: str,
     schema: StructType,
+    location: str | None = None,
 ) -> None:
     sql_schema = _struct_type_to_sql_schema(schema)
-    spark.sql(f"CREATE TABLE {database_name}.{table_name} ({sql_schema})")
+    statements = [f"CREATE TABLE {database_name}.{table_name} ({sql_schema}) USING DELTA"]
+    if location:
+        statements.append(f"LOCATION '{location}'")
+    spark.sql(" ".join(statements))
 
 
 def _struct_type_to_sql_schema(schema: StructType) -> str:

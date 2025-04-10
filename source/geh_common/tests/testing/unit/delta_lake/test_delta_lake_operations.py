@@ -1,3 +1,4 @@
+import pytest
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StringType, StructField, StructType
 
@@ -46,7 +47,6 @@ def test_create_table__creates_table(spark: SparkSession):
         spark,
         DEFAULT_DATABASE_NAME,
         DEFAULT_TABLE_NAME,
-        DEFAULT_LOCATION,
         DEFAULT_SCHEMA,
     )
 
@@ -62,18 +62,17 @@ def test_create_table__when_already_exists__does_not_create(spark: SparkSession)
         spark,
         DEFAULT_DATABASE_NAME,
         DEFAULT_TABLE_NAME,
-        DEFAULT_LOCATION,
         DEFAULT_SCHEMA,
     )
 
     # Act
-    create_table(
-        spark,
-        DEFAULT_DATABASE_NAME,
-        DEFAULT_TABLE_NAME,
-        DEFAULT_LOCATION,
-        DEFAULT_SCHEMA,
-    )  # Try to create the same table again
+    with pytest.raises(Exception):
+        create_table(
+            spark,
+            DEFAULT_DATABASE_NAME,
+            DEFAULT_TABLE_NAME,
+            DEFAULT_SCHEMA,
+        )  # Try to create the same table again
 
     # Assert
     tables = [table.name for table in spark.catalog.listTables(DEFAULT_DATABASE_NAME)]
@@ -90,8 +89,8 @@ def test_create_table__schema_is_as_expected(spark: SparkSession):
         spark,
         DEFAULT_DATABASE_NAME,
         DEFAULT_TABLE_NAME,
-        DEFAULT_LOCATION,
         expected_schema,
+        DEFAULT_LOCATION,
     )
 
     # Assert
