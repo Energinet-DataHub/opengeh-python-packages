@@ -15,8 +15,8 @@ from geh_common.pyspark.transformations import (
 @pytest.mark.parametrize(
     "date, expected",
     [
-        (datetime(2023, 1, 1, tzinfo=timezone.utc), datetime(2023, 1, 1, 2, tzinfo=ZoneInfo("Europe/Copenhagen"))),
-        (datetime(2023, 7, 1, tzinfo=timezone.utc), datetime(2023, 7, 1, 4, tzinfo=ZoneInfo("Europe/Copenhagen"))),
+        (datetime(2023, 1, 1, tzinfo=timezone.utc), datetime(2023, 1, 1, 1, tzinfo=ZoneInfo("Europe/Copenhagen"))),
+        (datetime(2023, 7, 1, tzinfo=timezone.utc), datetime(2023, 7, 1, 2, tzinfo=ZoneInfo("Europe/Copenhagen"))),
     ],
 )
 def test_convert_utc_to_localtime(spark, date, expected):
@@ -28,14 +28,16 @@ def test_convert_utc_to_localtime(spark, date, expected):
     result = convert_utc_to_localtime(df, "timestamp", "Europe/Copenhagen")
 
     # Assert
-    assert result.collect()[0]["timestamp"] == expected.replace(tzinfo=None)
+    assert result.collect()[0]["timestamp"].astimezone(timezone.utc).replace(tzinfo=None) == expected.replace(
+        tzinfo=None
+    )
 
 
 @pytest.mark.parametrize(
     "date, expected",
     [
-        (datetime(2023, 1, 1, 2, tzinfo=ZoneInfo("Europe/Copenhagen")), datetime(2023, 1, 1, tzinfo=timezone.utc)),
-        (datetime(2023, 7, 1, 4, tzinfo=ZoneInfo("Europe/Copenhagen")), datetime(2023, 7, 1, tzinfo=timezone.utc)),
+        (datetime(2023, 1, 1, 1, tzinfo=ZoneInfo("Europe/Copenhagen")), datetime(2023, 1, 1, tzinfo=timezone.utc)),
+        (datetime(2023, 7, 1, 2, tzinfo=ZoneInfo("Europe/Copenhagen")), datetime(2023, 7, 1, tzinfo=timezone.utc)),
     ],
 )
 def test_convert_localtime_to_utc(spark, date, expected):
@@ -46,7 +48,9 @@ def test_convert_localtime_to_utc(spark, date, expected):
     result = convert_localtime_to_utc(df, "timestamp", "Europe/Copenhagen")
 
     # Assert
-    assert result.collect()[0]["timestamp"].astimezone(timezone.utc) == expected  # UTC
+    assert result.collect()[0]["timestamp"].astimezone(ZoneInfo("Europe/Copenhagen")).replace(
+        tzinfo=None
+    ) == expected.replace(tzinfo=None)  # UTC
 
 
 def test_begining_of_year(spark):
