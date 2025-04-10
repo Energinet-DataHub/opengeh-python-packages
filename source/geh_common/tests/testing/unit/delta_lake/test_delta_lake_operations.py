@@ -31,7 +31,8 @@ def test_create_database__when_already_exists__does_not_create(spark: SparkSessi
     create_database(spark, database_name)  # Create the database initially
 
     # Act
-    create_database(spark, database_name)  # Try to create the same database again
+    with pytest.raises(Exception, match="[SCHEMA_ALREADY_EXISTS]"):
+        create_database(spark, database_name)  # Try to create the same database again
 
     # Assert
     databases = [db.name for db in spark.catalog.listDatabases()]
