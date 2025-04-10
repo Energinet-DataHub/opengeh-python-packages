@@ -3,20 +3,21 @@ from pyspark.sql.types import StructType
 
 
 def create_database(spark: SparkSession, database_name: str) -> None:
-    spark.sql(f"CREATE DATABASE IF NOT EXISTS {database_name}")
+    spark.sql(f"CREATE DATABASE {database_name}")
 
 
 def create_table(
     spark: SparkSession,
     database_name: str,
     table_name: str,
-    table_location: str,
     schema: StructType,
+    location: str | None = None,
 ) -> None:
     sql_schema = _struct_type_to_sql_schema(schema)
-    spark.sql(
-        f"CREATE TABLE IF NOT EXISTS {database_name}.{table_name} ({sql_schema}) USING DELTA LOCATION '{table_location}'"
-    )
+    statements = [f"CREATE TABLE {database_name}.{table_name} ({sql_schema}) USING DELTA"]
+    if location:
+        statements.append(f"LOCATION '{location}'")
+    spark.sql(" ".join(statements))
 
 
 def _struct_type_to_sql_schema(schema: StructType) -> str:

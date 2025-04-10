@@ -55,6 +55,12 @@ Example of a valid folder structure:
     - mapping between master file and scenarios testing specific cases
     - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
 
+## Version 5.6.6
+
+**Subpackage**: `testing.delta_lake`
+
+Fix bugs in functions `create_database()` and `create_table()`.
+
 ## Version 5.6.5
 
 - `capacity_settlement_metering_point_periods_v1`
