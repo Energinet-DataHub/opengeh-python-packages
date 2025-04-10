@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 5.6.6
+
+**Subpackage**: `testing.delta_lake`
+
+Fix bugs in functions `create_database()` and `create_table()`.
+
 ## Version 5.6.5
 
 - `capacity_settlement_metering_point_periods_v1`
