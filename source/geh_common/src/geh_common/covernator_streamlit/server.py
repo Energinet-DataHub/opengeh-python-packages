@@ -41,7 +41,6 @@ class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=Tr
 
         Checks that at max one of --generate-only or --serve-only is set.
         If one of them is set, requires --output_dir to be set.
-        Setting --output_dir to a temporary directory if not set and none of the flags are set.
         """
         generate_str = "--generate-only (-g)"
         serve_str = "--serve-only (-s)"
