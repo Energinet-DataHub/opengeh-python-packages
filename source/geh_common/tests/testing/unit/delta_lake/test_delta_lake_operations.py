@@ -66,7 +66,7 @@ def test_create_table__when_already_exists__does_not_create(spark: SparkSession)
     )
 
     # Act
-    with pytest.raises(Exception):
+    with pytest.raises(Exception, match="[SCHEMA_ALREADY_EXISTS]"):
         create_table(
             spark,
             DEFAULT_DATABASE_NAME,
@@ -90,7 +90,6 @@ def test_create_table__schema_is_as_expected(spark: SparkSession):
         DEFAULT_DATABASE_NAME,
         DEFAULT_TABLE_NAME,
         expected_schema,
-        DEFAULT_LOCATION,
     )
 
     # Assert
