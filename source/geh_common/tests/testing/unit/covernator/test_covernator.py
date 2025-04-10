@@ -100,14 +100,42 @@ class CovernatorFileWritingTestCase(TestCase):
         if self.tmp_dir.exists() and self.tmp_dir.is_dir():
             shutil.rmtree(self.tmp_dir)
 
+    def _assert_files_exists_and_get_content(self) -> tuple[pl.DataFrame, pl.DataFrame]:
+        case_coverage_file = self.tmp_dir / "case_coverage.csv"
+        self.assertTrue(case_coverage_file.exists())
+        case_coverage = pl.read_csv(case_coverage_file, has_header=True).sort(["Group", "Scenario", "CaseCoverage"])
+        self.assertEqual(case_coverage.columns, ["Group", "Scenario", "CaseCoverage"])
+        all_cases_file = self.tmp_dir / "all_cases.csv"
+        self.assertTrue(all_cases_file.exists())
+        all_cases = pl.read_csv(all_cases_file, has_header=True).sort(["Group", "Path", "TestCase"])
+        self.assertEqual(all_cases.columns, ["Group", "Path", "TestCase"])
+        return case_coverage, all_cases
+
+    def test_run_with_non_existing_folder(self):
+        non_existing_path = Path("/non/existing/folder")
+
+        run_covernator(self.tmp_dir, non_existing_path)
+
+        self.assertFalse(non_existing_path.exists())
+        case_coverage, all_cases = self._assert_files_exists_and_get_content()
+        self.assertEqual(0, len(case_coverage))
+        self.assertEqual(0, len(all_cases))
+
+    def test_run_with_existing_folder_without_cases(self):
+        existing_path = Path(tempfile.mkdtemp())
+
+        run_covernator(self.tmp_dir, existing_path)
+
+        self.assertTrue(existing_path.exists())
+        case_coverage, all_cases = self._assert_files_exists_and_get_content()
+        self.assertEqual(0, len(case_coverage))
+        self.assertEqual(0, len(all_cases))
+
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 
-        case_coverage_file = self.tmp_dir / "case_coverage.csv"
-        self.assertTrue(case_coverage_file.exists())
-        case_coverage = pl.read_csv(case_coverage_file, has_header=True)
-        self.assertEqual(case_coverage.columns, ["Group", "Scenario", "CaseCoverage"])
-        case_coverage_rows = case_coverage.sort(["Group", "Scenario", "CaseCoverage"]).to_dicts()
+        case_coverage, all_cases = self._assert_files_exists_and_get_content()
+        case_coverage_rows = case_coverage.to_dicts()
         expected_case_coverage_rows = (
             [
                 {
@@ -133,11 +161,8 @@ class CovernatorFileWritingTestCase(TestCase):
             ]
         )
         self.assertEqual(case_coverage_rows, expected_case_coverage_rows)
-        all_cases_file = self.tmp_dir / "all_cases.csv"
-        self.assertTrue(all_cases_file.exists())
-        all_cases = pl.read_csv(all_cases_file, has_header=True)
-        self.assertEqual(all_cases.columns, ["Group", "Path", "TestCase"])
-        all_cases_rows = all_cases.sort(["Group", "Path", "TestCase"])
+
+        all_cases_rows = all_cases
         self.assertEqual(
             all_cases_rows["Group"].to_list(),
             ["missing_scenarios_group"] + ["second_scenario_folder"] * 2 + ["test_files"] * 7,

@@ -139,17 +139,25 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         all_scenarios.append(group_scenarios_df)
 
     df_all_scenarios = (
-        pl.concat(all_scenarios)
-        .explode("cases_tested")
-        .select(
-            pl.col("Group"),
-            pl.col("source").alias("Scenario"),
-            pl.col("cases_tested").alias("CaseCoverage"),
+        (
+            pl.concat(all_scenarios)
+            .explode("cases_tested")
+            .select(
+                pl.col("Group"),
+                pl.col("source").alias("Scenario"),
+                pl.col("cases_tested").alias("CaseCoverage"),
+            )
         )
+        if len(all_scenarios) > 0
+        else pl.DataFrame([], schema=["Group", "Scenario", "CaseCoverage"])
     )
     df_all_scenarios.write_csv(folder_to_save_files_in / "case_coverage.csv", include_header=True)
 
-    df_all_cases = pl.concat(all_cases).select(
-        pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
+    df_all_cases = (
+        pl.concat(all_cases, how="vertical_relaxed").select(
+            pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
+        )
+        if len(all_cases) > 0
+        else pl.DataFrame([], schema=["Group", "Path", "TestCase"])
     )
     df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
