@@ -2,11 +2,11 @@ import pyspark.sql.types as t
 
 nullable = True
 
-# Schema name
-schema = "measurements_calculated"
+database_name = "measurements_calculated"
 
-# View name
-calculated_measurements_v1 = t.StructType(
+view_name = "calculated_measurements_v1"
+
+schema = t.StructType(
     [
         # "electrical_heating" | "capacity_settlement" | "net_consumption"
         t.StructField("orchestration_type", t.StringType(), not nullable),

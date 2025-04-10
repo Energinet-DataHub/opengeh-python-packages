@@ -55,6 +55,28 @@ Example of a valid folder structure:
     - mapping between master file and scenarios testing specific cases
     - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
 
+## Version 5.6.5
+
+- `capacity_settlement_metering_point_periods_v1`
+- `electrical_heating_child_metering_points_v1`
+- `electrical_heating_consumption_metering_point_periods_v1`
+- `missing_measurements_log_metering_point_periods_v1`
+- `net_consumption_group_6_child_metering_points_v1`
+- `net_consumption_group_6_consumption_metering_point_periods_v1`
+
+## Version 5.6.4
+
+Added data product electricity market contracts:
+
+Bump to delta-spark>=3.3.0 dependency to ensure support for adding liquid clustering to
+existing tables without clustering enabled.
+
+With 3.3.0 clustering can be added like:
+
+```sql
+ALTER TABLE your_table_name CLUSTER BY column_name
+```
+
 ## Version 5.6.3
 
 - changed contract in measurements_core to be not nullable
