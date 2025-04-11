@@ -1,5 +1,13 @@
 # GEH Common Release Notes
 
+## Version 5.7.0
+
+Workflows started to get the error:
+
+- ImportError: cannot import name 'get_dist_dependency_conflicts' from 'opentelemetry.instrumentation.dependencies'
+
+According to <https://github.com/Azure/azure-sdk-for-python/issues/40465> this was a breaking change introduced, but should be fixed in 1.6.7
+
 ## Version 5.6.6
 
 **Subpackage**: `testing.delta_lake`
