@@ -1,5 +1,12 @@
 # GEH Common Release Notes
 
+## Version 6.0.0
+
+Modified the electrical_heating contract
+- Removed the `has_electrical_heating` column
+- Allows for `net_settlement_group` groups 0 and 1
+- Removed the set notation characters
+
 ## Version 5.8.0
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
