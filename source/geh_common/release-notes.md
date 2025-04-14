@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.7.0
+## Version 5.8.0
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
 
@@ -54,6 +54,14 @@ Example of a valid folder structure:
     - must contain a key `cases_tested`
     - mapping between master file and scenarios testing specific cases
     - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
+
+## Version 5.7.0
+
+Workflows started to get the error:
+
+- ImportError: cannot import name 'get_dist_dependency_conflicts' from 'opentelemetry.instrumentation.dependencies'
+
+According to <https://github.com/Azure/azure-sdk-for-python/issues/40465> this was a breaking change introduced, but should be fixed in 1.6.7
 
 ## Version 5.6.6
 
