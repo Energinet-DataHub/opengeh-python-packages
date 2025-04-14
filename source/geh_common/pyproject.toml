@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.7.0"
+version = "5.8.0"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -18,7 +18,12 @@ dependencies = [
     "databricks-sdk>=0.42.0",
     "pydantic-settings>=2.7.1",
     "pydantic>=2.10.6",
+    "polars>=1.25.2",
+    "streamlit>=1.44.0",
 ]
+
+[project.scripts]
+covernator = "geh_common.covernator_streamlit:main"
 
 [build-system]
 requires = ["hatchling"]
