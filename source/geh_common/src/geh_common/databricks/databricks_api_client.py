@@ -206,3 +206,33 @@ class DatabricksApiClient:
             time.sleep(poll_interval)
 
         raise TimeoutError(f"Job did not reach the target state(s) {target_states} within {timeout} seconds.")
+
+    def wait_for_data(
+        self,
+        statement: str,
+        warehouse_id: str,
+        timeout_minutes: int = 15,
+        poll_interval_seconds: int = 5,
+    ) -> StatementResponse:
+        response = self.client.statement_execution.execute_statement(warehouse_id=warehouse_id, statement=statement)
+
+        # Wait for the data to arrive in gold
+        start_time = time.time()
+        elapsed_time = 0
+        while elapsed_time < timeout_minutes * 60:
+            response = self.client.statement_execution.get_statement(response.statement_id)
+            if response.status.state not in [StatementState.RUNNING, StatementState.PENDING, StatementState.SUCCEEDED]:
+                raise ValueError(
+                    f"Statement execution failed with state {response.status.state} and error {response.status.error}"
+                )
+            if response.status.state == StatementState.SUCCEEDED:
+                if response.result.row_count != 1:
+                    response = self.client.statement_execution.execute_statement(
+                        warehouse_id=warehouse_id, statement=statement
+                    )
+                else:
+                    return response
+            elapsed_time = time.time() - start_time
+            print(f"Query did not complete in {elapsed_time} seconds. Retrying in {poll_interval_seconds} seconds...")  # noqa: T201
+            time.sleep(poll_interval_seconds)
+        raise TimeoutError(f"Timed out after {timeout_minutes} minutes waiting for data.")
