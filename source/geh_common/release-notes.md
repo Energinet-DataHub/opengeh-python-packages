@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.8.1
+
+- Databricks api makeover.
+
 ## Version 5.8.0
 
 Added new **Subpackage**: `geh_common.covernator_streamlit`
