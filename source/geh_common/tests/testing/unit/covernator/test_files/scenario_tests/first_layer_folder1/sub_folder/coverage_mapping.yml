@@ -1,0 +1,11 @@
+notes: |
+  ## PURPOSE
+
+cases_tested:
+  "Case Group A":
+    - "Case A1"
+    - "Sub Case Group AA":
+        - "Case AA1"
+  "Case Group B":
+    - "Sub Case Group BB":
+        - "Case BB1"

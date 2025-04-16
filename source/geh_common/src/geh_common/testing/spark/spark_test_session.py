@@ -57,9 +57,7 @@ def get_spark_test_session(
     conf = SparkConf().setAll(pairs=[(k, v) for k, v in config.items()])
 
     # Create the Spark session
-    builder = configure_spark_with_delta_pip(
-        SparkSession.Builder().config(conf=conf).enableHiveSupport(), extra_packages=extra_packages
-    )
+    builder = configure_spark_with_delta_pip(SparkSession.Builder().config(conf=conf), extra_packages=extra_packages)
 
     # Use a single core when running under xdist
     if os.environ.get("PYTEST_XDIST_WORKER") is not None:
@@ -77,16 +75,8 @@ def _make_default_config(data_dir: str) -> dict:
         # Delta Lake configuration
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-        "spark.sql.catalogImplementation": "hive",
         "spark.sql.warehouse.dir": f"{data_dir}/spark-warehouse",
         "spark.local.dir": f"{data_dir}/spark-tmp",
-        "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={data_dir}/metastore;create=true",
-        "javax.jdo.option.ConnectionUserName": "APP",
-        "javax.jdo.option.ConnectionPassword": "mine",
-        # Disable schema verification
-        "hive.metastore.schema.verification": "false",
-        "hive.metastore.schema.verification.record.version": "false",
-        "datanucleus.autoCreateSchema": "true",
         # Disable the UI
         "spark.ui.showConsoleProgress": "false",
         "spark.ui.enabled": "false",
