@@ -137,8 +137,8 @@ def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
     sut = create_sut()
 
     # Act
-    run_id = sut.get_latest_job_run_id(job_id)
-
+    base_run = sut.get_latest_job_run_id(job_id)
+    run_id = base_run.run_id
     # Assert
     assert run_id == 12345
     mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=True)
@@ -154,10 +154,10 @@ def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceC
     sut = create_sut()
 
     # Act
-    run_id = sut.get_latest_job_run_id(job_id)
+    base_run = sut.get_latest_job_run_id(job_id)
 
     # Assert
-    assert run_id is None
+    assert base_run is None
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
@@ -172,10 +172,10 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
     sut = create_sut()
 
     # Act
-    run_id = sut.get_latest_job_run_id(job_id, active_only=False)
+    base_run = sut.get_latest_job_run_id(job_id, active_only=False)
 
     # Assert
-    assert run_id == 12345
+    assert base_run.run_id == 12345
     mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=False)
 
 
@@ -227,28 +227,6 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_disposition_is_external_link__should_raise_exception(MockWorkspaceClient):
-    # Arrange
-    mock_client = MockWorkspaceClient.return_value
-    mock_response = MagicMock()
-    mock_response.status.state = StatementState.FAILED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
-
-    sut = create_sut()
-
-    statement = "query"
-
-    # Act & Assert
-    with pytest.raises(NotImplementedError) as context:
-        sut.execute_statement(
-            warehouse_id="fake_warehouse_id", statement=statement, disposition=Disposition.EXTERNAL_LINKS
-        )
-
-    assert context.value is not None
-    assert "Execute statement only supports disposition INLINE" in str(context.value)
-
-
-@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
 def test__execute_statement__when_exceeding_timeout_input__should_raise_exception(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
@@ -266,9 +244,7 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
         sut.execute_statement(
             warehouse_id="fake_warehouse_id",
             statement=statement,
-            disposition=Disposition.INLINE,
-            wait_for_response=True,
-            timeout=11,
+            timeout_minutes=2,
         )
 
     assert context.value is not None
