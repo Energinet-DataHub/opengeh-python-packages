@@ -121,7 +121,7 @@ class DatabricksApiClient:
         return self.client.statement_execution.get_statement(statement_id)
 
     def execute_statement(
-        self, warehouse_id: str, statement: str, timeout_minutes: int = 10, poll_interval_seconds: int = 5
+        self, warehouse_id: str, statement: str, timeout_seconds: int = 600, poll_interval_seconds: int = 5
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
@@ -129,7 +129,7 @@ class DatabricksApiClient:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
             wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to True.
-            timeout_minutes (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
+            timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
             poll_interval_seconds (int): time between recalls to databricks to get the state of the statement.
 
         Returns:
@@ -147,7 +147,7 @@ class DatabricksApiClient:
         # Wait for the statement to complete
         start_time = time.time()
         elapsed_time = 0
-        while elapsed_time < timeout_minutes * 60:
+        while elapsed_time < timeout_seconds:
             response = self.client.statement_execution.get_statement(response.statement_id)
             if response.status.state not in [StatementState.RUNNING, StatementState.PENDING, StatementState.SUCCEEDED]:
                 raise ValueError(
