@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from databricks.sdk.service.sql import Disposition, StatementState
+from databricks.sdk.service.sql import StatementState
 
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
 
@@ -199,7 +199,7 @@ def test__execute_statement__when_query_is_invalid__should_raise_exception(MockW
     assert "Statement execution failed" in str(context.value)
 
     mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=invalid_query, disposition=Disposition.INLINE
+        warehouse_id="fake_warehouse_id", statement=invalid_query
     )
 
 
@@ -208,9 +208,12 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
-    mock_response.status.state = StatementState.SUCCEEDED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
 
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_response.status.error = None
+
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+    mock_client.statement_execution.get_statement.return_value = mock_response
     sut = create_sut()
 
     valid_query = "valid query"
@@ -221,9 +224,9 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     assert response is not None
     assert response.status.state is StatementState.SUCCEEDED
 
-    # mock_client.statement_execution.execute_statement.assert_called_once_with(
-    #    warehouse_id="fake_warehouse_id", statement=valid_query, disposition=Disposition.INLINE
-    # )
+    mock_client.statement_execution.execute_statement.assert_called_once_with(
+        warehouse_id="fake_warehouse_id", statement=valid_query
+    )
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
@@ -244,7 +247,7 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
         sut.execute_statement(
             warehouse_id="fake_warehouse_id",
             statement=statement,
-            timeout_minutes=2,
+            timeout_seconds=1,
         )
 
     assert context.value is not None
