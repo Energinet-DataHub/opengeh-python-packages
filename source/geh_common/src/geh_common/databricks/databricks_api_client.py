@@ -215,21 +215,22 @@ class DatabricksApiClient:
         poll_interval_seconds: int = 5,
     ) -> StatementResponse:
         response = self.client.statement_execution.execute_statement(warehouse_id=warehouse_id, statement=statement)
-
+        statement_id = response.statement_id
         # Wait for the data to arrive in gold
         start_time = time.time()
         elapsed_time = 0
         while elapsed_time < timeout_minutes * 60:
-            response = self.client.statement_execution.get_statement(response.statement_id)
+            response = self.client.statement_execution.get_statement(statement_id)
             if response.status.state not in [StatementState.RUNNING, StatementState.PENDING, StatementState.SUCCEEDED]:
                 raise ValueError(
                     f"Statement execution failed with state {response.status.state} and error {response.status.error}"
                 )
-            if response.status.state == StatementState.SUCCEEDED:
-                if response.result.row_count != 1:
+            elif response.status.state == StatementState.SUCCEEDED:
+                if response.result.row_count < 1:
                     response = self.client.statement_execution.execute_statement(
                         warehouse_id=warehouse_id, statement=statement
                     )
+                    statement_id = response.statement_id
                 else:
                     return response
             elapsed_time = time.time() - start_time

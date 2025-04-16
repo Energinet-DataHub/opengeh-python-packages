@@ -273,3 +273,81 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
 
     assert context.value is not None
     assert "Statement execution timed out after" in str(context.value)
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__wait_for_data__when_query_is_invalid__should_raise_exception(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.FAILED
+    mock_client.statement_execution.execute_statement.return_value = mock_response
+    mock_client.statement_execution.get_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    invalid_query = "invalid query"
+
+    # Act & Assert
+    with pytest.raises(ValueError) as context:
+        sut.wait_for_data(warehouse_id="fake_warehouse_id", statement=invalid_query)
+    assert context.value is not None
+    assert "Statement execution failed" in str(context.value)
+
+    mock_client.statement_execution.execute_statement.assert_called_once_with(
+        warehouse_id="fake_warehouse_id", statement=invalid_query
+    )
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__wait_for_data__when_query_is_valid__should_succeed(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_response.result.row_count = 1
+    mock_client.statement_execution.get_statement.return_value = mock_response
+
+    sut = create_sut()
+
+    valid_query = "valid query"
+
+    # Act & Assert
+    response = sut.wait_for_data(warehouse_id="fake_warehouse_id", statement=valid_query)
+
+    assert response is not None
+    assert response.status.state is StatementState.SUCCEEDED
+
+    mock_client.statement_execution.execute_statement.assert_called_once_with(
+        warehouse_id="fake_warehouse_id", statement=valid_query
+    )
+
+
+def mock_client_generator():
+    mock_response = MagicMock()
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_response.result.row_count = 0
+
+    yield mock_response
+
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_response.result.row_count = 1
+
+    yield mock_response
+
+
+@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
+def test__wait_for_data__when_query_is_valid__should_succeed_2(MockWorkspaceClient):
+    # Arrange
+    mock_client = MockWorkspaceClient.return_value
+    mock_client.statement_execution.get_statement.side_effect = mock_client_generator()
+
+    sut = create_sut()
+
+    valid_query = "valid query"
+
+    # Act & Assert
+    response = sut.wait_for_data(warehouse_id="fake_warehouse_id", statement=valid_query)
+
+    assert response is not None
+    assert response.status.state is StatementState.SUCCEEDED
