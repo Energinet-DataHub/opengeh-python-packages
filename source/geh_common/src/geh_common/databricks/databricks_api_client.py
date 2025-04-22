@@ -21,7 +21,7 @@ class DatabricksApiClient:
             job_name (str): The name of the job.
 
         Returns:
-            BaseJob: The job object
+            job_id (int): the id of the job.
         """
         jobs = list(self.client.jobs.list(name=job_name))
         if len(jobs) == 0:
