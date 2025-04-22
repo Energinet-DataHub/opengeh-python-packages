@@ -5,6 +5,10 @@ from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
 from databricks.sdk.service.sql import Disposition, StatementResponse, StatementState
 
+from geh_common.telemetry.logger import Logger
+
+logger = Logger(__name__)
+
 
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
@@ -53,7 +57,6 @@ class DatabricksApiClient:
         Returns:
             int: The run ID of the job.
         """
-        # change job_id to job object
         response = self.client.jobs.run_now(job_id=job_id, python_params=python_params)
         return response
 
@@ -165,7 +168,9 @@ class DatabricksApiClient:
             if response.status.state == StatementState.SUCCEEDED:
                 return response
             elapsed_time = time.time() - start_time
-            print(f"Query did not complete in {elapsed_time} seconds. Retrying in {poll_interval_seconds} seconds...")  # noqa: T201
+            logger.info(
+                f"Query did not complete in {elapsed_time} seconds. Retrying in {poll_interval_seconds} seconds..."
+            )
             time.sleep(poll_interval_seconds)
         raise TimeoutError(f"Statement execution timed out after {timeout_seconds} seconds.")
 
