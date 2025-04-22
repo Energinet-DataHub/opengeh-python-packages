@@ -180,30 +180,6 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_query_is_invalid__should_raise_exception(MockWorkspaceClient):
-    # Arrange
-    mock_client = MockWorkspaceClient.return_value
-    mock_response = MagicMock()
-    mock_response.status.state = StatementState.FAILED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
-
-    sut = create_sut()
-
-    invalid_query = "invalid query"
-
-    # Act & Assert
-    with pytest.raises(Exception) as context:
-        sut.execute_statement(warehouse_id="fake_warehouse_id", statement=invalid_query)
-
-    assert context.value is not None
-    assert "Statement execution failed" in str(context.value)
-
-    mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=invalid_query
-    )
-
-
-@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
 def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
@@ -213,19 +189,21 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     mock_response.status.error = None
 
     mock_client.statement_execution.execute_statement.return_value = mock_response
-    mock_client.statement_execution.get_statement.return_value = mock_response
     sut = create_sut()
 
     valid_query = "valid query"
 
     # Act & Assert
-    response = sut.execute_statement(warehouse_id="fake_warehouse_id", statement=valid_query)
+    response = sut.execute_statement(
+        warehouse_id="fake_warehouse_id",
+        statement=valid_query,
+    )
 
     assert response is not None
     assert response.status.state is StatementState.SUCCEEDED
 
     mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=valid_query
+        warehouse_id="fake_warehouse_id", statement=valid_query, on_wait_timeout="CANCEL", wait_timeout=600
     )
 
 
@@ -234,21 +212,19 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
-    mock_response.status.state = StatementState.RUNNING
+    mock_response.status.state = StatementState.CANCELED
     mock_client.statement_execution.execute_statement.return_value = mock_response
-    mock_client.statement_execution.get_statement.return_value = mock_response
 
     sut = create_sut()
 
     statement = "query"
 
     # Act & Assert
-    with pytest.raises(Exception) as context:
-        sut.execute_statement(
-            warehouse_id="fake_warehouse_id",
-            statement=statement,
-            timeout_seconds=1,
-        )
+    response = sut.execute_statement(
+        warehouse_id="fake_warehouse_id",
+        statement=statement,
+        timeout_seconds=1,
+    )
 
-    assert context.value is not None
-    assert "Statement execution timed out after" in str(context.value)
+    assert response is not None
+    assert response.status.state == StatementState.CANCELED

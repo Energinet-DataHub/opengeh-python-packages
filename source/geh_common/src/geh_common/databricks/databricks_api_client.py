@@ -3,7 +3,7 @@ import time
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
-from databricks.sdk.service.sql import Disposition, StatementResponse, StatementState
+from databricks.sdk.service.sql import Disposition, StatementResponse
 
 from geh_common.telemetry.logger import Logger
 
@@ -109,36 +109,21 @@ class DatabricksApiClient:
 
         raise TimeoutError(f"Job did not complete within {timeout} seconds.")
 
-    def get_statement(
-        self,
-        statement_id: str,
-    ) -> StatementResponse:
-        """Retrieve the result of a previously executed statement.
-
-        Args:
-            statement_id (str): The ID of the statement to retrieve.
-
-        Returns:
-            StatementResponse: The response object containing status and results.
-        """
-        return self.client.statement_execution.get_statement(statement_id)
-
     def execute_statement(
         self,
         warehouse_id: str,
         statement: str,
         timeout_seconds: int = 600,
-        poll_interval_seconds: int = 5,
         disposition=Disposition.INLINE,
+        on_wait_timeout="CANCEL",
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
-            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to True.
+            on_wait_timeout (str, optional): What to do when the timeout period has been met. Defaults to CANCEL.
             timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
-            poll_interval_seconds (int): time between recalls to databricks to get the state of the statement.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
 
         Returns:
@@ -146,33 +131,16 @@ class DatabricksApiClient:
             `manifest` (object that provides the schema and metadata of the result set), and a `result`
             (object containing the result data). Notice, the result data currently only supports the INLINE mode.
 
-        Raises:
-            NotImplementedError: If a non-INLINE disposition is specified.
-            TimeoutError: If the statement execution exceeds the timeout limit.
-            Exception: For any execution failure.
         """
-        response = self.client.statement_execution.execute_statement(warehouse_id=warehouse_id, statement=statement)
-
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
 
-        # Wait for the statement to complete
-        start_time = time.time()
-        elapsed_time = 0
-        while elapsed_time < timeout_seconds:
-            response = self.client.statement_execution.get_statement(response.statement_id)
-            if response.status.state not in [StatementState.RUNNING, StatementState.PENDING, StatementState.SUCCEEDED]:
-                raise ValueError(
-                    f"Statement execution failed with state {response.status.state} and error {response.status.error}"
-                )
-            if response.status.state == StatementState.SUCCEEDED:
-                return response
-            elapsed_time = time.time() - start_time
-            logger.info(
-                f"Query did not complete in {elapsed_time} seconds. Retrying in {poll_interval_seconds} seconds..."
-            )
-            time.sleep(poll_interval_seconds)
-        raise TimeoutError(f"Statement execution timed out after {timeout_seconds} seconds.")
+        return self.client.statement_execution.execute_statement(
+            warehouse_id=warehouse_id,
+            statement=statement,
+            on_wait_timeout=on_wait_timeout,
+            wait_timeout=timeout_seconds,
+        )
 
     def wait_for_job_state(
         self, run_id: int, target_states: list[str], timeout: int = 1000, poll_interval: int = 10
