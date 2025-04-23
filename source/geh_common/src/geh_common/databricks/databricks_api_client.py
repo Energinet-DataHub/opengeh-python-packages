@@ -15,7 +15,7 @@ class DatabricksApiClient:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
 
     def get_job_id(self, job_name: str) -> int | None:
-        """Get the job object form a Databricks job name.
+        """Get the job id form a Databricks job name.
 
         Args:
             job_name (str): The name of the job.
@@ -30,11 +30,12 @@ class DatabricksApiClient:
             raise ValueError(f"Multiple jobs found with name {job_name}.")
         return jobs[0].job_id
 
-    def get_latest_job_run_id(self, job_id: int, active_only: bool = True) -> BaseRun | None:
-        """Get the latest run ID for a Databricks job.
+    def get_latest_job_run(self, job_id: int, active_only: bool = True) -> BaseRun | None:
+        """Get the latest run for a Databricks job.
 
         Args:
             job_id (int): The ID of the job.
+            active_only (bool): If active_only is `true`, only active runs are included in the results
 
         Returns:
             int: The run ID of the job.
@@ -82,8 +83,6 @@ class DatabricksApiClient:
         Returns:
             RunResultState: The result state of the job.
         """
-        # run = job.result(timeout=timedelta(minutes=timeout))
-        # return run.state.result_state
         start_time = time.time()
         while time.time() - start_time < timeout:
             run_status = self.client.jobs.get_run(run_id=run_id)
