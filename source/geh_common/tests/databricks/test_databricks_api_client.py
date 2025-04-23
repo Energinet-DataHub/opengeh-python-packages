@@ -128,7 +128,7 @@ def test__wait_for_job_state__when_life_cycle_state_is_none__raises_exception_fo
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
+def test__get_latest_job_run__returns_run_id(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([MagicMock(run_id=12345)])
