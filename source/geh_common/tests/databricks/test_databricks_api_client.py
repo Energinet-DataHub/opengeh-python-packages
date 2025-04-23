@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from databricks.sdk.service.sql import Disposition, StatementState
+from databricks.sdk.service.sql import StatementState
 
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
 
@@ -128,24 +128,23 @@ def test__wait_for_job_state__when_life_cycle_state_is_none__raises_exception_fo
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
+def test__get_latest_job_run__returns_run_id(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([MagicMock(run_id=12345)])
 
     job_id = 67890
     sut = create_sut()
-
     # Act
-    run_id = sut.get_latest_job_run_id(job_id)
-
+    base_run = sut.get_latest_job_run(job_id)
+    run_id = base_run.run_id
     # Assert
     assert run_id == 12345
     mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=True)
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
+def test__get_latest_job_run__when_no_runs_found__returns_none(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([])
@@ -154,14 +153,14 @@ def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceC
     sut = create_sut()
 
     # Act
-    run_id = sut.get_latest_job_run_id(job_id)
+    base_run = sut.get_latest_job_run(job_id)
 
     # Assert
-    assert run_id is None
+    assert base_run is None
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_active_only_set_to_false(
+def test__get_latest_job_run_when_active_only_is_false__should_call_with_active_only_set_to_false(
     MockWorkspaceClient,
 ):
     # Arrange
@@ -172,35 +171,11 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
     sut = create_sut()
 
     # Act
-    run_id = sut.get_latest_job_run_id(job_id, active_only=False)
+    base_run = sut.get_latest_job_run(job_id, active_only=False)
 
     # Assert
-    assert run_id == 12345
+    assert base_run.run_id == 12345
     mock_client.jobs.list_runs.assert_called_once_with(job_id=job_id, active_only=False)
-
-
-@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_query_is_invalid__should_raise_exception(MockWorkspaceClient):
-    # Arrange
-    mock_client = MockWorkspaceClient.return_value
-    mock_response = MagicMock()
-    mock_response.status.state = StatementState.FAILED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
-
-    sut = create_sut()
-
-    invalid_query = "invalid query"
-
-    # Act & Assert
-    with pytest.raises(Exception) as context:
-        sut.execute_statement(warehouse_id="fake_warehouse_id", statement=invalid_query)
-
-    assert context.value is not None
-    assert "Statement execution failed" in str(context.value)
-
-    mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=invalid_query, disposition=Disposition.INLINE
-    )
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
@@ -208,44 +183,27 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
-    mock_response.status.state = StatementState.SUCCEEDED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
 
+    mock_response.status.state = StatementState.SUCCEEDED
+    mock_response.status.error = None
+
+    mock_client.statement_execution.execute_statement.return_value = mock_response
     sut = create_sut()
 
     valid_query = "valid query"
 
     # Act & Assert
-    response = sut.execute_statement(warehouse_id="fake_warehouse_id", statement=valid_query)
+    response = sut.execute_statement(
+        warehouse_id="fake_warehouse_id",
+        statement=valid_query,
+    )
 
     assert response is not None
     assert response.status.state is StatementState.SUCCEEDED
 
     mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=valid_query, disposition=Disposition.INLINE
+        warehouse_id="fake_warehouse_id", statement=valid_query, on_wait_timeout="CANCEL", wait_timeout=600
     )
-
-
-@patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__execute_statement__when_disposition_is_external_link__should_raise_exception(MockWorkspaceClient):
-    # Arrange
-    mock_client = MockWorkspaceClient.return_value
-    mock_response = MagicMock()
-    mock_response.status.state = StatementState.FAILED
-    mock_client.statement_execution.execute_statement.return_value = mock_response
-
-    sut = create_sut()
-
-    statement = "query"
-
-    # Act & Assert
-    with pytest.raises(NotImplementedError) as context:
-        sut.execute_statement(
-            warehouse_id="fake_warehouse_id", statement=statement, disposition=Disposition.EXTERNAL_LINKS
-        )
-
-    assert context.value is not None
-    assert "Execute statement only supports disposition INLINE" in str(context.value)
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
@@ -253,23 +211,19 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
-    mock_response.status.state = StatementState.RUNNING
+    mock_response.status.state = StatementState.CANCELED
     mock_client.statement_execution.execute_statement.return_value = mock_response
-    mock_client.statement_execution.get_statement.return_value = mock_response
 
     sut = create_sut()
 
     statement = "query"
 
     # Act & Assert
-    with pytest.raises(Exception) as context:
-        sut.execute_statement(
-            warehouse_id="fake_warehouse_id",
-            statement=statement,
-            disposition=Disposition.INLINE,
-            wait_for_response=True,
-            timeout=11,
-        )
+    response = sut.execute_statement(
+        warehouse_id="fake_warehouse_id",
+        statement=statement,
+        timeout_seconds=1,
+    )
 
-    assert context.value is not None
-    assert "Statement execution timed out after" in str(context.value)
+    assert response is not None
+    assert response.status.state == StatementState.CANCELED

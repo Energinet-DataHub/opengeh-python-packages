@@ -1,39 +1,44 @@
 import time
-from typing import Optional
 
 from databricks.sdk import WorkspaceClient
-from databricks.sdk.service.jobs import RunLifeCycleState, RunResultState
-from databricks.sdk.service.sql import Disposition, StatementResponse, StatementState
+from databricks.sdk.service.apps import Wait
+from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
+from databricks.sdk.service.sql import Disposition, StatementResponse
+
+from geh_common.telemetry.logger import Logger
+
+logger = Logger(__name__)
 
 
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
 
-    def get_job_id(self, job_name: str) -> int:
-        """Get the job ID for a Databricks job.
+    def get_job_id(self, job_name: str) -> int | None:
+        """Get the job id form a Databricks job name.
 
         Args:
             job_name (str): The name of the job.
 
         Returns:
-            int: The ID of the job.
+            job_id (int): the id of the job.
         """
-        job_list = self.client.jobs.list()
-        for job in job_list:
-            if job.settings is not None and job.settings.name == job_name:
-                if job.job_id is not None:
-                    return job.job_id
-        raise Exception(f"Job '{job_name}' not found.")
+        jobs = list(self.client.jobs.list(name=job_name))
+        if len(jobs) == 0:
+            raise ValueError(f"No job found with name {job_name}.")
+        if len(jobs) > 1:
+            raise ValueError(f"Multiple jobs found with name {job_name}.")
+        return jobs[0].job_id
 
-    def get_latest_job_run_id(self, job_id: int, active_only: bool = True) -> int | None:
-        """Get the latest run ID for a Databricks job.
+    def get_latest_job_run(self, job_id: int, active_only: bool = True) -> BaseRun | None:
+        """Get the latest run for a Databricks job.
 
         Args:
             job_id (int): The ID of the job.
+            active_only (bool): If active_only is `true`, only active runs are included in the results
 
         Returns:
-            int: The run ID of the job.
+            BaseRun: The run object of the latest job.
         """
         runs = self.client.jobs.list_runs(job_id=job_id, active_only=active_only)
         run = next(runs, None)
@@ -41,9 +46,9 @@ class DatabricksApiClient:
         if run is None:
             return None
         else:
-            return run.run_id
+            return run
 
-    def start_job(self, job_id: int, python_params: list[str] | None = None) -> int:
+    def start_job(self, job_id: int, python_params: list[str] | None = None) -> Wait[Run]:
         """Start a Databricks job.
 
         Args:
@@ -51,10 +56,10 @@ class DatabricksApiClient:
             python_params (list[str]): The parameters to pass to the job.
 
         Returns:
-            int: The run ID of the job.
+            Wait[Run]: the object of the running job you just started.
         """
         response = self.client.jobs.run_now(job_id=job_id, python_params=python_params)
-        return response.run_id
+        return response
 
     def cancel_job_run(self, job_run_id: int, wait_for_cancellation: bool = True) -> None:
         """Stop a Databricks job.
@@ -71,7 +76,7 @@ class DatabricksApiClient:
         """Wait for a Databricks job to complete.
 
         Args:
-            run_id (int): The run ID of the job.
+            job Wait[Run]: the object of an active.
             timeout (int, optional): The maximum time to wait for the job to complete. Defaults to 1000.
             poll_interval (int, optional): The interval between polling the job status. Defaults to 10.
 
@@ -79,7 +84,6 @@ class DatabricksApiClient:
             RunResultState: The result state of the job.
         """
         start_time = time.time()
-
         while time.time() - start_time < timeout:
             run_status = self.client.jobs.get_run(run_id=run_id)
             if run_status.state is None:
@@ -104,76 +108,38 @@ class DatabricksApiClient:
 
         raise TimeoutError(f"Job did not complete within {timeout} seconds.")
 
-    def get_statement(
-        self,
-        statement_id: str,
-    ) -> StatementResponse:
-        """Retrieve the result of a previously executed statement.
-
-        Args:
-            statement_id (str): The ID of the statement to retrieve.
-
-        Returns:
-            StatementResponse: The response object containing status and results.
-        """
-        return self.client.statement_execution.get_statement(statement_id)
-
     def execute_statement(
         self,
         warehouse_id: str,
         statement: str,
-        disposition: Disposition = Disposition.INLINE,
-        wait_for_response: Optional[bool] = True,
-        timeout: Optional[int] = 600,
+        timeout_seconds: int = 600,
+        disposition=Disposition.INLINE,
+        on_wait_timeout="CANCEL",
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
+            on_wait_timeout (str, optional): What to do when the timeout period has been met. Defaults to CANCEL.
+            timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
-            wait_for_response (bool, optional): Whether to wait for the execution result. Defaults to True.
-            timeout (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 600.
 
         Returns:
             StatementResponse: A StatementResponse object. It may optionally contain a `statement_id`, `status`,
             `manifest` (object that provides the schema and metadata of the result set), and a `result`
             (object containing the result data). Notice, the result data currently only supports the INLINE mode.
 
-        Raises:
-            NotImplementedError: If a non-INLINE disposition is specified.
-            TimeoutError: If the statement execution exceeds the timeout limit.
-            Exception: For any execution failure.
         """
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
 
-        try:
-            response = self.client.statement_execution.execute_statement(
-                warehouse_id=warehouse_id, statement=statement, disposition=disposition
-            )
-            # If the warehouse is not started, we wait for it to start and report the response.
-            if wait_for_response:
-                runtime = 0
-                while response.status.state in [
-                    StatementState.PENDING,
-                    StatementState.RUNNING,
-                ]:
-                    if runtime >= timeout:
-                        raise TimeoutError(f"Statement execution timed out after {timeout} seconds.")
-                    time.sleep(10)
-                    runtime = runtime + 10
-                    response = self.get_statement(response.statement_id)
-
-            if response.status.state == StatementState.SUCCEEDED:
-                return response
-            else:
-                raise Exception(
-                    f"Statement execution failed. Status: {response.status.state}. Error: {response.status.error}"
-                )
-
-        except Exception as e:
-            raise Exception(f"Failed to execute statement: {str(e)}")
+        return self.client.statement_execution.execute_statement(
+            warehouse_id=warehouse_id,
+            statement=statement,
+            on_wait_timeout=on_wait_timeout,
+            wait_timeout=timeout_seconds,
+        )
 
     def wait_for_job_state(
         self, run_id: int, target_states: list[str], timeout: int = 1000, poll_interval: int = 10
