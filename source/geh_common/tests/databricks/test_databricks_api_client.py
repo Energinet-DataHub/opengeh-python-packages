@@ -135,7 +135,6 @@ def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
 
     job_id = 67890
     sut = create_sut()
-
     # Act
     base_run = sut.get_latest_job_run(job_id)
     run_id = base_run.run_id
