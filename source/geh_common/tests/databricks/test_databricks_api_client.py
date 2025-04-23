@@ -137,7 +137,7 @@ def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
     sut = create_sut()
 
     # Act
-    base_run = sut.get_latest_job_run_id(job_id)
+    base_run = sut.get_latest_job_run(job_id)
     run_id = base_run.run_id
     # Assert
     assert run_id == 12345
@@ -145,7 +145,7 @@ def test__get_latest_job_run_id__returns_run_id(MockWorkspaceClient):
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceClient):
+def test__get_latest_job_run__when_no_runs_found__returns_none(MockWorkspaceClient):
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_client.jobs.list_runs.return_value = iter([])
@@ -154,14 +154,14 @@ def test__get_latest_job_run_id__when_no_runs_found__returns_none(MockWorkspaceC
     sut = create_sut()
 
     # Act
-    base_run = sut.get_latest_job_run_id(job_id)
+    base_run = sut.get_latest_job_run(job_id)
 
     # Assert
     assert base_run is None
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
-def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_active_only_set_to_false(
+def test__get_latest_job_run_when_active_only_is_false__should_call_with_active_only_set_to_false(
     MockWorkspaceClient,
 ):
     # Arrange
@@ -172,7 +172,7 @@ def test__get_latest_job_run_id_when_active_only_is_false__should_call_with_acti
     sut = create_sut()
 
     # Act
-    base_run = sut.get_latest_job_run_id(job_id, active_only=False)
+    base_run = sut.get_latest_job_run(job_id, active_only=False)
 
     # Assert
     assert base_run.run_id == 12345
