@@ -38,7 +38,7 @@ class DatabricksApiClient:
             active_only (bool): If active_only is `true`, only active runs are included in the results
 
         Returns:
-            int: The run ID of the job.
+            BaseRun: The run object of the latest job.
         """
         runs = self.client.jobs.list_runs(job_id=job_id, active_only=active_only)
         run = next(runs, None)
@@ -56,7 +56,7 @@ class DatabricksApiClient:
             python_params (list[str]): The parameters to pass to the job.
 
         Returns:
-            int: The run ID of the job.
+            Wait[Run]: the object of the running job you just started.
         """
         response = self.client.jobs.run_now(job_id=job_id, python_params=python_params)
         return response
