@@ -136,7 +136,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         group_scenarios_df = pl.DataFrame(group_scenarios)
         if len(group_scenarios_df) > 0:
             group_scenarios_df = group_scenarios_df.with_columns(pl.lit(group_name).alias("Group"))
-        all_scenarios.append(group_scenarios_df)
+            all_scenarios.append(group_scenarios_df)
 
     df_all_scenarios = (
         (
