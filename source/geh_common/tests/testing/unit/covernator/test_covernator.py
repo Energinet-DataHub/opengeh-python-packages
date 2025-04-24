@@ -170,12 +170,11 @@ class CovernatorFileWritingTestCase(TestCase):
 
         self.assertEqual(
             all_cases_rows["Group"].to_list(),
-            ["missing_scenarios_group"] + ["second_scenario_folder"] * 2 + ["test_files"] * 7,
+            ["second_scenario_folder"] * 2 + ["test_files"] * 7 + ["z_missing_scenarios_group"],
         )
         self.assertEqual(
             all_cases_rows["Path"].to_list(),
             [
-                "New Group",
                 "Some Group / Some Sub Group",
                 "Some Group / Some Sub Group",
                 "Case Group A",
@@ -185,12 +184,12 @@ class CovernatorFileWritingTestCase(TestCase):
                 "Case Group A / Sub Case Group AB",
                 "Case Group B / Sub Case Group BA",
                 "Case Group B / Sub Case Group BB",
+                "New Group",
             ],
         )
         self.assertEqual(
             all_cases_rows["TestCase"].to_list(),
             [
-                "New Scenario",
                 "Not implemented yet",
                 "Some Case",
                 "Case A1",
@@ -200,5 +199,6 @@ class CovernatorFileWritingTestCase(TestCase):
                 "Case AB1",
                 "Case BA1",
                 "Case BB1",
+                "New Scenario",
             ],
         )
