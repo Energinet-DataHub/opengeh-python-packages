@@ -2,7 +2,7 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Tuple
 from unittest import TestCase
 
 import polars as pl
@@ -107,8 +107,7 @@ class CovernatorFileWritingTestCase(TestCase):
         if self.tmp_dir.exists() and self.tmp_dir.is_dir():
             shutil.rmtree(self.tmp_dir)
 
-    def _assert_files_exists_and_get_content(self) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-        """Check if the files exist and return their content as a sorted list of dictionaries."""
+    def _assert_files_exists_and_get_content(self) -> Tuple[pl.DataFrame, pl.DataFrame]:
         case_coverage_file = self.tmp_dir / "case_coverage.csv"
         self.assertTrue(case_coverage_file.exists())
         case_coverage = pl.read_csv(case_coverage_file, has_header=True)
@@ -117,11 +116,7 @@ class CovernatorFileWritingTestCase(TestCase):
         self.assertTrue(all_cases_file.exists())
         all_cases = pl.read_csv(all_cases_file, has_header=True).sort(["Group", "Path", "TestCase"])
         self.assertEqual(all_cases.columns, ["Group", "Path", "TestCase"])
-        case_coverage_rows = sorted(
-            case_coverage.to_dicts(), key=lambda x: (x["Group"], x["Scenario"], x["CaseCoverage"])
-        )
-        all_cases_rows = sorted(all_cases.to_dicts(), key=lambda x: (x["Group"], x["Path"], x["TestCase"]))
-        return case_coverage_rows, all_cases_rows
+        return case_coverage, all_cases
 
     def test_run_with_non_existing_folder(self):
         non_existing_path = Path("/non/existing/folder")
@@ -146,7 +141,10 @@ class CovernatorFileWritingTestCase(TestCase):
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 
-        case_coverage_rows, all_cases_rows = self._assert_files_exists_and_get_content()
+        case_coverage_df, all_cases_df = self._assert_files_exists_and_get_content()
+        actual_case_coverage_rows = sorted(
+            case_coverage_df.to_dicts(), key=lambda x: (x["Group"], x["Scenario"], x["CaseCoverage"])
+        )
         expected_case_coverage_rows = (
             [
                 {
@@ -171,14 +169,15 @@ class CovernatorFileWritingTestCase(TestCase):
                 }
             ]
         )
-        self.assertEqual(case_coverage_rows, expected_case_coverage_rows)
+        self.assertEqual(actual_case_coverage_rows, expected_case_coverage_rows)
 
+        actual_cases_rows = sorted(all_cases_df.to_dicts(), key=lambda x: (x["Group"], x["Path"], x["TestCase"]))
         self.assertEqual(
-            [row["Group"] for row in all_cases_rows],
+            [row["Group"] for row in actual_cases_rows],
             ["second_scenario_folder"] * 2 + ["test_files"] * 7 + ["z_missing_scenarios_group"],
         )
         self.assertEqual(
-            [row["Path"] for row in all_cases_rows],
+            [row["Path"] for row in actual_cases_rows],
             [
                 "Some Group / Some Sub Group",
                 "Some Group / Some Sub Group",
@@ -193,7 +192,7 @@ class CovernatorFileWritingTestCase(TestCase):
             ],
         )
         self.assertEqual(
-            [row["TestCase"] for row in all_cases_rows],
+            [row["TestCase"] for row in actual_cases_rows],
             [
                 "Not implemented yet",
                 "Some Case",
