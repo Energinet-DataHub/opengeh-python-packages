@@ -2,7 +2,7 @@
 
 ## Version 5.8.2
 
-- explicetely sort test results for covernator to avoid failing tests
+- explicitly sort test results for covernator to avoid failing tests
 - ignore empty dataframes to handle polars concatenation error
 
 ## Version 5.8.1
