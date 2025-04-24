@@ -1,12 +1,16 @@
 # GEH Common Release Notes
 
-## Version 6.0.0
+## Version 5.8.2
 
 Modified the electrical_heating contract
 
 - Removed the `has_electrical_heating` column
 - Allows for `net_settlement_group` group 1
 - Removed the set notation characters
+
+## Version 5.8.1
+
+- Databricks api makeover.
 
 ## Version 5.8.0
 
