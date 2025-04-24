@@ -57,9 +57,5 @@ The data is periodized; the following transaction types are relevant for determi
 Periods are  included when
 - the metering point physical status is connected or disconnected
 - the period does not end before 2021-01-01
-- the electrical heating is or has been registered for the period
-
-Formatting is according to ADR-144 with the following constraints:
-- No column may use quoted values
-- All date/time values must include seconds
+- electrical heating is registered for the period
 """
