@@ -12,21 +12,14 @@ schema = T.StructType(
         # GSRN number
         T.StructField("metering_point_id", T.StringType(), not nullable),
         #
-        # States whether the metering point has electrical heating in the period
-        # true:  The consumption metering has electrical heating in the stated period
-        # false: The consumption metering point was previously marked as having electrical
-        #        heating in the stated period, but this has been corrected
-        # <true | false>
-        T.StructField("has_electrical_heating", T.BooleanType(), not nullable),
-        #
-        # <2 | 3 | 4 | 5 | 6 | 99 | NULL>
+        # 1 | 2 | 3 | 4 | 5 | 6 | 99 | NULL
         T.StructField("net_settlement_group", T.IntegerType(), nullable),
         #
         # Settlement month is 1st of January for all consumption with electrical heating except for
         # net settlement group 6, where the date is the scheduled meter reading date.
         # The number of the month. 1 is January, 12 is December.
         # For all but settlement group 6 the month is January.
-        # <1 | 2 | 3 | ... | 12>
+        # 1 | 2 | 3 | ... | 12
         T.StructField(
             "settlement_month",
             T.IntegerType(),
@@ -34,11 +27,11 @@ schema = T.StructType(
         ),
         #
         # See the description of periodization of data above.
-        # <UTC time>
+        # UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
         #
         # See the description of periodization of data above.
-        # <UTC time>
+        # UTC time
         T.StructField("period_to_date", T.TimestampType(), nullable),
     ]
 )
@@ -64,9 +57,5 @@ The data is periodized; the following transaction types are relevant for determi
 Periods are  included when
 - the metering point physical status is connected or disconnected
 - the period does not end before 2021-01-01
-- the electrical heating is or has been registered for the period
-
-Formatting is according to ADR-144 with the following constraints:
-- No column may use quoted values
-- All date/time values must include seconds
+- electrical heating is registered for the period
 """
