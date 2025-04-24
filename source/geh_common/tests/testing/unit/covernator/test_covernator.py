@@ -17,7 +17,10 @@ covernator_testing_folder = Path(os.path.dirname(os.path.abspath(__file__)))
 
 
 def test_covernator_all_scenarios():
-    result = find_all_scenarios(covernator_testing_folder / "test_files" / "scenario_tests")
+    result = sorted(
+        find_all_scenarios(covernator_testing_folder / "test_files" / "scenario_tests"),
+        key=lambda scenario: scenario.source,
+    )
 
     assert len(result) == 2
     assert result == [
@@ -50,20 +53,13 @@ def test_covernator_given_invalid_file():
 
 
 def test_covernator_all_cases_from_yaml():
-    result = find_all_cases(covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml")
+    result = sorted(
+        find_all_cases(covernator_testing_folder / "test_files" / "coverage" / "all_cases_test.yml"),
+        key=lambda case: f"{case.path}/{case.case}",
+    )
 
     assert len(result) == 7
     assert result == [
-        CaseRow(
-            path="Case Group A",
-            case="Case A1",
-            implemented=True,
-        ),
-        CaseRow(
-            path="Case Group A",
-            case="Case A2",
-            implemented=False,
-        ),
         CaseRow(
             path="Case Group A / Sub Case Group AA",
             case="Case AA1",
@@ -78,6 +74,16 @@ def test_covernator_all_cases_from_yaml():
             path="Case Group A / Sub Case Group AB",
             case="Case AB1",
             implemented=True,
+        ),
+        CaseRow(
+            path="Case Group A",
+            case="Case A1",
+            implemented=True,
+        ),
+        CaseRow(
+            path="Case Group A",
+            case="Case A2",
+            implemented=False,
         ),
         CaseRow(
             path="Case Group B / Sub Case Group BA",
@@ -134,7 +140,7 @@ class CovernatorFileWritingTestCase(TestCase):
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 
-        case_coverage, all_cases = self._assert_files_exists_and_get_content()
+        case_coverage, all_cases_rows = self._assert_files_exists_and_get_content()
         case_coverage_rows = case_coverage.to_dicts()
         expected_case_coverage_rows = (
             [
@@ -162,7 +168,6 @@ class CovernatorFileWritingTestCase(TestCase):
         )
         self.assertEqual(case_coverage_rows, expected_case_coverage_rows)
 
-        all_cases_rows = all_cases
         self.assertEqual(
             all_cases_rows["Group"].to_list(),
             ["missing_scenarios_group"] + ["second_scenario_folder"] * 2 + ["test_files"] * 7,
