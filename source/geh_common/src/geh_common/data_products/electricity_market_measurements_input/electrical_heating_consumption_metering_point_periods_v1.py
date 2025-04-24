@@ -12,7 +12,7 @@ schema = T.StructType(
         # GSRN number
         T.StructField("metering_point_id", T.StringType(), not nullable),
         #
-        # 0 | 1 | 2 | 3 | 4 | 5 | 6 | 99 | NULL
+        # 1 | 2 | 3 | 4 | 5 | 6 | 99 | NULL
         T.StructField("net_settlement_group", T.IntegerType(), nullable),
         #
         # Settlement month is 1st of January for all consumption with electrical heating except for
