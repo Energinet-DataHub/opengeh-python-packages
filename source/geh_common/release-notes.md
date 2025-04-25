@@ -1,5 +1,22 @@
 # GEH Common Release Notes
 
+## Version 5.8.4
+
+- Fixed input paramter in execute_statement databricks api method.
+
+## Version 5.8.3
+
+Modified the electrical_heating contract
+
+- Removed the `has_electrical_heating` column
+- Allows for `net_settlement_group` group 1
+- Removed the set notation characters
+
+## Version 5.8.2
+
+- explicitly sort test results for covernator to avoid failing tests
+- ignore empty dataframes to handle polars concatenation error
+
 ## Version 5.8.1
 
 - Databricks api makeover.

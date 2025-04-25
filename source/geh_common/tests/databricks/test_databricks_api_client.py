@@ -1,7 +1,8 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from databricks.sdk.service.sql import StatementState, WaitTimeoutResponse
+from databricks.sdk.service.sql import StatementState
+
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
 
 
