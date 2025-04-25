@@ -3,7 +3,8 @@ import time
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
-from databricks.sdk.service.sql import Disposition, StatementResponse
+from databricks.sdk.service.sql import Disposition, StatementResponse, 
+from databricks.sdk.service.sql import ExecuteStatementRequestOnWaitTimeout
 
 from geh_common.telemetry.logger import Logger
 
@@ -112,15 +113,16 @@ class DatabricksApiClient:
         self,
         warehouse_id: str,
         statement: str,
-        timeout_seconds: int = 600,
+        timeout: str = "600s",
         disposition=Disposition.INLINE,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
-            timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
+            timeout (str): Maximum wait time in seconds when waiting for a response. Defaults to 600s.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
 
         Returns:
@@ -135,7 +137,9 @@ class DatabricksApiClient:
         return self.client.statement_execution.execute_statement(
             warehouse_id=warehouse_id,
             statement=statement,
-            wait_timeout=timeout_seconds,
+            wait_timeout=timeout,
+            on_wait_timeout= on_wait_timeout,
+            disposition=disposition
         )
 
     def wait_for_job_state(
