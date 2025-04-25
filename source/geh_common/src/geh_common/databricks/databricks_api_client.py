@@ -114,14 +114,12 @@ class DatabricksApiClient:
         statement: str,
         timeout_seconds: int = 600,
         disposition=Disposition.INLINE,
-        on_wait_timeout="CANCEL",
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
-            on_wait_timeout (str, optional): What to do when the timeout period has been met. Defaults to CANCEL.
             timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
 
@@ -137,7 +135,6 @@ class DatabricksApiClient:
         return self.client.statement_execution.execute_statement(
             warehouse_id=warehouse_id,
             statement=statement,
-            on_wait_timeout=on_wait_timeout,
             wait_timeout=timeout_seconds,
         )
 

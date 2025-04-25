@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.8.4
+
+- Fixed input paramter in execute_statement databricks api method.
+
 ## Version 5.8.3
 
 Modified the electrical_heating contract
