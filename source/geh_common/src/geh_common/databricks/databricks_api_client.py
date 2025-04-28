@@ -3,7 +3,7 @@ import time
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
-from databricks.sdk.service.sql import Disposition, StatementResponse
+from databricks.sdk.service.sql import Disposition, ExecuteStatementRequestOnWaitTimeout, StatementResponse
 
 from geh_common.telemetry.logger import Logger
 
@@ -112,8 +112,9 @@ class DatabricksApiClient:
         self,
         warehouse_id: str,
         statement: str,
-        timeout_seconds: int = 600,
+        timeout: str = "50s",
         disposition=Disposition.INLINE,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
 
@@ -135,7 +136,9 @@ class DatabricksApiClient:
         return self.client.statement_execution.execute_statement(
             warehouse_id=warehouse_id,
             statement=statement,
-            wait_timeout=timeout_seconds,
+            wait_timeout=timeout,
+            on_wait_timeout=on_wait_timeout,
+            disposition=disposition,
         )
 
     def wait_for_job_state(

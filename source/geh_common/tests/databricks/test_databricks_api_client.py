@@ -1,7 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from databricks.sdk.service.sql import StatementState
+from databricks.sdk.service.sql import Disposition, ExecuteStatementRequestOnWaitTimeout, StatementState
 
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
 
@@ -202,7 +202,11 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
     assert response.status.state is StatementState.SUCCEEDED
 
     mock_client.statement_execution.execute_statement.assert_called_once_with(
-        warehouse_id="fake_warehouse_id", statement=valid_query, wait_timeout=600
+        warehouse_id="fake_warehouse_id",
+        statement=valid_query,
+        wait_timeout="50s",
+        disposition=Disposition.INLINE,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
     )
 
 
@@ -222,7 +226,7 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
     response = sut.execute_statement(
         warehouse_id="fake_warehouse_id",
         statement=statement,
-        timeout_seconds=1,
+        timeout="1s",
     )
 
     assert response is not None

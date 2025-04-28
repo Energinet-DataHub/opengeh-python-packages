@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.8.5
+
+- minor adjustments to databricks api to ensure to runs Synchronously
+
 ## Version 5.8.4
 
 - Fixed input paramter in execute_statement databricks api method.
