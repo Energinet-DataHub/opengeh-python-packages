@@ -23,7 +23,7 @@ def get_spark_test_session(
     config_overrides: dict = {},
     static_data_dir: Path | str | None = None,
     extra_packages: list[str] | None = None,
-    log_level: SparkLogLevel = SparkLogLevel.ERROR,
+    spark_log_level: SparkLogLevel = SparkLogLevel.ERROR,
 ) -> tuple[SparkSession, str]:
     """Get a Spark session for testing.
 
@@ -37,17 +37,22 @@ def get_spark_test_session(
 
     The Spark session is created with Hive support and Delta Lake enabled.
 
+    The configuration used in largely inspired by the one used in this article:
+    https://medium.com/constructor-engineering/faster-pyspark-unit-tests-1cb7dfa6bdf6
+
     Args:
         config_overrides: A dictionary of configuration overrides.
         static_data_dir: A static data directory to use instead of a temporary one.
+        extra_packages: A list of extra packages to include in the Spark session.
+        spark_log_level: The log level for the Spark session. Default is ERROR.
 
     Returns:
         A tuple of the Spark session and the data directory.
     """
     if static_data_dir:
-        data_dir = str(static_data_dir)
+        data_dir = Path(static_data_dir)
     else:
-        data_dir = tempfile.mkdtemp()
+        data_dir = Path(tempfile.mkdtemp())
 
     # Create default configuration and apply overrides
     config = _make_default_config(data_dir)
@@ -66,17 +71,43 @@ def get_spark_test_session(
         master = "local[*]"
 
     spark = builder.master(master).getOrCreate()
-    spark.sparkContext.setLogLevel(log_level)
+    spark.sparkContext.setLogLevel(spark_log_level)
     return spark, data_dir
 
 
-def _make_default_config(data_dir: str) -> dict:
+def _make_default_config(data_dir: Path) -> dict:
+    """Create a default configuration for the Spark session.
+
+    Most of the configuration values are set to optimize for small tests
+    and disable the Spark UI. The data directory is used to store temporary
+    files and tables created during the test.
+
+    Args:
+        data_dir: The data directory to use for temporary files and tables.
+
+    Returns:
+        A dictionary of default configuration values.
+    """
+    extra_java_options = [
+        # reduces the memory footprint by limiting the Delta log cache
+        "-Ddelta.log.cacheSize=3",
+        # allows the JVM garbage collector to remove unused classes that Spark generates a lot of dynamically
+        "-XX:+CMSClassUnloadingEnabled",
+        # tells JVM to use 32-bit addresses instead of 64 (If you’re not planning to use more than 32G of RAM)
+        "-XX:+UseCompressedOops",
+        # When running locally, Spark uses the Apache Derby database. This database uses RAM and the local disc to store files.
+        # Using the same metastore in all processes can lead to concurrent modifications of the same table metadata.
+        # This can lead to errors (e.g. unknown partitions) and undesired interference between tests.
+        # To avoid it, use a separate metastore in each process.
+        f"-Dderby.system.home={str(data_dir.resolve())}",
+    ]
     return {
+        "spark.driver.extraJavaOptions": " ".join(extra_java_options),
         # Delta Lake configuration
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-        "spark.sql.warehouse.dir": f"{data_dir}/spark-warehouse",
-        "spark.local.dir": f"{data_dir}/spark-tmp",
+        "spark.sql.warehouse.dir": f"{data_dir.resolve()}/spark-warehouse",
+        "spark.local.dir": f"{data_dir.resolve()}/spark-tmp",
         # Disable the UI
         "spark.ui.showConsoleProgress": "false",
         "spark.ui.enabled": "false",
@@ -97,5 +128,4 @@ def _make_default_config(data_dir: str) -> dict:
         "spark.shuffle.compress": "false",
         "spark.shuffle.spill.compress": "false",
         "spark.sql.session.timeZone": "UTC",
-        "spark.driver.extraJavaOptions": f"-Ddelta.log.cacheSize=3 -Dderby.system.home={data_dir} -XX:+CMSClassUnloadingEnabled -XX:+UseCompressedOops",
     }
