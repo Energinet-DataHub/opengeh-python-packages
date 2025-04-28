@@ -113,7 +113,7 @@ class DatabricksApiClient:
         self,
         warehouse_id: str,
         statement: str,
-        timeout: str = "600s",
+        timeout: str = "50s",
         disposition=Disposition.INLINE,
         on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL
     ) -> StatementResponse:
@@ -122,7 +122,7 @@ class DatabricksApiClient:
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
-            timeout (str): Maximum wait time in seconds when waiting for a response. Defaults to 600s.
+            timeout (str): Maximum wait time in seconds when waiting for a response. Max value is 50s.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
 
         Returns:
