@@ -121,7 +121,7 @@ class DatabricksApiClient:
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
             statement (str): The SQL statement to execute.
-            timeout (str): Maximum wait time in seconds when waiting for a response. Max value is 50s.
+            timeout_seconds (int, optional): Maximum wait time in seconds when waiting for a response. Defaults to 10.
             disposition (Disposition): Mode of result retrieval. Currently supports only Disposition.INLINE.
 
         Returns:
