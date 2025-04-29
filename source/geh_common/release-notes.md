@@ -1,9 +1,13 @@
 # GEH Common Release Notes
 
-## Version 5.8.7
+## Version 5.8.8
 
 - Removed set notation characters from nsg6 consumption contract
 - Added `resolution` to electrical heating child metering point contract
+
+## Version 5.8.7
+
+- Improves docstring for `get_spark_test_session` function in `geh_common.testing` subpackage. Now the origin of the configurations used should be apparent.
 
 ## Version 5.8.6
 
