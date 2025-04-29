@@ -97,7 +97,7 @@ def assert_dataframes_and_schemas(
         raise
 
     try:
-        _assert_dataframes(actual, expected)
+        assert_dataframes_equal(actual, expected)
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
@@ -121,7 +121,7 @@ def assert_dataframes_and_schemas(
         raise
 
 
-def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
+def assert_dataframes_equal(actual: DataFrame, expected: DataFrame) -> None:
     actual_excess = actual.subtract(expected)
     expected_excess = expected.subtract(actual)
 
@@ -136,7 +136,9 @@ def _assert_dataframes(actual: DataFrame, expected: DataFrame) -> None:
         print("Expected excess:")  # noqa
         expected_excess.show(3000, False)
 
-    assert actual_excess_count == 0 and expected_excess_count == 0, "Dataframes data are not equal"
+    assert actual.count() == expected.count() and actual_excess_count == 0 and expected_excess_count == 0, (
+        "Dataframes data are not equal"
+    )
 
 
 def _assert_no_duplicates(df: DataFrame, original_count: int) -> None:
