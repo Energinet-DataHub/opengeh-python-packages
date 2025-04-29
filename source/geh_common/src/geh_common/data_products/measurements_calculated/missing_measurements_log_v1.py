@@ -4,7 +4,7 @@ nullable = True
 
 database_name = "measurements_calculated"
 
-vuew_name = "missing_measurements_log_v1"
+view_name = "missing_measurements_log_v1"
 
 schema = t.StructType(
     [
