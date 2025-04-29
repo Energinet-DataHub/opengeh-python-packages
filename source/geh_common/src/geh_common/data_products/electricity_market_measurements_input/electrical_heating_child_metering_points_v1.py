@@ -12,8 +12,7 @@ schema = T.StructType(
         # GSRN number
         T.StructField("metering_point_id", T.StringType(), not nullable),
         #
-        # 'supply_to_grid' | 'consumption_from_grid' |
-        # 'electrical_heating' | 'net_consumption'
+        # 'supply_to_grid' | 'consumption_from_grid' | 'electrical_heating' | 'net_consumption'
         T.StructField("metering_point_type", T.StringType(), not nullable),
         #
         # Resolution
