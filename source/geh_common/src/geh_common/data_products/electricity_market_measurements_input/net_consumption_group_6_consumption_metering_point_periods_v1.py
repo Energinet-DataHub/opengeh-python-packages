@@ -16,27 +16,25 @@ schema = T.StructType(
         # true:  The consumption metering has electrical heating in the stated period
         # false: The consumption metering point was previously marked as having electrical
         #        heating in the stated period, but this has been corrected
-        # <true | false>
         T.StructField("has_electrical_heating", T.BooleanType(), not nullable),
         #
         # Settlement month is 1st of January for all consumption with electrical heating except for
         # net settlement group 6, where the date is the scheduled meter reading date.
         # The number of the month. 1 is January, 12 is December.
         # For all but settlement group 6 the month is January.
-        # <1 | 2 | 3 | ... | 12>
+        # 1 | 2 | 3 | ... | 12
         T.StructField("settlement_month", T.IntegerType(), not nullable),
         #
         # See the description of periodization of data above.
-        # <UTC time>
+        # UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
         #
         # See the description of periodization of data above.
-        # <UTC time>
+        # UTC time
         T.StructField("period_to_date", T.TimestampType(), nullable),
         #
         # States whether the period was created due to a move-in.
         # Boolean.
-        # <true | false>
         T.StructField("move_in", T.BooleanType(), not nullable),
     ]
 )
