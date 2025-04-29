@@ -130,6 +130,7 @@ class DatabricksApiClient:
             (object containing the result data). Notice, the result data currently only supports the INLINE mode.
 
         """
+        # TODO
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
 
