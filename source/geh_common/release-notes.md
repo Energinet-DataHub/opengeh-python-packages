@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 5.8.6
+
+- Fixed a typo in Data Product definition
+- Added __init__.py files to Data Products
+
 ## Version 5.8.5
 
 - minor adjustments to databricks api to ensure to runs Synchronously
