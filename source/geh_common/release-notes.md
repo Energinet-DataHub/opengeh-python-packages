@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 5.8.7
+
+- Removed set notation characters from nsg6 consumption contract
+- Added `resolution` to electrical heating child metering point contract
+
 ## Version 5.8.6
 
 - Fixed a typo in Data Product definition
