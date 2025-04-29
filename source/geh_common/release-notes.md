@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+
+## Version 5.8.6
+
+- Adding functionally to execute_statement, such that it can handle both sync and async calls.
 ## Version 5.8.5
 
 - minor adjustments to databricks api to ensure to runs Synchronously
