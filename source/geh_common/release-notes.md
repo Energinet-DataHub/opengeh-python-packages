@@ -1,9 +1,18 @@
 # GEH Common Release Notes
 
+## Version 5.8.8
+
+- Adding functionally to execute_statement, such that it can handle both sync and async calls.
+
+## Version 5.8.7
+
+- Improves docstring for `get_spark_test_session` function in `geh_common.testing` subpackage. Now the origin of the configurations used should be apparent.
 
 ## Version 5.8.6
 
-- Adding functionally to execute_statement, such that it can handle both sync and async calls.
+- Fixed a typo in Data Product definition
+- Added __init__.py files to Data Products
+
 ## Version 5.8.5
 
 - minor adjustments to databricks api to ensure to runs Synchronously

@@ -3,12 +3,16 @@ import time
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
+<<<<<<< HEAD
 from databricks.sdk.service.sql import (
     Disposition,
     ExecuteStatementRequestOnWaitTimeout,
     StatementResponse,
     StatementState,
 )
+=======
+from databricks.sdk.service.sql import Disposition, ExecuteStatementRequestOnWaitTimeout, StatementResponse
+>>>>>>> main
 
 from geh_common.telemetry.logger import Logger
 
