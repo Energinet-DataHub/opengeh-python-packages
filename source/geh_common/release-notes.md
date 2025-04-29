@@ -3,7 +3,6 @@
 ## Version 5.8.8
 
 - Removed set notation characters from nsg6 consumption contract
-- Added `resolution` to electrical heating child metering point contract
 
 ## Version 5.8.7
 
