@@ -133,9 +133,13 @@ class DatabricksApiClient:
         statement: str,
         timeout: int = 600,
         disposition=Disposition.INLINE,
-        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CONTINUE,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
+
+        Method will run synchronously for 50 seconds and then run asynchronously for the rest of the time.
+        If the statement execution exceeds the timeout limit, a TimeoutError will be raised. Set on_wait_timeout to
+        CANCEL if you want to cancel the statement execution after 50 seconds and not run it asynchronously.
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
