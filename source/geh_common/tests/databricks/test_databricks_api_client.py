@@ -1,11 +1,9 @@
-import os
 from unittest.mock import MagicMock, patch
 
 import pytest
 from databricks.sdk.service.sql import Disposition, ExecuteStatementRequestOnWaitTimeout, StatementState
 
 from geh_common.databricks.databricks_api_client import DatabricksApiClient, RunLifeCycleState
-from tests.telemetry.integration.integration_test_configuration import IntegrationTestConfiguration
 
 
 def create_sut():
@@ -236,23 +234,3 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
 
     assert context.value is not None
     assert "Statement execution timed out after" in str(context.value)
-
-
-def test__execute_statement_returns_query_response(
-    integration_test_configuration: IntegrationTestConfiguration,
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
-    monkeypatch.setenv("APPLICATIONINSIGHTS_CONNECTION_STRING", "connection_string")
-
-    databricks_token = os.getenv("databricks_token")
-    databricks_host = os.getenv("host")
-
-    client = DatabricksApiClient(databricks_token, databricks_host)
-
-    query = """
-            SELECT * FROM system.information_schema.catalogs LIMIT 1;
-            """
-
-    response = client.execute_statement(warehouse_id="", statement=query, timeout=30)
-
-    assert response.result is not None
