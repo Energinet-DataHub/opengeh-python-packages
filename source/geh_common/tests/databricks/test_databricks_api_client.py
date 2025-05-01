@@ -206,7 +206,7 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
         statement=valid_query,
         wait_timeout="50s",
         disposition=Disposition.INLINE,
-        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CONTINUE,
     )
 
 
