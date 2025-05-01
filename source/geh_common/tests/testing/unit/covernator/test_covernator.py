@@ -138,6 +138,58 @@ class CovernatorFileWritingTestCase(TestCase):
         self.assertEqual(0, len(case_coverage))
         self.assertEqual(0, len(all_cases))
 
+    def test_write_file_for_single_root_folder(self):
+        testing_folder = covernator_testing_folder / "test_files"
+
+        run_covernator(self.tmp_dir, testing_folder)
+
+        case_coverage_df, all_cases_df = self._assert_files_exists_and_get_content()
+        actual_case_coverage_rows = sorted(
+            case_coverage_df.to_dicts(), key=lambda x: (x["Group"], x["Scenario"], x["CaseCoverage"])
+        )
+        expected_case_coverage_rows = [
+            {
+                "Group": None,
+                "Scenario": "first_layer_folder1/sub_folder",
+                "CaseCoverage": case_coverage,
+            }
+            for case_coverage in ["Case A1", "Case AA1", "Case BB1"]
+        ] + [
+            {
+                "Group": None,
+                "Scenario": "first_layer_folder2",
+                "CaseCoverage": "Case AB1",
+            }
+        ]
+        self.assertEqual(actual_case_coverage_rows, expected_case_coverage_rows)
+
+        actual_cases_rows = sorted(all_cases_df.to_dicts(), key=lambda x: (x["Group"], x["Path"], x["TestCase"]))
+        self.assertEqual([row["Group"] for row in actual_cases_rows], [None] * 7)
+        self.assertEqual(
+            [row["Path"] for row in actual_cases_rows],
+            [
+                "Case Group A",
+                "Case Group A",
+                "Case Group A / Sub Case Group AA",
+                "Case Group A / Sub Case Group AA",
+                "Case Group A / Sub Case Group AB",
+                "Case Group B / Sub Case Group BA",
+                "Case Group B / Sub Case Group BB",
+            ],
+        )
+        self.assertEqual(
+            [row["TestCase"] for row in actual_cases_rows],
+            [
+                "Case A1",
+                "Case A2",
+                "Case AA1",
+                "Case AA2",
+                "Case AB1",
+                "Case BA1",
+                "Case BB1",
+            ],
+        )
+
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 

@@ -125,8 +125,10 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     all_scenarios = []
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(path.relative_to(base_path)).split("/coverage/")[0]
+        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path))
         group_name = group.split(os.sep)[-1]
+        if group_name == ".":
+            group_name = None
         group_cases = find_all_cases(path)
         if len(group_cases) == 0:
             logging.warning(f"No cases found in {path}")
