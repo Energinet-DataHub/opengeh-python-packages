@@ -3,7 +3,7 @@ import os
 from geh_common.databricks.databricks_api_client import DatabricksApiClient
 
 
-def test__new_env_variables():
+def test__execute_statement_returns_correct_state_and_data():
     # Arrange
     databricks_token = os.getenv("DATABRICKS_TOKEN")
     databricks_host = os.getenv("DATABRICKS_HOST")
@@ -12,7 +12,7 @@ def test__new_env_variables():
     assert databricks_token is not None, "DATABRICKS_TOKEN environment variable is not set"
     assert databricks_host is not None, "DATABRICKS_HOST environment variable is not set"
     assert databricks_warehouse_id is not None, "DATABRICKS_WAREHOUSE_ID environment variable is not set"
-
+    # https://westeurope.azuredatabricks.net /api/2.0/sql/statements/
     # Act
     client = DatabricksApiClient(databricks_host=databricks_host, databricks_token=databricks_token)
 
