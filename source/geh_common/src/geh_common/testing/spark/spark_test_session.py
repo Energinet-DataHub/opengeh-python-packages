@@ -70,7 +70,7 @@ def get_spark_test_session(
     else:
         master = "local[*]"
 
-    spark = builder.master(master).getOrCreate()
+    spark = builder.enableHiveSupport().master(master).getOrCreate()
     spark.sparkContext.setLogLevel(spark_log_level)
     return spark, data_dir
 
@@ -88,6 +88,10 @@ def _make_default_config(data_dir: Path) -> dict:
     Returns:
         A dictionary of default configuration values.
     """
+    warehouse_path = f"{data_dir.resolve()}/__spark-warehouse__"
+    temp_path = f"{data_dir.resolve()}/__spark-tmp__"
+    metastore_path = f"{data_dir.resolve()}/__metastore_db__"
+
     extra_java_options = [
         # reduces the memory footprint by limiting the Delta log cache
         "-Ddelta.log.cacheSize=3",
@@ -106,8 +110,8 @@ def _make_default_config(data_dir: Path) -> dict:
         # Delta Lake configuration
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-        "spark.sql.warehouse.dir": f"{data_dir.resolve()}/spark-warehouse",
-        "spark.local.dir": f"{data_dir.resolve()}/spark-tmp",
+        "spark.sql.warehouse.dir": warehouse_path,
+        "spark.local.dir": temp_path,
         # Disable the UI
         "spark.ui.showConsoleProgress": "false",
         "spark.ui.enabled": "false",
@@ -128,4 +132,13 @@ def _make_default_config(data_dir: Path) -> dict:
         "spark.shuffle.compress": "false",
         "spark.shuffle.spill.compress": "false",
         "spark.sql.session.timeZone": "UTC",
+        # Enable Hive support for persistence across test sessions
+        "spark.sql.catalogImplementation": "hive",
+        "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={metastore_path};create=true",
+        "javax.jdo.option.ConnectionDriverName": "org.apache.derby.jdbc.EmbeddedDriver",
+        "javax.jdo.option.ConnectionUserName": "APP",
+        "javax.jdo.option.ConnectionPassword": "mine",
+        "datanucleus.autoCreateSchema": "true",
+        "hive.metastore.schema.verification": "false",
+        "hive.metastore.schema.verification.record.version": "false",
     }
