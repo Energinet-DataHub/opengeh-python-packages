@@ -4,6 +4,10 @@
 
 - Added hive support for persisting migrations scripts
 
+## Version 5.8.9
+
+Add `geh_common.pyspark.clamp` functions to clamp periods.
+
 ## Version 5.8.8
 
 - Removed set notation characters from nsg6 consumption contract
