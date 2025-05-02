@@ -158,7 +158,6 @@ class DatabricksApiClient:
             Exception: For any execution failure.
 
         """
-        # TODO
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
 
