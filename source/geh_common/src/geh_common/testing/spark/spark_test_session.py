@@ -24,6 +24,7 @@ def get_spark_test_session(
     static_data_dir: Path | str | None = None,
     extra_packages: list[str] | None = None,
     spark_log_level: SparkLogLevel = SparkLogLevel.ERROR,
+    use_hive: bool = False,
 ) -> tuple[SparkSession, str]:
     """Get a Spark session for testing.
 
@@ -70,7 +71,11 @@ def get_spark_test_session(
     else:
         master = "local[*]"
 
-    spark = builder.enableHiveSupport().master(master).getOrCreate()
+    # Use hive
+    if use_hive:
+        builder = builder.enableHiveSupport()
+
+    spark = builder.master(master).getOrCreate()
     spark.sparkContext.setLogLevel(spark_log_level)
     return spark, data_dir
 
