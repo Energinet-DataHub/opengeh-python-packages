@@ -89,7 +89,7 @@ def _make_default_config(data_dir: Path) -> dict:
         A dictionary of default configuration values.
     """
     warehouse_path = f"{data_dir.resolve()}/__spark-warehouse__"
-    temp_path = f"{data_dir.resolve()}/__spark-tmp__"
+    temp_path = f"{data_dir.resolve()}/__spark_tmp__"
     metastore_path = f"{data_dir.resolve()}/__metastore_db__"
 
     extra_java_options = [
