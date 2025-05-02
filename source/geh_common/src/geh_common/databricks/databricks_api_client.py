@@ -3,7 +3,12 @@ import time
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
-from databricks.sdk.service.sql import Disposition, ExecuteStatementRequestOnWaitTimeout, StatementResponse
+from databricks.sdk.service.sql import (
+    Disposition,
+    ExecuteStatementRequestOnWaitTimeout,
+    StatementResponse,
+    StatementState,
+)
 
 from geh_common.telemetry.logger import Logger
 
@@ -108,15 +113,33 @@ class DatabricksApiClient:
 
         raise TimeoutError(f"Job did not complete within {timeout} seconds.")
 
+    def get_statement(
+        self,
+        statement_id: str,
+    ) -> StatementResponse:
+        """Retrieve the result of a previously executed statement.
+
+        Args:
+            statement_id (str): The ID of the statement to retrieve.
+
+        Returns:
+            StatementResponse: The response object containing status and results.
+        """
+        return self.client.statement_execution.get_statement(statement_id)
+
     def execute_statement(
         self,
         warehouse_id: str,
         statement: str,
-        timeout: str = "50s",
+        timeout: int = 600,
         disposition=Disposition.INLINE,
-        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CONTINUE,
     ) -> StatementResponse:
         """Execute a SQL statement. Only supports small result set (<= 25 MiB).
+
+        Method will run synchronously for 50 seconds and then run asynchronously for the rest of the time.
+        If the statement execution exceeds the timeout limit, a TimeoutError will be raised. Set on_wait_timeout to
+        CANCEL if you want to cancel the statement execution after 50 seconds and not run it asynchronously.
 
         Args:
             warehouse_id (str): The ID of the Databricks warehouse or cluster.
@@ -129,17 +152,40 @@ class DatabricksApiClient:
             `manifest` (object that provides the schema and metadata of the result set), and a `result`
             (object containing the result data). Notice, the result data currently only supports the INLINE mode.
 
+        Raises:
+            NotImplementedError: If a non-INLINE disposition is specified.
+            TimeoutError: If the statement execution exceeds the timeout limit.
+            Exception: For any execution failure.
+
         """
         if disposition != Disposition.INLINE:
             raise NotImplementedError("Execute statement only supports disposition INLINE")
 
-        return self.client.statement_execution.execute_statement(
+        response = self.client.statement_execution.execute_statement(
             warehouse_id=warehouse_id,
             statement=statement,
-            wait_timeout=timeout,
+            wait_timeout="50s",
             on_wait_timeout=on_wait_timeout,
             disposition=disposition,
         )
+        # If the warehouse is not started, we wait for it to start and report the response.
+        runtime = 0
+        while response.status.state in [
+            StatementState.PENDING,
+            StatementState.RUNNING,
+        ]:
+            if runtime >= timeout:
+                raise TimeoutError(f"Statement execution timed out after {timeout} seconds.")
+            time.sleep(10)
+            runtime = runtime + 10
+            response = self.get_statement(response.statement_id)
+
+        if response.status.state == StatementState.SUCCEEDED:
+            return response
+        else:
+            raise Exception(
+                f"Statement execution failed. Status: {response.status.state}. Error: {response.status.error}"
+            )
 
     def wait_for_job_state(
         self, run_id: int, target_states: list[str], timeout: int = 1000, poll_interval: int = 10

@@ -1,5 +1,13 @@
 # GEH Common Release Notes
 
+## Version 5.8.11
+
+- Added covernator functionality to write to github output with statistics
+
+## Version 5.8.10
+
+- Adding functionally to execute_statement, such that it can handle both sync and async calls.
+
 ## Version 5.8.9
 
 Add `geh_common.pyspark.clamp` functions to clamp periods.
