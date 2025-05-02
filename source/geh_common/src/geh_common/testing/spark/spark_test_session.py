@@ -46,6 +46,7 @@ def get_spark_test_session(
         static_data_dir: A static data directory to use instead of a temporary one.
         extra_packages: A list of extra packages to include in the Spark session.
         spark_log_level: The log level for the Spark session. Default is ERROR.
+        use_hive: Flag determining whether hive persistance is used or not. Defaults to False.
 
     Returns:
         A tuple of the Spark session and the data directory.
