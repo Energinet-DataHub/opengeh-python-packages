@@ -95,20 +95,12 @@ def _write_github_output(covernator_cli_settings: CovernatorCliSettings):
     try:
         with open(covernator_cli_settings.output_dir / "stats.json") as stats_file:
             stats = json.load(stats_file)
-        value = f"""
-        <details>
-        <summary>Stats</summary>
-
-        <h3>Total Cases</h3>
-        {stats["total_cases"]}
-
-        h3>Unique Scenarios</h3>
-        {stats["total_scenarios"]}
-        h3>Unique Groups</h3>
-        {stats["total_groups"]}
-
-        </details>
-        """
+        value = (
+            f"<details><summary>Stats</summary>"
+            f"<h3>Total Cases</h3>{stats['total_cases']}"
+            f"<h3>Unique Scenarios</h3>{stats['total_scenarios']}"
+            f"<h3>Unique Groups</h3>{stats['total_groups']}</details>"
+        )
     except FileNotFoundError | KeyError:
         raise Exception(
             f"Could not find stats.json with the correct content in {covernator_cli_settings.output_dir}. "
@@ -117,7 +109,7 @@ def _write_github_output(covernator_cli_settings: CovernatorCliSettings):
 
     try:
         with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
-            print(f"{covernator_cli_settings.github_output_key}={json.dumps(value)}", file=fh)
+            print(f"{covernator_cli_settings.github_output_key}={value}", file=fh)
     except KeyError:
         raise Exception(
             "GITHUB_OUTPUT environment variable not set. Please run this script in a GitHub Actions workflow."
