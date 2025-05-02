@@ -57,7 +57,7 @@ def get_spark_test_session(
         data_dir = Path(tempfile.mkdtemp())
 
     # Create default configuration and apply overrides
-    config = _make_default_config(data_dir)
+    config = _make_default_config(data_dir, use_hive)
     config.update(config_overrides)
 
     # Convert to SparkConf
@@ -81,7 +81,7 @@ def get_spark_test_session(
     return spark, data_dir
 
 
-def _make_default_config(data_dir: Path) -> dict:
+def _make_default_config(data_dir: Path, use_hive: bool) -> dict:
     """Create a default configuration for the Spark session.
 
     Most of the configuration values are set to optimize for small tests
@@ -94,9 +94,9 @@ def _make_default_config(data_dir: Path) -> dict:
     Returns:
         A dictionary of default configuration values.
     """
-    warehouse_path = f"{data_dir.resolve()}/__spark-warehouse__"
-    temp_path = f"{data_dir.resolve()}/__spark_tmp__"
-    metastore_path = f"{data_dir.resolve()}/__metastore_db__"
+    warehouse_path = f"{data_dir.resolve()}/spark-warehouse"
+    temp_path = f"{data_dir.resolve()}/spark_tmp"
+    metastore_path = f"{data_dir.resolve()}/metastore_db"
 
     extra_java_options = [
         # reduces the memory footprint by limiting the Delta log cache
@@ -111,7 +111,7 @@ def _make_default_config(data_dir: Path) -> dict:
         # To avoid it, use a separate metastore in each process.
         f"-Dderby.system.home={str(data_dir.resolve())}",
     ]
-    return {
+    configuration = {
         "spark.driver.extraJavaOptions": " ".join(extra_java_options),
         # Delta Lake configuration
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
@@ -138,13 +138,18 @@ def _make_default_config(data_dir: Path) -> dict:
         "spark.shuffle.compress": "false",
         "spark.shuffle.spill.compress": "false",
         "spark.sql.session.timeZone": "UTC",
-        # Enable Hive support for persistence across test sessions
-        "spark.sql.catalogImplementation": "hive",
-        "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={metastore_path};create=true",
-        "javax.jdo.option.ConnectionDriverName": "org.apache.derby.jdbc.EmbeddedDriver",
-        "javax.jdo.option.ConnectionUserName": "APP",
-        "javax.jdo.option.ConnectionPassword": "mine",
-        "datanucleus.autoCreateSchema": "true",
-        "hive.metastore.schema.verification": "false",
-        "hive.metastore.schema.verification.record.version": "false",
     }
+    if use_hive:
+        configuration.update(
+            {
+                "spark.sql.catalogImplementation": "hive",
+                "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={metastore_path};create=true",
+                "javax.jdo.option.ConnectionDriverName": "org.apache.derby.jdbc.EmbeddedDriver",
+                "javax.jdo.option.ConnectionUserName": "APP",
+                "javax.jdo.option.ConnectionPassword": "mine",
+                "datanucleus.autoCreateSchema": "true",
+                "hive.metastore.schema.verification": "false",
+                "hive.metastore.schema.verification.record.version": "false",
+            }
+        )
+    return configuration
