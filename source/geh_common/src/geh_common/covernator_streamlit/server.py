@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import tempfile
@@ -32,6 +33,11 @@ class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=Tr
         description="Do not generate the files, only run the streamlit app. Requires --output_dir",
         default=False,
         validation_alias=AliasChoices("s", "serve-only"),
+    )
+    github_output_key: str | None = Field(
+        description="Key to write github output to. If not set, will not write to github output",
+        default=None,
+        validation_alias=AliasChoices("k", "github-output-key"),
     )
 
     @model_validator(mode="before")
@@ -84,6 +90,40 @@ def _create_and_run_streamlit_app(output_dir: Path):
         raise RuntimeError("Error running streamlit app")
 
 
+def _write_github_output(covernator_cli_settings: CovernatorCliSettings):
+    value = """"""
+    try:
+        with open(covernator_cli_settings.output_dir / "stats.json") as stats_file:
+            stats = json.load(stats_file)
+        value = f"""
+        <details>
+        <summary>Stats</summary>
+
+        <h3>Total Cases</h3>
+        {stats["total_cases"]}
+
+        h3>Unique Scenarios</h3>
+        {stats["total_scenarios"]}
+        h3>Unique Groups</h3>
+        {stats["total_groups"]}
+
+        </details>
+        """
+    except FileNotFoundError | KeyError:
+        raise Exception(
+            f"Could not find stats.json with the correct content in {covernator_cli_settings.output_dir}. "
+            "Please update to the latest covernator version."
+        )
+
+    try:
+        with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+            print(f"{covernator_cli_settings.github_output_key}={json.dumps(value)}", file=fh)
+    except KeyError:
+        raise Exception(
+            "GITHUB_OUTPUT environment variable not set. Please run this script in a GitHub Actions workflow."
+        )
+
+
 def main():
     cli_args = CovernatorCliSettings()
 
@@ -92,6 +132,9 @@ def main():
 
     if not cli_args.generate_only:
         _create_and_run_streamlit_app(cli_args.output_dir)
+
+    if cli_args.github_output_key is not None:
+        _write_github_output(cli_args)
 
 
 if __name__ == "__main__":

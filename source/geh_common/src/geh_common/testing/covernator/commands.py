@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pathlib import Path
@@ -125,7 +126,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     all_scenarios = []
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path))
+        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
         group_name = group.split(os.sep)[-1]
         if group_name == ".":
             group_name = None
@@ -163,3 +164,11 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         else pl.DataFrame([], schema=["Group", "Path", "TestCase"])
     )
     df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
+
+    statistics = {
+        "total_cases": len(df_all_cases),
+        "total_scenarios": len(df_all_scenarios.select("Scenario").unique()),
+        "total_groups": len(df_all_cases.select("Group").unique()),
+    }
+    with open(folder_to_save_files_in / "stats.json", "w") as statistics_file:
+        json.dump(statistics, statistics_file, indent=4)

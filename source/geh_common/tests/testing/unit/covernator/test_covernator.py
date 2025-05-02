@@ -1,3 +1,4 @@
+import json
 import os
 import shutil
 import tempfile
@@ -190,6 +191,10 @@ class CovernatorFileWritingTestCase(TestCase):
             ],
         )
 
+        self.assertTrue((self.tmp_dir / "stats.json").exists())
+        statistics = json.loads((self.tmp_dir / "stats.json").read_text())
+        self.assertEqual(statistics, {"total_cases": 7, "total_scenarios": 2, "total_groups": 1})
+
     def test_write_file_for_multiple_root_folders(self):
         run_covernator(self.tmp_dir, covernator_testing_folder)
 
@@ -258,3 +263,7 @@ class CovernatorFileWritingTestCase(TestCase):
                 "New Scenario",
             ],
         )
+
+        self.assertTrue((self.tmp_dir / "stats.json").exists())
+        statistics = json.loads((self.tmp_dir / "stats.json").read_text())
+        self.assertEqual(statistics, {"total_cases": 10, "total_scenarios": 3, "total_groups": 3})
