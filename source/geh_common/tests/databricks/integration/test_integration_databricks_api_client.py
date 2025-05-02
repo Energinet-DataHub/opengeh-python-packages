@@ -1,5 +1,9 @@
 import os
 
+from databricks.sdk.service.sql import (
+    StatementState,
+)
+
 from geh_common.databricks.databricks_api_client import DatabricksApiClient
 
 
@@ -28,5 +32,5 @@ def test__execute_statement_returns_correct_state_and_data():
         warehouse_id=databricks_warehouse_id,
     )
 
-    assert response.status.state == "SUCCEEDED", f"Query failed with error: {response.status.error}"
+    assert response.status.state == StatementState.SUCCEEDED, f"Query failed with error: {response.status.error}"
     assert response.result is not None, "Result is None"
