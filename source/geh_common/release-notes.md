@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## version 5.9.0
+
+- Added project script test functionality 
+
 ## Version 5.8.11
 
 - Added covernator functionality to write to github output with statistics
