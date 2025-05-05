@@ -84,7 +84,11 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
     for path in base_path.rglob("coverage_mapping.yml"):
         with open(path) as coverage_mapping_file:
             try:
-                coverage_mapping = yaml.safe_load(coverage_mapping_file)
+                try:
+                    coverage_mapping = yaml.safe_load(coverage_mapping_file)
+                except yaml.YAMLError:
+                    logging.warning(f"Invalid yaml file '{path}': {coverage_mapping_file}")
+                    continue
                 cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
                 if cases_tested_content is None:
                     logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
