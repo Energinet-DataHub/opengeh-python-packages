@@ -206,7 +206,7 @@ def test__execute_statement__when_query_is_valid__should_succeed(MockWorkspaceCl
         statement=valid_query,
         wait_timeout="50s",
         disposition=Disposition.INLINE,
-        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CANCEL,
+        on_wait_timeout=ExecuteStatementRequestOnWaitTimeout.CONTINUE,
     )
 
 
@@ -215,19 +215,22 @@ def test__execute_statement__when_exceeding_timeout_input__should_raise_exceptio
     # Arrange
     mock_client = MockWorkspaceClient.return_value
     mock_response = MagicMock()
-    mock_response.status.state = StatementState.CANCELED
+    mock_response.status.state = StatementState.RUNNING
     mock_client.statement_execution.execute_statement.return_value = mock_response
+    mock_client.statement_execution.get_statement.return_value = mock_response
 
     sut = create_sut()
 
     statement = "query"
 
     # Act & Assert
-    response = sut.execute_statement(
-        warehouse_id="fake_warehouse_id",
-        statement=statement,
-        timeout="1s",
-    )
+    with pytest.raises(Exception) as context:
+        sut.execute_statement(
+            warehouse_id="fake_warehouse_id",
+            statement=statement,
+            disposition=Disposition.INLINE,
+            timeout=11,
+        )
 
-    assert response is not None
-    assert response.status.state == StatementState.CANCELED
+    assert context.value is not None
+    assert "Statement execution timed out after" in str(context.value)

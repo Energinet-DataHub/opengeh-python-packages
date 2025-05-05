@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pathlib import Path
@@ -83,7 +84,11 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
     for path in base_path.rglob("coverage_mapping.yml"):
         with open(path) as coverage_mapping_file:
             try:
-                coverage_mapping = yaml.safe_load(coverage_mapping_file)
+                try:
+                    coverage_mapping = yaml.safe_load(coverage_mapping_file)
+                except yaml.YAMLError:
+                    logging.warning(f"Invalid yaml file '{path}': {coverage_mapping_file}")
+                    continue
                 cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
                 if cases_tested_content is None:
                     logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
@@ -125,8 +130,10 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     all_scenarios = []
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(path.relative_to(base_path)).split("/coverage/")[0]
+        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
         group_name = group.split(os.sep)[-1]
+        if group_name == ".":
+            group_name = None
         group_cases = find_all_cases(path)
         if len(group_cases) == 0:
             logging.warning(f"No cases found in {path}")
@@ -161,3 +168,11 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         else pl.DataFrame([], schema=["Group", "Path", "TestCase"])
     )
     df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
+
+    statistics = {
+        "total_cases": len(df_all_cases),
+        "total_scenarios": len(df_all_scenarios.select("Scenario").unique()),
+        "total_groups": len(df_all_cases.select("Group").unique()),
+    }
+    with open(folder_to_save_files_in / "stats.json", "w") as statistics_file:
+        json.dump(statistics, statistics_file, indent=4)
