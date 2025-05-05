@@ -2,7 +2,7 @@
 
 ## Version 5.9.0
 
-- Added project script test functionality 
+- Added project script test functionality
 
 ## Version 5.8.11
 
