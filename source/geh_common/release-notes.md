@@ -1,8 +1,8 @@
 # GEH Common Release Notes
 
-## Version 5.9.0
+## Version 5.8.12
 
-- Added project script test functionality.
+- Added hive support for persisting migrations scripts
 
 ## Version 5.8.11
 

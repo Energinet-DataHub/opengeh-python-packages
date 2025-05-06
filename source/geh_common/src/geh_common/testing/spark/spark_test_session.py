@@ -24,6 +24,7 @@ def get_spark_test_session(
     static_data_dir: Path | str | None = None,
     extra_packages: list[str] | None = None,
     spark_log_level: SparkLogLevel = SparkLogLevel.ERROR,
+    use_hive: bool = False,
 ) -> tuple[SparkSession, str]:
     """Get a Spark session for testing.
 
@@ -45,6 +46,7 @@ def get_spark_test_session(
         static_data_dir: A static data directory to use instead of a temporary one.
         extra_packages: A list of extra packages to include in the Spark session.
         spark_log_level: The log level for the Spark session. Default is ERROR.
+        use_hive: Flag determining whether hive persistance is used or not. Defaults to False.
 
     Returns:
         A tuple of the Spark session and the data directory.
@@ -55,7 +57,7 @@ def get_spark_test_session(
         data_dir = Path(tempfile.mkdtemp())
 
     # Create default configuration and apply overrides
-    config = _make_default_config(data_dir)
+    config = _make_default_config(data_dir, use_hive)
     config.update(config_overrides)
 
     # Convert to SparkConf
@@ -70,12 +72,16 @@ def get_spark_test_session(
     else:
         master = "local[*]"
 
+    # Use hive
+    if use_hive:
+        builder = builder.enableHiveSupport()
+
     spark = builder.master(master).getOrCreate()
     spark.sparkContext.setLogLevel(spark_log_level)
     return spark, data_dir
 
 
-def _make_default_config(data_dir: Path) -> dict:
+def _make_default_config(data_dir: Path, use_hive: bool) -> dict:
     """Create a default configuration for the Spark session.
 
     Most of the configuration values are set to optimize for small tests
@@ -88,6 +94,10 @@ def _make_default_config(data_dir: Path) -> dict:
     Returns:
         A dictionary of default configuration values.
     """
+    warehouse_path = f"{data_dir.resolve()}/spark-warehouse"
+    temp_path = f"{data_dir.resolve()}/spark_tmp"
+    metastore_path = f"{data_dir.resolve()}/metastore_db"
+
     extra_java_options = [
         # reduces the memory footprint by limiting the Delta log cache
         "-Ddelta.log.cacheSize=3",
@@ -101,13 +111,13 @@ def _make_default_config(data_dir: Path) -> dict:
         # To avoid it, use a separate metastore in each process.
         f"-Dderby.system.home={str(data_dir.resolve())}",
     ]
-    return {
+    configuration = {
         "spark.driver.extraJavaOptions": " ".join(extra_java_options),
         # Delta Lake configuration
         "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
         "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
-        "spark.sql.warehouse.dir": f"{data_dir.resolve()}/spark-warehouse",
-        "spark.local.dir": f"{data_dir.resolve()}/spark-tmp",
+        "spark.sql.warehouse.dir": warehouse_path,
+        "spark.local.dir": temp_path,
         # Disable the UI
         "spark.ui.showConsoleProgress": "false",
         "spark.ui.enabled": "false",
@@ -121,11 +131,25 @@ def _make_default_config(data_dir: Path) -> dict:
         "spark.worker.ui.retainedDrivers": "1",
         "spark.databricks.delta.snapshotPartitions": "2",
         "spark.sql.shuffle.partitions": "1",
-        "spark.driver.memory": "2g",
-        "spark.executor.memory": "2g",
+        "spark.driver.memory": "4g",
+        "spark.executor.memory": "4g",
         "spark.sql.streaming.schemaInference": "true",
         "spark.rdd.compress": "false",
         "spark.shuffle.compress": "false",
         "spark.shuffle.spill.compress": "false",
         "spark.sql.session.timeZone": "UTC",
     }
+    if use_hive:
+        configuration.update(
+            {
+                "spark.sql.catalogImplementation": "hive",
+                "javax.jdo.option.ConnectionURL": f"jdbc:derby:;databaseName={metastore_path};create=true",
+                "javax.jdo.option.ConnectionDriverName": "org.apache.derby.jdbc.EmbeddedDriver",
+                "javax.jdo.option.ConnectionUserName": "APP",
+                "javax.jdo.option.ConnectionPassword": "mine",
+                "datanucleus.autoCreateSchema": "true",
+                "hive.metastore.schema.verification": "false",
+                "hive.metastore.schema.verification.record.version": "false",
+            }
+        )
+    return configuration
