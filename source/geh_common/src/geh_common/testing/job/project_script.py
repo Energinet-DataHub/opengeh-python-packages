@@ -4,8 +4,11 @@ import tomllib
 from pathlib import Path
 
 
-def check_project_script_exists(project_root: Path) -> None:
-    
+def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
+    """Check if all script entry points in pyproject.toml exist in project.
+
+    Assumes the project root contains the pyproject.toml file.
+    """
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
