@@ -4,7 +4,7 @@ import tomllib
 from pathlib import Path
 
 
-def check_project_script_exists(project_root: Path) -> None:
+def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
