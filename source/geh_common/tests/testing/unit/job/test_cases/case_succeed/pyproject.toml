@@ -1,0 +1,5 @@
+[project]
+name = "module"
+
+[project.scripts]
+func = "tests.testing.unit.job.test_cases.case_succeed.module:func"

@@ -2,6 +2,9 @@ import importlib
 import logging
 import tomllib
 from pathlib import Path
+from typing import List, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
@@ -9,16 +12,34 @@ def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
 
     Assumes the project root contains the pyproject.toml file.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
+    missing_scripts = find_missing_scripts(project_root)
+
+    # Log results
+    if not missing_scripts:
+        logger.info("All script entry points exist!")
+    else:
+        log_message = "Missing script entry points:"
+        for script_name, error_msg in missing_scripts:
+            log_message += f"\n - {script_name}: {error_msg}"
+        logger.error(log_message)
+
+    # Assert based on collection rather than string parsing
+    assert not missing_scripts, "Missing script entry points detected"
+
+
+def find_missing_scripts(project_root: Path) -> List[Tuple[str, str]]:
+    """Find scripts defined in pyproject.toml that do not exist in the project.
+
+    Returns:
+        List of (script_name, error_message) tuples for missing scripts
+    """
     with open(project_root / "pyproject.toml", "rb") as file:
         pyproject = tomllib.load(file)
         project = pyproject.get("project", {})
-    scripts = project.get("scripts", {})
 
+    scripts = project.get("scripts", {})
     missing_scripts = []
+
     for script_name, entry_point in scripts.items():
         module_path, function_name = entry_point.split(":")
         try:
@@ -26,17 +47,8 @@ def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
             module = importlib.import_module(module_path)
             # Check if the function exists
             if not hasattr(module, function_name):
-                missing_scripts.append(f"{script_name}: Function '{function_name}' not found in module '{module_path}'")
+                missing_scripts.append((script_name, f"Function '{function_name}' not found in module '{module_path}'"))
         except ImportError:
-            missing_scripts.append(f"{script_name}: Module '{module_path}' could not be imported")
+            missing_scripts.append((script_name, f"Module '{module_path}' could not be imported"))
 
-    # Report results
-    if missing_scripts:
-        logging.warning("Missing script entry points:")
-        for script in missing_scripts:
-            logging.warning(f"  - {script}")
-    else:
-        logging.info("All script entry points exist!")
-
-    # Fail the test if any scripts are missing
-    assert not missing_scripts, "Missing script entry points detected"
+    return missing_scripts
