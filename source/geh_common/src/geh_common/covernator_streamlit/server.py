@@ -84,7 +84,7 @@ def _create_and_run_streamlit_app(output_dir: Path):
         content = content.replace("{SUBSTITUTTED_OUTPUT_PATH}", output_dir.as_posix())
     with open(f"{output_dir}/script.py", "w") as f:
         f.write(content)
-    command = ["streamlit", "run", f"{output_dir}/script.py"]
+    command = ["uv", "run", f"{output_dir}/script.py"]
     res = subprocess.run(command, check=True)
     if res.returncode != 0:
         raise RuntimeError("Error running streamlit app")
@@ -123,7 +123,7 @@ def main():
         run_covernator(cli_args.output_dir, cli_args.path)
 
     if not cli_args.generate_only:
-        _create_and_run_streamlit_app(cli_args.output_dir)
+        raise NotImplementedError("Covernator frontend is not implemented yet.")
 
     if cli_args.github_output_key is not None:
         _write_github_output(cli_args)
