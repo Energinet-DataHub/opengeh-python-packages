@@ -123,7 +123,7 @@ def main():
         run_covernator(cli_args.output_dir, cli_args.path)
 
     if not cli_args.generate_only:
-        _create_and_run_streamlit_app(cli_args.output_dir)
+        raise NotImplementedError("Covernator frontend is not implemented yet.")
 
     if cli_args.github_output_key is not None:
         _write_github_output(cli_args)
