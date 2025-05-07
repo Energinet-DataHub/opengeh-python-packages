@@ -1,3 +1,9 @@
+# This code is commented out because streamlit depends on a version of protobuf,
+# which is incompatible with the version of protobuf used in the rest of the project.
+# The code has not been deleted as it will serve as a reference for a future
+# frontend implementation for the covernator.
+#
+#
 # # /// script
 # # dependencies = [
 # #   "streamlit",
