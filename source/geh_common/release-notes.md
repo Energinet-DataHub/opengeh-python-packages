@@ -4,6 +4,10 @@
 
 - Added project script test functionality
 
+## Version 5.8.13
+
+- Deactivates streamlit app in the `geh_common.covernator_streamlit` subpackage. Streamlit requires a version of ProtoBuf that is not compatible with the current version used by measurements `core`.
+
 ## Version 5.8.12
 
 - Added hive support for persisting migrations scripts

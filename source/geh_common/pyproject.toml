@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "5.9.0"
+version = "5.8.13"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 
@@ -19,7 +19,6 @@ dependencies = [
     "pydantic-settings>=2.7.1",
     "pydantic>=2.10.6",
     "polars>=1.25.2",
-    "streamlit>=1.44.0",
 ]
 
 [project.scripts]
