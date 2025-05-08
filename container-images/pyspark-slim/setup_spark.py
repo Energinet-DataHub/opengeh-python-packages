@@ -47,9 +47,7 @@ def get_latest_spark_version() -> str:
         if ref.startswith("spark-") and "incubating" not in ref and "preview" not in ref
     ]
     # Compare versions semantically
-    latest_version = max(
-        stable_versions, key=lambda ver: [int(sub_ver) for sub_ver in ver.split(".")]
-    )
+    latest_version = max(stable_versions, key=lambda ver: [int(sub_ver) for sub_ver in ver.split(".")])
     LOGGER.info(f"Latest version: {latest_version}")
     return latest_version
 
@@ -103,9 +101,7 @@ def configure_spark(spark_dir_name: str, spark_home: Path) -> None:
 
     # Add a link in the before_notebook hook in order to source PYTHONPATH automatically
     CONFIG_SCRIPT = "/usr/local/bin/before-notebook.d/10spark-config.sh"
-    subprocess.check_call(
-        ["ln", "-s", spark_home / "sbin/spark-config.sh", CONFIG_SCRIPT]
-    )
+    subprocess.check_call(["ln", "-s", spark_home / "sbin/spark-config.sh", CONFIG_SCRIPT])
 
 
 if __name__ == "__main__":
@@ -126,6 +122,4 @@ if __name__ == "__main__":
         scala_version=args.scala_version,
         spark_download_url=args.spark_download_url,
     )
-    configure_spark(
-        spark_dir_name=spark_dir_name, spark_home=Path(os.environ["SPARK_HOME"])
-    )
+    configure_spark(spark_dir_name=spark_dir_name, spark_home=Path(os.environ["SPARK_HOME"]))
