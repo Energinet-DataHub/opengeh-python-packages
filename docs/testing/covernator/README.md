@@ -42,7 +42,8 @@ The entrypoint to the logic is the function `run_covernator` in [commands.py](..
 
 ### Cli Tool
 
-In order to run the covernator from the cli execute either
+In order to run the covernator from the cli execute either:
+
 - the file [server.py](../../../source/geh_common/src/geh_common/covernator_streamlit/server.py)
 - a python command that imports the function (this allows to run python from a different code base just by installing geh_common in the current environment)
 - or add the following to the pyproject.toml in the repository to run it from the command line
