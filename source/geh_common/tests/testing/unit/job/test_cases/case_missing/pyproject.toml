@@ -6,7 +6,27 @@ version = "0.1.0"
 func = "tests.testing.unit.job.test_cases.case_missing.module:func_not_there"
 
 [dependency-groups]
-dev = ["ruff>=0.9.4"]
+dev = [
+  "ruff>=0.9.4",
+  "pytest>=8.3.4",
+  "pytest-cov>=6.0.0",
+  "pytest-xdist>=3.6.1",
+  "ruff>=0.9.4",
+]
+
+[tool.pytest.ini_options]
+# -s ensures that print("<text>") is written to output.
+addopts = [
+  "--cov-report=term",
+  "--cov-report=xml:coverage.xml",
+  "--cov=geh_common",
+  "-ra",                           # Show extra test summary info as specified by -ra
+  "-vv",                           # Verbose output for tests
+  "-s",                            # Print to console
+  "-n=logical",                    # Run tests in parallel
+  "--dist=worksteal",              # Pop tests off the queue in chunks
+]
+cache_dir = ".cache/pytest"
 
 [tool.coverage.report]
 fail_under = 0
