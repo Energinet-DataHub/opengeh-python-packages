@@ -111,7 +111,6 @@ The default `geh_common_version` of 5.8.11 can be overwritten (although it is no
 In the main-files, cases are followed by a boolean. This boolean should be true if the scenario is excpected to be implemented, and false if it is not implemented yet.
 In a future update, the CI should fail if there is not a matching implementation for a case that was set to `true` in the main-file.
 
-
 ### Presenting the changes
 
 The covernator generates files that are currently saved as artifacts.
