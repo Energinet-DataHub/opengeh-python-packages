@@ -7,12 +7,9 @@ from typing import List, Tuple
 logger = logging.getLogger(__name__)
 
 
-def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
-    """Check if all script entry points in pyproject.toml exist in project.
-
-    Assumes the project root contains the pyproject.toml file.
-    """
-    missing_scripts = find_missing_scripts(project_root)
+def assert_pyproject_toml_project_script_exists(pyproject_toml_path: Path) -> None:
+    """Check if all script entry points in pyproject.toml exist in project."""
+    missing_scripts = find_missing_scripts(pyproject_toml_path)
 
     # Log results
     if not missing_scripts:
@@ -27,13 +24,13 @@ def assert_pyproject_toml_project_script_exists(project_root: Path) -> None:
     assert not missing_scripts, "Missing script entry points detected"
 
 
-def find_missing_scripts(project_root: Path) -> List[Tuple[str, str]]:
+def find_missing_scripts(pyproject_toml_path: Path) -> List[Tuple[str, str]]:
     """Find scripts defined in pyproject.toml that do not exist in the project.
 
     Returns:
         List of (script_name, error_message) tuples for missing scripts
     """
-    with open(project_root / "pyproject.toml", "rb") as file:
+    with open(pyproject_toml_path, "rb") as file:
         pyproject = tomllib.load(file)
         project = pyproject.get("project", {})
 
