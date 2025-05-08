@@ -4,3 +4,6 @@ version = "0.1.0"
 
 [project.scripts]
 func = "tests.testing.unit.job.test_cases.case_succeed.module:func"
+
+[project.optional-dependencies]
+dev = ["ruff"]
