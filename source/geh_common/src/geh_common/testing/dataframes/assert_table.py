@@ -2,7 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.catalog import Table
 
 
-# TODO: Move the geh_common
 def assert_table_properties(
     spark: SparkSession, databases: list[str] | None = None, excluded_tables: list[str] | None = None
 ):
@@ -21,8 +20,16 @@ def assert_table_properties(
         _assert_table(spark, table, excluded_tables=excluded_tables)
 
 
-# TODO: Move the geh_common
 def _assert_table(spark: SparkSession, table: Table, excluded_tables: list[str] | None = None):
+    """Assert table properties for a single table.
+
+    Ensures tables have:
+    - Table type is MANAGED
+    - Table format is delta
+    - Table location is set
+    - Table retention is set to 30 days
+    - Table clustering columns are set
+    """
     if table.tableType == "VIEW" or table.name in excluded_tables:
         return
     fqn = f"{table.database}.{table.name}"
