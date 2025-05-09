@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.9.0
+
+- Added project script test functionality
+
 ## Version 5.8.14
 
 - Added `geh_common.testing.dataframes.assert_table.assert_table_properties`
