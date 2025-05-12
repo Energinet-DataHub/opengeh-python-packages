@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.9.0
+## Version 5.9.1
 
 - Added project script test
 
