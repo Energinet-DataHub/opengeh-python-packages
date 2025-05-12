@@ -26,5 +26,5 @@ schema = T.StructType(
 )
 """
 Metering point periods for missing measurements log. These are the periods where the metering points are active,
-and can receive measurements. It includes all types except D99 and those calculated by Datahub (sub_type=calculated) 
+and can receive measurements. It includes all metering point types except internal_use (D99) and those calculated by Datahub (sub_type=calculated) 
 """
