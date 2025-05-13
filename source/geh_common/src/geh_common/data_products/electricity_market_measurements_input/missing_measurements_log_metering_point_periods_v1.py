@@ -17,14 +17,14 @@ schema = T.StructType(
         # Metering point resolution: PT1H/PT15M
         T.StructField("resolution", T.StringType(), not nullable),
         #
-        # First time the metering point is connected or disconnected. UTC time
+        # First time the metering point is connected or disconnected - or when resolution has changed. UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
         #
-        # The date where the the metering point is closed down. UTC time
+        # The date where the the metering point is closed down - or when resolution has changed. UTC time
         T.StructField("period_to_date", T.TimestampType(), nullable),
     ]
 )
 """
 Metering point periods for missing measurements log. These are the periods where the metering points are active,
-and can receive measurements. It includes all metering point types except internal_use (D99) and those calculated by Datahub (sub_type=calculated) 
+and can receive measurements. It includes all metering point types except internal_use (D99) and those calculated by Datahub (sub_type=calculated)
 """
