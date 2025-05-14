@@ -14,14 +14,11 @@ schema = T.StructType(
         #
         # States whether the metering point has electrical heating in the period
         # true:  The consumption metering has electrical heating in the stated period
-        # false: The consumption metering point was previously marked as having electrical
-        #        heating in the stated period, but this has been corrected
+        # false: The consumption metering has no electrical heating in the stated period
         T.StructField("has_electrical_heating", T.BooleanType(), not nullable),
         #
-        # Settlement month is 1st of January for all consumption with electrical heating except for
-        # net settlement group 6, where the date is the scheduled meter reading date.
-        # The number of the month. 1 is January, 12 is December.
-        # For all but settlement group 6 the month is January.
+        # the scheduled meter reading date for net settlement group 6.
+        # The number of the month. 1 is January, 12 is December.      
         # 1 | 2 | 3 | ... | 12
         T.StructField("settlement_month", T.IntegerType(), not nullable),
         #
@@ -39,15 +36,12 @@ schema = T.StructType(
     ]
 )
 """
-Consumption (parent) metering points related to electrical heating.
+Consumption (parent) metering points in netsettlement group 6.
 The data is periodized; the following transaction types are relevant for determining the periods:
 - CHANGESUP: Leverandørskift (BRS-001)
 - ENDSUPPLY: Leveranceophør (BRS-002)
 - INCCHGSUP: Håndtering af fejlagtigt leverandørskift (BRS-003)
 - MSTDATSBM: Fremsendelse af stamdata (BRS-006) - Skift af nettoafregningsgrupper
-- LNKCHLDMP: Tilkobling af D15 til parent i nettoafregningsgruppe 2
-- ULNKCHLDMP: Afkobling af D15 af parent i nettoafregningsgruppe 2
-- ULNKCHLDMP: Afkobling af D14 af parent
 - MOVEINES: Tilflytning - meldt til elleverandøren (BRS-009)
 - MOVEOUTES: Fraflytning - meldt til elleverandøren (BRS-010)
 - INCMOVEAUT: Fejlagtig flytning - Automatisk (BRS-011)
@@ -57,10 +51,10 @@ The data is periodized; the following transaction types are relevant for determi
 - CHGSUPSHRT: Leverandørskift med kort varsel (BRS-043). Findes ikke i DH3
 - MANCHGSUP: Tvunget leverandørskifte på målepunkt (BRS-044).
 - MANCOR (HTX): Manuelt korrigering
-Periods are  included when
+Periods are included when:
+- the parent metering point is in netsettlement group 6
 - the metering point physical status is connected or disconnected
 - the period does not end before 2021-01-01
-- the electrical heating is or has been registered for the period
 
 Formatting is according to ADR-144 with the following constraints:
 - No column may use quoted values
