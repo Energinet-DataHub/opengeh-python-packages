@@ -22,7 +22,7 @@ schema = T.StructType(
         # UTC time
         T.StructField("coupled_date", T.TimestampType(), not nullable),
         #
-        # The date when the child metering point was uncoupled from the parent metering point
+        # The date when the child metering point was uncoupled from the parent metering pointuv
         # UTC time
         T.StructField("uncoupled_date", T.TimestampType(), nullable),
     ]

@@ -18,7 +18,7 @@ schema = T.StructType(
         T.StructField("has_electrical_heating", T.BooleanType(), not nullable),
         #
         # the scheduled meter reading date for net settlement group 6.
-        # The number of the month. 1 is January, 12 is December.      
+        # The number of the month. 1 is January, 12 is December.
         # 1 | 2 | 3 | ... | 12
         T.StructField("settlement_month", T.IntegerType(), not nullable),
         #
