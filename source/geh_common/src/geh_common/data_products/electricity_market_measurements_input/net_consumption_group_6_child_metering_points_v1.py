@@ -28,13 +28,12 @@ schema = T.StructType(
     ]
 )
 """
-Child metering points related to electrical heating.
+Child metering points related to net-consumption.
 
 Periods are included when
 - the metering point is of type
 'supply_to_grid' | 'consumption_from_grid' | 'net_consumption'
 - the metering point is coupled to a parent metering point
-Note: The same child metering point cannot be re-coupled after being uncoupled
 - the child metering point physical status is connected or disconnected.
 - the period does not end before 2021-01-01
 
