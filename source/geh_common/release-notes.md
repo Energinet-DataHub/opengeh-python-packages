@@ -1,8 +1,12 @@
 # GEH Common Release Notes
 
+## Version 5.9.3
+
+- add project script test
+
 ## Version 5.9.2
 
-- Added project script test
+- Update to contract text for net_consumption_group_6_child_metering_points_v1 and net_consumption_group_6_consumption_metering_point_periods_v1
 
 ## Version 5.9.1
 
