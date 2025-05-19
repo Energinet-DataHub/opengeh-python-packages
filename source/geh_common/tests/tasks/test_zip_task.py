@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from geh_common.tasks.ZipTask import ZipTask, ZipWriter
+from geh_common.tasks.ZipTask import ZipTask, write_csv_files
 
 
 @pytest.fixture
@@ -73,29 +73,6 @@ def test_dbutils_mocked(spark, tmp_path_factory, mock_dbutils):
     shutil.rmtree(tmp_path)
 
 
-def test_write_files(spark, tmp_path_factory, mock_dbutils):
-    # Arrange
-    tmp_path: Path = tmp_path_factory.mktemp("test_zip_task")
-    if tmp_path.exists():
-        shutil.rmtree(tmp_path)
-    output_path = tmp_path / "test_file.txt"
-    df = spark.createDataFrame([(1, "a"), (2, "b"), (3, "c")], ["id", "value"])
-
-    # Act
-    writer = ZipWriter(df, output_path, tmp_path)
-    headers = writer._write_dataframe()
-
-    # Assert
-    assert (tmp_path / "test_file.txt").exists()
-    assert sorted(headers) == sorted(["id", "value"])
-    csvs = [f for f in writer.spark_output_path.iterdir() if f.suffix == ".csv"]
-    assert len(csvs) == 1
-    assert (csvs[0].read_text()).strip() == "1,a\n2,b\n3,c", (csvs[0].read_text()).strip()
-
-    # Clean up
-    shutil.rmtree(tmp_path)
-
-
 @pytest.mark.parametrize(
     "nrows, rows_per_file, expected_files",
     [
@@ -113,8 +90,7 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
-    writer = ZipWriter(df, output_path, tmpdir)
-    new_files = writer.write_files(rows_per_file=rows_per_file)
+    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
 
     # Assert
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
