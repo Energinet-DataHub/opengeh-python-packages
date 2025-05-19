@@ -118,6 +118,11 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
 
     # Assert
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
+    for f in output_path.rglob("*"):
+        assert f.is_file(), f"File {f} is not a file"
+        assert f.name.startswith("chunk_"), f"File {f} does not start with chunk_"
+        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
+
     assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"

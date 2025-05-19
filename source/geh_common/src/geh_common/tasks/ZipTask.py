@@ -129,8 +129,8 @@ class ZipWriter:
 
     def _get_file_info(self) -> list[FileInfo]:
         file_info = []
-        for f in Path(self.spark_output_path).rglob("*.csv"):
-            file_name = f.name
+        for i, f in enumerate(Path(self.spark_output_path).rglob("*.csv")):
+            file_name = f"chunk_{i}.csv"
             if CHUNK_INDEX_COLUMN in str(f):
                 regex = f"/{CHUNK_INDEX_COLUMN}=([0-9]+)/"
                 chunk_index = re.search(regex, str(f)).group(1)
@@ -170,6 +170,7 @@ class ZipWriter:
             partition_columns = []
         if order_by is None:
             order_by = []
+
         if rows_per_file is not None and rows_per_file > 0:
             if len(order_by) == 0:
                 for f in self.df.schema.fields:
