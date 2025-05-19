@@ -210,7 +210,10 @@ def _write_dataframe(
             order_by.append(df.columns[0])
         w = Window().partitionBy(partition_columns).orderBy(order_by)
         df = df.select("*", F.ceil((F.row_number().over(w)) / F.lit(rows_per_file)).alias(CHUNK_INDEX_COLUMN))
-        partition_columns.append(CHUNK_INDEX_COLUMN)
+        df.cache()
+        unique_chunk_index = df.select(CHUNK_INDEX_COLUMN).distinct().count()
+        if unique_chunk_index > 1:
+            partition_columns.append(CHUNK_INDEX_COLUMN)
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:

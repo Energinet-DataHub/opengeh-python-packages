@@ -111,6 +111,7 @@ def test_zip_task_write_files_default(spark, mock_dbutils):
         (100, 10, 10),
         (1000, 200, 5),
         (10000, 3000, 4),
+        (100, 3000, 1),
     ],
 )
 def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files, mock_dbutils):
