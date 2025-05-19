@@ -5,6 +5,7 @@ import string
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Callable
 
 from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
@@ -45,16 +46,7 @@ class ZipTask(TaskBase):
         self.zip_output_path = f"{output_path}.zip"
 
     @use_span()
-    def execute(self) -> None:
-        """Create a zip file from the files in the output path."""
-        files_to_zip = [f"{self.output_path}/{file_info.name}" for file_info in self.dbutils.fs.ls(self.output_path)]
-        self.log.info(f"Files to zip: {files_to_zip}")
-        self.log.info(f"Creating zip file: '{self.zip_output_path}'")
-        self.create_zip_file(files_to_zip)
-        self.log.info(f"Finished creating '{self.zip_output_path}'")
-
-    @use_span()
-    def create_zip_file(self, files_to_zip: list[str]) -> None:
+    def create_zip_file(self, files_to_zip: list[FileInfo]) -> None:
         """Create a zip file from a list of files and saves it to the specified path.
 
         Notice that we have to create the zip file in /tmp and then move it to the desired
@@ -75,8 +67,7 @@ class ZipTask(TaskBase):
         tmp_path = f"/tmp/{self.output_path}.zip"
         with zipfile.ZipFile(tmp_path, "a", zipfile.ZIP_DEFLATED) as ref:
             for fp in files_to_zip:
-                file_name = fp.split("/")[-1]
-                ref.write(fp, arcname=file_name)
+                ref.write(fp.source, arcname=fp.destination)
         self.dbutils.fs.mv(f"file:{tmp_path}", self.zip_output_path)
 
 
@@ -84,6 +75,7 @@ def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
     tmpdir: str | Path,
+    file_name_factory: Callable[[str], str] = lambda x: x,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
@@ -93,12 +85,12 @@ def write_csv_files(
 
     Args:
         df (DataFrame): The DataFrame to write.
-        path (str): The path to write the files to.
+        output_path (str | Path): The path to write the files to.
+        tmpdir (str | Path, optional): The temporary directory to write the files to. Defaults to "/tmp".
         partition_columns (list[str], optional): The columns to partition by. Defaults to [].
         order_by (list[str], optional): The columns to order by. Defaults to [].
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
-        tmpdir (str | Path, optional): The temporary directory to write the files to. Defaults to "/tmp".
 
     Returns:
         list[str]: Headers for the csv file.
@@ -119,6 +111,7 @@ def write_csv_files(
         result_output_path=result_output_path,
         spark_output_path=spark_output_path,
         tmpdir=tmpdir,
+        file_name_factory=file_name_factory,
     )
     content = _merge_content(file_info=file_info, headers=headers)
     shutil.rmtree(spark_output_path)
@@ -126,7 +119,12 @@ def write_csv_files(
     return content
 
 
-def _get_file_info(result_output_path, spark_output_path, tmpdir) -> list[FileInfo]:
+def _get_file_info(
+    result_output_path: str | Path,
+    spark_output_path: str | Path,
+    tmpdir: str | Path,
+    file_name_factory: Callable[[str], str] = lambda x: x,
+) -> list[FileInfo]:
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         file_name = f"chunk_{i}.csv"
@@ -134,6 +132,7 @@ def _get_file_info(result_output_path, spark_output_path, tmpdir) -> list[FileIn
             regex = f"/{CHUNK_INDEX_COLUMN}=([0-9]+)/"
             chunk_index = re.search(regex, str(f)).group(1)
             file_name = f"chunk_{chunk_index}.csv"
+        file_name = file_name_factory(file_name)
         file_info.append(
             FileInfo(
                 source=f,

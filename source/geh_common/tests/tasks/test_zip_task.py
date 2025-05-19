@@ -94,9 +94,66 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
 
     # Assert
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for f in output_path.rglob("*"):
+    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
         assert f.is_file(), f"File {f} is not a file"
-        assert f.name.startswith("chunk_"), f"File {f} does not start with chunk_"
+        assert f.name == f"chunk_{i}", f"File {f} is not named chunk_{i}"
+        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
+
+    assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
+    for f in new_files:
+        assert f.exists(), f"File {f} does not exist"
+        assert f.stat().st_size > 0, f"File {f} is empty"
+        content: str = f.read_text()
+        expected_rows = rows_per_file or nrows
+        # accounting for header
+        expected_rows += 1
+        # When exactly divisible, we expect nrows to be equal to expected_rows. Otherwise, we expect it to be less
+        if nrows % expected_rows == 0:
+            assert len(content.splitlines()) == expected_rows, f"File {f} has more than {rows_per_file} lines"
+        else:
+            assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+
+
+@pytest.mark.parametrize(
+    "nrows, rows_per_file, expected_files",
+    [
+        (10, None, 1),
+        (100, 10, 10),
+        (1000, 200, 5),
+        (10000, 3000, 4),
+    ],
+)
+def test_zip_task_write_files_in_chunks_with_custom_file_names(
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files, mock_dbutils
+):
+    # Arrange
+    report_output_dir = tmp_path_factory.mktemp("test_zip_task")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    output_path = report_output_dir / "test_file.txt"
+    df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
+
+    custom_prefix = "custom_chunk"
+
+    def file_name_factory(file_name: str) -> str:
+        return file_name.replace("chunk", custom_prefix)
+
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        tmpdir=tmpdir,
+        rows_per_file=rows_per_file,
+        file_name_factory=file_name_factory,
+    )
+
+    # Assert
+    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
+    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
+        assert f.is_file(), f"File {f} is not a file"
+        assert f.name == f"{custom_prefix}_{i}", f"File {f} is not named {custom_prefix}_{i}"
         assert f.name.endswith(".csv"), f"File {f} is not a csv file"
 
     assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
