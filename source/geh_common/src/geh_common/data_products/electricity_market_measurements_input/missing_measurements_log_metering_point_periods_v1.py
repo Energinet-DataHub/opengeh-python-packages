@@ -17,7 +17,7 @@ schema = T.StructType(
         # Metering point resolution: PT1H/PT15M
         T.StructField("resolution", T.StringType(), not nullable),
         #
-        # First time the metering point is connected or disconnected - or when resolution or grid area code has changed. UTC time
+        # First time the metering point is connected - or when resolution or grid area code has changed. UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
         #
         # The date where the the metering point is closed down - or when resolution or grid area code has changed. UTC time
