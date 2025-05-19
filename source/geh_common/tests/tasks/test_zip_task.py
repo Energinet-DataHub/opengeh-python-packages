@@ -48,8 +48,8 @@ def mock_dbutils(monkeypatch):
 
 def test_init_zip_task(spark, mock_dbutils):
     task = ZipTask(spark, "/tmp/test")
-    assert task.output_path == "/tmp/test"
-    assert task.zip_output_path == "/tmp/test.zip"
+    assert task.output_path == Path("/tmp/test")
+    assert task.zip_output_path == Path("/tmp/test.zip")
     assert task.spark == spark
 
 

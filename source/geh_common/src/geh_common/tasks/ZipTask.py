@@ -65,7 +65,7 @@ class ZipTask(TaskBase):
             raise ValueError("Output path must be a string or Path object")
         self.log = Logger(self.__class__.__name__)
         self.output_path = Path(output_path)
-        self.zip_output_path = f"{self.output_path.name}.zip"
+        self.zip_output_path = Path(f"{self.output_path}.zip")
 
     @use_span()
     def create_zip_file(self, files_to_zip: list[FileInfo]) -> None:
