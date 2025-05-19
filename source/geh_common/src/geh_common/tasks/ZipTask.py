@@ -197,6 +197,9 @@ def _write_dataframe(
         partition_columns = []
     if order_by is None:
         order_by = []
+    partition_columns = partition_columns.copy()
+    order_by = order_by.copy()
+    csv_options = csv_options.copy()
 
     if rows_per_file is not None and rows_per_file > 0:
         if len(order_by) == 0:
@@ -204,7 +207,7 @@ def _write_dataframe(
                 if isinstance(f.dataType, T.TimestampType | T.DateType):
                     order_by.append(f.name)
         if len(order_by) == 0:
-            order_by.extend([c for c in df.columns if c not in partition_columns])
+            order_by.append(df.columns[0])
         w = Window().partitionBy(partition_columns).orderBy(order_by)
         df = df.select("*", F.ceil((F.row_number().over(w)) / F.lit(rows_per_file)).alias(CHUNK_INDEX_COLUMN))
         partition_columns.append(CHUNK_INDEX_COLUMN)
