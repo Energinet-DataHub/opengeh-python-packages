@@ -115,6 +115,7 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
 
     # Clean up
     shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
 
 
 @pytest.mark.parametrize(
@@ -173,6 +174,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
 
     # Clean up
     shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
 
 
 @pytest.mark.parametrize(

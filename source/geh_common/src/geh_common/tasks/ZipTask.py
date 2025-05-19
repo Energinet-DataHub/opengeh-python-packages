@@ -96,7 +96,7 @@ class ZipTask(TaskBase):
 def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
-    tmpdir: str | Path,
+    tmpdir: str | Path = Path("/tmp"),
     file_name_factory: FileFactoryType = FileFactoryDefault,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
