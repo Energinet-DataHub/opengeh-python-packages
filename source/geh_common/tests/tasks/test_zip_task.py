@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from geh_common.tasks.ZipTask import ZipTask, _write_dataframe, write_files
+from geh_common.tasks.ZipTask import ZipTask, ZipWriter
 
 
 @pytest.fixture
@@ -82,12 +82,13 @@ def test_write_files(spark, tmp_path_factory, mock_dbutils):
     df = spark.createDataFrame([(1, "a"), (2, "b"), (3, "c")], ["id", "value"])
 
     # Act
-    headers = _write_dataframe(df, output_path)
+    writer = ZipWriter(df, output_path, tmp_path)
+    headers = writer._write_dataframe()
 
     # Assert
     assert (tmp_path / "test_file.txt").exists()
     assert sorted(headers) == sorted(["id", "value"])
-    csvs = [f for f in output_path.iterdir() if f.suffix == ".csv"]
+    csvs = [f for f in writer.spark_output_path.iterdir() if f.suffix == ".csv"]
     assert len(csvs) == 1
     assert (csvs[0].read_text()).strip() == "1,a\n2,b\n3,c", (csvs[0].read_text()).strip()
 
@@ -99,9 +100,9 @@ def test_write_files(spark, tmp_path_factory, mock_dbutils):
     "nrows, rows_per_file, expected_files",
     [
         (10, None, 1),
-        (10, 1, 10),
-        (10, 2, 5),
-        (10, 3, 4),
+        (100, 10, 10),
+        (1000, 200, 5),
+        (10000, 3000, 4),
     ],
 )
 def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files, mock_dbutils):
@@ -112,7 +113,8 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
-    new_files = write_files(df, output_path, rows_per_file=rows_per_file, tmpdir=tmpdir)
+    writer = ZipWriter(df, output_path, tmpdir)
+    new_files = writer.write_files(rows_per_file=rows_per_file)
 
     # Assert
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
@@ -124,7 +126,11 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
         expected_rows = rows_per_file or nrows
         # accounting for header
         expected_rows += 1
-        assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
+        # When exactly divisible, we expect nrows to be equal to expected_rows. Otherwise, we expect it to be less
+        if nrows % expected_rows == 0:
+            assert len(content.splitlines()) == expected_rows, f"File {f} has more than {rows_per_file} lines"
+        else:
+            assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
 
     # Clean up
     shutil.rmtree(report_output_dir)
