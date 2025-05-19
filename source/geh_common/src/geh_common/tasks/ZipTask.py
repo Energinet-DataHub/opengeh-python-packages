@@ -1,5 +1,4 @@
 import random
-import shutil
 import string
 import zipfile
 from dataclasses import dataclass
@@ -65,7 +64,7 @@ class ZipTask(TaskBase):
             raise ValueError("Output path must be a string or Path object")
         self.log = Logger(self.__class__.__name__)
         self.output_path = Path(output_path)
-        self.zip_output_path = Path(f"{self.output_path}.zip")
+        self.zip_output_path = self.output_path.with_suffix(".zip")
 
     @use_span()
     def create_zip_file(self, files_to_zip: list[FileInfo]) -> None:
@@ -97,6 +96,7 @@ def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
     file_name_factory: FileFactoryType = FileFactoryDefault,
+    spark_output_path: str | Path = None,
     tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
@@ -119,7 +119,8 @@ def write_csv_files(
     """
     random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
     result_output_path = Path(output_path)
-    spark_output_path = result_output_path / random_dir
+    if spark_output_path is None:
+        spark_output_path = result_output_path / random_dir
     tmpdir = tmpdir or Path("/tmp") / random_dir
     headers = _write_dataframe(
         df=df,
@@ -136,8 +137,6 @@ def write_csv_files(
         file_name_factory=file_name_factory,
     )
     content = _merge_content(file_info=file_info, headers=headers)
-    shutil.rmtree(spark_output_path)
-    shutil.rmtree(tmpdir)
     return content
 
 
@@ -210,10 +209,11 @@ def _write_dataframe(
             order_by.append(df.columns[0])
         w = Window().partitionBy(partition_columns).orderBy(order_by)
         df = df.select("*", F.ceil((F.row_number().over(w)) / F.lit(rows_per_file)).alias(CHUNK_INDEX_COLUMN))
-        df.cache()
         unique_chunk_index = df.select(CHUNK_INDEX_COLUMN).distinct().count()
         if unique_chunk_index > 1:
             partition_columns.append(CHUNK_INDEX_COLUMN)
+        else:
+            df = df.drop(CHUNK_INDEX_COLUMN)
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:
