@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.9.4
+
+- Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
+
 ## Version 5.9.3
 
 - add project script test
