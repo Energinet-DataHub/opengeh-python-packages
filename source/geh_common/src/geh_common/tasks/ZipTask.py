@@ -35,6 +35,14 @@ def FileFactoryDefault(file_name: str, partitions: dict[str, str]) -> str:
 
 @dataclass
 class FileInfo:
+    """Class to hold file information.
+
+    Attributes:
+        source (Path): The source file path.
+        destination (Path): The destination file path.
+        temporary (Path): The temporary file path.
+    """
+
     source: Path
     destination: Path
     temporary: Path
@@ -139,6 +147,14 @@ def _get_file_info(
     tmpdir: str | Path,
     file_name_factory: FileFactoryType = FileFactoryDefault,
 ) -> list[FileInfo]:
+    """Get file information for the files to be zipped.
+
+    Args:
+        result_output_path (str | Path): The path to the output directory.
+        spark_output_path (str | Path): The path to the Spark output directory.
+        tmpdir (str | Path): The temporary directory to write the files to.
+        file_name_factory (FileFactoryType, optional): The function to create the file name. Defaults to FileFactoryDefault.
+    """
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         file_name = f"chunk_{i}.csv"
@@ -206,6 +222,15 @@ def _write_dataframe(
 
 
 def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[str]:
+    """Merge the content of the files into a single file.
+
+    Args:
+        file_info (list[FileInfo]): The list of file information.
+        headers (list[str]): The headers for the CSV file.
+
+    Returns:
+        list[str]: The headers for the CSV file.
+    """
     for info in file_info:
         info.temporary.parent.mkdir(parents=True, exist_ok=True)
         with info.temporary.open("w+") as fh_temporary:
@@ -230,17 +255,23 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[str]:
     return list(destinations.keys())
 
 
-def get_partitions(f) -> dict[str, str]:
+def get_partitions(path) -> dict[str, str]:
     """Extract partition information from a file path.
 
     Args:
-        f (str): The file path.
+        path (str or Path): The file path from which to extract partition information.
+        The path should contain partition information in the format "key=value".
+        For example, "/tmp/part=1/part2=2/test" would yield {"part": "1", "part2": "2"}.
+
+    Raises:
+        ValueError: If the path contains an invalid partition format (e.g., "key=value=value").
+        This error occurs when there are too many values to unpack from the partition string.
 
     Returns:
         dict[str, str]: A dictionary with partition names as keys and their values.
     """
     partitions = {}
-    for p in Path(f).parts:
+    for p in Path(path).parts:
         if "=" in p:
             key, value = p.split("=", 2)
             partitions[key] = value

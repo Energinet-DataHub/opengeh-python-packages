@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from geh_common.tasks.ZipTask import CHUNK_INDEX_COLUMN, ZipTask, write_csv_files
+from geh_common.tasks.ZipTask import CHUNK_INDEX_COLUMN, ZipTask, get_partitions, write_csv_files
 
 
 @pytest.fixture
@@ -173,3 +173,31 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
 
     # Clean up
     shutil.rmtree(report_output_dir)
+
+
+@pytest.mark.parametrize(
+    "input_path, expected",
+    [
+        ("/tmp/test", {}),
+        (Path("/tmp/test"), {}),
+        ("/tmp/part=1/test", {"part": "1"}),
+        ("/tmp/part=1/part2=2/test", {"part": "1", "part2": "2"}),
+        ("/tmp/part=1/part2=2/part3=3/continued/path/to/test", {"part": "1", "part2": "2", "part3": "3"}),
+    ],
+)
+def test_get_partitions(input_path, expected):
+    """Test the get_partitions function."""
+    # Call the function and assert the result
+    assert get_partitions(input_path) == expected
+
+
+@pytest.mark.parametrize(
+    "input_path, error_type, matchstmt",
+    [
+        ("/tmp/part=1/part2=2/part3=3=5", ValueError, "too many values to unpack"),
+    ],
+)
+def test_get_partitions_invalid(input_path, error_type, matchstmt):
+    """Test the get_partitions function with invalid input."""
+    with pytest.raises(error_type, match=matchstmt):
+        get_partitions(input_path)
