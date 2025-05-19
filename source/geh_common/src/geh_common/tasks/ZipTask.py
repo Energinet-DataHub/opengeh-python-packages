@@ -1,10 +1,28 @@
+import random
+import re
+import shutil
+import string
 import zipfile
+from dataclasses import dataclass
 from pathlib import Path
 
-from pyspark.sql import SparkSession
+from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import functions as F
+from pyspark.sql import types as T
 
 from geh_common.tasks.TaskBase import TaskBase
 from geh_common.telemetry import Logger, use_span
+
+log = Logger(__name__)
+DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'"}
+CHUNK_INDEX_COLUMN = "chunk_index_partition"
+
+
+@dataclass
+class FileInfo:
+    source: Path
+    destination: Path
+    temporary: Path
 
 
 class ZipTask(TaskBase):
@@ -60,3 +78,142 @@ class ZipTask(TaskBase):
                 file_name = fp.split("/")[-1]
                 ref.write(fp, arcname=file_name)
         self.dbutils.fs.mv(f"file:{tmp_path}", self.zip_output_path)
+
+
+def write_files(
+    df: DataFrame,
+    path: str | Path,
+    partition_columns: list[str] = [],
+    order_by: list[str] = [],
+    rows_per_file: int | None = None,
+    csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
+    tmpdir: str | Path = Path("/tmp"),
+) -> list[str]:
+    """Write a DataFrame to multiple files.
+
+    Args:
+        df (DataFrame): The DataFrame to write.
+        path (str): The path to write the files to.
+        partition_columns (list[str], optional): The columns to partition by. Defaults to [].
+        order_by (list[str], optional): The columns to order by. Defaults to [].
+        rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
+        csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
+        tmpdir (str | Path, optional): The temporary directory to write the files to. Defaults to "/tmp".
+
+    Returns:
+        list[str]: Headers for the csv file.
+    """
+    random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
+    result_output_path = Path(path)
+    spark_output_path = result_output_path / random_dir
+    headers = _write_dataframe(
+        df=df,
+        path=spark_output_path,
+        partition_columns=partition_columns,
+        order_by=order_by,
+        rows_per_file=rows_per_file,
+        csv_options=csv_options,
+    )
+    file_info = _get_file_info(
+        result_output_path=result_output_path,
+        spark_output_path=spark_output_path,
+        tmpdir=tmpdir,
+    )
+    content = _merge_content(file_info=file_info, headers=headers)
+    shutil.rmtree(spark_output_path)
+    shutil.rmtree(tmpdir)
+    return content
+
+
+def _get_file_info(result_output_path: Path, spark_output_path: Path, tmpdir: str | Path) -> list[FileInfo]:
+    file_info = []
+    for f in Path(spark_output_path).rglob("*.csv"):
+        file_name = f.name
+        if CHUNK_INDEX_COLUMN in str(f):
+            regex = f"/{CHUNK_INDEX_COLUMN}=([0-9]+)/"
+            chunk_index = re.search(regex, str(f)).group(1)
+            file_name = f"chunk_{chunk_index}.csv"
+        file_info.append(
+            FileInfo(
+                source=f,
+                destination=result_output_path / file_name,
+                temporary=tmpdir / file_name,
+            )
+        )
+    if len(file_info) == 0:
+        raise ValueError(f"No files found in {spark_output_path}")
+    return file_info
+
+
+def _write_dataframe(
+    df: DataFrame,
+    path: str | Path,
+    partition_columns: list[str] = [],
+    order_by: list[str] = [],
+    rows_per_file: int | None = None,
+    csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
+) -> list[str]:
+    """Write a DataFrame to multiple files.
+
+    Args:
+        df (DataFrame): The DataFrame to write.
+        path (str): The path to write the files to.
+        partition_columns (list[str], optional): The columns to partition by. Defaults to [].
+        order_by (list[str], optional): The columns to order by. Defaults to [].
+        rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
+        csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
+
+    Returns:
+        list[str]: Headers for the csv file.
+    """
+    path = str(path)
+    if rows_per_file is not None and rows_per_file > 0:
+        if len(order_by) == 0:
+            for f in df.schema.fields:
+                if isinstance(f.dataType, T.TimestampType | T.DateType):
+                    order_by.append(f.name)
+        if len(order_by) == 0:
+            order_by.extend(df.columns)
+        if CHUNK_INDEX_COLUMN in df.columns:
+            df = df.drop(CHUNK_INDEX_COLUMN)
+        w = Window().partitionBy([]).orderBy(order_by.copy())
+        chunk_index_col = F.ceil((F.row_number().over(w)) / F.lit(rows_per_file))
+        df = df.withColumn(CHUNK_INDEX_COLUMN, chunk_index_col)
+        partition_columns.append(CHUNK_INDEX_COLUMN)
+        log.info(f"Writing {rows_per_file} rows per file")
+
+    if len(order_by) > 0:
+        df = df.orderBy(*order_by)
+
+    if partition_columns:
+        df.write.mode("overwrite").options(**csv_options).partitionBy(partition_columns).csv(path)
+    else:
+        df.write.mode("overwrite").options(**csv_options).csv(path)
+
+    return [c for c in df.columns if c not in partition_columns]
+
+
+def _merge_content(
+    file_info: list[FileInfo],
+    headers: list[str],
+) -> list[str]:
+    for info in file_info:
+        info.temporary.parent.mkdir(parents=True, exist_ok=True)
+        with info.temporary.open("w+") as fh_temporary:
+            log.info("Creating " + str(info.temporary))
+            fh_temporary.write(",".join(headers) + "\n")
+        with info.source.open("r") as fh_source:
+            with info.temporary.open("a") as fh_temporary:
+                fh_temporary.write(fh_source.read())
+
+    destinations = {f.destination: [] for f in file_info}
+    for info in file_info:
+        destinations[info.destination].append(info.temporary)
+    for dst, tmp_files in destinations.items():
+        log.info("Merging " + str(tmp_files) + " to " + str(dst))
+        with dst.open("a") as fh_destination:
+            for tmp_file in tmp_files:
+                with tmp_file.open("r") as fh_temporary:
+                    fh_destination.write(fh_temporary.read())
+
+    return list(destinations.keys())
