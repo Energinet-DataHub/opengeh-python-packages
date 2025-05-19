@@ -64,8 +64,8 @@ class ZipTask(TaskBase):
         if not isinstance(output_path, str | Path):
             raise ValueError("Output path must be a string or Path object")
         self.log = Logger(self.__class__.__name__)
-        self.output_path = output_path
-        self.zip_output_path = f"{output_path}.zip"
+        self.output_path = Path(output_path)
+        self.zip_output_path = f"{self.output_path.name}.zip"
 
     @use_span()
     def create_zip_file(self, files_to_zip: list[FileInfo]) -> None:
@@ -86,7 +86,7 @@ class ZipTask(TaskBase):
         """
         if len(files_to_zip) == 0:
             raise Exception("No files to zip")
-        tmp_path = f"/tmp/{self.output_path}.zip"
+        tmp_path = f"/tmp/{self.output_path.name}.zip"
         with zipfile.ZipFile(tmp_path, "a", zipfile.ZIP_DEFLATED) as ref:
             for fp in files_to_zip:
                 ref.write(fp.source, arcname=fp.destination)
