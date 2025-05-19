@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from geh_common.tasks.ZipTask import ZipTask, write_csv_files
+from geh_common.tasks.ZipTask import CHUNK_INDEX_COLUMN, ZipTask, write_csv_files
 
 
 @pytest.fixture
@@ -137,8 +137,9 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
 
     custom_prefix = "custom_chunk"
 
-    def file_name_factory(file_name: str) -> str:
-        return file_name.replace("chunk", custom_prefix)
+    def file_name_factory(_, partitions: dict[str, str]) -> str:
+        chunk_index = partitions.get(CHUNK_INDEX_COLUMN)
+        return f"{custom_prefix}_{chunk_index}"
 
     # Act
     new_files = write_csv_files(

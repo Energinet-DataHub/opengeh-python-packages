@@ -1,5 +1,4 @@
 import random
-import re
 import shutil
 import string
 import zipfile
@@ -17,6 +16,21 @@ from geh_common.telemetry import Logger, use_span
 log = Logger(__name__)
 DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'"}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
+
+FileFactoryType = Callable[[str, dict[str, str]], str]
+
+
+def FileFactoryDefault(file_name: str, partitions: dict[str, str]) -> str:
+    """Create default file name factory function.
+
+    Args:
+        file_name (str): The original file name.
+        partitions (dict[str, str]): The partitions to include in the file name.
+
+    Returns:
+        str: The new file name.
+    """
+    return file_name
 
 
 @dataclass
@@ -75,7 +89,7 @@ def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: Callable[[str], str] = lambda x: x,
+    file_name_factory: FileFactoryType = FileFactoryDefault,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
@@ -123,16 +137,13 @@ def _get_file_info(
     result_output_path: str | Path,
     spark_output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: Callable[[str], str] = lambda x: x,
+    file_name_factory: FileFactoryType = FileFactoryDefault,
 ) -> list[FileInfo]:
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         file_name = f"chunk_{i}.csv"
-        if CHUNK_INDEX_COLUMN in str(f):
-            regex = f"/{CHUNK_INDEX_COLUMN}=([0-9]+)/"
-            chunk_index = re.search(regex, str(f)).group(1)
-            file_name = f"chunk_{chunk_index}.csv"
-        file_name = file_name_factory(file_name)
+        partitions = get_partitions(f)
+        file_name = file_name_factory(file_name, partitions)
         file_info.append(
             FileInfo(
                 source=f,
@@ -217,3 +228,20 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[str]:
                     fh_destination.write(fh_temporary.read())
 
     return list(destinations.keys())
+
+
+def get_partitions(f) -> dict[str, str]:
+    """Extract partition information from a file path.
+
+    Args:
+        f (str): The file path.
+
+    Returns:
+        dict[str, str]: A dictionary with partition names as keys and their values.
+    """
+    partitions = {}
+    for p in Path(f).parts:
+        if "=" in p:
+            key, value = p.split("=", 2)
+            partitions[key] = value
+    return partitions
