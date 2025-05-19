@@ -163,8 +163,8 @@ def _get_file_info(
         file_info.append(
             FileInfo(
                 source=f,
-                destination=result_output_path / file_name,
-                temporary=tmpdir / file_name,
+                destination=Path(result_output_path) / file_name,
+                temporary=Path(tmpdir) / file_name,
             )
         )
     if len(file_info) == 0:
