@@ -96,8 +96,8 @@ class ZipTask(TaskBase):
 def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
-    tmpdir: str | Path = Path("/tmp"),
     file_name_factory: FileFactoryType = FileFactoryDefault,
+    tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
@@ -120,7 +120,7 @@ def write_csv_files(
     random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
     result_output_path = Path(output_path)
     spark_output_path = result_output_path / random_dir
-    tmpdir = Path(tmpdir)
+    tmpdir = tmpdir or Path("/tmp") / random_dir
     headers = _write_dataframe(
         df=df,
         spark_output_path=spark_output_path,

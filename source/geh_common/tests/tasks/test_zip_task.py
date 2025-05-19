@@ -73,6 +73,37 @@ def test_dbutils_mocked(spark, tmp_path_factory, mock_dbutils):
     shutil.rmtree(tmp_path)
 
 
+def test_zip_task_write_files_default(spark, mock_dbutils):
+    # Arrange
+    report_output_dir = Path("test_zip_task")
+    output_path = report_output_dir / "test_file.txt"
+    df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
+
+    # Act
+    new_files = write_csv_files(df, output_path=report_output_dir)
+
+    # Assert
+    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
+    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
+        assert f.is_file(), f"File {f} is not a file"
+        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
+
+    assert len(new_files) == 1, f"Expected {1} new files to be created, but got\n{file_list}"
+
+    for f in new_files:
+        assert f.exists(), f"File {f} does not exist"
+        assert f.stat().st_size > 0, f"File {f} is empty"
+        content: str = f.read_text()
+        expected_rows = 100_000
+        # accounting for header
+        expected_rows += 1
+        # When exactly divisible, we expect nrows to be equal to expected_rows. Otherwise, we expect it to be less
+        assert len(content.splitlines()) == expected_rows, f"File {f} has more than {expected_rows} lines"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+
+
 @pytest.mark.parametrize(
     "nrows, rows_per_file, expected_files",
     [
@@ -105,12 +136,14 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
         assert f.stat().st_size > 0, f"File {f} is empty"
         content: str = f.read_text()
         expected_rows = rows_per_file or nrows
-        # accounting for header
-        expected_rows += 1
         # When exactly divisible, we expect nrows to be equal to expected_rows. Otherwise, we expect it to be less
         if nrows % expected_rows == 0:
+            # accounting for header
+            expected_rows += 1
             assert len(content.splitlines()) == expected_rows, f"File {f} has more than {rows_per_file} lines"
         else:
+            # accounting for header
+            expected_rows += 1
             assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
 
     # Clean up
@@ -139,7 +172,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
 
     def file_name_factory(_, partitions: dict[str, str]) -> str:
         chunk_index = partitions.get(CHUNK_INDEX_COLUMN)
-        return f"{custom_prefix}_{chunk_index}"
+        return f"{custom_prefix}_{chunk_index}.csv"
 
     # Act
     new_files = write_csv_files(
