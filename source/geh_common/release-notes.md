@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.9.4
+## Version 5.10.0
 
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
 
