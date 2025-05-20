@@ -274,10 +274,10 @@ def test_write_files__when_order_by_specified_on_multiple_partitions(
                 all_lines_written = f.readlines()
 
                 if len(all_lines_written) == 1:
-                    assert all_lines_written[0] == "c,3,3\n"
+                    assert all_lines_written[0] == "c,3.3\n"
                 elif len(all_lines_written) == 2:
-                    assert all_lines_written[0] == "b,1,1\n"
-                    assert all_lines_written[1] == "b,2,2\n"
+                    assert all_lines_written[0] == "b,1.1\n"
+                    assert all_lines_written[1] == "b,2.2\n"
                 else:
                     raise AssertionError("Found unexpected csv file.")
 
