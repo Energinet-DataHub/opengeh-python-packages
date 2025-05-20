@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 
-def _sanitize_path(path: str) -> str:
+def _sanitize_path(path: str | Path) -> Path:
     """Remove the prefix from the path if it exists."""
     path, *rest = str(path).split(":", 1)
     if len(rest) > 0:

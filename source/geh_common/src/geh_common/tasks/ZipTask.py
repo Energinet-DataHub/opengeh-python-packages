@@ -87,7 +87,7 @@ def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
     file_name_factory: FileNameCallbackType = _default_file_name_callback,
-    spark_output_path: str | Path = None,
+    spark_output_path: str | Path | None = None,
     tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
     order_by: list[str] | None = None,
