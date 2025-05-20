@@ -46,7 +46,7 @@ class FileInfo:
     temporary: Path
 
 
-def zip_dir(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp")) -> None:
+def zip_dir(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp")) -> Path:
     """Create a zip file from a list of files and saves it to the specified path.
 
     Notice that we have to create the zip file in /tmp and then move it to the desired
