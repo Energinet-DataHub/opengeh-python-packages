@@ -15,10 +15,10 @@ log = Logger(__name__)
 DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'"}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
 
-FileFactoryType = Callable[[str, dict[str, str]], str]
+FileNameCallbackType = Callable[[str, dict[str, str]], str]
 
 
-def FileFactoryDefault(file_name: str, partitions: dict[str, str]) -> str:
+def DefaultFileNameCallback(file_name: str, partitions: dict[str, str]) -> str:
     """Create default file name factory function.
 
     Args:
@@ -82,7 +82,7 @@ def create_zip_file(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp"))
 def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
-    file_name_factory: FileFactoryType = FileFactoryDefault,
+    file_name_factory: FileNameCallbackType = DefaultFileNameCallback,
     spark_output_path: str | Path = None,
     tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
@@ -131,7 +131,7 @@ def _get_file_info(
     result_output_path: str | Path,
     spark_output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: FileFactoryType = FileFactoryDefault,
+    file_name_factory: FileNameCallbackType = DefaultFileNameCallback,
 ) -> list[FileInfo]:
     """Get file information for the files to be zipped.
 
