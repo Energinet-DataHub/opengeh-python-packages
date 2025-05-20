@@ -18,12 +18,12 @@ CHUNK_INDEX_COLUMN = "chunk_index_partition"
 FileNameCallbackType = Callable[[str, dict[str, str]], str]
 
 
-def DefaultFileNameCallback(file_name: str, partitions: dict[str, str]) -> str:
+def _default_file_name_callback(file_name: str, partitions: dict[str, str]) -> str:
     """Create default file name factory function.
 
     Args:
         file_name (str): The original file name.
-        partitions (dict[str, str]): The partitions to include in the file name.
+        partitions (dict[str, str]): The partitions included in the original file path.
 
     Returns:
         str: The new file name.
@@ -54,8 +54,9 @@ def create_zip_file(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp"))
     supported in Databricks.
 
     Args:
-        path (str | Path): The path to the directory to zip.
-        dbutils (Any): The DBUtils object.
+        path (str | Path): The path to the directory containing the files to zip.
+        dbutils: The Databricks utilities object.
+        tmpdir (str | Path, optional): The temporary directory to write the zip file to. Defaults to "tmp".
 
     Raises:
         Exception: If there are no files to zip.
@@ -82,7 +83,7 @@ def create_zip_file(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp"))
 def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
-    file_name_factory: FileNameCallbackType = DefaultFileNameCallback,
+    file_name_factory: FileNameCallbackType = _default_file_name_callback,
     spark_output_path: str | Path = None,
     tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
@@ -95,7 +96,9 @@ def write_csv_files(
     Args:
         df (DataFrame): The DataFrame to write.
         output_path (str | Path): The path to write the files to.
-        tmpdir (str | Path, optional): The temporary directory to write the files to. Defaults to "/tmp".
+        file_name_factory (FileNameCallbackType, optional): The function to create the file name. Defaults to DefaultFileNameCallback.
+        spark_output_path (str | Path, optional): The path to the Spark output directory. Defaults to None.
+        tmpdir (str | Path | None, optional): The temporary directory to write the files to. Defaults to None.
         partition_columns (list[str], optional): The columns to partition by. Defaults to [].
         order_by (list[str], optional): The columns to order by. Defaults to [].
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
@@ -131,7 +134,7 @@ def _get_file_info(
     result_output_path: str | Path,
     spark_output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: FileNameCallbackType = DefaultFileNameCallback,
+    file_name_factory: FileNameCallbackType = _default_file_name_callback,
 ) -> list[FileInfo]:
     """Get file information for the files to be zipped.
 
@@ -170,7 +173,7 @@ def _write_dataframe(
 
     Args:
         df (DataFrame): The DataFrame to write.
-        path (str): The path to write the files to.
+        spark_output_path (str | Path): The path to write the files to.
         partition_columns (list[str], optional): The columns to partition by. Defaults to [].
         order_by (list[str], optional): The columns to order by. Defaults to [].
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
@@ -253,12 +256,12 @@ def get_partitions(path) -> dict[str, str]:
 
     Args:
         path (str or Path): The file path from which to extract partition information.
-        The path should contain partition information in the format "key=value".
-        For example, "/tmp/part=1/part2=2/test" would yield {"part": "1", "part2": "2"}.
+            The path should contain partition information in the format "key=value".
+            For example, "/tmp/part=1/part2=2/test" would yield {"part": "1", "part2": "2"}.
 
     Raises:
         ValueError: If the path contains an invalid partition format (e.g., "key=value=value").
-        This error occurs when there are too many values to unpack from the partition string.
+            This error occurs when there are too many values to unpack from the partition string.
 
     Returns:
         dict[str, str]: A dictionary with partition names as keys and their values.
