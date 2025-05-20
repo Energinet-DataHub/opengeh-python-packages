@@ -60,6 +60,9 @@ def create_zip_file(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp"))
 
     Raises:
         Exception: If there are no files to zip.
+
+    Returns:
+        Path: The path to the created zip file.
     """
     output_path = Path(path)
     if not output_path.exists():
@@ -105,7 +108,7 @@ def write_csv_files(
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
 
     Returns:
-        list[str]: Headers for the csv file.
+        list[Path]: The list of file paths created.
     """
     random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
     result_output_path = Path(output_path)
@@ -143,6 +146,12 @@ def _get_file_info(
         spark_output_path (str | Path): The path to the Spark output directory.
         tmpdir (str | Path): The temporary directory to write the files to.
         file_name_factory (FileFactoryType, optional): The function to create the file name. Defaults to FileFactoryDefault.
+
+    Raises:
+        ValueError: If no files are found in the spark output path.
+
+    Returns:
+        list[FileInfo]: The list of file information.
     """
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
