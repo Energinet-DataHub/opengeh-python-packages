@@ -268,16 +268,16 @@ def test_write_files__when_order_by_specified_on_multiple_partitions(
     # Assert
     assert Path(csv_path).exists()
 
-    for x in Path(csv_path).iterdir():
-        if x.is_file() and x.name[-4:] == ".csv":
-            with x.open(mode="r") as f:
+    for p in Path(csv_path).iterdir():
+        if p.is_file() and p.suffix == ".csv":
+            with p.open(mode="r") as f:
                 all_lines_written = f.readlines()
 
                 if len(all_lines_written) == 1:
-                    assert all_lines_written[0] == "c;3,3\n"
+                    assert all_lines_written[0] == "c,3,3\n"
                 elif len(all_lines_written) == 2:
-                    assert all_lines_written[0] == "b;1,1\n"
-                    assert all_lines_written[1] == "b;2,2\n"
+                    assert all_lines_written[0] == "b,1,1\n"
+                    assert all_lines_written[1] == "b,2,2\n"
                 else:
                     raise AssertionError("Found unexpected csv file.")
 
@@ -314,9 +314,9 @@ def test_write_files__when_df_includes_timestamps__creates_csv_without_milliseco
     # Assert
     assert Path(csv_path).exists()
 
-    for x in Path(csv_path).iterdir():
-        if x.is_file() and x.name[-4:] == ".csv":
-            with x.open(mode="r") as f:
+    for p in Path(csv_path).iterdir():
+        if p.is_file() and p.suffix == ".csv":
+            with p.open(mode="r") as f:
                 all_lines_written = f.readlines()
 
                 assert all_lines_written[0] == "a,2024-10-21T12:10:30Z\n"
