@@ -9,9 +9,9 @@ from pyspark.sql import SparkSession
 from geh_common.tasks.ZipTask import (
     CHUNK_INDEX_COLUMN,
     _write_dataframe,
+    create_zip_file,
     get_partitions,
     write_csv_files,
-    zip_dir,
 )
 from geh_common.testing.spark.mocks import MockDBUtils
 
@@ -25,7 +25,7 @@ def test_zip_dir(tmp_path_factory):
         (outputdir / file).write_text(f"Content of {file}")
 
     # Act
-    zip_file = zip_dir(outputdir, MockDBUtils(), tmpdir)
+    zip_file = create_zip_file(outputdir, MockDBUtils(), tmpdir)
 
     # Assert
     assert zip_file == Path(outputdir).with_suffix(".zip"), (
