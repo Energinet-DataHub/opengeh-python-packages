@@ -68,7 +68,7 @@ def zip_dir(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp")) -> Path
     zip_output_path = output_path.with_suffix(".zip")
     files_to_zip = [Path(f) for f in dbutils.fs.ls(str(output_path))]
     if len(files_to_zip) == 0:
-        raise Exception("No files to zip")
+        raise FileNotFoundError(f"No files found in {output_path}")
     tmp_path = Path(tmpdir) / zip_output_path.name
     Path(tmp_path).parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as ref:
@@ -89,7 +89,7 @@ def write_csv_files(
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
     csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
-) -> list[str]:
+) -> list[Path]:
     """Write a DataFrame to multiple files.
 
     Args:
@@ -214,7 +214,7 @@ def _write_dataframe(
     return [c for c in df.columns if c not in partition_columns]
 
 
-def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[str]:
+def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     """Merge the content of the files into a single file.
 
     Args:
