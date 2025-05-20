@@ -10,7 +10,7 @@ from geh_common.tasks.ZipTask import (
     CHUNK_INDEX_COLUMN,
     _write_dataframe,
     create_zip_file,
-    get_partitions,
+    get_partition_information,
     write_csv_files,
 )
 from geh_common.testing.spark.mocks import MockDBUtils
@@ -194,7 +194,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
 def test_get_partitions(input_path, expected):
     """Test the get_partitions function."""
     # Call the function and assert the result
-    assert get_partitions(input_path) == expected
+    assert get_partition_information(input_path) == expected
 
 
 @pytest.mark.parametrize(
@@ -206,7 +206,7 @@ def test_get_partitions(input_path, expected):
 def test_get_partitions_invalid(input_path, error_type, matchstmt):
     """Test the get_partitions function with invalid input."""
     with pytest.raises(error_type, match=matchstmt):
-        get_partitions(input_path)
+        get_partition_information(input_path)
 
 
 def test_write_files__csv_separator_is_comma_and_decimals_use_points(

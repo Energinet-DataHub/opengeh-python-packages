@@ -156,7 +156,7 @@ def _get_file_info(
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         file_name = f"chunk_{i}.csv"
-        partitions = get_partitions(f)
+        partitions = get_partition_information(f)
         file_name = file_name_factory(file_name, partitions)
         file_info.append(
             FileInfo(
@@ -260,7 +260,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     return list(destinations.keys())
 
 
-def get_partitions(path) -> dict[str, str]:
+def get_partition_information(path) -> dict[str, str]:
     """Extract partition information from a file path.
 
     Args:
