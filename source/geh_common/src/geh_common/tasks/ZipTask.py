@@ -3,7 +3,7 @@ import string
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable
+from typing import Any, Callable
 
 from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
@@ -46,7 +46,7 @@ class FileInfo:
     temporary: Path
 
 
-def create_zip_file(path: str | Path, dbutils, tmpdir: str | Path = Path("tmp")) -> Path:
+def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("tmp")) -> Path:
     """Create a zip file from a list of files and saves it to the specified path.
 
     Notice that we have to create the zip file in /tmp and then move it to the desired
