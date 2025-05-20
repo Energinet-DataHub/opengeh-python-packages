@@ -1,81 +1,51 @@
 import shutil
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 import pytest
 from pyspark.sql import SparkSession
 
-from geh_common.tasks.ZipTask import CHUNK_INDEX_COLUMN, ZipTask, _write_dataframe, get_partitions, write_csv_files
+from geh_common.tasks.ZipTask import (
+    CHUNK_INDEX_COLUMN,
+    _write_dataframe,
+    get_partitions,
+    write_csv_files,
+    zip_dir,
+)
+from geh_common.testing.spark.mocks import MockDBUtils
 
 
-@pytest.fixture
-def mock_dbutils(monkeypatch):
-    class MockFileInfo:
-        def __init__(self, name):
-            self.name = name
-
-    class MockDBUtils:
-        @property
-        def fs(self):
-            class MockFS:
-                def ls(self, path):
-                    return [MockFileInfo(f.name) for f in Path(path).iterdir()]
-
-                def mv(self, src: str | Path, dst: str | Path):
-                    src = str(src)
-                    dst = str(dst)
-                    if src.startswith("/dbfs/") or dst.startswith("/dbfs/"):
-                        src = src.replace("/dbfs/", "")
-                        dst = dst.replace("/dbfs/", "")
-                    if src.startswith("dbfs:/") or dst.startswith("dbfs:/"):
-                        src = src.replace("dbfs:/", "")
-                        dst = dst.replace("dbfs:/", "")
-                    if src.startswith("file:/") or dst.startswith("file:/"):
-                        src = src.replace("file:/", "")
-                        dst = dst.replace("file:/", "")
-                    shutil.move(Path(src), Path(dst))
-
-                def cp(self, src, dst):
-                    if Path(src).is_dir():
-                        shutil.copytree(src, dst)
-                    else:
-                        shutil.copy(src, dst)
-
-            return MockFS()
-
-    monkeypatch.setattr("geh_common.tasks.TaskBase.get_dbutils", lambda _: MockDBUtils())
-
-    return MockDBUtils()
-
-
-def test_init_zip_task(spark, mock_dbutils):
-    task = ZipTask(spark, "/tmp/test")
-    assert task.output_path == Path("/tmp/test")
-    assert task.zip_output_path == Path("/tmp/test.zip")
-    assert task.spark == spark
-
-
-def test_dbutils_mocked(spark, tmp_path_factory, mock_dbutils):
+def test_zip_dir(tmp_path_factory):
     # Arrange
-    tmp_path: Path = tmp_path_factory.mktemp("test_zip_task")
-    task = ZipTask(spark, tmp_path)
-    assert task.dbutils.fs.ls(tmp_path) == []
-    assert isinstance(task.dbutils, mock_dbutils.__class__)
-    for i in range(3):
-        (tmp_path / f"file_{i}.txt").write_text(f"Content of file {i}")
+    outputdir = tmp_path_factory.mktemp("test_zip_task")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    files = ["file_1.txt", "file_2.txt", "file_3.txt"]
+    for file in files:
+        (outputdir / file).write_text(f"Content of {file}")
 
     # Act
-    files: list[Path] = task.dbutils.fs.ls(str(tmp_path))
+    zip_file = zip_dir(outputdir, MockDBUtils(), tmpdir)
 
     # Assert
-    assert len(files) == 3
-    assert sorted([f.name for f in files]) == sorted([f"file_{i}.txt" for i in range(3)])
+    assert zip_file == Path(outputdir).with_suffix(".zip"), (
+        f"Expected {zip_file} to be {Path(outputdir).with_suffix('.zip')}"
+    )
+    assert zip_file.exists(), f"Zip file {zip_file} does not exist"
+    assert zip_file.stat().st_size > 0, f"Zip file {zip_file} is empty"
+
+    with zipfile.ZipFile(zip_file, "r") as zf:
+        zip_files = zf.namelist()
+        assert len(zip_files) == len(files), f"Expected {len(files)} files in zip, but got {len(zip_files)}"
+        for file in files:
+            assert file in zip_files, f"File {file} not found in zip"
 
     # Clean up
-    shutil.rmtree(tmp_path)
+    shutil.rmtree(outputdir)
+    shutil.rmtree(tmpdir)
 
 
-def test_zip_task_write_files_default(spark, mock_dbutils):
+def test_zip_task_write_files_default(spark):
     # Arrange
     report_output_dir = Path("test_zip_task")
     output_path = report_output_dir / "test_file.txt"
@@ -116,7 +86,7 @@ def test_zip_task_write_files_default(spark, mock_dbutils):
         (100, 3000, 1),
     ],
 )
-def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files, mock_dbutils):
+def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_zip_task")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
@@ -163,7 +133,7 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
     ],
 )
 def test_zip_task_write_files_in_chunks_with_custom_file_names(
-    spark, tmp_path_factory, nrows, rows_per_file, expected_files, mock_dbutils
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files
 ):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_zip_task")
