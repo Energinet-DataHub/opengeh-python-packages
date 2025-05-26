@@ -129,7 +129,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
     for i, f in enumerate(sorted(list(output_path.rglob("*")))):
         assert f.is_file(), f"File {f} is not a file"
-        assert f.name == f"{custom_prefix}_{i}", f"File {f} is not named {custom_prefix}_{i}"
+        assert f.name == f"{custom_prefix}_{i}.csv", f"File {f} is not named {custom_prefix}_{i}.csv"
         assert f.name.endswith(".csv"), f"File {f} is not a csv file"
 
     assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"

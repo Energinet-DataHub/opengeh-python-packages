@@ -219,7 +219,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
         headers (list[str]): The headers for the CSV file.
 
     Returns:
-        list[str]: The headers for the CSV file.
+        list[Path]: The headers for the CSV file.
     """
     for info in file_info:
         info.temporary.parent.mkdir(parents=True, exist_ok=True)
