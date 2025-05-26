@@ -139,7 +139,6 @@ def configure_logging(
     os.environ["OTEL_SERVICE_NAME"] = logging_settings.cloud_role_name
 
     # Configure OpenTelemetry to log to Azure Monitor.
-    # {"azure_sdk": {"enabled": False}, "flask": {"enabled": False}, "django": {"enabled": True}}
     configure_azure_monitor(
         connection_string=logging_settings.applicationinsights_connection_string,
         instrumentation_options={
