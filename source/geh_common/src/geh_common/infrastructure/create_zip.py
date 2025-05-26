@@ -18,7 +18,7 @@ def create_zip_file(dbutils: Any, save_path: str | Path, files_to_zip: list[str]
         files_to_zip (list[str]): A list of file paths to include in the zip file.
 
     Raises:
-        Exception: If there are no files to zip.
+        ValueError: If no files are provided or if the save path does not end with '.zip'.
 
     Returns:
         Path: The path to the created zip file.
