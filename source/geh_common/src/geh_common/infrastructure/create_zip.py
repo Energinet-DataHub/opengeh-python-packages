@@ -35,5 +35,5 @@ def create_zip_file(dbutils: Any, save_path: str | Path, files_to_zip: list[str]
         for file_path in files_to_zip:
             file_name = Path(file_path).name
             ref.write(file_path, arcname=file_name)
-    dbutils.fs.mv(f"file:{tmp_path}", save_path)
+    dbutils.fs.mv(f"file:{tmp_path}", str(save_path))
     return Path(save_path)
