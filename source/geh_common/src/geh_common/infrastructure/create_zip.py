@@ -27,7 +27,7 @@ def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("t
     if not output_path.is_dir():
         raise ValueError(f"'{output_path}' is not a directory")
     zip_output_path = output_path.with_suffix(".zip")
-    files_to_zip = [Path(f) for f in dbutils.fs.ls(str(output_path))]
+    files_to_zip = [f for f in dbutils.fs.ls(str(output_path))]
     if len(files_to_zip) == 0:
         raise FileNotFoundError(f"No files found in {output_path}")
     tmp_path = Path(tmpdir) / zip_output_path.name
