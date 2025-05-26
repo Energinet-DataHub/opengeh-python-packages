@@ -88,6 +88,7 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
             assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
 
     # Clean up
+    shutil.rmtree(tmpdir)
     shutil.rmtree(report_output_dir)
 
 
@@ -146,6 +147,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
             assert len(content.splitlines()) <= expected_rows, f"File {f} has more than {rows_per_file} lines"
 
     # Clean up
+    shutil.rmtree(tmpdir)
     shutil.rmtree(report_output_dir)
 
 
@@ -209,7 +211,8 @@ def test_write_files__csv_separator_is_comma_and_decimals_use_points(
 
     assert columns == ["key", "value"]
 
-    shutil.rmtree(csv_path)
+    # Clean up
+    shutil.rmtree(tmp_dir)
 
 
 def test_write_files__when_order_by_specified_on_multiple_partitions(
@@ -222,7 +225,7 @@ def test_write_files__when_order_by_specified_on_multiple_partitions(
         ["key", "value"],
     )
     tmp_dir = tmp_path_factory.mktemp("test_zip_task")
-    csv_path = f"{tmp_dir.name}/csv_file"
+    csv_path = f"{tmp_dir}/csv_file"
 
     # Act
     columns = _write_dataframe(
@@ -251,7 +254,8 @@ def test_write_files__when_order_by_specified_on_multiple_partitions(
 
     assert columns == ["value"]
 
-    shutil.rmtree(csv_path)
+    # Clean up
+    shutil.rmtree(tmp_dir)
 
 
 def test_write_files__when_df_includes_timestamps__creates_csv_without_milliseconds(
@@ -268,7 +272,7 @@ def test_write_files__when_df_includes_timestamps__creates_csv_without_milliseco
         ["key", "value"],
     )
     tmp_dir = tmp_path_factory.mktemp("test_zip_task")
-    csv_path = f"{tmp_dir.name}/csv_file"
+    csv_path = f"{tmp_dir}/csv_file"
 
     # Act
     columns = _write_dataframe(
@@ -293,4 +297,5 @@ def test_write_files__when_df_includes_timestamps__creates_csv_without_milliseco
 
     assert columns == ["key", "value"]
 
-    shutil.rmtree(csv_path)
+    # Clean up
+    shutil.rmtree(tmp_dir)

@@ -33,8 +33,8 @@ def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("t
     tmp_path = Path(tmpdir) / zip_output_path.name
     Path(tmp_path).parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as ref:
-        for fp in files_to_zip:
-            file_name = fp.name
-            ref.write(fp, arcname=file_name)
+        for file_info in files_to_zip:
+            file_name = file_info.name
+            ref.write(file_info.path, arcname=file_name)
     dbutils.fs.mv(f"file:{tmp_path}", zip_output_path)
     return zip_output_path
