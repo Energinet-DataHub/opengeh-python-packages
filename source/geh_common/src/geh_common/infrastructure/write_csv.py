@@ -91,8 +91,8 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_factory=file_name_factory,
     )
-    content = _merge_content(file_info=file_info, headers=headers)
-    return content
+    files = _merge_content(file_info=file_info, headers=headers)
+    return files
 
 
 def get_partition_information(path) -> dict[str, str]:
