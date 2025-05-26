@@ -2,6 +2,8 @@ import shutil
 import zipfile
 from pathlib import Path
 
+import pytest
+
 from geh_common.infrastructure.create_zip import create_zip_file
 from geh_common.testing.spark.mocks import MockDBUtils
 
@@ -33,3 +35,54 @@ def test_zip_dir(tmp_path_factory):
     # Clean up
     shutil.rmtree(outputdir)
     shutil.rmtree(tmpdir)
+
+
+def test_create_zip_file__when_dbutils_is_none__raise_exception():
+    # Arrange
+    dbutils = None
+    save_path = "save_path.zip"
+    files_to_zip = ["file1", "file2"]
+
+    # Act
+    with pytest.raises(Exception):
+        create_zip_file(dbutils, save_path, files_to_zip)
+
+
+def test_create_zip_file__when_save_path_is_not_zip__raise_exception():
+    # Arrange
+    dbutils = None
+    save_path = "save_path"
+    files_to_zip = ["file1", "file2"]
+
+    # Act
+    with pytest.raises(Exception):
+        create_zip_file(dbutils, save_path, files_to_zip)
+
+
+def test_create_zip_file__when_no_files_to_zip__raise_exception():
+    # Arrange
+    dbutils = None
+    save_path = "save_path.zip"
+    files_to_zip = ["file1", "file2"]
+
+    # Act
+    with pytest.raises(Exception):
+        create_zip_file(dbutils, save_path, files_to_zip)
+
+
+def test_create_zip_file__when_files_to_zip__create_zip_file(tmp_path_factory):
+    # Arrange
+    tmp_dir = tmp_path_factory.mktemp("tmp_dir")
+    save_path = tmp_dir / "test_zip_file.zip"
+    files_to_zip = [str(tmp_dir / f"file_{i}.txt") for i in range(3)]
+    for file_path in files_to_zip:
+        Path(file_path).write_text(f"Content of {file_path}")
+
+    # Act
+    create_zip_file(MockDBUtils(), save_path, files_to_zip)
+
+    # Assert
+    assert Path(save_path).exists()
+
+    # Clean up
+    shutil.rmtree(tmp_dir)
