@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import os
 import shutil
 from pathlib import Path
 
@@ -11,7 +14,13 @@ def _sanitize_path(path: str | Path) -> Path:
         return Path(path)
 
 
-class MockFileInfo:
+class MockDBUtils:
+    def __init__(self) -> None:
+        self.fs = _MockFS()
+        self.secrets = _MockSecrets()
+
+
+class _MockFileInfo:
     def __init__(self, p: Path) -> None:
         path = _sanitize_path(p)
         self.path = str(path)
@@ -20,20 +29,45 @@ class MockFileInfo:
         self.modificationTime = int(path.stat().st_mtime * 1000) if path.exists() else 0
 
 
-class MockDBUtils:
-    @property
-    def fs(self):
-        class MockFS:
-            def ls(self, path):
-                return [MockFileInfo(f) for f in Path(path).iterdir()]
+class _MockSecrets:
+    def __init__(self):
+        pass
 
-            def mv(self, src: str | Path, dst: str | Path):
-                shutil.move(_sanitize_path(src), _sanitize_path(dst))
+    def get(self, scope, name):
+        return os.environ.get(name)
 
-            def cp(self, src, dst):
-                if Path(src).is_dir():
-                    shutil.copytree(_sanitize_path(src), _sanitize_path(dst))
-                else:
-                    shutil.copy(_sanitize_path(src), _sanitize_path(dst))
 
-        return MockFS()
+class _MockFS:
+    """Mock implementation of DBUtils FileSystem API.
+
+    See more at https://docs.databricks.com/aws/en/dev-tools/databricks-utils#file-system-utility-dbutilsfs
+    """
+
+    def __init__(self):
+        pass
+
+    def put(self, path: str, content: str, overwrite: bool = False):
+        _path = _sanitize_path(path)
+        if not overwrite and _path.exists():
+            raise FileExistsError(f"File {_path} already exists.")
+        _path.write_text(content, encoding="utf-8")
+
+    def mkdirs(self, path: str):
+        Path(_sanitize_path(path)).mkdir(parents=True, exist_ok=True)
+
+    def ls(self, path: str):
+        return [_MockFileInfo(f) for f in Path(path).iterdir()]
+
+    def mv(self, src: str, dst: str, recurse: bool = False):
+        if not Path(src).exists():
+            raise FileNotFoundError(f"Source path {src} does not exist.")
+        self.cp(src, dst, recurse)
+        self.rm(src, recurse)
+
+    def cp(self, src: str, dst: str, recurse: bool = False):
+        copy_func = shutil.copytree if recurse else shutil.copy
+        copy_func(_sanitize_path(src), _sanitize_path(dst))
+
+    def rm(self, path: str, recurse: bool = False):
+        deletion_func = shutil.rmtree if recurse else os.remove
+        deletion_func(_sanitize_path(path))
