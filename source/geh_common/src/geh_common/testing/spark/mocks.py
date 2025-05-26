@@ -53,21 +53,28 @@ class _MockFS:
         _path.write_text(content, encoding="utf-8")
 
     def mkdirs(self, path: str):
-        Path(_sanitize_path(path)).mkdir(parents=True, exist_ok=True)
+        _path = _sanitize_path(path)
+        Path(_path).mkdir(parents=True, exist_ok=True)
 
     def ls(self, path: str):
-        return [_MockFileInfo(f) for f in Path(path).iterdir()]
+        _path = _sanitize_path(path)
+        return [_MockFileInfo(f) for f in Path(_path).iterdir()]
 
     def mv(self, src: str, dst: str, recurse: bool = False):
-        if not Path(src).exists():
+        _src = _sanitize_path(src)
+        _dst = _sanitize_path(dst)
+        if not Path(_src).exists():
             raise FileNotFoundError(f"Source path {src} does not exist.")
-        self.cp(src, dst, recurse)
-        self.rm(src, recurse)
+        self.cp(str(_src), str(_dst), recurse)
+        self.rm(str(_src), recurse)
 
     def cp(self, src: str, dst: str, recurse: bool = False):
+        _src = _sanitize_path(src)
+        _dst = _sanitize_path(dst)
         copy_func = shutil.copytree if recurse else shutil.copy
-        copy_func(_sanitize_path(src), _sanitize_path(dst))
+        copy_func(_src, _dst)
 
     def rm(self, path: str, recurse: bool = False):
+        _path = _sanitize_path(path)
         deletion_func = shutil.rmtree if recurse else os.remove
-        deletion_func(_sanitize_path(path))
+        deletion_func(_path)
