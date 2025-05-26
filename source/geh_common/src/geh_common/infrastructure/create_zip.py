@@ -1,9 +1,11 @@
+import random
+import string
 import zipfile
 from pathlib import Path
 from typing import Any
 
 
-def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("tmp")) -> Path:
+def create_zip_file(dbutils: Any, save_path: str | Path, files_to_zip: list[str]) -> Path:
     """Create a zip file from a list of files and saves it to the specified path.
 
     Notice that we have to create the zip file in /tmp and then move it to the desired
@@ -11,9 +13,9 @@ def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("t
     supported in Databricks.
 
     Args:
-        path (str | Path): The path to the directory containing the files to zip.
-        dbutils: The Databricks utilities object.
-        tmpdir (str | Path, optional): The temporary directory to write the zip file to. Defaults to "tmp".
+        dbutils (Any): The Databricks utilities object to handle file operations.
+        save_path (str | Path): The path where the zip file will be saved.
+        files_to_zip (list[str]): A list of file paths to include in the zip file.
 
     Raises:
         Exception: If there are no files to zip.
@@ -21,20 +23,17 @@ def create_zip_file(path: str | Path, dbutils: Any, tmpdir: str | Path = Path("t
     Returns:
         Path: The path to the created zip file.
     """
-    output_path = Path(path)
-    if not output_path.exists():
-        raise ValueError(f"'{output_path}' does not exist")
-    if not output_path.is_dir():
-        raise ValueError(f"'{output_path}' is not a directory")
-    zip_output_path = output_path.with_suffix(".zip")
-    files_to_zip = [f for f in dbutils.fs.ls(str(output_path))]
     if len(files_to_zip) == 0:
-        raise FileNotFoundError(f"No files found in {output_path}")
-    tmp_path = Path(tmpdir) / zip_output_path.name
+        raise ValueError("No files to zip provided")
+    elif not str(save_path).endswith(".zip"):
+        raise ValueError("The save path must end with '.zip'")
+
+    random_str = "".join(random.choices(string.ascii_lowercase, k=10))
+    tmp_path = f"/tmp/zip_{random_str}.zip"
     Path(tmp_path).parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(tmp_path, "w", zipfile.ZIP_DEFLATED) as ref:
-        for file_info in files_to_zip:
-            file_name = file_info.name
-            ref.write(file_info.path, arcname=file_name)
-    dbutils.fs.mv(f"file:{tmp_path}", zip_output_path)
-    return zip_output_path
+        for file_path in files_to_zip:
+            file_name = Path(file_path).name
+            ref.write(file_path, arcname=file_name)
+    dbutils.fs.mv(f"file:{tmp_path}", save_path)
+    return Path(save_path)

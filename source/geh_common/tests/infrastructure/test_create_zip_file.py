@@ -10,12 +10,12 @@ def test_zip_dir(tmp_path_factory):
     # Arrange
     outputdir = tmp_path_factory.mktemp("test_zip_task")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    files = ["file_1.txt", "file_2.txt", "file_3.txt"]
-    for file in files:
-        (outputdir / file).write_text(f"Content of {file}")
+    files = [str(tmpdir / "file_1.txt"), str(tmpdir / "file_2.txt"), str(tmpdir / "file_3.txt")]
+    for f in files:
+        Path(f).write_text(f"Content of {f}")
 
     # Act
-    zip_file = create_zip_file(outputdir, MockDBUtils(), tmpdir)
+    zip_file = create_zip_file(MockDBUtils(), outputdir.with_suffix(".zip"), files)
 
     # Assert
     assert zip_file == Path(outputdir).with_suffix(".zip"), (
@@ -27,8 +27,8 @@ def test_zip_dir(tmp_path_factory):
     with zipfile.ZipFile(zip_file, "r") as zf:
         zip_files = zf.namelist()
         assert len(zip_files) == len(files), f"Expected {len(files)} files in zip, but got {len(zip_files)}"
-        for file in files:
-            assert file in zip_files, f"File {file} not found in zip"
+        for f in files:
+            assert Path(f).name in zip_files, f"File {f} not found in zip"
 
     # Clean up
     shutil.rmtree(outputdir)
