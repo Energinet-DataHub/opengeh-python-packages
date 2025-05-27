@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.2
+
+- Added data contract for `{CATALOG}.electricity_market_reports_input.measurement_report_metering_point_periods_v1`
+
 ## Version 5.10.1
 
 - `get_spark_test_session` returns a `Path` not a `str` for the data directory.
