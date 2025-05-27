@@ -47,5 +47,5 @@ schema = T.StructType(
 """
 Metering point periods used for generation of measurements reports.
 
-Includes all metering points types but only those that are connected or disconnected.
+Includes all metering point types, but only when the physical status is connected or disconnected.
 """
