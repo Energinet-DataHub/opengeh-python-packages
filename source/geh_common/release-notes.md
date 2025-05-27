@@ -5,6 +5,10 @@
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
     - This involves two functions: `create_zip_file` and `write_csv_files`.
 
+## Version 5.9.4
+
+- Update documentation of missing measurements log contract
+
 ## Version 5.9.3
 
 - add project script test
