@@ -1,9 +1,9 @@
 # GEH Common Release Notes
 
-## Version 5.9.4
+## Version 5.9.5
 
 - Added data contract for `{CATALOG}.electricity_market_reports_input.measurement_report_metering_point_periods_v1`
-  
+
 ## Version 5.9.4
 
 - Update documentation of missing measurements log contract
