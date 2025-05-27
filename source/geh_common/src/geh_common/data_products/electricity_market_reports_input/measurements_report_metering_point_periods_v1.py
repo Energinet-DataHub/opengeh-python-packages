@@ -8,7 +8,6 @@ view_name = "measurements_report_metering_point_periods_v1"
 
 schema = T.StructType(
     [
-
         T.StructField("grid_area_code", T.StringType(), not nullable),
         #
         # GSRN number
