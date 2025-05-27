@@ -4,7 +4,7 @@ nullable = True
 
 database_name = "electricity_market_reports_input"
 
-view_name = "measurement_report_metering_point_periods_v1"
+view_name = "measurements_report_metering_point_periods_v1"
 
 schema = T.StructType(
     [
