@@ -11,7 +11,7 @@ schema = T.StructType(
         T.StructField("grid_area_code", T.StringType(), not nullable),
         T.StructField("metering_point_id", T.StringType(), not nullable),
         T.StructField("metering_point_type", T.StringType(), not nullable),
-        T.StructField("metering_point_resolution", T.StringType(), not nullable),
+        T.StructField("resolution", T.StringType(), not nullable),
         T.StructField("energy_supplier_id", T.StringType(), nullable),
         T.StructField("physical_status", T.BooleanType(), not nullable),
         T.StructField("settlement_method", T.StringType(), nullable),
