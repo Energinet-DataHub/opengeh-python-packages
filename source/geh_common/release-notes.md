@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.9.4
+
+- Update documentation of missing measurements log contract
+
 ## Version 5.9.3
 
 - add project script test
