@@ -15,7 +15,7 @@ schema = T.StructType(
         T.StructField("energy_supplier_id", T.StringType(), nullable),
         T.StructField("physical_status", T.BooleanType(), not nullable),
         T.StructField("settlement_method", T.StringType(), nullable),
-        T.StructField("unit", T.StringType(), not nullable),
+        T.StructField("quantity_unit", T.StringType(), not nullable),
         T.StructField("from_grid_area_code", T.StringType(), nullable),
         T.StructField("to_grid_area_code", T.StringType(), nullable),
         T.StructField("period_from_datetime", T.TimestampType(), not nullable),
