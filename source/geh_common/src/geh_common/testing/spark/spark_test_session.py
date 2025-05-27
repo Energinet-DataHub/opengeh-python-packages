@@ -25,7 +25,7 @@ def get_spark_test_session(
     extra_packages: list[str] | None = None,
     spark_log_level: SparkLogLevel = SparkLogLevel.ERROR,
     use_hive: bool = False,
-) -> tuple[SparkSession, str]:
+) -> tuple[SparkSession, Path]:
     """Get a Spark session for testing.
 
     This function creates a Spark session with a temporary data directory and

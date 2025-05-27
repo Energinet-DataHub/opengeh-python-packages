@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.1
+
+- `get_spark_test_session` returns a `Path` not a `str` for the data directory.
+
 ## Version 5.10.0
 
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
