@@ -128,7 +128,7 @@ def configure_logging(
 
     # Only configure logging if not already instrumented
     if get_is_instrumented():
-        return
+        return logging_settings
 
     # Configure structured logging data to be included in every log message.
     if extras is not None:
@@ -139,7 +139,19 @@ def configure_logging(
     os.environ["OTEL_SERVICE_NAME"] = logging_settings.cloud_role_name
 
     # Configure OpenTelemetry to log to Azure Monitor.
-    configure_azure_monitor(connection_string=logging_settings.applicationinsights_connection_string)
+    configure_azure_monitor(
+        connection_string=logging_settings.applicationinsights_connection_string,
+        instrumentation_options={
+            "azure_sdk": {"enabled": True},
+            "requests": {"enabled": True},
+            "urllib": {"enabled": True},
+            "urllib3": {"enabled": True},
+            "django": {"enabled": False},
+            "fastapi": {"enabled": False},
+            "flask": {"enabled": False},
+            "psycopg2": {"enabled": False},
+        },
+    )
 
     # Reduce Py4J logging. py4j logs a lot of information.
     logging.getLogger("py4j").setLevel(logging.WARNING)
