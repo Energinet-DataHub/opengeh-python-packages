@@ -1,8 +1,17 @@
 # GEH Common Release Notes
 
-## Version 5.9.5
+## Version 5.10.2
 
 - Added data contract for `{CATALOG}.electricity_market_reports_input.measurement_report_metering_point_periods_v1`
+
+## Version 5.10.1
+
+- `get_spark_test_session` returns a `Path` not a `str` for the data directory.
+
+## Version 5.10.0
+
+- Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
+    - This involves two functions: `create_zip_file` and `write_csv_files`.
 
 ## Version 5.9.4
 
