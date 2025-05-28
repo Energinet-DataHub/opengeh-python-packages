@@ -8,7 +8,7 @@ view_name = "sap_delta_v1"
 
 schema = t.StructType(
     [
-        t.StructField("serie_no", t.DecimalType(14, 0), not nullable),
+        t.StructField("serie_seq_no", t.DecimalType(14, 0), not nullable),
         t.StructField("metering_point_id", t.StringType(), not nullable),
         t.StructField("transaction_id", t.StringType(), not nullable),
         t.StructField("transaction_creation_datetime", t.TimestampType(), not nullable),
