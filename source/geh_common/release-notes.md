@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 5.10.3
+
+- Added data contract for `measurements_core.measurements_gold.sap_delta_v1`
+- Changed quantity to nullable for `measurements_core.measurements_gold.current_v1` as it is NULL when quality = missing
+
 ## Version 5.10.2
 
 - Added data contract for `{CATALOG}.electricity_market_reports_input.measurement_report_metering_point_periods_v1`
