@@ -7,7 +7,6 @@ database_name = "measurements_gold"
 view_name = "sap_delta_v1"
 
 schema = t.StructType(
-    # Fields are nullable, but we are checking for nulls in the view
     [
         t.StructField("serie_no", t.DecimalType(14, 0), not nullable),
         t.StructField("metering_point_id", t.StringType(), not nullable),
