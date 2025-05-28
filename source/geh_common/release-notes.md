@@ -2,7 +2,6 @@
 
 ## Version 5.10.3
 
-
 - Added data contract for `measurements_core.measurements_gold.sap_delta_v1`
 - Changed quantity to nullable for `measurements_core.measurements_gold.current_v1` as it is NULL when quality = missing
 
