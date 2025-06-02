@@ -3,7 +3,7 @@ from typing import Annotated
 from pydantic import AfterValidator, BeforeValidator
 from pydantic_settings import NoDecode
 
-from geh_common.application.converters import str_to_list
+from geh_common.application.converters.str_to_list import str_to_list
 
 
 def _validate_energy_supplier_ids(v: list[str]) -> list[str]:

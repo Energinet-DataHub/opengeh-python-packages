@@ -24,20 +24,30 @@ def str_to_list(value: Any) -> list[str] | None:
 def _convert_values(items) -> list[str] | None:
     valid_values = []
     for item in items:
-        if isinstance(item, int | str):
-            item_normalized = _normalize_scalar_value(item)
-            if item_normalized:
-                valid_values.append(item_normalized)
-        elif isinstance(item, list):
-            item_normalized = _convert_values(item)
-            if item_normalized:
-                valid_values.extend(item_normalized)
+        normalized = _normalize_value(item)
+        if normalized is not None:
+            valid_values.extend(normalized)
     if not valid_values:
         return None
     return valid_values
 
 
-def _normalize_scalar_value(value: Any) -> str | None:
+def _normalize_value(value: Any) -> list[str] | None:
+    """Normalize a value to a string or None.
+
+    Args:
+        value (Any): The input value to normalize.
+
+    Returns:
+        Optional[str]: The normalized string or None if the input is empty.
+    """
+    if isinstance(value, int | str):
+        return _normalize_scalar_value(value)
+    elif isinstance(value, list):
+        return _convert_values(value)
+
+
+def _normalize_scalar_value(value: Any) -> list[str] | None:
     """Normalize a scalar value to a string or None.
 
     Args:
@@ -51,5 +61,5 @@ def _normalize_scalar_value(value: Any) -> str | None:
         item = item[1:-1]
     item_normalized = str(item).strip()
     if item_normalized and item_normalized != "[]":
-        return item_normalized
+        return item_normalized.split(",")
     return None
