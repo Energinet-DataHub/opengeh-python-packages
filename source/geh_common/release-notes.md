@@ -3,6 +3,8 @@
 ## Version 5.10.5
 
 - Adds `EnergySupplierIds` type for validating energy supplier IDs in pydantic models.
+- Refactors logic for `GridAreaCodes` as converters can be shared between different types.
+- Adds tests for `EnergySupplierIds` to ensure correct validation and conversion.
 
 ## Version 5.10.4
 
