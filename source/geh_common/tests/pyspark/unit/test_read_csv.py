@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 from pyspark.sql import types as T
 from pyspark.sql.types import (
@@ -146,9 +148,10 @@ def test_read_csv_more_columns(spark):
     expected_data = [(1, "a", True, 1, 1.1, False, "string")]
     # Act
     actual = read_csv_path(spark, str(path), schema, ignore_additional_columns=False)
+    schema_copy = copy.deepcopy(schema)
     # Assert
     schema_with_extra = (
-        schema.add(T.StructField("extra_int", T.IntegerType(), True))
+        schema_copy.add(T.StructField("extra_int", T.IntegerType(), True))
         .add(T.StructField("extra_float", T.FloatType(), True))
         .add(T.StructField("extra_bool", T.BooleanType(), True))
         .add(T.StructField("extra_string", T.StringType(), True))
