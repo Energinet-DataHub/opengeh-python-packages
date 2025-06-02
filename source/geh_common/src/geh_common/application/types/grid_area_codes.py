@@ -47,7 +47,10 @@ def _validate_grid_area_codes(v: list[str] | None) -> list[str] | None:
 
 
 GridAreaCodes = Annotated[
-    list[str], BeforeValidator(_convert_grid_area_codes), AfterValidator(_validate_grid_area_codes), NoDecode()
+    list[str] | str | list[int],
+    BeforeValidator(_convert_grid_area_codes),
+    AfterValidator(_validate_grid_area_codes),
+    NoDecode(),
 ]
 """
 Annotated type for a list of grid area codes.
