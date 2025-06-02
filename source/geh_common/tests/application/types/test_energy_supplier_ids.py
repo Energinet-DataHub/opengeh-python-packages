@@ -7,14 +7,20 @@ from geh_common.application import EnergySupplierIds
 
 
 class TestModel(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     energy_supplier_ids: EnergySupplierIds
 
 
 class TestModelWithOptionalEnergySupplierIds(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     energy_supplier_ids: EnergySupplierIds | None = None
 
 
 class TestModelWithoutEnergySupplierIds(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     energy_supplier_ids: list[str] | None = None
 
 

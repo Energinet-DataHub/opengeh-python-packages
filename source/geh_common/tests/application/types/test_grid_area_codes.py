@@ -7,14 +7,20 @@ from geh_common.application import GridAreaCodes
 
 
 class TestModel(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     grid_area_codes: GridAreaCodes
 
 
 class TestModelWithOptionalGridAreaCodes(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     grid_area_codes: GridAreaCodes | None = None
 
 
 class TestModelWithoutGridAreaCodes(BaseModel):
+    __test__ = False  # Prevents pytest from treating this as a test case
+
     grid_area_codes: list[str] | None = None
 
 
