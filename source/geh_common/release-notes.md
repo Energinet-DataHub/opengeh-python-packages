@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.5
+
+- Adds `EnergySupplierIds` type for validating energy supplier IDs in pydantic models.
+
 ## Version 5.10.4
 
 - `physical_status` should be a string not a boolean
