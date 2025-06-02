@@ -21,7 +21,7 @@ def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
 
 
 EnergySupplierIds = Annotated[
-    list[str] | list[int] | str,
+    list[str],
     BeforeValidator(str_to_list),
     AfterValidator(_validate_energy_supplier_ids),
     NoDecode(),

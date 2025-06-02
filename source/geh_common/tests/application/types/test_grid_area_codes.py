@@ -35,7 +35,7 @@ def test__when_valid_grid_area_codes_from_string__returns_list_of_grid_area_code
     expected_codes = ["123", "456", "789"]
 
     # Act
-    model = ModelWithGridAreaCodes(grid_area_codes=valid_codes_string)
+    model = ModelWithGridAreaCodes(grid_area_codes=valid_codes_string)  # type: ignore
 
     # Assert
     assert model.grid_area_codes == expected_codes
@@ -100,7 +100,7 @@ def test__when_list_of_valid_int__returns_list_of_strings():
     expected_codes = ["123", "456", "789"]
 
     # Act
-    model = ModelWithGridAreaCodes(grid_area_codes=valid_codes_string)
+    model = ModelWithGridAreaCodes(grid_area_codes=valid_codes_string)  # type: ignore
 
     # Assert
     assert model.grid_area_codes == expected_codes
