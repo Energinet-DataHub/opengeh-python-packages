@@ -1,25 +1,9 @@
-import re
-from typing import Annotated, Any
+from typing import Annotated
 
 from pydantic import AfterValidator, BeforeValidator
 from pydantic_settings import NoDecode
 
-
-def _str_to_list(value: Any) -> list[str] | None:
-    """Convert the input value to a list of grid area codes (strings).
-
-    Args:
-        value (Any): The input value to convert.
-
-    Returns:
-        Optional[List[str]]: A list of grid area codes or None if the input is empty.
-    """
-    if not value:
-        return None
-    if isinstance(value, list):
-        return [str(item) for item in value]
-    else:
-        return re.findall(r"\d+", value)
+from geh_common.application.converters import str_to_list
 
 
 def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
@@ -38,7 +22,7 @@ def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
 
 EnergySupplierIds = Annotated[
     list[str] | list[int] | str,
-    BeforeValidator(_str_to_list),
+    BeforeValidator(str_to_list),
     AfterValidator(_validate_energy_supplier_ids),
     NoDecode(),
 ]
