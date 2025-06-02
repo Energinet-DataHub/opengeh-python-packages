@@ -150,8 +150,6 @@ def _get_file_info(
                 temporary=Path(tmpdir) / file_name,
             )
         )
-    if len(file_info) == 0:
-        raise ValueError(f"No files found in {spark_output_path}")
     return file_info
 
 

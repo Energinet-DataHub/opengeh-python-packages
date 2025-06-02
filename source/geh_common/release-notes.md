@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.6
+
+- Removes check in `_write_dataframe` where it would fail if the dataframe was empty.
+
 ## Version 5.10.5
 
 - Adds `EnergySupplierIds` type for validating energy supplier IDs in pydantic models.
