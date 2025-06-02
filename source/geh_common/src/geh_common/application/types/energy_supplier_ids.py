@@ -39,3 +39,24 @@ def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
 EnergySupplierIds = Annotated[
     list[str] | None, BeforeValidator(_str_to_list), AfterValidator(_validate_energy_supplier_ids), NoDecode()
 ]
+"""
+Annotated type for a list of energy supplier ids.
+
+This type ensures that the input is converted to a list of strings representing energy supplier IDs,
+and that each ID is validated to be a string either 13 or 16 digits.
+
+Validators:
+- BeforeValidator: Converts the input value to a list of energy suppler IDs.
+- AfterValidator: Validates the list of energy supplier IDs.
+- NoDecode: Prevents decoding of the input value.
+
+Example:
+```python
+class MySettings(BaseSettings):
+    energy_supplier_ids: EnergySupplierIds
+
+args = MySettings(energy_supplier_ids="8000000000000, 1234567890123456, 1234567890123")
+print(args.energy_supplier_ids)
+# Output: ['8000000000000', '1234567890123456', '1234567890123']
+```
+"""
