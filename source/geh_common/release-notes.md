@@ -1,5 +1,55 @@
 # GEH Common Release Notes
 
+## Version 5.10.4
+
+- `physical_status` should be a string not a boolean
+
+## Version 5.10.3
+
+- Added data contract for `measurements_core.measurements_gold.sap_delta_v1`
+- Changed quantity to nullable for `measurements_core.measurements_gold.current_v1` as it is NULL when quality = missing
+
+## Version 5.10.2
+
+- Added data contract for `{CATALOG}.electricity_market_reports_input.measurement_report_metering_point_periods_v1`
+
+## Version 5.10.1
+
+- `get_spark_test_session` returns a `Path` not a `str` for the data directory.
+
+## Version 5.10.0
+
+- Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
+    - This involves two functions: `create_zip_file` and `write_csv_files`.
+
+## Version 5.9.4
+
+- Update documentation of missing measurements log contract
+
+## Version 5.9.3
+
+- add project script test
+
+## Version 5.9.2
+
+- Update to contract text for net_consumption_group_6_child_metering_points_v1 and net_consumption_group_6_consumption_metering_point_periods_v1
+
+## Version 5.9.1
+
+- More documentation of missing measurements log contract
+
+## Version 5.9.0
+
+- Added project script test functionality
+
+## Version 5.8.14
+
+- Added `geh_common.testing.dataframes.assert_table.assert_table_properties`
+
+## Version 5.8.13
+
+- Deactivates streamlit app in the `geh_common.covernator_streamlit` subpackage. Streamlit requires a version of ProtoBuf that is not compatible with the current version used by measurements `core`.
+
 ## Version 5.8.12
 
 - Added hive support for persisting migrations scripts
