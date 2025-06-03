@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.7
+
+- Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
+
 ## Version 5.10.6
 
 - Removes check in `_write_dataframe` where it would fail if the dataframe was empty.
