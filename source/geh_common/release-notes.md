@@ -2,7 +2,7 @@
 
 ## Version 5.10.7
 
-- Add `transaction_start_time` and `transaction_end_time` to `measurements_calculated.calculated_measurements_v1` contract.
+- Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
 
 ## Version 5.10.6
 

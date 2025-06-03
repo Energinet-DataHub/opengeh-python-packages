@@ -219,14 +219,19 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     Returns:
         list[Path]: The headers for the CSV file.
     """
+    tmp_destinations = {f.temporary: [] for f in file_info}
     for info in file_info:
-        info.temporary.parent.mkdir(parents=True, exist_ok=True)
-        with info.temporary.open("w+") as fh_temporary:
-            log.info("Creating " + str(info.temporary))
+        tmp_destinations[info.temporary].append(info.source)
+
+    for tmp, sources in tmp_destinations.items():
+        log.info(f"Creating {tmp}")
+        tmp.parent.mkdir(parents=True, exist_ok=True)
+        with tmp.open("w+") as fh_temporary:
             fh_temporary.write(",".join(headers) + "\n")
-        with info.source.open("r") as fh_source:
-            with info.temporary.open("a") as fh_temporary:
-                fh_temporary.write(fh_source.read())
+            for source in sources:
+                log.info(f"Appending {source} to {tmp}")
+                with source.open("r") as fh_source:
+                    fh_temporary.write(fh_source.read())
 
     destinations = {f.destination: [] for f in file_info}
     for info in file_info:
