@@ -22,6 +22,12 @@ schema = t.StructType(
         # A datetime value indicating when the transaction was created by the calculation job.
         t.StructField("transaction_creation_datetime", t.TimestampType(), not nullable),
         #
+        # A datetime value indicating the first observation time.
+        t.StructField("transaction_start_time", t.TimestampType(), not nullable),
+        #
+        # A datetime value indicating the last observation time (plus the resolution).
+        t.StructField("transaction_end_time", t.TimestampType(), not nullable),
+        #
         # GSRN number
         t.StructField("metering_point_id", t.StringType(), not nullable),
         #
