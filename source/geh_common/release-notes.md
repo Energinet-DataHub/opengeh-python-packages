@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.7
+
+- Add `transaction_start_time` and `transaction_end_time` to `measurements_core.measurements_calculated.calculated_measurements_v1` contract.
+
 ## Version 5.10.6
 
 - Removes check in `_write_dataframe` where it would fail if the dataframe was empty.
