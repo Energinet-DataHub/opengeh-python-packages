@@ -25,7 +25,7 @@ schema = t.StructType(
         # A datetime value indicating the first observation time.
         t.StructField("transaction_start_time", t.TimestampType(), not nullable),
         #
-        # A datetime value indicating the last observation time (plus the resolution).
+        # A datetime value indicating the end of the transaction (which equals the last observation time plus the resolution).
         t.StructField("transaction_end_time", t.TimestampType(), not nullable),
         #
         # GSRN number
