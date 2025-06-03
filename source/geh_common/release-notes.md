@@ -2,7 +2,7 @@
 
 ## Version 5.10.7
 
-- Add `transaction_start_time` and `transaction_end_time` to `measurements_core.measurements_calculated.calculated_measurements_v1` contract.
+- Add `transaction_start_time` and `transaction_end_time` to `measurements_calculated.calculated_measurements_v1` contract.
 
 ## Version 5.10.6
 
