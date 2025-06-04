@@ -38,6 +38,7 @@ Periods are included when
     'supply_to_grid' | 'consumption_from_grid' | 'electrical_heating' | 'net_consumption'
 - the metering point is coupled to a parent metering point
     Note: The same child metering point cannot be re-coupled after being uncoupled
+- the parent consumption metering point of 'supply_to_grid' and 'consumption_from_grid' has net_settlement_group 2 or 6 (and no other net_settlement_group).
 - the child metering point physical status is connected or disconnected.
 - the period does not end before 2021-01-01
 
