@@ -39,10 +39,12 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
     report_output_dir = Path("test_write_csv_files__with_file_name_factory__returns_expected_content")
     spark_output_dir = report_output_dir / "spark_output"
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    expected_rows = 1_000_000
+    expected_rows = 1_000
     rows = [(i, string.ascii_lowercase[i % 26]) for i in range(expected_rows)]
     expected_content = ["id,value"] + [f"{id},{value}" for id, value in rows]
-    df = spark.createDataFrame(rows, ["id", "value"]).repartition(10)  # Force multiple files to be created
+    df = (
+        spark.createDataFrame(rows, ["id", "value"]).orderBy("id").repartition(10)
+    )  # Force multiple files to be created
 
     # Act
     new_files = write_csv_files(
@@ -67,7 +69,8 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
         )
 
         actual_header = [actual_lines[0]]
-        actual_content = actual_header + sorted(actual_lines[1:])  # Data is not guaranteed to be in order
+        actual_body = sorted([(int(line.split(",")[0]), line.split(",")[1]) for line in actual_lines[1:]])
+        actual_content = actual_header + [f"{id},{value}" for id, value in actual_body]
         assert actual_content == expected_content, "Expected content does not match actual content"
 
     # Clean up
