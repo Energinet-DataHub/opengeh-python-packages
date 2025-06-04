@@ -16,7 +16,7 @@ from geh_common.infrastructure.write_csv import (
 
 def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_zip_task")
+    report_output_dir = Path("test_write_csv_files__when_empty_dataframe__returns_empty_list")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([], schema="id INT, value STRING")
 
@@ -34,13 +34,14 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
     shutil.rmtree(tmpdir)
 
 
-def test_write_csv_files__with_defaults__returns_expected_content(spark, tmp_path_factory):
+def test_write_csv_files__with_file_name_factory__returns_expected_content(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_zip_task")
+    report_output_dir = Path("test_write_csv_files__with_file_name_factory__returns_expected_content")
     spark_output_dir = report_output_dir / "spark_output"
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    rows = [(i, string.ascii_lowercase[i % 26]) for i in range(1_000_000)]
-    expected_content = "id,value\n" + "\n".join([f"{id},{value}" for id, value in rows])
+    expected_rows = 1_000_000
+    rows = [(i, string.ascii_lowercase[i % 26]) for i in range(expected_rows)]
+    expected_content = ["id,value"] + [f"{id},{value}" for id, value in rows]
     df = spark.createDataFrame(rows, ["id", "value"]).repartition(10)  # Force multiple files to be created
 
     # Act
@@ -60,11 +61,14 @@ def test_write_csv_files__with_defaults__returns_expected_content(spark, tmp_pat
     assert new_files[0].stat().st_size > 0, f"File {new_files[0]} is empty"
     assert new_files[0].name == "test_csv.csv", f"Expected file name to be 'test_csv.csv', but got {new_files[0].name}"
     with open(new_files[0], "r") as f:
-        expected_content = f.read()
-        expected_content = expected_content
-        assert expected_content == expected_content, (
-            f"Expected content does not match actual content: {expected_content}"
+        actual_lines = f.read().splitlines()
+        assert len(actual_lines) == expected_rows + 1, (
+            f"Expected {expected_rows + 1:,} rows in the file, but got {len(actual_lines):,}"
         )
+
+        actual_header = [actual_lines[0]]
+        actual_content = actual_header + sorted(actual_lines[1:])  # Data is not guaranteed to be in order
+        assert actual_content == expected_content, "Expected content does not match actual content"
 
     # Clean up
     shutil.rmtree(report_output_dir)
@@ -73,7 +77,7 @@ def test_write_csv_files__with_defaults__returns_expected_content(spark, tmp_pat
 
 def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_zip_task")
+    report_output_dir = Path("test_write_csv_files__with_defaults__returns_expected")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
@@ -110,7 +114,7 @@ def test_write_csv_files__when_chunked__returns_expected_number_of_files(
     spark, tmp_path_factory, nrows, rows_per_file, expected_files
 ):
     # Arrange
-    report_output_dir = tmp_path_factory.mktemp("test_zip_task")
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__when_chunked__returns_expected_number_of_files")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
@@ -155,7 +159,9 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     spark, tmp_path_factory, nrows, rows_per_file, expected_files
 ):
     # Arrange
-    report_output_dir = tmp_path_factory.mktemp("test_zip_task")
+    report_output_dir = tmp_path_factory.mktemp(
+        "test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_custom_name"
+    )
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
