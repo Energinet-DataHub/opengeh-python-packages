@@ -16,6 +16,18 @@
 
 - Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
 
+## Version 5.10.9
+
+- Updated description for data product contract for `electrical_heating_child_metering_points_v1`.
+
+## Version 5.10.8
+
+- Changes `geh_common.infrastructure.write_csv._merge_content` to use `set` instead of `list` to ensure that we don't merge the same file multiple times.
+
+## Version 5.10.7
+
+- Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
+
 ## Version 5.10.6
 
 - Removes check in `_write_dataframe` where it would fail if the dataframe was empty.
