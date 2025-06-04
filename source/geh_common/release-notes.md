@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.10
+
+- Add `transaction_start_time` and `transaction_end_time` to `measurements_calculated.calculated_measurements_v1` contract.
+
 ## Version 5.10.9
 
 - Updated description for data product contract for `electrical_heating_child_metering_points_v1`.
