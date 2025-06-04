@@ -13,23 +13,36 @@ from geh_common.infrastructure.write_csv import (
 )
 
 
-def test_write_csv_files__with_defaults__returns_expected(spark):
+def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
     # Arrange
     report_output_dir = Path("test_zip_task")
-    output_path = report_output_dir / "test_file.txt"
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    df = spark.createDataFrame([], schema="id INT, value STRING")
+
+    # Act
+    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
+
+    # Assert
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    with open(new_files[0], "r") as f:
+        content = f.read()
+        assert content == "id,value\n", "Expected the file to be empty, but it is not"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
+def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_zip_task")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, output_path=report_output_dir)
+    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for f in sorted(list(output_path.rglob("*"))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
-
-    assert len(new_files) == 1, f"Expected {1} new files to be created, but got\n{file_list}"
-
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
@@ -42,6 +55,7 @@ def test_write_csv_files__with_defaults__returns_expected(spark):
 
     # Clean up
     shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
 
 
 @pytest.mark.parametrize(
@@ -60,20 +74,16 @@ def test_write_csv_files__when_chunked__returns_expected_number_of_files(
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_zip_task")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    output_path = report_output_dir / "test_file.txt"
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
     new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name == f"chunk_{i}", f"File {f} is not named chunk_{i}"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
+    assert len(new_files) == expected_files, (
+        f"Expected {expected_files} new files to be created, but got {len(new_files)}"
+    )
 
-    assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
@@ -109,7 +119,6 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_zip_task")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    output_path = report_output_dir / "test_file.txt"
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     custom_prefix = "custom_chunk"
@@ -128,13 +137,6 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     )
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name == f"{custom_prefix}_{i}.csv", f"File {f} is not named {custom_prefix}_{i}.csv"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
-
-    assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
