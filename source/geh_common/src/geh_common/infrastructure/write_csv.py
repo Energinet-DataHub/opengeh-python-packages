@@ -219,9 +219,9 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     Returns:
         list[Path]: The headers for the CSV file.
     """
-    tmp_destinations = {f.temporary: [] for f in file_info}
+    tmp_destinations = {info.temporary: set() for info in file_info}
     for info in file_info:
-        tmp_destinations[info.temporary].append(info.source)
+        tmp_destinations[info.temporary].add(info.source)
 
     for tmp, sources in tmp_destinations.items():
         log.info(f"Creating {tmp}")
@@ -233,9 +233,9 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
                 with source.open("r") as fh_source:
                     fh_temporary.write(fh_source.read())
 
-    destinations = {f.destination: [] for f in file_info}
+    destinations = {info.destination: set() for info in file_info}
     for info in file_info:
-        destinations[info.destination].append(info.temporary)
+        destinations[info.destination].add(info.temporary)
 
     for dst, tmp_files in destinations.items():
         log.info(f"Creating {dst}")

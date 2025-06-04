@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.8
+
+- Changes `geh_common.infrastructure.write_csv._merge_content` to use `set` instead of `list` to ensure that we don't merge the same file multiple times.
+
 ## Version 5.10.7
 
 - Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
