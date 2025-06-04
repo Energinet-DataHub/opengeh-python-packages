@@ -1,4 +1,5 @@
 import shutil
+import string
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -27,6 +28,43 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
     with open(new_files[0], "r") as f:
         content = f.read()
         assert content == "id,value\n", "Expected the file to be empty, but it is not"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
+def test_write_csv_files__with_defaults__returns_expected_content(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_zip_task")
+    spark_output_dir = report_output_dir / "spark_output"
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    rows = [(i, string.ascii_lowercase[i % 26]) for i in range(1_000_000)]
+    expected_content = "id,value\n" + "\n".join([f"{id},{value}" for id, value in rows])
+    df = spark.createDataFrame(rows, ["id", "value"]).repartition(10)  # Force multiple files to be created
+
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        spark_output_path=spark_output_dir,
+        tmpdir=tmpdir,
+        file_name_factory=lambda *_: "test_csv.csv",
+    )
+
+    # Assert
+    n_spark_files = len(list(spark_output_dir.glob("*.csv")))
+    assert n_spark_files > 1, f"Expected more than 1 Spark file to be created, but got {n_spark_files}"
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    assert new_files[0].exists(), f"File {new_files[0]} does not exist"
+    assert new_files[0].stat().st_size > 0, f"File {new_files[0]} is empty"
+    assert new_files[0].name == "test_csv.csv", f"Expected file name to be 'test_csv.csv', but got {new_files[0].name}"
+    with open(new_files[0], "r") as f:
+        expected_content = f.read()
+        expected_content = expected_content
+        assert expected_content == expected_content, (
+            f"Expected content does not match actual content: {expected_content}"
+        )
 
     # Clean up
     shutil.rmtree(report_output_dir)
