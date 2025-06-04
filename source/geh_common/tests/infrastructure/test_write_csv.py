@@ -24,7 +24,7 @@ def test_zip_task_write_files_default(spark):
 
     # Assert
     file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
+    for f in sorted(list(output_path.rglob("*"))):
         assert f.is_file(), f"File {f} is not a file"
         assert f.name.endswith(".csv"), f"File {f} is not a csv file"
 
