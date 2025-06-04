@@ -13,7 +13,7 @@ from geh_common.infrastructure.write_csv import (
 )
 
 
-def test_zip_task_write_files_default(spark):
+def test_write_csv_files__with_defaults__returns_expected(spark):
     # Arrange
     report_output_dir = Path("test_zip_task")
     output_path = report_output_dir / "test_file.txt"
@@ -54,7 +54,9 @@ def test_zip_task_write_files_default(spark):
         (100, 3000, 1),
     ],
 )
-def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files):
+def test_write_csv_files__when_chunked__returns_expected_number_of_files(
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files
+):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_zip_task")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
@@ -101,7 +103,7 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
         (10000, 3000, 4),
     ],
 )
-def test_zip_task_write_files_in_chunks_with_custom_file_names(
+def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_custom_name(
     spark, tmp_path_factory, nrows, rows_per_file, expected_files
 ):
     # Arrange
@@ -161,7 +163,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
         ("/tmp/part=1/part2=2/part3=3/continued/path/to/test", {"part": "1", "part2": "2", "part3": "3"}),
     ],
 )
-def test_get_partitions(input_path, expected):
+def test_get_partitions__when_valid__returns_partitions(input_path, expected):
     """Test the get_partitions function."""
     # Call the function and assert the result
     assert get_partition_information(input_path) == expected
@@ -173,7 +175,7 @@ def test_get_partitions(input_path, expected):
         ("/tmp/part=1/part2=2/part3=3=5", ValueError, "too many values to unpack"),
     ],
 )
-def test_get_partitions_invalid(input_path, error_type, matchstmt):
+def test_get_partitions__when_invalid__throws_exception(input_path, error_type, matchstmt):
     """Test the get_partitions function with invalid input."""
     with pytest.raises(error_type, match=matchstmt):
         get_partition_information(input_path)
