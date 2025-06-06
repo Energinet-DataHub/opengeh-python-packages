@@ -222,20 +222,23 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     tmp_destinations = {info.temporary: set() for info in file_info}
     for info in file_info:
         tmp_destinations[info.temporary].add(info.source)
+    log.info(f"Temporary Destinations {tmp_destinations}")
 
     for tmp, sources in tmp_destinations.items():
         log.info(f"Creating {tmp}")
         tmp.parent.mkdir(parents=True, exist_ok=True)
+        log.info(f"Sources {sources}")
         with tmp.open("w+") as fh_temporary:
             fh_temporary.write(",".join(headers) + "\n")
             for source in sources:
-                log.info(f"Appending {source} to {tmp}")
+                log.info(f"Writing {source} to {tmp}")
                 with source.open("r") as fh_source:
                     fh_temporary.write(fh_source.read())
 
     destinations = {info.destination: set() for info in file_info}
     for info in file_info:
         destinations[info.destination].add(info.temporary)
+    log.info(f"Destinations {destinations}")
 
     for dst, tmp_files in destinations.items():
         log.info(f"Creating {dst}")
