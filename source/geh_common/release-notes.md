@@ -1,8 +1,16 @@
 # GEH Common Release Notes
 
-## Version 5.10.10
+## Version 5.10.12
 
 - TODO
+
+## Version 5.10.11
+
+- Removed data contract for `measurements_core.measurements_gold.sap_delta_v1`
+
+## Version 5.10.10
+
+- Add `transaction_start_time` and `transaction_end_time` to `measurements_calculated.calculated_measurements_v1` contract.
 
 ## Version 5.10.9
 
