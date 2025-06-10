@@ -244,7 +244,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str], dbutils) -> li
     assert all(len(v) == 1 for v in destinations.values()), "There should be only one temporary file per destination"
 
     for dst, tmp_files in destinations.items():
-        dbutils.fs.mv(f"file:/{str(tmp_files.pop())}", str(dst))
+        dbutils.fs.mv(f"file://{str(tmp_files.pop())}", str(dst))
         # log.info(f"Creating {dst}")
         # with dst.open("a") as fh_destination:
         #     for tmp_file in tmp_files:
