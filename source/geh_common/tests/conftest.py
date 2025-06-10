@@ -6,7 +6,16 @@ from typing import Generator
 import pytest
 from pyspark.sql import SparkSession
 
+from geh_common.testing.spark.mocks import MockDBUtils
 from geh_common.testing.spark.spark_test_session import get_spark_test_session
+
+
+@pytest.fixture(scope="session")
+def dbutils() -> MockDBUtils:
+    """
+    Returns a DBUtilsFixture instance that can be used to mock dbutils.
+    """
+    return MockDBUtils()
 
 
 @pytest.fixture(scope="module", autouse=True)

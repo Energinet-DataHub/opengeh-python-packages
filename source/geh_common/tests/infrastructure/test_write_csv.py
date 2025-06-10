@@ -12,16 +12,21 @@ from geh_common.infrastructure.write_csv import (
     get_partition_information,
     write_csv_files,
 )
+from geh_common.testing.spark.mocks import MockDBUtils
 
 
-def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
+def test_write_csv_files__when_empty_dataframe__returns_empty_list(
+    spark: SparkSession,
+    tmp_path_factory: pytest.TempPathFactory,
+    dbutils: MockDBUtils,
+) -> None:
     # Arrange
     report_output_dir = Path("test_write_csv_files__when_empty_dataframe__returns_empty_list")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([], schema="id INT, value STRING")
 
     # Act
-    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir)
+    new_files = write_csv_files(df, dbutils, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
     assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
@@ -34,7 +39,7 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
     shutil.rmtree(tmpdir)
 
 
-def test_write_csv_files__with_file_name_factory__returns_expected_content(spark, tmp_path_factory):
+def test_write_csv_files__with_file_name_factory__returns_expected_content(spark, tmp_path_factory, dbutils):
     # Arrange
     report_output_dir = Path("test_write_csv_files__with_file_name_factory__returns_expected_content")
     spark_output_dir = report_output_dir / "spark_output"
@@ -49,7 +54,7 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
     # Act
     new_files = write_csv_files(
         df,
-        spark,
+        dbutils,
         output_path=report_output_dir,
         spark_output_path=spark_output_dir,
         tmpdir=tmpdir,
@@ -79,14 +84,14 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
     shutil.rmtree(tmpdir)
 
 
-def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
+def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory, dbutils):
     # Arrange
     report_output_dir = Path("test_write_csv_files__with_defaults__returns_expected")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir)
+    new_files = write_csv_files(df, dbutils, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
     for f in new_files:
@@ -115,7 +120,7 @@ def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factor
     ],
 )
 def test_write_csv_files__when_chunked__returns_expected_number_of_files(
-    spark, tmp_path_factory, nrows, rows_per_file, expected_files
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files, dbutils
 ):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__when_chunked__returns_expected_number_of_files")
@@ -123,7 +128,7 @@ def test_write_csv_files__when_chunked__returns_expected_number_of_files(
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
+    new_files = write_csv_files(df, dbutils, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
 
     # Assert
     assert len(new_files) == expected_files, (
@@ -160,7 +165,7 @@ def test_write_csv_files__when_chunked__returns_expected_number_of_files(
     ],
 )
 def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_custom_name(
-    spark, tmp_path_factory, nrows, rows_per_file, expected_files
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files, dbutils
 ):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp(
@@ -178,7 +183,7 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     # Act
     new_files = write_csv_files(
         df,
-        spark,
+        dbutils,
         output_path=report_output_dir,
         tmpdir=tmpdir,
         rows_per_file=rows_per_file,

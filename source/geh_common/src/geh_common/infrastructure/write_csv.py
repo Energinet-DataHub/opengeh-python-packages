@@ -4,11 +4,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from pyspark.sql import DataFrame, SparkSession, Window
+from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-from geh_common.databricks.get_dbutils import get_dbutils
 from geh_common.telemetry import Logger
 
 log = Logger(__name__)
@@ -48,7 +47,7 @@ class FileInfo:
 
 def write_csv_files(
     df: DataFrame,
-    spark: SparkSession,
+    dbutils,
     output_path: str | Path,
     file_name_factory: FileNameCallbackType = _default_file_name_callback,
     spark_output_path: str | Path | None = None,
@@ -93,7 +92,7 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_factory=file_name_factory,
     )
-    files = _merge_content(file_info=file_info, headers=headers, dbutils=get_dbutils(spark))
+    files = _merge_content(file_info=file_info, headers=headers, dbutils=dbutils)
     return files
 
 
@@ -245,7 +244,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str], dbutils) -> li
     assert all(len(v) == 1 for v in destinations.values()), "There should be only one temporary file per destination"
 
     for dst, tmp_files in destinations.items():
-        dbutils.fs.mv(str(dst), str(tmp_files.pop()))
+        dbutils.fs.mv(str(tmp_files.pop()), str(dst))
         # log.info(f"Creating {dst}")
         # with dst.open("a") as fh_destination:
         #     for tmp_file in tmp_files:
