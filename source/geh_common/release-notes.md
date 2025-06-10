@@ -34,7 +34,6 @@
 
 - `physical_status` should be a string not a boolean
 
-
 ## Version 5.10.3
 
 - Added data contract for `measurements_core.measurements_gold.sap_delta_v1`
