@@ -21,7 +21,7 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
     df = spark.createDataFrame([], schema="id INT, value STRING")
 
     # Act
-    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
+    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
     assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
@@ -49,6 +49,7 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
     # Act
     new_files = write_csv_files(
         df,
+        spark,
         output_path=report_output_dir,
         spark_output_path=spark_output_dir,
         tmpdir=tmpdir,
@@ -85,7 +86,7 @@ def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factor
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
+    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
     for f in new_files:
@@ -122,7 +123,7 @@ def test_write_csv_files__when_chunked__returns_expected_number_of_files(
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
+    new_files = write_csv_files(df, spark, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
 
     # Assert
     assert len(new_files) == expected_files, (
@@ -177,6 +178,7 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     # Act
     new_files = write_csv_files(
         df,
+        spark,
         output_path=report_output_dir,
         tmpdir=tmpdir,
         rows_per_file=rows_per_file,

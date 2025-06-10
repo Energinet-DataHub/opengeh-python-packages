@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
 
-from pyspark.sql import DataFrame, Window
+from pyspark.sql import DataFrame, SparkSession, Window
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
@@ -48,6 +48,7 @@ class FileInfo:
 
 def write_csv_files(
     df: DataFrame,
+    spark: SparkSession,
     output_path: str | Path,
     file_name_factory: FileNameCallbackType = _default_file_name_callback,
     spark_output_path: str | Path | None = None,
@@ -92,7 +93,7 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_factory=file_name_factory,
     )
-    files = _merge_content(file_info=file_info, headers=headers, dbutils=get_dbutils(df.sparkSession))
+    files = _merge_content(file_info=file_info, headers=headers, dbutils=get_dbutils(spark))
     return files
 
 
