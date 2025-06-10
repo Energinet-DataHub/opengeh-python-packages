@@ -1,8 +1,39 @@
 # GEH Common Release Notes
 
-## Version 5.10.4
+## Version 5.10.11
 
 - Removed data contract for `measurements_core.measurements_gold.sap_delta_v1`
+
+## Version 5.10.10
+
+- Add `transaction_start_time` and `transaction_end_time` to `measurements_calculated.calculated_measurements_v1` contract.
+
+## Version 5.10.9
+
+- Updated description for data product contract for `electrical_heating_child_metering_points_v1`.
+
+## Version 5.10.8
+
+- Changes `geh_common.infrastructure.write_csv._merge_content` to use `set` instead of `list` to ensure that we don't merge the same file multiple times.
+
+## Version 5.10.7
+
+- Fixes a bug in `geh_common.infrastructure.write_csv._merge_content` where it overwrote data in the temporary files.
+
+## Version 5.10.6
+
+- Removes check in `_write_dataframe` where it would fail if the dataframe was empty.
+
+## Version 5.10.5
+
+- Adds `EnergySupplierIds` type for validating energy supplier IDs in pydantic models.
+- Refactors logic for `GridAreaCodes` as converters can be shared between different types.
+- Adds tests for `EnergySupplierIds` to ensure correct validation and conversion.
+
+## Version 5.10.4
+
+- `physical_status` should be a string not a boolean
+
 
 ## Version 5.10.3
 

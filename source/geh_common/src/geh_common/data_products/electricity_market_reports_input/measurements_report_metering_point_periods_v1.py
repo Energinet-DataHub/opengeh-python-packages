@@ -23,7 +23,7 @@ schema = T.StructType(
         T.StructField("energy_supplier_id", T.StringType(), nullable),
         #
         # 'connected' or 'disconnected'
-        T.StructField("physical_status", T.BooleanType(), not nullable),
+        T.StructField("physical_status", T.StringType(), not nullable),
         #
         # The unit of the quantity (e.g. "kWh", "kVArh" etc.)
         T.StructField("quantity_unit", T.StringType(), not nullable),
