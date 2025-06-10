@@ -8,6 +8,7 @@ from pyspark.sql import DataFrame, Window
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
+from geh_common.databricks.get_dbutils import get_dbutils
 from geh_common.telemetry import Logger
 
 log = Logger(__name__)
@@ -91,7 +92,7 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_factory=file_name_factory,
     )
-    files = _merge_content(file_info=file_info, headers=headers)
+    files = _merge_content(file_info=file_info, headers=headers, dbutils=get_dbutils(df.sparkSession))
     return files
 
 
@@ -209,7 +210,7 @@ def _write_dataframe(
     return [c for c in df.columns if c not in partition_columns]
 
 
-def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
+def _merge_content(file_info: list[FileInfo], headers: list[str], dbutils) -> list[Path]:
     """Merge the content of the files into a single file.
 
     Args:
@@ -240,12 +241,15 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
         destinations[info.destination].add(info.temporary)
     log.info(f"Destinations {destinations}")
 
+    assert all(len(v) == 1 for v in destinations.values()), "There should be only one temporary file per destination"
+
     for dst, tmp_files in destinations.items():
-        log.info(f"Creating {dst}")
-        with dst.open("a") as fh_destination:
-            for tmp_file in tmp_files:
-                log.info(f"Appending {tmp_file} to {dst}")
-                with tmp_file.open("r") as fh_temporary:
-                    fh_destination.write(fh_temporary.read())
+        dbutils.fs.mv(str(dst), str(tmp_files.pop()))
+        # log.info(f"Creating {dst}")
+        # with dst.open("a") as fh_destination:
+        #     for tmp_file in tmp_files:
+        #         log.info(f"Appending {tmp_file} to {dst}")
+        #         with tmp_file.open("r") as fh_temporary:
+        #             fh_destination.write(fh_temporary.read())
 
     return list(destinations.keys())
