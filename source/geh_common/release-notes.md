@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.10.12
+
+- Add optional seperator parameter to TestCase, default is ";"
+
 ## Version 5.10.11
 
 - Removed data contract for `measurements_core.measurements_gold.sap_delta_v1`
