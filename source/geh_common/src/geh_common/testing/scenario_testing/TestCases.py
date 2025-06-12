@@ -34,8 +34,8 @@ class TestCase:
         headers = [
             h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(";") if not h.startswith("#")
         ]
-        if len(expected.columns) != len(headers):
-            diff_cols = [h for h in headers if h not in expected.columns]
+        diff_cols = [h for h in headers if h not in expected.columns]
+        if diff_cols:
             raise ValueError(
                 f"Expected {len(expected.columns)} columns in the CSV file, but got {len(headers)}. {diff_cols} should not be in the CSV file."
             )
