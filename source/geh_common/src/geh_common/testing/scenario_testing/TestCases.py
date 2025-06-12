@@ -32,7 +32,7 @@ class TestCase:
             self.sep,
         )
         headers = [
-            h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(";") if not h.startswith("#")
+            h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(self.sep) if not h.startswith("#")
         ]
         diff_cols = [h for h in headers if h not in expected.columns]
         if diff_cols:
