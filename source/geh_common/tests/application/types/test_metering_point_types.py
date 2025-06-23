@@ -70,6 +70,7 @@ def test__required_energy_supplier_ids(testcase, match):
         ("capacity_settlement,electrical_heating,net_consumption", None),
         ("capacity_settlement, electrical_heating, net_consumption", None),
         ("[capacity_settlement,electrical_heating,net_consumption]", None),
+        ("[capacity_settlement, electrical_heating, net_consumption]", None),
     ],
 )
 def test__optional_energy_supplier_ids(testcase, match):
