@@ -8,7 +8,7 @@ from geh_common.domain.types import MeteringPointType
 
 
 def _validate_metering_point_types(v: list[str]) -> list[str]:
-    """Validate the list of energy supplier IDs."""
+    """Validate the list of metering point types."""
     if v is None:
         return v
     for point in v:
