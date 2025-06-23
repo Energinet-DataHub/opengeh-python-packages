@@ -28,7 +28,7 @@ MeteringPointTypes = Annotated[
     NoDecode(),
 ]
 """
-Annotated type for a list of metering point types.
+Annotated type for a list of metering point types
 
 This type ensures that the input is converted to a list of strings representing metering point types,
 and that each type is validated to be a string that is represented in MeteringPointType.
