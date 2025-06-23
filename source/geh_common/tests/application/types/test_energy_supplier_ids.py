@@ -31,6 +31,7 @@ def _assert_energy_supplier_ids(model, expected_ids):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
+        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
@@ -62,6 +63,7 @@ def test__required_energy_supplier_ids(testcase, match):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
+        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
