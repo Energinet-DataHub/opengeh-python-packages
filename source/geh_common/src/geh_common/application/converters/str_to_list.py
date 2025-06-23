@@ -16,7 +16,16 @@ def str_to_list(value: Any) -> list[str] | None:
     if isinstance(value, list):
         return _convert_values(value)
     elif isinstance(value, str):
-        return _convert_values(re.findall(r"\d+", value))
+        # Split by commas first, and then extract from brackets if present
+        if "[" in value and "]" in value:
+            # Extract content from within brackets
+            bracket_content = re.search(r"\[(.*?)\]", value)
+            if bracket_content:
+                value = bracket_content.group(1)
+
+        # Split by comma and clean up each item
+        items = [item.strip() for item in value.split(",")]
+        return _convert_values(items)
     else:
         raise TypeError(f"Input should be a valid list or string, not {type(value)}")
 
@@ -55,5 +64,5 @@ def _normalize_scalar_value(value: Any) -> list[str] | None:
         item = item[1:-1]
     item_normalized = str(item).strip()
     if item_normalized:
-        return item_normalized.split(",")
+        return [str(v).strip() for v in item_normalized.split(",")]
     return None

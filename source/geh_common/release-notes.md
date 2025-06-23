@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.11.0
+
+- Adds MeteringPointTypes and validation
+
 ## Version 5.10.13
 
 - Adds check in `TestCase` to ensure that `then` files follow the schema of the `actual` data frame.
