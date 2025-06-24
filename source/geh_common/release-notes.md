@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.12.0
+
+- Adding more metering point types
+
 ## Version 5.11.0
 
 - Adds MeteringPointTypes and validation
