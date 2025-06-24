@@ -2,6 +2,10 @@ from enum import Enum
 
 
 class MeteringPointType(Enum):
+    ACTIVATED_DOWN_REGULATION = "activated_down_regulation"
+    ACTIVATED_UP_REGULATION = "activated_up_regulation"
+    ACTUAL_CONSUMPTION = "actual_consumption"
+    ACTUAL_PRODUCTION = "actual_production"
     ANALYSIS = "analysis"
     CAPACITY_SETTLEMENT = "capacity_settlement"
     COLLECTIVE_NET_CONSUMPTION = "collective_net_consumption"
