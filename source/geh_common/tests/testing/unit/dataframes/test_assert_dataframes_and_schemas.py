@@ -79,7 +79,7 @@ def test_with_duplicated_rows_in_actual_throws_exception(spark):
     assert "The DataFrame contains duplicate rows" in str(excinfo.value)
 
 
-def test_with_duplicated_rows_and_ignore_duplicated_rows_true(spark):
+def test__when_with_duplicated_rows_and_ignore_duplicated_rows_true__then_does_not_raise(spark):
     # Arrange
     # Both dataframes have duplicates
     duplicated_actual_data = [(1, "x", True), (2, "y", False), (2, "y", False), (3, "z", False)]
