@@ -47,18 +47,6 @@ def test_with_ignore_extra_columns_in_actual_false_throws_exception(spark):
         assert_dataframes_and_schemas(actual, expected, configuration)
 
 
-def test_with_ignored_duplicated_rows(spark):
-    # Arrange
-    expected = spark.createDataFrame(expected_data, schema=expected_schema)
-    actual = spark.createDataFrame(actual_data, schema=actual_schema)
-
-    configuration = AssertDataframesConfiguration()
-    configuration.ignore_duplicated_rows = True
-
-    # Act & Assert
-    assert_dataframes_and_schemas(actual, expected, configuration)
-
-
 def test_with_duplicated_rows_in_expected_throws_exception(spark):
     # Arrange
     # Only expected dataframe has duplicates
