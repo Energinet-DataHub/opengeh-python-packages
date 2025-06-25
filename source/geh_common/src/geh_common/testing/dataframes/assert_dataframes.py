@@ -19,6 +19,7 @@ class AssertDataframesConfiguration:
     ignore_column_order: bool = False
     ignore_decimal_scale: bool = False
     ignore_decimal_precision: bool = False
+    ignore_duplicated_rows: bool = False
     columns_to_skip: list[str] | None = None
 
 
@@ -76,25 +77,26 @@ def assert_dataframes_and_schemas(
         print("EXPECTED:")  # noqa
         expected.show(3000, False)
 
-    try:
-        _assert_no_duplicates(actual, actual_rows)
-    except AssertionError:
-        if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
+    if not configuration.ignore_duplicated_rows:
+        try:
+            _assert_no_duplicates(actual, actual_rows)
+        except AssertionError:
+            if not configuration.show_columns_when_actual_and_expected_are_equal:
+                actual, expected = _drop_columns_if_the_same(actual, expected)
 
-        print("DUPLICATED ROWS IN ACTUAL:")  # noqa
-        _show_duplicates(actual).show(3000, False)
-        raise
+            print("DUPLICATED ROWS IN ACTUAL:")  # noqa
+            _show_duplicates(actual).show(3000, False)
+            raise
 
-    try:
-        _assert_no_duplicates(expected, expected_rows)
-    except AssertionError:
-        if not configuration.show_columns_when_actual_and_expected_are_equal:
-            actual, expected = _drop_columns_if_the_same(actual, expected)
+        try:
+            _assert_no_duplicates(expected, expected_rows)
+        except AssertionError:
+            if not configuration.show_columns_when_actual_and_expected_are_equal:
+                actual, expected = _drop_columns_if_the_same(actual, expected)
 
-        print("DUPLICATED ROWS IN EXPECTED:")  # noqa
-        _show_duplicates(expected).show(3000, False)
-        raise
+            print("DUPLICATED ROWS IN EXPECTED:")  # noqa
+            _show_duplicates(expected).show(3000, False)
+            raise
 
     try:
         assert_dataframes_equal(actual, expected)
