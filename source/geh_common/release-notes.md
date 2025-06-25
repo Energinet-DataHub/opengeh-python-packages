@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.12.0
+
+- Add ignore_duplicated_rows to assert_dataframes, default=False
+
 ## Version 5.11.0
 
 - Adds MeteringPointTypes and validation
