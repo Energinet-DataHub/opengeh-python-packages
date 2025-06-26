@@ -150,8 +150,6 @@ def _get_file_info(
                 temporary=Path(tmpdir) / file_name,
             )
         )
-    if len(file_info) == 0:
-        raise ValueError(f"No files found in {spark_output_path}")
     return file_info
 
 
@@ -221,18 +219,23 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     Returns:
         list[Path]: The headers for the CSV file.
     """
+    tmp_destinations = {info.temporary: set() for info in file_info}
     for info in file_info:
-        info.temporary.parent.mkdir(parents=True, exist_ok=True)
-        with info.temporary.open("w+") as fh_temporary:
-            log.info("Creating " + str(info.temporary))
-            fh_temporary.write(",".join(headers) + "\n")
-        with info.source.open("r") as fh_source:
-            with info.temporary.open("a") as fh_temporary:
-                fh_temporary.write(fh_source.read())
+        tmp_destinations[info.temporary].add(info.source)
 
-    destinations = {f.destination: [] for f in file_info}
+    for tmp, sources in tmp_destinations.items():
+        log.info(f"Creating {tmp}")
+        tmp.parent.mkdir(parents=True, exist_ok=True)
+        with tmp.open("w+") as fh_temporary:
+            fh_temporary.write(",".join(headers) + "\n")
+            for source in sources:
+                log.info(f"Appending {source} to {tmp}")
+                with source.open("r") as fh_source:
+                    fh_temporary.write(fh_source.read())
+
+    destinations = {info.destination: set() for info in file_info}
     for info in file_info:
-        destinations[info.destination].append(info.temporary)
+        destinations[info.destination].add(info.temporary)
 
     for dst, tmp_files in destinations.items():
         log.info(f"Creating {dst}")

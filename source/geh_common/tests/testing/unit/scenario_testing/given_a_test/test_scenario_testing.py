@@ -40,6 +40,7 @@ def test_cases(spark: SparkSession, request: pytest.FixtureRequest):
     return TestCases(
         [
             TestCase(f"{scenario_path}/then/output.csv", actual_df),
+            TestCase(f"{scenario_path}/then/output_with_comma_sep.csv", actual_df, sep=","),
             TestCase(f"{scenario_path}/then/output2.csv", actual2_df),
             TestCase(f"{scenario_path}/then/some_folder/some_output.csv", actual_df),
         ],

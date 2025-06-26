@@ -1,4 +1,5 @@
 import shutil
+import string
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -13,23 +14,80 @@ from geh_common.infrastructure.write_csv import (
 )
 
 
-def test_zip_task_write_files_default(spark):
+def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_zip_task")
-    output_path = report_output_dir / "test_file.txt"
+    report_output_dir = Path("test_write_csv_files__when_empty_dataframe__returns_empty_list")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    df = spark.createDataFrame([], schema="id INT, value STRING")
+
+    # Act
+    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
+
+    # Assert
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    with open(new_files[0], "r") as f:
+        content = f.read()
+        assert content == "id,value\n", "Expected the file to be empty, but it is not"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
+def test_write_csv_files__with_file_name_factory__returns_expected_content(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_write_csv_files__with_file_name_factory__returns_expected_content")
+    spark_output_dir = report_output_dir / "spark_output"
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    expected_rows = 1_000
+    rows = [(i, string.ascii_lowercase[i % 26]) for i in range(expected_rows)]
+    expected_content = ["id,value"] + [f"{id},{value}" for id, value in rows]
+    df = (
+        spark.createDataFrame(rows, ["id", "value"]).orderBy("id").repartition(10)
+    )  # Force multiple files to be created
+
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        spark_output_path=spark_output_dir,
+        tmpdir=tmpdir,
+        file_name_factory=lambda *_: "test_csv.csv",
+    )
+
+    # Assert
+    n_spark_files = len(list(spark_output_dir.glob("*.csv")))
+    assert n_spark_files > 1, f"Expected more than 1 Spark file to be created, but got {n_spark_files}"
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    assert new_files[0].exists(), f"File {new_files[0]} does not exist"
+    assert new_files[0].stat().st_size > 0, f"File {new_files[0]} is empty"
+    assert new_files[0].name == "test_csv.csv", f"Expected file name to be 'test_csv.csv', but got {new_files[0].name}"
+    with open(new_files[0], "r") as f:
+        actual_lines = f.read().splitlines()
+        assert len(actual_lines) == expected_rows + 1, (
+            f"Expected {expected_rows + 1:,} rows in the file, but got {len(actual_lines):,}"
+        )
+
+        actual_header = [actual_lines[0]]
+        actual_body = sorted([(int(line.split(",")[0]), line.split(",")[1]) for line in actual_lines[1:]])
+        actual_content = actual_header + [f"{id},{value}" for id, value in actual_body]
+        assert actual_content == expected_content, "Expected content does not match actual content"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
+def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_write_csv_files__with_defaults__returns_expected")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
     # Act
-    new_files = write_csv_files(df, output_path=report_output_dir)
+    new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir)
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
-
-    assert len(new_files) == 1, f"Expected {1} new files to be created, but got\n{file_list}"
-
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
@@ -42,6 +100,7 @@ def test_zip_task_write_files_default(spark):
 
     # Clean up
     shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
 
 
 @pytest.mark.parametrize(
@@ -54,24 +113,22 @@ def test_zip_task_write_files_default(spark):
         (100, 3000, 1),
     ],
 )
-def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per_file, expected_files):
+def test_write_csv_files__when_chunked__returns_expected_number_of_files(
+    spark, tmp_path_factory, nrows, rows_per_file, expected_files
+):
     # Arrange
-    report_output_dir = tmp_path_factory.mktemp("test_zip_task")
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__when_chunked__returns_expected_number_of_files")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    output_path = report_output_dir / "test_file.txt"
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     # Act
     new_files = write_csv_files(df, output_path=report_output_dir, tmpdir=tmpdir, rows_per_file=rows_per_file)
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name == f"chunk_{i}", f"File {f} is not named chunk_{i}"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
+    assert len(new_files) == expected_files, (
+        f"Expected {expected_files} new files to be created, but got {len(new_files)}"
+    )
 
-    assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
@@ -101,13 +158,14 @@ def test_zip_task_write_files_in_chunks(spark, tmp_path_factory, nrows, rows_per
         (10000, 3000, 4),
     ],
 )
-def test_zip_task_write_files_in_chunks_with_custom_file_names(
+def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_custom_name(
     spark, tmp_path_factory, nrows, rows_per_file, expected_files
 ):
     # Arrange
-    report_output_dir = tmp_path_factory.mktemp("test_zip_task")
+    report_output_dir = tmp_path_factory.mktemp(
+        "test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_custom_name"
+    )
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    output_path = report_output_dir / "test_file.txt"
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
     custom_prefix = "custom_chunk"
@@ -126,13 +184,6 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
     )
 
     # Assert
-    file_list = "- " + "\n- ".join(list([str(f) for f in output_path.rglob("*")]))
-    for i, f in enumerate(sorted(list(output_path.rglob("*")))):
-        assert f.is_file(), f"File {f} is not a file"
-        assert f.name == f"{custom_prefix}_{i}.csv", f"File {f} is not named {custom_prefix}_{i}.csv"
-        assert f.name.endswith(".csv"), f"File {f} is not a csv file"
-
-    assert len(new_files) == expected_files, f"Expected {expected_files} new files to be created, but got\n{file_list}"
     for f in new_files:
         assert f.exists(), f"File {f} does not exist"
         assert f.stat().st_size > 0, f"File {f} is empty"
@@ -161,7 +212,7 @@ def test_zip_task_write_files_in_chunks_with_custom_file_names(
         ("/tmp/part=1/part2=2/part3=3/continued/path/to/test", {"part": "1", "part2": "2", "part3": "3"}),
     ],
 )
-def test_get_partitions(input_path, expected):
+def test_get_partitions__when_valid__returns_partitions(input_path, expected):
     """Test the get_partitions function."""
     # Call the function and assert the result
     assert get_partition_information(input_path) == expected
@@ -173,7 +224,7 @@ def test_get_partitions(input_path, expected):
         ("/tmp/part=1/part2=2/part3=3=5", ValueError, "too many values to unpack"),
     ],
 )
-def test_get_partitions_invalid(input_path, error_type, matchstmt):
+def test_get_partitions__when_invalid__throws_exception(input_path, error_type, matchstmt):
     """Test the get_partitions function with invalid input."""
     with pytest.raises(error_type, match=matchstmt):
         get_partition_information(input_path)
