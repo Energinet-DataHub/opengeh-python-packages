@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.12.1
+
+- Added `datetime_format` parameter to `read_csv` for specifying the csv files datetime format.
+
 ## Version 5.12.0
 
 - Add ignore_duplicated_rows to assert_dataframes, default=False

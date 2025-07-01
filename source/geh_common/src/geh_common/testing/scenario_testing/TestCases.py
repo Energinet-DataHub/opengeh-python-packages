@@ -21,6 +21,7 @@ class TestCase:
         self.expected_csv_path: str = expected_csv_path
         self.actual: DataFrame = actual
         self.sep: str = sep
+        self.datetime_format = "yyyy-MM-dd'T'HH:mm:ss'Z'"
 
     @property
     def expected(self) -> DataFrame:
@@ -30,6 +31,7 @@ class TestCase:
             self.expected_csv_path,
             self.actual.schema,
             self.sep,
+            self.datetime_format,
         )
         headers = [
             h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(self.sep) if not h.startswith("#")
