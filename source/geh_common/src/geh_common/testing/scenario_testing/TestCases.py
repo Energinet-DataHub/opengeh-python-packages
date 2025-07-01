@@ -15,13 +15,19 @@ from geh_common.testing.dataframes.read_csv import read_csv
 class TestCase:
     __test__ = False
 
-    def __init__(self, expected_csv_path: str, actual: DataFrame, sep: str = ";") -> None:
+    def __init__(
+        self,
+        expected_csv_path: str,
+        actual: DataFrame,
+        sep: str = ";",
+        datetime_format: str = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    ) -> None:
         if not isinstance(expected_csv_path, str):
             raise TypeError("expected_csv_path must be a string")
         self.expected_csv_path: str = expected_csv_path
         self.actual: DataFrame = actual
         self.sep: str = sep
-        self.datetime_format = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+        self.datetime_format = datetime_format
 
     @property
     def expected(self) -> DataFrame:
