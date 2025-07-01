@@ -33,11 +33,11 @@ class TestCase:
     def expected(self) -> DataFrame:
         """The expected DataFrame."""
         expected = read_csv(
-            self.actual.sparkSession,
-            self.expected_csv_path,
-            self.actual.schema,
-            self.sep,
-            self.datetime_format,
+            spark=self.actual.sparkSession,
+            path=self.expected_csv_path,
+            schema=self.actual.schema,
+            sep=self.sep,
+            datetime_format=self.datetime_format,
         )
         headers = [
             h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(self.sep) if not h.startswith("#")
