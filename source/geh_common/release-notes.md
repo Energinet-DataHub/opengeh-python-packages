@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.13.1
+
+Fix import bug that prevented using the `@retry_policy` decorator.
+
 ## Version 5.13.0
 
 Add decorator `@retry_policy` to declaratively apply exponential backoff retry policy on functions and methods.
