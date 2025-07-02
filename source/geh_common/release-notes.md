@@ -1,5 +1,16 @@
 # GEH Common Release Notes
 
+## Version 5.13.0
+
+Add decorator `@retry_policy` to declaratively apply exponential backoff retry policy on functions and methods.
+
+Example:
+```python
+        @retry_policy(delay=2, retries=5)
+        def unreliable_function():
+            # function implementation
+```
+
 ## Version 5.12.0
 
 - Add ignore_duplicated_rows to assert_dataframes, default=False
