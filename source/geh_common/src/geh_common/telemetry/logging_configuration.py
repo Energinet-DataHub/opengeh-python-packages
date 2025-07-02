@@ -1,17 +1,3 @@
-# Copyright 2020 Energinet DataHub A/S
-#
-# Licensed under the Apache License, Version 2.0 (the "License2");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
 import contextlib
 import logging
 import os
@@ -22,8 +8,7 @@ from azure.monitor.opentelemetry import configure_azure_monitor
 from opentelemetry import trace
 from opentelemetry.trace import Span, Tracer
 from pydantic import Field
-
-from geh_common.application.settings import ApplicationSettings
+from pydantic_settings import BaseSettings
 
 DEFAULT_LOG_FORMAT: str = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 DEFAULT_LOG_LEVEL: int = logging.INFO
@@ -62,10 +47,15 @@ def set_tracer_name(tracer_name: str) -> None:
     _TRACER_NAME = tracer_name
 
 
-class LoggingSettings(ApplicationSettings):
+class LoggingSettings(
+    BaseSettings,
+    cli_parse_args=True,
+    cli_kebab_case=True,
+    cli_ignore_unknown_args=True,
+    cli_implicit_flags=True,
+):
     """Configuration settings for logging, including OpenTelemetry and Azure Monitor integration.
 
-    This class extends `ApplicationSettings` to define and validate the necessary logging parameters.
     It can be instantiated without explicitly passing arguments, provided that the required settings
     are available via environment variables or CLI arguments.
 
