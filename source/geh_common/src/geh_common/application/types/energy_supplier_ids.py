@@ -15,8 +15,6 @@ def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
             raise TypeError(f"Energy supplier IDs must be strings, not {type(id_)}")
         if not (len(id_) == 13 or len(id_) == 16):
             raise ValueError(f"Energy supplier ID '{id_}' must be 13 or 16 characters. Not {len(id_)}.")
-        if not all(c.isdigit() for c in id_):
-            raise ValueError(f"Energy supplier ID '{id_}' must consist of digits only.")
     return v
 
 
