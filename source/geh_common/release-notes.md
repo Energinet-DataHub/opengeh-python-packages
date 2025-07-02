@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.12.1
+## Version 5.13.0
 
 - Removed energy supplier ID validation rule (the ID can only consist of digits). 
 
