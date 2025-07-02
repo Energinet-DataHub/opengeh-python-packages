@@ -5,6 +5,7 @@
 Add decorator `@retry_policy` to declaratively apply exponential backoff retry policy on functions and methods.
 
 Example:
+
 ```python
         @retry_policy(delay=2, retries=5)
         def unreliable_function():
