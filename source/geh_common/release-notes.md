@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.12.1
+
+- Removed energy supplier ID validation rule (the ID can only consist of digits). 
+
 ## Version 5.12.0
 
 - Add ignore_duplicated_rows to assert_dataframes, default=False
