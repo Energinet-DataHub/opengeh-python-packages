@@ -9,6 +9,7 @@ def read_csv(
     schema: T.StructType,
     sep: str = ";",
     ignored_value="[IGNORED]",
+    datetime_format: str | None = None,
 ) -> DataFrame:
     """Read a CSV file into a Spark DataFrame.
 
@@ -42,6 +43,8 @@ def read_csv(
         if field.name in raw_df.columns:
             if isinstance(field.dataType, T.ArrayType):
                 transforms.append(F.from_json(F.col(field.name), field.dataType).alias(field.name))
+            elif isinstance(field.dataType, T.TimestampType) and datetime_format:
+                transforms.append(F.to_timestamp(F.col(field.name), datetime_format).alias(field.name))
             else:
                 transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
 

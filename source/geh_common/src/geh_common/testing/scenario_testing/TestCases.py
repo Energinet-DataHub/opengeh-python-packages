@@ -15,21 +15,29 @@ from geh_common.testing.dataframes.read_csv import read_csv
 class TestCase:
     __test__ = False
 
-    def __init__(self, expected_csv_path: str, actual: DataFrame, sep: str = ";") -> None:
+    def __init__(
+        self,
+        expected_csv_path: str,
+        actual: DataFrame,
+        sep: str = ";",
+        datetime_format: str = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+    ) -> None:
         if not isinstance(expected_csv_path, str):
             raise TypeError("expected_csv_path must be a string")
         self.expected_csv_path: str = expected_csv_path
         self.actual: DataFrame = actual
         self.sep: str = sep
+        self.datetime_format = datetime_format
 
     @property
     def expected(self) -> DataFrame:
         """The expected DataFrame."""
         expected = read_csv(
-            self.actual.sparkSession,
-            self.expected_csv_path,
-            self.actual.schema,
-            self.sep,
+            spark=self.actual.sparkSession,
+            path=self.expected_csv_path,
+            schema=self.actual.schema,
+            sep=self.sep,
+            datetime_format=self.datetime_format,
         )
         headers = [
             h for h in Path(self.expected_csv_path).read_text().splitlines()[0].split(self.sep) if not h.startswith("#")
