@@ -124,7 +124,7 @@ def test_read_csv_with_nullabilities(spark):
     configuration.ignore_nullability = False
 
     # Act
-    actual = read_csv(spark=spark, path=str(path), schema=nullability_schema, datetime_format="yyyy-MM-dd HH:mm:ss")
+    actual = read_csv(spark=spark, path=str(path), schema=nullability_schema)
 
     # Assert
     expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
