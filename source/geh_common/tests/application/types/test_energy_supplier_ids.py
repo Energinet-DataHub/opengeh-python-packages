@@ -31,7 +31,6 @@ def _assert_energy_supplier_ids(model, expected_ids):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
-        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
@@ -44,6 +43,8 @@ def _assert_energy_supplier_ids(model, expected_ids):
         ("8000000000000,1234567890123456,1234567890123", None),
         ("8000000000000, 1234567890123456, 1234567890123", None),
         ("[8000000000000,1234567890123456,1234567890123]", None),
+        ("[zzzzzzzzzzzzz,xxxxxxxxxxxxxxxx]", None),
+        ("[1zzzzzzzzzzzz,2xxxxxxxxxxxxxxx]", None),
     ],
 )
 def test__required_energy_supplier_ids(testcase, match):
@@ -63,7 +64,6 @@ def test__required_energy_supplier_ids(testcase, match):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
-        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
@@ -77,6 +77,8 @@ def test__required_energy_supplier_ids(testcase, match):
         ("8000000000000,1234567890123456,1234567890123", None),
         ("8000000000000, 1234567890123456, 1234567890123", None),
         ("[8000000000000,1234567890123456,1234567890123]", None),
+        ("[zzzzzzzzzzzzz,xxxxxxxxxxxxxxxx]", None),
+        ("[1zzzzzzzzzzzz,2xxxxxxxxxxxxxxx]", None),
     ],
 )
 def test__optional_energy_supplier_ids(testcase, match):

@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.14.1
+
+- Removed energy supplier ID validation rule (the ID can only consist of digits).
+
 ## Version 5.14.0
 
 - Added `datetime_format` parameter to `read_csv` for specifying the csv files datetime format.
