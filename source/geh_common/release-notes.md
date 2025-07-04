@@ -1,8 +1,28 @@
 # GEH Common Release Notes
 
-## Version 5.12.2
+## Version 5.14.1
 
 - Removed energy supplier ID validation rule (the ID can only consist of digits).
+
+## Version 5.14.0
+
+- Added `datetime_format` parameter to `read_csv` for specifying the csv files datetime format.
+
+## Version 5.13.1
+
+Fix import bug that prevented using the `@retry_policy` decorator.
+
+## Version 5.13.0
+
+Add decorator `@retry_policy` to declaratively apply exponential backoff retry policy on functions and methods.
+
+Example:
+
+```python
+        @retry_policy(delay=2, retries=5)
+        def unreliable_function():
+            # function implementation
+```
 
 ## Version 5.12.0
 

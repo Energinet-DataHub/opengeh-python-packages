@@ -1,3 +1,5 @@
+import pytest
+from pyspark.sql import SparkSession
 from pyspark.sql import types as T
 from pyspark.sql.types import (
     BooleanType,
@@ -53,7 +55,7 @@ nullability_schema = StructType(
 IGNORED_VALUE = "[IGNORED]"
 
 
-def test_read_csv_with_ignored(spark):
+def test_read_csv_with_ignored(spark: SparkSession) -> None:
     # Arrange
     expected_data = [(1, True), (2, True), (3, False)]
     columns = ["a", "c"]
@@ -67,7 +69,7 @@ def test_read_csv_with_ignored(spark):
     assert actual == expected, f"Expected {expected}, got {actual}."
 
 
-def test_no_array(spark):
+def test_no_array(spark: SparkSession) -> None:
     path = SCENARIO_TESTING_DATA / "then" / "no_array.csv"
     df = read_csv(spark, str(path), schema, sep=";", ignored_value=IGNORED_VALUE)
     assert df.schema == schema, "Schema does not match"
@@ -82,7 +84,7 @@ def test_no_array(spark):
     assert collected[0].c is True, f"c should be True, got {collected[0].c}"
 
 
-def test_with_array_string(spark):
+def test_with_array_string(spark: SparkSession) -> None:
     schema = T.StructType(
         [
             T.StructField("a", T.IntegerType(), False),
@@ -117,15 +119,64 @@ def test_with_array_string(spark):
     ], f"e should be ['a', 'b', 'c'], got {collected[0].e}"
 
 
-def test_read_csv_with_nullabilities(spark):
+def test_read_csv_with_nullabilities(spark: SparkSession) -> None:
     # Arrange
     path = SCENARIO_TESTING_DATA / "then" / "with_nullability.csv"
     configuration = AssertDataframesConfiguration()
     configuration.ignore_nullability = False
 
     # Act
-    actual = read_csv(spark, str(path), nullability_schema)
+    actual = read_csv(spark=spark, path=str(path), schema=nullability_schema)
 
     # Assert
     expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
     assert_dataframes_and_schemas(actual, expected, configuration)
+
+
+def test_read_csv_with_date_format(spark: SparkSession) -> None:
+    path = SCENARIO_TESTING_DATA / "then" / "with_nullability.csv"
+    configuration = AssertDataframesConfiguration()
+    configuration.ignore_nullability = False
+
+    # Act
+    actual = read_csv(spark=spark, path=str(path), schema=nullability_schema, datetime_format="yyyy-MM-dd HH:mm:ss")
+
+    # Assert
+    expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
+    assert_dataframes_and_schemas(actual, expected, configuration)
+
+
+def test_read_csv_with_valid_date_format(spark: SparkSession) -> None:
+    # Arrange
+    path = SCENARIO_TESTING_DATA / "then" / "with_nullability.csv"
+    configuration = AssertDataframesConfiguration()
+    configuration.ignore_nullability = False
+
+    # Act
+    actual = read_csv(spark=spark, path=str(path), schema=nullability_schema, datetime_format="yyyy-MM-dd HH:mm:ss")
+    expected = spark.createDataFrame(data=actual.rdd, schema=nullability_schema, verifySchema=True)
+
+    # Assert
+    assert_dataframes_and_schemas(actual, expected, configuration)
+
+
+def test_read_csv_with_invalid_date_format(spark: SparkSession) -> None:
+    # Arrange
+    path = SCENARIO_TESTING_DATA / "then" / "with_nullability.csv"
+    configuration = AssertDataframesConfiguration()
+    configuration.ignore_nullability = False
+
+    # Act
+    with pytest.raises(Exception) as exc_info:
+        actual = read_csv(
+            spark=spark,
+            path=str(path),
+            schema=nullability_schema,
+            datetime_format="yyyy-MM-dd HH:mm",  # Format doesn't match data as it has seconds
+        )
+        actual.collect()
+
+    # Assert
+    assert "java.time.format.DateTimeParseException: Text '2023-01-01 00:00:00' could not be parsed" in str(
+        exc_info.value
+    )
