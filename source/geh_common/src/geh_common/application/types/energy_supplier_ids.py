@@ -1,3 +1,4 @@
+import re
 from typing import Annotated
 
 from pydantic import AfterValidator, BeforeValidator
@@ -14,7 +15,16 @@ def _validate_energy_supplier_ids(v: list[str]) -> list[str]:
         if not isinstance(id_, str):
             raise TypeError(f"Energy supplier IDs must be strings, not {type(id_)}")
         if not (len(id_) == 13 or len(id_) == 16):
-            raise ValueError(f"Energy supplier ID '{id_}' must be 13 or 16 characters. Not {len(id_)}.")
+            raise ValueError(f"Energy supplier ID '{id_}' must be 13 or 16 characters")
+        if len(id_) == 13:
+            if not re.fullmatch(r"[0-9]{13}", id_):
+                raise ValueError(f"Energy supplier ID (GLN) must be 13 digits (0-9), got {id_}")
+        if len(id_) == 16:
+            if not re.fullmatch(r"[A-Za-z0-9]{16}", id_):
+                raise ValueError(
+                    f"Energy supplier ID '{id_}' (EIC) must be 16 characters (0-9, a-z, A-Z) with no special characters."
+                )
+
     return v
 
 
