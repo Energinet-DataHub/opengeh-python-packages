@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 5.14.1
+## Version 5.14.2
 
 - Extended energy supplier ID validation rule (GLN can only consist of digits and EIC may consist of number and letters).
 
