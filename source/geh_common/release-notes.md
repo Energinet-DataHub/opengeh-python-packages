@@ -2,7 +2,7 @@
 
 ## Version 5.14.1
 
-- Removed energy supplier ID validation rule (the ID can only consist of digits).
+- Extended energy supplier ID validation rule (GLN can only consist of digits and EIC may consist of number and letters).
 
 ## Version 5.14.0
 
