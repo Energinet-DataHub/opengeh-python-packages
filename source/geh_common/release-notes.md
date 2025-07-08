@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 5.14.1
+
+- Extended energy supplier ID validation rule (GLN can only consist of digits and EIC may consist of number and letters).
+
 ## Version 5.14.0
 
 - Added `datetime_format` parameter to `read_csv` for specifying the csv files datetime format.

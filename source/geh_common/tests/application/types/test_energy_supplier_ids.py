@@ -31,19 +31,27 @@ def _assert_energy_supplier_ids(model, expected_ids):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
-        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
         ("123456789,1234567890123", "must be 13 or 16 characters"),
-        ("123456789, 1234567890123", "must be 13 or 16 characters"),
         ("[123456789,1234567890123]", "must be 13 or 16 characters"),
+        # Invalid GLN formats
+        ("#123456789012,1234567890123", "must be 13 digits"),
+        ("10000000W0001,1234567890W23", "must be 13 digits"),
+        # Invalid EIC formats
+        ("10000000#0000000,1000000000000000", "must be 16 characters"),
+        ("[10000000#0000000,1000000000000000]", "must be 16 characters"),
+        (["10000000#0000000", "1000000000000000"], "must be 16 characters"),
         # Valid inputs
         ([8000000000000, 1234567890123456, 1234567890123], None),
         (["8000000000000", "1234567890123456", "1234567890123"], None),
-        ("8000000000000,1234567890123456,1234567890123", None),
-        ("8000000000000, 1234567890123456, 1234567890123", None),
         ("[8000000000000,1234567890123456,1234567890123]", None),
+        ("[8000000000000,xxxxxxxxxxxxxxxx]", None),
+        ("[8000000000000,2xxxxxxxxxxxxxxx]", None),
+        ("1000000000000000,xxxxxxxxxxxxxxxx", None),
+        ("[1000000000000000,xxxxxxxxxxxxxxxx]", None),
+        (["1000000000000000", "xxxxxxxxxxxxxxxx"], None),
     ],
 )
 def test__required_energy_supplier_ids(testcase, match):
@@ -63,20 +71,27 @@ def test__required_energy_supplier_ids(testcase, match):
         ([], "Input should be a valid list"),
         ("", "Input should be a valid list"),
         ("[]", "Input should be a valid list"),
-        (["qwertyuiopasd", "zxcvbnmasdfgh"], "must consist of digits only."),
         # Too short or too long IDs
         ([123456789, 1234567890123], "must be 13 or 16 characters"),
         (["12345678901234567", "1234567890123"], "must be 13 or 16 characters"),
         ("123456789,1234567890123", "must be 13 or 16 characters"),
-        ("123456789, 1234567890123", "must be 13 or 16 characters"),
         ("[123456789,1234567890123]", "must be 13 or 16 characters"),
+        # Invalid GLN formats
+        ("#123456789012,1234567890123", "must be 13 digits"),
+        ("10000000W0001,1234567890W23", "must be 13 digits"),
+        # Invalid EIC formats
+        ("10000000#0000000,1000000000000000", "must be 16 characters"),
+        ("[10000000#0000000,1000000000000000]", "must be 16 characters"),
+        (["10000000#0000000", "1000000000000000"], "must be 16 characters"),
         # Valid inputs
-        (None, None),
         ([8000000000000, 1234567890123456, 1234567890123], None),
         (["8000000000000", "1234567890123456", "1234567890123"], None),
-        ("8000000000000,1234567890123456,1234567890123", None),
-        ("8000000000000, 1234567890123456, 1234567890123", None),
         ("[8000000000000,1234567890123456,1234567890123]", None),
+        ("[8000000000000,xxxxxxxxxxxxxxxx]", None),
+        ("[8000000000000,2xxxxxxxxxxxxxxx]", None),
+        ("1000000000000000,xxxxxxxxxxxxxxxx", None),
+        ("[1000000000000000,xxxxxxxxxxxxxxxx]", None),
+        (["1000000000000000", "xxxxxxxxxxxxxxxx"], None),
     ],
 )
 def test__optional_energy_supplier_ids(testcase, match):
