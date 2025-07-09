@@ -4,7 +4,6 @@
 
 - Set `cli_ignore_unknown_args=False` by default in the ApplicationSettings class
 
-
 ## Version 5.14.1
 
 - Extended energy supplier ID validation rule (GLN can only consist of digits and EIC may consist of number and letters).
