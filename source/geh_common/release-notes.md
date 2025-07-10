@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.1.0
+
+- Add enforce_row_order default false to assert_dataframes_and_schemas, so it is possible to test row order
+
 ## Version 6.0.0
 
 - Set `cli_ignore_unknown_args=False` by default in the ApplicationSettings class

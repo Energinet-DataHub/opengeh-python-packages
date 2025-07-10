@@ -13,6 +13,7 @@ class AssertDataframesConfiguration:
     show_actual_and_expected: bool = False
     show_columns_when_actual_and_expected_are_equal: bool = False
     ignore_extra_columns_in_actual: bool = True
+    enforce_row_order: bool = False
 
     ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
@@ -121,6 +122,45 @@ def assert_dataframes_and_schemas(
             f"NUMBER OF ROWS MISMATCH: Actual: {actual_rows}, Expected: {expected_rows}"
         )
         raise
+
+    # Check row order if configured
+    if configuration.enforce_row_order:
+        try:
+            assert_row_order(actual, expected)
+        except AssertionError:
+            if not configuration.show_columns_when_actual_and_expected_are_equal:
+                actual, expected = _drop_columns_if_the_same(actual, expected)
+
+            print("ROW ORDER MISMATCH:")  # noqa
+            print("First 10 rows of ACTUAL:")  # noqa
+            actual.limit(10).show(truncate=False)
+            print("First 10 rows of EXPECTED:")  # noqa
+            expected.limit(10).show(truncate=False)
+            raise
+
+
+def assert_row_order(actual: DataFrame, expected: DataFrame) -> None:
+    """Asserts that rows in actual dataframe match the exact order of rows in expected dataframe.
+
+    Args:
+        actual: The actual dataframe
+        expected: The expected dataframe
+
+    Raises:
+        AssertionError: If rows do not appear in the same order
+    """
+    # Convert both dataframes to lists of rows for direct comparison
+    actual_rows = actual.collect()
+    expected_rows = expected.collect()
+
+    # Check if number of rows match
+    if len(actual_rows) != len(expected_rows):
+        assert False, f"Row count mismatch: actual ({len(actual_rows)}) vs expected ({len(expected_rows)})"
+
+    # Compare row by row
+    for i, (a_row, e_row) in enumerate(zip(actual_rows, expected_rows)):
+        if a_row != e_row:
+            assert False, f"Row mismatch at position {i}: \nActual: {a_row}\nExpected: {e_row}"
 
 
 def assert_dataframes_equal(actual: DataFrame, expected: DataFrame) -> None:
