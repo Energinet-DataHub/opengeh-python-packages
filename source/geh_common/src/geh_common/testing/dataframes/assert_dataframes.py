@@ -140,7 +140,7 @@ def assert_dataframes_and_schemas(
 
 
 def assert_row_order(actual: DataFrame, expected: DataFrame) -> None:
-    """Asserts that rows in actual dataframe match the exact order of rows in expected dataframe.
+    """Assert that rows in actual dataframe match the exact order of rows in expected dataframe.
 
     Args:
         actual: The actual dataframe
