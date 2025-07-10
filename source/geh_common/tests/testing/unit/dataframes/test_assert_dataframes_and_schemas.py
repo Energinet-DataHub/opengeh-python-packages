@@ -144,7 +144,7 @@ def test__when_dataframe_row_order_mismatch__then_raises_exception(spark):
     actual = spark.createDataFrame(actual_data, schema=actual_schema)
 
     configuration = AssertDataframesConfiguration()
-    configuration.enforce_row_order = True
+    configuration.ignore_row_order = False
 
     # Act & Assert
     with pytest.raises(AssertionError) as excinfo:

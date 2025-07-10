@@ -2,7 +2,7 @@
 
 ## Version 6.1.0
 
-- Add enforce_row_order default false to assert_dataframes_and_schemas, so it is possible to test row order
+- Add ignore_row_order default true to assert_dataframes_and_schemas, so it is possible to test row order
 
 ## Version 6.0.0
 

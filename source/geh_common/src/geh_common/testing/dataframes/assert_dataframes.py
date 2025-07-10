@@ -13,7 +13,7 @@ class AssertDataframesConfiguration:
     show_actual_and_expected: bool = False
     show_columns_when_actual_and_expected_are_equal: bool = False
     ignore_extra_columns_in_actual: bool = True
-    enforce_row_order: bool = False
+    ignore_row_order: bool = True
 
     ignore_nullability: bool = True
     """Default true because Spark doesn't handle nullability well."""
@@ -124,7 +124,7 @@ def assert_dataframes_and_schemas(
         raise
 
     # Check row order if configured
-    if configuration.enforce_row_order:
+    if configuration.ignore_row_order is False:
         try:
             assert_row_order(actual, expected)
         except AssertionError:
