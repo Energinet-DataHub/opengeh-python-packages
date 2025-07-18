@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.1.1
+
+- Electricity market report input contract update
+
 ## Version 6.1.0
 
 - Add ignore_row_order default true to assert_dataframes_and_schemas, so it is possible to test row order

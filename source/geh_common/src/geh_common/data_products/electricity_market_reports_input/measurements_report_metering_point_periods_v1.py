@@ -16,7 +16,7 @@ schema = T.StructType(
         # All types of metering point types
         T.StructField("metering_point_type", T.StringType(), not nullable),
         #
-        # 'P15M' | 'PT1H'
+        # 'PT15M' | 'PT1H' | 'P1M'
         T.StructField("resolution", T.StringType(), not nullable),
         #
         # GLN or EIC number of the energy supplier
@@ -25,7 +25,7 @@ schema = T.StructType(
         # 'connected' or 'disconnected'
         T.StructField("physical_status", T.StringType(), not nullable),
         #
-        # The unit of the quantity (e.g. "kWh", "kVArh" etc.)
+        # The unit of the quantity (e.g. "kWh", "kVArh", "Tonne" etc.)
         T.StructField("quantity_unit", T.StringType(), not nullable),
         #
         # Required for exchange, otherwise null
