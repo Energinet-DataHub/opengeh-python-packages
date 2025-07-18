@@ -28,6 +28,12 @@ schema = T.StructType(
         # The unit of the quantity (e.g. "kWh", "kVArh", "Tonne" etc.)
         T.StructField("quantity_unit", T.StringType(), not nullable),
         #
+        # Required for exchange, otherwise null
+        T.StructField("from_grid_area_code", T.StringType(), nullable),
+        #
+        # Required for exchange, otherwise null
+        T.StructField("to_grid_area_code", T.StringType(), nullable),
+        #
         # See the description of periodization of data above.
         # UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
