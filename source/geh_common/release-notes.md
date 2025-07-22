@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.1.3
+
+- Update measurements_current_v1 schema
+
 ## Version 6.1.2
 
 - Add measurements_current_v1 schema
@@ -106,7 +110,7 @@ Example:
 ## Version 5.10.0
 
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
-    - This involves two functions: `create_zip_file` and `write_csv_files`.
+  - This involves two functions: `create_zip_file` and `write_csv_files`.
 
 ## Version 5.9.4
 
@@ -163,7 +167,7 @@ Add `geh_common.pyspark.clamp` functions to clamp periods.
 ## Version 5.8.6
 
 - Fixed a typo in Data Product definition
-- Added __init__.py files to Data Products
+- Added **init**.py files to Data Products
 
 ## Version 5.8.5
 
@@ -235,15 +239,15 @@ Example of a valid folder structure:
 ```
 
 - scenario group should have folder called `coverage` containing a yaml file following this pattern: `all_cases*.yml`
-    - the `master file`
-    - contains all cases that should be implemented
-    - (in the future) boolean determines whether pipeline fails if case is not implemented
-    - case names have to be unique in a single master file
-    - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
+  - the `master file`
+  - contains all cases that should be implemented
+  - (in the future) boolean determines whether pipeline fails if case is not implemented
+  - case names have to be unique in a single master file
+  - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
 - folder `scenario_tests` next to the coverage folder
-    - must contain a key `cases_tested`
-    - mapping between master file and scenarios testing specific cases
-    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
+  - must contain a key `cases_tested`
+  - mapping between master file and scenarios testing specific cases
+  - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
 
 ## Version 5.7.0
 
@@ -412,7 +416,7 @@ extract data frames from composite function results.
 - Fixed a bug where invalid queries did not raise an exception.
 
 - Extended databricks_api_client.execute_statement to be able to wait for response in the event that the warehouse needs
-to start.
+  to start.
 
 ## Version 5.4.3
 
@@ -603,15 +607,15 @@ These changes are made to simplify the database migration
 **Subpackage**: `geh_common.migrations`
 
 - Bug fix: When rollback is enabled, it needs to get the latest version of each table before executing the migration.
-However, when getting the version it was collecting all the rows from the history, which was not needed and could
-cause a performance issue. Now it is only getting the latest version of each table.
+  However, when getting the version it was collecting all the rows from the history, which was not needed and could
+  cause a performance issue. Now it is only getting the latest version of each table.
 
 ## Version 2.0.0
 
 **Subpackage**: `geh_common.migrations`
 
 - Added `rollback_on_failure` parameter to the `SparkSqlMigrationsConfiguration` class. This parameter allows the user to specify whether the migration should be rolled back if an error occurs during the migration process. The default value is `False`.
-<br> The reason for this change is that a rollback might unintentionally delete data that was not supposed to be deleted. The situation can occur when data are written to the table at the same time that the migration is executing. The user should be aware of the risks of rolling back a migration and should only do so if they are sure that the migration will not cause any data loss.
+  <br> The reason for this change is that a rollback might unintentionally delete data that was not supposed to be deleted. The situation can occur when data are written to the table at the same time that the migration is executing. The user should be aware of the risks of rolling back a migration and should only do so if they are sure that the migration will not cause any data loss.
 
 ### Breaking Changes
 
@@ -619,7 +623,7 @@ As the behavior before was `True`, the default value is now `False`. This means 
 
 Example:
 
-``` python
+```python
 spark_config = SparkSqlMigrationsConfiguration(
     ...
     rollback_on_failure=True
@@ -650,7 +654,7 @@ The `catalog_name` parameter in the `SparkSqlMigrationsConfiguration` class is n
 
 Example:
 
-``` python
+```python
 spark_config = SparkSqlMigrationsConfiguration(
     ...
     catalog_name="some_catalog_name"
@@ -677,7 +681,7 @@ It can be used to test that the views have the expected schema with unit tests.
 
 Example:
 
-``` python
+```python
   views=[
       View(name="test_view", schema=test_view_schema)
   ]
