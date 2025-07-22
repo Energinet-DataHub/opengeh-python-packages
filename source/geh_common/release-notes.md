@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.1.3
+
+- Update measurements_current_v1 schema
+
 ## Version 6.1.2
 
 - Add measurements_current_v1 schema
