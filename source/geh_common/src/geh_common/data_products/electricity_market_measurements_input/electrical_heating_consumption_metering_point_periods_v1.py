@@ -56,6 +56,7 @@ The data is periodized; the following transaction types are relevant for determi
 - MANCOR (HTX): Manuelt korrigering
 Periods are  included when
 - the metering point physical status is connected or disconnected
+- an energy supplier is registered
 - the period does not end before 2021-01-01
 - electrical heating is registered for the period
 """
