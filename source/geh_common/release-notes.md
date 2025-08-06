@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.1.4
+
+- Update contracts for electrical heating and net consumption periodisations
+
 ## Version 6.1.3
 
 - Update measurements_current_v1 schema
