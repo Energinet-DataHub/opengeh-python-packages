@@ -54,6 +54,7 @@ The data is periodized; the following transaction types are relevant for determi
 Periods are included when:
 - the parent metering point is in netsettlement group 6
 - the metering point physical status is connected or disconnected
+- an energy supplier is registered
 - the period does not end before 2021-01-01
 
 Formatting is according to ADR-144 with the following constraints:

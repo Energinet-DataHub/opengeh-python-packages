@@ -1,5 +1,21 @@
 # GEH Common Release Notes
 
+## Version 6.1.4
+
+- Update contracts for electrical heating and net consumption periodisations
+
+## Version 6.1.3
+
+- Update measurements_current_v1 schema
+
+## Version 6.1.2
+
+- Add measurements_current_v1 schema
+
+## Version 6.1.1
+
+- Electricity market report input contract update
+
 ## Version 6.1.0
 
 - Add ignore_row_order default true to assert_dataframes_and_schemas, so it is possible to test row order
