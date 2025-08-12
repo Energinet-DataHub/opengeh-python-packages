@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.2.0
+
+- Added `MeteringPointIds`type
+
 ## Version 6.1.4
 
 - Update contracts for electrical heating and net consumption periodisations
