@@ -36,6 +36,9 @@ def _assert_metering_point_ids(model, expected_ids):
         (["12345678912345678", "123456789123456789"], "must be 18 characters"),
         ("1234567891234567890,123456789123456789", "must be 18 characters"),
         ("[12345678912345678,123456789123456789]", "must be 18 characters"),
+        # Missing closing or opening brackets
+        ("123456789123456789,123456789123456789]", "must be 18 characters"),
+        ("[123456789123456789,123456789123456789]", "must be 18 characters"),
         # Not only digits
         ("#23456789123456789,123456789123456789", "ust only consist of digits"),
         (["12345678W123456789", "123456789123456789"], "must only consist of digits"),
