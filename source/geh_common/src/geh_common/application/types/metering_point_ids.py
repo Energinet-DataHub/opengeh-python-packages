@@ -6,19 +6,19 @@ from pydantic_settings import NoDecode
 from geh_common.application.converters.str_to_list import str_to_list
 
 
-def _validate_metering_point_ids(v: list[str]) -> list[str]:
+def _validate_metering_point_ids(ids: list[str]) -> list[str]:
     """Validate the list of metering point IDs."""
-    if not v:
-        return v
-    for id_ in v:
+    if not ids:
+        return ids
+    for id_ in ids:
         if not isinstance(id_, str):
             raise TypeError(f"Metering point IDs must be strings, not {type(id_)}")
-        if not (len(id_) == 18):
+        if len(id_) != 18:
             raise ValueError(f"Metering point ID '{id_}' must be 18 characters")
         if not id_.isdigit():
             raise ValueError(f"Metering point ID '{id_}' must only consist of digits (0-9)")
 
-    return v
+    return ids
 
 
 MeteringPointIds = Annotated[
