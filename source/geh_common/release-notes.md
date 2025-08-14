@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+
+## Version 6.2.1
+
+- Add `measurements_current_v2` schema
+
 ## Version 6.2.0
 
 - Added `MeteringPointIds`type
