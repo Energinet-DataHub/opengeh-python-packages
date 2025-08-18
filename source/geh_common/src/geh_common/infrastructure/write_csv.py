@@ -14,20 +14,13 @@ log = Logger(__name__)
 DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'"}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
 
-FileNameCallbackType = Callable[[str, dict[str, str]], str]
 
-
-def _default_file_name_callback(file_name: str, partitions: dict[str, str]) -> str:
-    """Create default file name factory function.
-
-    Args:
-        file_name (str): The original file name.
-        partitions (dict[str, str]): The partitions included in the original file path.
-
-    Returns:
-        str: The new file name.
-    """
-    return file_name
+def _default_file_name_callback(partitions: dict[str, str]) -> str:
+    """Create a default file name based on the partitions, excluding CHUNK_INDEX_COLUMN."""
+    filtered = {k: v for k, v in partitions.items() if k != CHUNK_INDEX_COLUMN}
+    if not filtered:
+        return "default_file"
+    return f"file_{'_'.join(f'{k}={v}' for k, v in filtered.items())}"
 
 
 @dataclass
@@ -48,7 +41,7 @@ class FileInfo:
 def write_csv_files(
     df: DataFrame,
     output_path: str | Path,
-    file_name_factory: FileNameCallbackType = _default_file_name_callback,
+    file_name_callback: Callable[[dict[str, str]], str] = _default_file_name_callback,
     spark_output_path: str | Path | None = None,
     tmpdir: str | Path | None = None,
     partition_columns: list[str] | None = None,
@@ -61,7 +54,7 @@ def write_csv_files(
     Args:
         df (DataFrame): The DataFrame to write.
         output_path (str | Path): The path to write the files to.
-        file_name_factory (FileNameCallbackType, optional): The function to create the file name. Defaults to DefaultFileNameCallback.
+        file_name_callback (Callable[[dict[str, str]], str], optional): This callback method can be used to override the method for creating file names. It is called with the partition information, which can then be used in the filename. Note: the returned filename must not contain the file extension.
         spark_output_path (str | Path, optional): The path to the Spark output directory. Defaults to None.
         tmpdir (str | Path | None, optional): The temporary directory to write the files to. Defaults to None.
         partition_columns (list[str], optional): The columns to partition by. Defaults to [].
@@ -89,13 +82,13 @@ def write_csv_files(
         result_output_path=result_output_path,
         spark_output_path=spark_output_path,
         tmpdir=tmpdir,
-        file_name_factory=file_name_factory,
+        file_name_factory=file_name_callback,
     )
     files = _merge_content(file_info=file_info, headers=headers)
     return files
 
 
-def get_partition_information(path) -> dict[str, str]:
+def _get_partition_information(path) -> dict[str, str]:
     """Extract partition information from a file path.
 
     Args:
@@ -115,6 +108,7 @@ def get_partition_information(path) -> dict[str, str]:
         if "=" in p:
             key, value = p.split("=", 2)
             partitions[key] = value
+
     return partitions
 
 
@@ -122,7 +116,7 @@ def _get_file_info(
     result_output_path: str | Path,
     spark_output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: FileNameCallbackType,
+    file_name_factory: Callable[[dict[str, str]], str],
 ) -> list[FileInfo]:
     """Get file information for the files to be zipped.
 
@@ -140,9 +134,13 @@ def _get_file_info(
     """
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
-        file_name = f"chunk_{i}.csv"
-        partitions = get_partition_information(f)
-        file_name = file_name_factory(file_name, partitions)
+        partitions = _get_partition_information(f)
+        filename = file_name_factory.create(partitions)
+        if CHUNK_INDEX_COLUMN in partitions:
+            file_name = f"{filename}_{partitions[CHUNK_INDEX_COLUMN]}.csv"
+        else:
+            file_name = f"{filename}.csv"
+
         file_info.append(
             FileInfo(
                 source=f,

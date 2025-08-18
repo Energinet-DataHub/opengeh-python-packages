@@ -7,9 +7,9 @@ import pytest
 from pyspark.sql import SparkSession
 
 from geh_common.infrastructure.write_csv import (
-    CHUNK_INDEX_COLUMN,
+    FileNameFactoryBase,
+    _get_partition_information,
     _write_dataframe,
-    get_partition_information,
     write_csv_files,
 )
 
@@ -46,13 +46,16 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
         spark.createDataFrame(rows, ["id", "value"]).orderBy("id").repartition(10)
     )  # Force multiple files to be created
 
+    class MyFileNameFactory(FileNameFactoryBase):
+        def create(self, partitions: dict[str, str]) -> str:
+            return "test_csv"
+
     # Act
     new_files = write_csv_files(
         df,
         output_path=report_output_dir,
         spark_output_path=spark_output_dir,
         tmpdir=tmpdir,
-        file_name_factory=lambda *_: "test_csv.csv",
     )
 
     # Assert
@@ -168,11 +171,9 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
-    custom_prefix = "custom_chunk"
-
-    def file_name_factory(_, partitions: dict[str, str]) -> str:
-        chunk_index = partitions.get(CHUNK_INDEX_COLUMN)
-        return f"{custom_prefix}_{chunk_index}.csv"
+    class MyFileNameFactory(FileNameFactoryBase):
+        def create(self, partitions: dict[str, str]) -> str:
+            return "my_file"
 
     # Act
     new_files = write_csv_files(
@@ -180,7 +181,7 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
         output_path=report_output_dir,
         tmpdir=tmpdir,
         rows_per_file=rows_per_file,
-        file_name_factory=file_name_factory,
+        file_name_callback=MyFileNameFactory(),
     )
 
     # Assert
@@ -215,7 +216,7 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
 def test_get_partitions__when_valid__returns_partitions(input_path, expected):
     """Test the get_partitions function."""
     # Call the function and assert the result
-    assert get_partition_information(input_path) == expected
+    assert _get_partition_information(input_path) == expected
 
 
 @pytest.mark.parametrize(
@@ -227,7 +228,7 @@ def test_get_partitions__when_valid__returns_partitions(input_path, expected):
 def test_get_partitions__when_invalid__throws_exception(input_path, error_type, matchstmt):
     """Test the get_partitions function with invalid input."""
     with pytest.raises(error_type, match=matchstmt):
-        get_partition_information(input_path)
+        _get_partition_information(input_path)
 
 
 def test_write_files__csv_separator_is_comma_and_decimals_use_points(
