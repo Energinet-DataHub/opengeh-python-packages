@@ -64,6 +64,41 @@ def write_csv_files(
 
     Returns:
         list[Path]: The list of file paths created.
+
+    ## Example usage:
+    ``` python
+    spark = SparkSession.builder.getOrCreate()
+    df = spark.createDataFrame(
+        [
+            ("Alice", 1, "2024-01-01"),
+            ("Bob", 2, "2024-01-02"),
+            ("Charlie", 3, "2024-01-03"),
+        ],
+        ["name", "value", "date"],
+    )
+    output_files = write_csv_files(
+        df, output_path="/tmp/output_csv", partition_columns=["date"], order_by=["name"], rows_per_file=2
+    )
+    print("CSV files written:", output_files)
+    ```
+
+    ## Example with custom filename callback:
+    ``` python
+    def custom_filename_callback(partitions):
+        Create a filename like "data_<date>.csv"
+        date = partitions.get("date", "unknown")
+        return f"data_{date}"
+
+    output_files = write_csv_files(
+        df,
+        output_path="/tmp/output_csv_custom",
+        partition_columns=["date"],
+        order_by=["name"],
+        rows_per_file=2,
+        file_name_callback=custom_filename_callback
+    )
+    print("CSV files written with custom filenames:", output_files)
+    ```
     """
     random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
     result_output_path = Path(output_path)
