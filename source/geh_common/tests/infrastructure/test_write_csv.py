@@ -7,7 +7,6 @@ import pytest
 from pyspark.sql import SparkSession
 
 from geh_common.infrastructure.write_csv import (
-    FileNameFactoryBase,
     _get_partition_information,
     _write_dataframe,
     write_csv_files,
@@ -46,16 +45,13 @@ def test_write_csv_files__with_file_name_factory__returns_expected_content(spark
         spark.createDataFrame(rows, ["id", "value"]).orderBy("id").repartition(10)
     )  # Force multiple files to be created
 
-    class MyFileNameFactory(FileNameFactoryBase):
-        def create(self, partitions: dict[str, str]) -> str:
-            return "test_csv"
-
     # Act
     new_files = write_csv_files(
         df,
         output_path=report_output_dir,
         spark_output_path=spark_output_dir,
         tmpdir=tmpdir,
+        file_name_callback=lambda partitions: "test_csv",
     )
 
     # Assert
