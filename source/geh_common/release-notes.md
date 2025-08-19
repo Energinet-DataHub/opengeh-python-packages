@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.0.0
+
+Hide chunk index handling from the callers of `write_csv_files`
+
 ## Version 6.2.1
 
 - Add `measurements_current_v2` schema
