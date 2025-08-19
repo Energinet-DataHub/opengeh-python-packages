@@ -33,9 +33,9 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
     shutil.rmtree(tmpdir)
 
 
-def test_write_csv_files__with_file_name_factory__returns_expected_content(spark, tmp_path_factory):
+def test_write_csv_files__with_file_name_callback__returns_expected_content(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_write_csv_files__with_file_name_factory__returns_expected_content")
+    report_output_dir = Path("test_write_csv_files__with_file_name_callback__returns_expected_content")
     spark_output_dir = report_output_dir / "spark_output"
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     expected_rows = 1_000

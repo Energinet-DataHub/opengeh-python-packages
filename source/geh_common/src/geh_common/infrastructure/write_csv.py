@@ -117,7 +117,7 @@ def write_csv_files(
         result_output_path=result_output_path,
         spark_output_path=spark_output_path,
         tmpdir=tmpdir,
-        file_name_factory=file_name_callback,
+        file_name_callback=file_name_callback,
     )
     files = _merge_content(file_info=file_info, headers=headers)
     return files
@@ -151,7 +151,7 @@ def _get_file_info(
     result_output_path: str | Path,
     spark_output_path: str | Path,
     tmpdir: str | Path,
-    file_name_factory: Callable[[dict[str, str]], str],
+    file_name_callback: Callable[[dict[str, str]], str],
 ) -> list[FileInfo]:
     """Get file information for the files to be zipped.
 
@@ -159,7 +159,7 @@ def _get_file_info(
         result_output_path (str | Path): The path to the output directory.
         spark_output_path (str | Path): The path to the Spark output directory.
         tmpdir (str | Path): The temporary directory to write the files to.
-        file_name_factory (FileFactoryType, optional): The function to create the file name. Defaults to FileFactoryDefault.
+        file_name_callback (Callable[[dict[str, str]], str]): The function to create the file name.
 
     Raises:
         ValueError: If no files are found in the spark output path.
@@ -170,7 +170,7 @@ def _get_file_info(
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         partitions = _get_partition_information(f)
-        filename = file_name_factory.create(partitions)
+        filename = file_name_callback.create(partitions)
         if CHUNK_INDEX_COLUMN in partitions:
             file_name = f"{filename}_{partitions[CHUNK_INDEX_COLUMN]}.csv"
         else:
