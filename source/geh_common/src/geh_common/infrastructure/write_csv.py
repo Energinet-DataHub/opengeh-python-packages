@@ -170,7 +170,7 @@ def _get_file_info(
     file_info = []
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         partitions = _get_partition_information(f)
-        filename = file_name_callback.create(partitions)
+        filename = file_name_callback(partitions)
         if CHUNK_INDEX_COLUMN in partitions:
             file_name = f"{filename}_{partitions[CHUNK_INDEX_COLUMN]}.csv"
         else:
