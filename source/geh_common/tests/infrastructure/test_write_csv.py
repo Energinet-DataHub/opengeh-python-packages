@@ -167,17 +167,13 @@ def test_write_csv_files__when_chunked_with_custom_names__returns_n_files_with_c
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(nrows)], ["id", "value"])
 
-    class MyFileNameFactory(FileNameFactoryBase):
-        def create(self, partitions: dict[str, str]) -> str:
-            return "my_file"
-
     # Act
     new_files = write_csv_files(
         df,
         output_path=report_output_dir,
         tmpdir=tmpdir,
         rows_per_file=rows_per_file,
-        file_name_callback=MyFileNameFactory(),
+        file_name_callback=lambda partitions: "my_file",
     )
 
     # Assert
