@@ -1,7 +1,7 @@
 from pyspark.sql.session import SparkSession
 
 
-def analyze_table(spark: SparkSession, database: str, table: str, analyze_columns: str | None) -> None:
+def analyze_table(spark: SparkSession, database: str, table: str, analyze_columns: str | None = None) -> None:
     """Analyze the specified table in the given database.
 
     Analyze helps query performance by collecting statistics on the table.
