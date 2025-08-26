@@ -1,5 +1,13 @@
 # GEH Common Release Notes
 
+## Version 6.3.0
+
+Adding optimizations functions for Databricks
+
+- Added `optimize_table` function
+- Added `analyze_table` function
+- Added `vacuum_table` function
+
 ## Version 6.2.1
 
 - Add `measurements_current_v2` schema
