@@ -223,7 +223,7 @@ Modified the electrical_heating contract
 
 ## Version 5.8.0
 
-Added new __Subpackage__: `geh_common.covernator_streamlit`
+Added new **Subpackage**: `geh_common.covernator_streamlit`
 
 ### CLI Setup & Usage
 
@@ -286,7 +286,7 @@ According to <https://github.com/Azure/azure-sdk-for-python/issues/40465> this w
 
 ## Version 5.6.6
 
-__Subpackage__: `testing.delta_lake`
+**Subpackage**: `testing.delta_lake`
 
 Fix bugs in functions `create_database()` and `create_table()`.
 
@@ -330,7 +330,7 @@ Added data product contracts for:
 
 ## Version 5.6.0
 
-Adding new __Subpackage__: `geh_common.data_products`
+Adding new **Subpackage**: `geh_common.data_products`
 
 Added the following data product:
 
@@ -352,19 +352,19 @@ __Subpackages__: `geh_common.testing`
 
 ## Version 5.5.0
 
-__Subpackage__: `geh_common.domain.types`
+**Subpackage**: `geh_common.domain.types`
 
 Modifies enum `QuantityUnit` to map to the correct abbreviation values.
 
 ## Version 5.4.9
 
-__Subpackage__: `geh_common.domain.types`
+**Subpackage**: `geh_common.domain.types`
 
 Extends enum `MeteringPointTypes` with one more type used in DH2.
 
 ## Version 5.4.8
 
-__Subpackage__: `geh_common.testing`
+**Subpackage**: `geh_common.testing`
 
 Adds a utility function called `get_spark_test_session` that can be used to get a SparkSession for testing purposes.
 
@@ -413,7 +413,7 @@ def spark():
 
 ## Version 5.4.7
 
-__Subpackage__: `geh_common.databricks`
+**Subpackage**: `geh_common.databricks`
 
 - Updated error message to include state.
 
@@ -423,20 +423,20 @@ __Subpackage__: `geh_common.databricks`
 
 ## Version 5.4.6
 
-__Subpackage__: `geh_common.domain.types`
+**Subpackage**: `geh_common.domain.types`
 
 Extends enum `OrchestrationTypes` with more types and descriptions.
 
 ## Version 5.4.5
 
-__Subpackage__: `geh_common.testing`
+**Subpackage**: `geh_common.testing`
 
 Decorator `@testing` has been extended to support `DataFrameWrapper` and a selector function to
 extract data frames from composite function results.
 
 ## Version 5.4.4
 
-__Subpackage__: `geh_common.databricks`
+**Subpackage**: `geh_common.databricks`
 
 - Updated the return type of databricks_api_client.execute_statement to StatementResponse, enabling the method to return data.
 
@@ -447,13 +447,13 @@ to start.
 
 ## Version 5.4.3
 
-__Subpackage__: `geh_common.application`
+**Subpackage**: `geh_common.application`
 
 Added new GridAreaCodes type with a validator
 
 ## Version 5.4.2
 
-__Subpackage__: `geh_common.testing`
+**Subpackage**: `geh_common.testing`
 
 Fixes bug in decorator `@testing`, which prevented if from working when it was imported before
 `configure_testing()` was executed.
@@ -464,7 +464,7 @@ Fixes bug in decorator `@testing`, which prevented if from working when it was i
 
 ## Version 5.4.0
 
-__Subpackage__: `geh_common.testing`
+**Subpackage**: `geh_common.testing`
 
 Added decorator `@testing` to log content of data frames returned from function invocations.
 
@@ -511,14 +511,14 @@ Example output:
 
 ## Version 5.3.1
 
-__Subpackage__: `geh_common.databricks`
+**Subpackage**: `geh_common.databricks`
 
 - Add `cancel_job_run`. The function waits for the job run to be cancelled by default.
 - Add `get_latest_job_run_id` to get the latest run id for a Databricks job.
 
 ## Version 5.3.0
 
-__Subpackage__: `geh_common.databricks`
+**Subpackage**: `geh_common.databricks`
 
 ### Breaking Changes
 
@@ -528,13 +528,13 @@ __Subpackage__: `geh_common.databricks`
 
 ## Version 5.2.0
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Updated logging setup to use Pydantic Settings class and introduced start_trace decorator to simplify logging setup
 
 ## Version 5.0.1
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 Bug fix:
 
@@ -542,7 +542,7 @@ Bug fix:
 
 ## Version 5.0.0
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 Following changes were made to simplify the package's usage and reduce the consumer's need to understand its
 implementation details
@@ -552,7 +552,7 @@ implementation details
 
 ## Version 3.0.0
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 Breaking changes
 
@@ -570,68 +570,68 @@ These changes are made to simplify the database migration
 
 ## Version 2.4.1
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Change required version to ranges
 
 ## Version 2.4.0
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Added integration test for telemetry
 
 ## Version 2.1.2
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Fix
 
 ## Version 2.1.1
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Open minor version for telemetry
 
 ## Version 2.1.0
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Added shared telemetry library for logging
 
 ## Version 2.0.6
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Added temporary fix that allows migration without current state scripts.
 
 ## Version 2.0.5
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Change minimum required version of `pyspark` to `3.5.1`
 
 ## Version 2.0.4
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Fix
 
 ## Version 2.0.3
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - open minor version for spark_sql_migrations
 
 ## Version 2.0.2
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - required pyspark version bumped form 3.5.1 to 3.5.3
 - required dependency_injector version bumped from 4.41.0 to 4.43.0
 
 ## Version 2.0.1
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Bug fix: When rollback is enabled, it needs to get the latest version of each table before executing the migration.
 However, when getting the version it was collecting all the rows from the history, which was not needed and could
@@ -639,7 +639,7 @@ cause a performance issue. Now it is only getting the latest version of each tab
 
 ## Version 2.0.0
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Added `rollback_on_failure` parameter to the `SparkSqlMigrationsConfiguration` class. This parameter allows the user to specify whether the migration should be rolled back if an error occurs during the migration process. The default value is `False`.
 <br> The reason for this change is that a rollback might unintentionally delete data that was not supposed to be deleted. The situation can occur when data are written to the table at the same time that the migration is executing. The user should be aware of the risks of rolling back a migration and should only do so if they are sure that the migration will not cause any data loss.
@@ -659,19 +659,19 @@ spark_config = SparkSqlMigrationsConfiguration(
 
 ## Version 1.9.5
 
-__Subpackage__: `geh_common.telemetry`
+**Subpackage**: `geh_common.telemetry`
 
 - Added Release Notes
 
 ## Version 1.9.4
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Bug fixed for rollback when more than two migration scripts are running at the same time.
 
 ## Version 1.9.3
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - SparkSqlMigrationsConfiguration no longer defaults to hive_metastore as catalog name, so now it is not an optional property.
 
@@ -690,13 +690,13 @@ spark_config = SparkSqlMigrationsConfiguration(
 
 ## Version 1.9.2
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Adding release notes
 
 ## Version 1.9.1
 
-__Subpackage__: `geh_common.migrations`
+**Subpackage**: `geh_common.migrations`
 
 - Adding schema to the Views.
 
