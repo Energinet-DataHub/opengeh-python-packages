@@ -1,5 +1,12 @@
 # GEH Common Release Notes
 
+## Version 6.4.0
+
+Added measurements-calculated data products:
+
+- `calculated_measurements_including_test_data_v1`
+- `missing_measurements_log_including_test_data_v1`
+
 ## Version 6.3.0
 
 Adding optimizations functions for Databricks

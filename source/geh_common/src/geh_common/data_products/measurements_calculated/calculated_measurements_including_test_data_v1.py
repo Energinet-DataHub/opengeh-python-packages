@@ -4,7 +4,7 @@ nullable = True
 
 database_name = "measurements_calculated"
 
-view_name = "calculated_measurements_v1"
+view_name = "calculated_measurements_including_test_data_v1"
 
 schema = t.StructType(
     [
@@ -51,10 +51,8 @@ schema = t.StructType(
         # The resolution of the calculated quantity
         # "PT1H"
         t.StructField("resolution", t.StringType(), not nullable),
+        #
+        # Flag whether the data is from a test run
+        t.StructField("is_test_data", t.BooleanType(), not nullable),
     ]
 )
-"""IMPORTANT: This is not a general purpose data product. It is specifically designed for
-1. streaming calculated measurements from measurements-calculated to measurements-core
-2. providing calculated measurements for message generation
-The data product does not provide access to calculated measurements from test runs.
-"""
