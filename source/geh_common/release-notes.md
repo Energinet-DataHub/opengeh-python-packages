@@ -137,7 +137,7 @@ Example:
 ## Version 5.10.0
 
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
-  - This involves two functions: `create_zip_file` and `write_csv_files`.
+    - This involves two functions: `create_zip_file` and `write_csv_files`.
 
 ## Version 5.9.4
 
@@ -266,15 +266,15 @@ Example of a valid folder structure:
 ```
 
 - scenario group should have folder called `coverage` containing a yaml file following this pattern: `all_cases*.yml`
-  - the `master file`
-  - contains all cases that should be implemented
-  - (in the future) boolean determines whether pipeline fails if case is not implemented
-  - case names have to be unique in a single master file
-  - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
+    - the `master file`
+    - contains all cases that should be implemented
+    - (in the future) boolean determines whether pipeline fails if case is not implemented
+    - case names have to be unique in a single master file
+    - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
 - folder `scenario_tests` next to the coverage folder
-  - must contain a key `cases_tested`
-  - mapping between master file and scenarios testing specific cases
-  - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
+    - must contain a key `cases_tested`
+    - mapping between master file and scenarios testing specific cases
+    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
 
 ## Version 5.7.0
 
