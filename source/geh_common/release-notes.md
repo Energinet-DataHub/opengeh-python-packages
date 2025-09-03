@@ -338,7 +338,7 @@ Added the following data product:
 
 ## Version 5.5.3
 
-__Subpackages__: `geh_common.testing`
+**Subpackages**: `geh_common.testing`
 
 - Added parameter `extra_packages` for the spark session
 
