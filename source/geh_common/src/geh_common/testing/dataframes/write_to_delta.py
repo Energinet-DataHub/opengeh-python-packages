@@ -34,7 +34,7 @@ def write_when_files_to_delta(spark: SparkSession, scenario_path: str, files: li
             if not spark.catalog.tableExists(table_name):
                 df.write.mode("overwrite").format("delta").saveAsTable(table_name)
             else:
-                spark.sql(f"TRUNCATE TABLE {table_name}")
+                spark.sql(f"DELETE FROM {table_name}")
                 df.write.mode("append").format("delta").saveAsTable(table_name)
         except Exception as e:
             Exception(f"Error executing overwrite on table {file_name}: {str(e)}")
