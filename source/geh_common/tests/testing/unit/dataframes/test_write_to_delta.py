@@ -1,3 +1,4 @@
+from pyspark.sql import SparkSession
 from pyspark.sql import types as T
 
 from geh_common.testing.dataframes import (
@@ -71,7 +72,7 @@ def test_write_to_delta_creates_table_with_same_name_as_file(spark):
     assert has_created_table
 
 
-def test_write_to_delta_overwrites_previous_data(spark):
+def test_write_to_delta_overwrites_previous_data(spark: SparkSession):
     # Setup
     file_name = "input.csv"
     files = [(file_name, schema_for_input)]
@@ -88,7 +89,7 @@ def test_write_to_delta_overwrites_previous_data(spark):
     expected_df = spark.createDataFrame([("hello", "world", "42")], schema_for_input)
 
     # Assert
-    assert_dataframes_and_schemas(expected_df, actual_df)
+    assert_dataframes_and_schemas(actual_df, expected_df)
 
 
 def test_file_is_ignored_if_it_does_not_exist_in_when(spark):

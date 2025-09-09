@@ -11,7 +11,7 @@ def write_when_files_to_delta(spark: SparkSession, scenario_path: str, files: li
 
     Writes a list of files to a delta table, using the filenames (without the file extension) as table names.
     If the Delta table does not exist, the function will create it. Otherwise, if a table already exists, its content
-    will be overwritten
+    will be overwritten (delete all rows and append new rows to preserve table meta data like clustering and more).
 
     Args:
         spark (SparkSession): The Spark session.
@@ -30,6 +30,11 @@ def write_when_files_to_delta(spark: SparkSession, scenario_path: str, files: li
 
         # Overwrite destination table with DataFrame
         try:
-            df.write.mode("overwrite").format("delta").saveAsTable(file_name.removesuffix(".csv"))
+            table_name = file_name.removesuffix(".csv")
+            if not spark.catalog.tableExists(table_name):
+                df.write.mode("overwrite").format("delta").saveAsTable(table_name)
+            else:
+                spark.sql(f"DELETE FROM {table_name}")
+                df.write.mode("append").format("delta").saveAsTable(table_name)
         except Exception as e:
             Exception(f"Error executing overwrite on table {file_name}: {str(e)}")

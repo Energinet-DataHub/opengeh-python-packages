@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 6.4.1
+
+Bug fix: Implement overwrite in `geh_common.testing.dataframes.write_to_delta.write_when_files_to_delta`
+as delete all rows and then append new rows. This preserves delta table meta data like clustering.
+
 ## Version 6.4.0
 
 Added measurements-calculated data products:
