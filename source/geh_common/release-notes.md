@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 6.4.2
+
+- Added `convert_datetime_to_midnight_in_timezone` function for converting a datetime into mightnight in a given timezone
+
 ## Version 6.4.1
 
 Bug fix: Implement overwrite in `geh_common.testing.dataframes.write_to_delta.write_when_files_to_delta`

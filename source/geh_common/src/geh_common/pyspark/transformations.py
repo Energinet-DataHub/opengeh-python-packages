@@ -1,4 +1,6 @@
+from datetime import datetime
 from typing import Callable
+from zoneinfo import ZoneInfo
 
 from pyspark.sql import Column, DataFrame
 from pyspark.sql import functions as F
@@ -81,3 +83,16 @@ def days_in_year(col: Column) -> Column:
             -1,
         )
     )
+
+
+def convert_datetime_to_midnight_in_timezone(datetime: datetime, time_zone: str) -> datetime:
+    """Convert a datetime to the specified timezone from UTC to midnight in the specified timezeone.
+
+    Args:
+      execution_start_datetime: The datetime to convert
+      time_zone: The target timezone string (e.g. 'Europe/Copenhagen')
+
+    Returns:
+      The same date at midnight in the specified timezone
+    """
+    return datetime.astimezone(ZoneInfo(time_zone)).replace(hour=0, minute=0, second=0, microsecond=0)
