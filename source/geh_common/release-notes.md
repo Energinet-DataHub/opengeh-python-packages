@@ -4,6 +4,26 @@
 
 Hide chunk index handling from the callers of `write_csv_files`
 
+## Version 6.4.1
+
+Bug fix: Implement overwrite in `geh_common.testing.dataframes.write_to_delta.write_when_files_to_delta`
+as delete all rows and then append new rows. This preserves delta table meta data like clustering.
+
+## Version 6.4.0
+
+Added measurements-calculated data products:
+
+- `calculated_measurements_including_test_data_v1`
+- `missing_measurements_log_including_test_data_v1`
+
+## Version 6.3.0
+
+Adding optimizations functions for Databricks
+
+- Added `optimize_table` function
+- Added `analyze_table` function
+- Added `vacuum_table` function
+
 ## Version 6.2.1
 
 - Add `measurements_current_v2` schema
