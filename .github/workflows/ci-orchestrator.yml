@@ -33,7 +33,7 @@ jobs:
   #
   ci_unit:
     name: Unit tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@nhq/3289-pythonSBOM
     with:
       packages_directory: source
       create_versioned_release: true
@@ -44,7 +44,7 @@ jobs:
   #
   ci_integration:
     name: Integration tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@nhq/3289-pythonSBOM
     with:
       packages_directory: source
       environment: AzureAuth
@@ -53,6 +53,8 @@ jobs:
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
       azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
       create_versioned_release: true
+      create_subsystem_release: false # Created by ci_unit
+      create_prerelease: false # Created by ci_unit
 
   # Branch policy status check
   allow_merge_ci_orchestrator:
