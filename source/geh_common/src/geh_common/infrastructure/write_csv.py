@@ -89,13 +89,14 @@ def write_csv_files(
         date = partitions.get("date", "unknown")
         return f"data_{date}"
 
+
     output_files = write_csv_files(
         df,
         output_path="/tmp/output_csv_custom",
         partition_columns=["date"],
         order_by=["name"],
         rows_per_file=2,
-        file_name_callback=custom_filename_callback
+        file_name_callback=custom_filename_callback,
     )
     print("CSV files written with custom filenames:", output_files)
     ```
