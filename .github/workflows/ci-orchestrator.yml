@@ -53,6 +53,8 @@ jobs:
       azure_spn_id: ${{ vars.integration_test_azure_spn_id_oidc }}
       azure_keyvault_url: ${{ vars.integration_test_azure_keyvault_url }}
       create_versioned_release: true
+      create_subsystem_release: false # Created by ci_unit
+      create_prerelease: false # Created by ci_unit
 
   # Branch policy status check
   allow_merge_ci_orchestrator:
