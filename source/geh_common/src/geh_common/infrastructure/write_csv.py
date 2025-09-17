@@ -85,7 +85,7 @@ def write_csv_files(
     ## Example with custom filename callback:
     ``` python
     def custom_filename_callback(partitions):
-        Create a filename like "data_<date>.csv"
+        # Create a filename like "data_<date>.csv"
         date = partitions.get("date", "unknown")
         return f"data_{date}"
 
