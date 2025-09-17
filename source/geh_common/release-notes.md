@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.0.0
+
+Hide chunk index handling from the callers of `write_csv_files`
+
 ## Version 6.4.1
 
 Bug fix: Implement overwrite in `geh_common.testing.dataframes.write_to_delta.write_when_files_to_delta`
