@@ -120,6 +120,9 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_callback=file_name_callback,
     )
+
+    file_info = _rename_single_chunk_filenames(file_info)
+
     files = _merge_content(file_info=file_info, headers=headers)
     return files
 
@@ -172,10 +175,12 @@ def _get_file_info(
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         partitions = _get_partition_information(f)
         filename = file_name_callback(partitions)
-        if CHUNK_INDEX_COLUMN in partitions:
-            file_name = f"{filename}_{partitions[CHUNK_INDEX_COLUMN]}.csv"
-        else:
+
+        chunk_index = partitions.get(CHUNK_INDEX_COLUMN, None)
+        if chunk_index is None:
             file_name = f"{filename}.csv"
+        else:
+            file_name = f"{filename}_{chunk_index}.csv"
 
         file_info.append(
             FileInfo(
@@ -184,6 +189,39 @@ def _get_file_info(
                 temporary=Path(tmpdir) / file_name,
             )
         )
+
+    return file_info
+
+
+def _rename_single_chunk_filenames(file_info: list[FileInfo]) -> list[FileInfo]:
+    """Rename files where only one chunk exists in their partition by removing the chunk suffix.
+
+    Args:
+        file_info: A list of FileInfo objects containing file information.
+
+    Returns:
+        The updated list of FileInfo objects with renamed destination and temporary paths
+        for single-chunk partitions.
+    """
+    # Group files by their partition (the part before the last underscore)
+    files_by_partition = {}
+    for file in file_info:
+        name = file.destination.name
+        # Extract the partition name (everything before the last underscore)
+        partition_name = name[: name.rfind("_")]  # rfind() method finds the last occurrence of the specified value
+        if partition_name not in files_by_partition:
+            files_by_partition[partition_name] = []
+        files_by_partition[partition_name].append(file)
+
+    # For partitions with only one chunk, rename the file to remove the chunk suffix
+    for partition_name, files in files_by_partition.items():
+        if len(files) == 1:
+            file = files[0]
+            # Remove the chunk suffix (_1.csv)
+            new_name = partition_name + ".csv"
+            file.destination = file.destination.parent / new_name
+            file.temporary = file.temporary.parent / new_name
+
     return file_info
 
 
@@ -225,11 +263,7 @@ def _write_dataframe(
             order_by.append(df.columns[0])
         w = Window().partitionBy(partition_columns).orderBy(order_by)
         df = df.select("*", F.ceil((F.row_number().over(w)) / F.lit(rows_per_file)).alias(CHUNK_INDEX_COLUMN))
-        unique_chunk_index = df.select(CHUNK_INDEX_COLUMN).distinct().count()
-        if unique_chunk_index > 1:
-            partition_columns.append(CHUNK_INDEX_COLUMN)
-        else:
-            df = df.drop(CHUNK_INDEX_COLUMN)
+        partition_columns.append(CHUNK_INDEX_COLUMN)
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:

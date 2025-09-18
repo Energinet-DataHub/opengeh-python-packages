@@ -302,17 +302,36 @@ def test_write_files__when_order_by_specified_on_multiple_partitions(
     shutil.rmtree(tmp_dir)
 
 
+@pytest.mark.parametrize(
+    "input_path, dataframe_data",
+    [
+        (
+            "test_write_files__do_not_add_suffix_if_only_one_chunk_exists_single_partition",
+            [("a", 1)],
+        ),
+        (
+            "test_write_files__do_not_add_suffix_if_only_one_chunk_exists_multiple_partitions_1",
+            [("a", 1), ("b", 2), ("b", 2)],
+        ),
+        (
+            "test_write_files__do_not_add_suffix_if_only_one_chunk_exists_multiple_partitions_2",
+            [("b", 1), ("b", 1), ("a", 2)],
+        ),
+    ],
+)
 def test_write_files__do_not_add_suffix_if_only_one_chunk_exists(
     spark: SparkSession,
     tmp_path_factory,
+    input_path,
+    dataframe_data,
 ):
     # Arrange
-    report_output_dir = Path("test_write_csv_files__with_file_name_callback__returns_expected_content")
+    report_output_dir = Path(input_path)
 
     spark_output_dir = report_output_dir / "spark_output"
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame(
-        [("a", 1), ("a", 1), ("b", 2)],
+        dataframe_data,
         ["key", "value"],
     )
 
@@ -328,10 +347,8 @@ def test_write_files__do_not_add_suffix_if_only_one_chunk_exists(
     )
 
     # Assert
-
-    # Check file names - verify c file doesn't have a number suffix
-    b_file = [f for f in new_files if "key=b" in str(f)][0]
-    assert b_file.name == "file_key=b.csv", f"Expected filename 'file_key=b.csv', got '{b_file.name}'"
+    a_file_name = [f for f in new_files if "key=a" in str(f)][0].name
+    assert a_file_name == "file_key=a.csv", f"Expected filename 'file_key=a.csv', got '{a_file_name}'"
 
     # Clean up
     shutil.rmtree(report_output_dir)
