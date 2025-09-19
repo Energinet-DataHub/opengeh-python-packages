@@ -222,6 +222,8 @@ def _rename_single_chunk_filenames(file_info: list[FileInfo]) -> list[FileInfo]:
 
         if partition_name not in files_by_partition:
             files_by_partition[partition_name] = []
+        if partition_name not in partition_name_and_file_info:
+            partition_name_and_file_info[partition_name] = []
 
         files_by_partition[partition_name].append(chunk)
         partition_name_and_file_info[partition_name] = file
