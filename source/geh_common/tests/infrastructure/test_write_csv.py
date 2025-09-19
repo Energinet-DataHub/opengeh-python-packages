@@ -77,6 +77,86 @@ def test_write_csv_files__with_file_name_callback__returns_expected_content(spar
     shutil.rmtree(tmpdir)
 
 
+def test_write_csv_files__chunks_and_multiple_partitions_return_non_suffixed_file_names(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_write_csv_files__chunks_and_multiple_partitions_return_non_suffixed_file_names")
+    spark_output_dir = report_output_dir / "spark_output"
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+
+    df = spark.createDataFrame(
+        [(123, "x", 1.1), (123, "x", 1.2), (123, "y", 2.2)],
+        ["grid_area", "type", "value"],
+    )
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        spark_output_path=spark_output_dir,
+        tmpdir=tmpdir,
+        partition_columns=["grid_area", "type"],
+        order_by=["value"],
+        rows_per_file=1,
+    )
+
+    # Assert
+    # Check that the expected files are created with the right names
+    expected_files = [
+        "file_grid_area=123_type=x_1.csv",
+        "file_grid_area=123_type=x_2.csv",  # due to rows_per_file=1
+        "file_grid_area=123_type=y.csv",
+    ]
+
+    # Check that we found exactly 3 files
+    assert len(new_files) == 3, f"Expected 3 files but found {len(new_files)}: {[f.name for f in new_files]}"
+
+    # Check that the files have the expected names
+    file_names = [f.name for f in new_files]
+    for expected_file in expected_files:
+        assert expected_file in file_names, f"Expected file {expected_file} not found in {file_names}"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
+def test_write_csv_files__no_chunks_and_multiple_partitions_return_non_suffixed_file_names(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = Path("test_write_csv_files__no_chunks_and_multiple_partitions_return_non_suffixed_file_names")
+    spark_output_dir = report_output_dir / "spark_output"
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+
+    df = spark.createDataFrame(
+        [(123, "x", 1.1), (123, "y", 2.2)],
+        ["grid_area", "type", "value"],
+    )
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        spark_output_path=spark_output_dir,
+        tmpdir=tmpdir,
+        partition_columns=["grid_area", "type"],
+        order_by=["value"],
+        rows_per_file=1,
+    )
+
+    # Assert
+    # Check that the expected files are created with the right names
+    expected_files = ["file_grid_area=123_type=x.csv", "file_grid_area=123_type=y.csv"]
+
+    # Check that we found exactly 2 files
+    assert len(new_files) == 2, f"Expected 2 files but found {len(new_files)}: {[f.name for f in new_files]}"
+
+    # Check that the files have the expected names
+    file_names = [f.name for f in new_files]
+    for expected_file in expected_files:
+        assert expected_file in file_names, f"Expected file {expected_file} not found in {file_names}"
+
+    # Clean up
+    shutil.rmtree(report_output_dir)
+    shutil.rmtree(tmpdir)
+
+
 def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
     # Arrange
     report_output_dir = Path("test_write_csv_files__with_defaults__returns_expected")
