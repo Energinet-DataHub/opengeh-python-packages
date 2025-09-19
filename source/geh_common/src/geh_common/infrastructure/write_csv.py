@@ -207,33 +207,32 @@ def _rename_single_chunk_filenames(file_info: list[FileInfo]) -> list[FileInfo]:
         The updated list of FileInfo objects with renamed destination and temporary paths
         for single-chunk partitions.
     """
-    # Dict for partition_name and the number of chunks
-    files_by_partition = {}
+    # Dict for file_name and the number of chunks
+    prefix_to_chunks = {}
 
-    # Dict for partition_name and the corresponding FileInfo object
-    partition_name_and_file_info = {}
+    # Dict for filename_prefix and the corresponding FileInfo object
+    prefix_to_file_info = {}
 
-    # Go through all files and find the partitions and their chunks
+    # Go through all files and find the filename prefixes and their chunks
     for file in file_info:
         name = file.destination.name
-        # Extract the partition name (everything before the last underscore)
-        partition_name = name[: name.rfind("_")]  # rfind() method finds the last occurrence of the specified value
+        # Extract the filename prefix (everything before the last underscore)
+        filename_prefix = name[: name.rfind("_")]  # rfind() method finds the last occurrence of the specified value
         chunk = name[name.rfind("_") :]
 
-        if partition_name not in files_by_partition:
-            files_by_partition[partition_name] = []
-        if partition_name not in partition_name_and_file_info:
-            partition_name_and_file_info[partition_name] = []
+        if filename_prefix not in prefix_to_chunks:
+            prefix_to_chunks[filename_prefix] = []
+        if filename_prefix not in prefix_to_file_info:
+            prefix_to_file_info[filename_prefix] = file
 
-        files_by_partition[partition_name].append(chunk)
-        partition_name_and_file_info[partition_name] = file
+        prefix_to_chunks[filename_prefix].append(chunk)
 
-    # For partitions with only one chunk, rename the file to remove the chunk suffix
-    for partition_name, chunks in files_by_partition.items():
+    # For files with only one chunk, rename the file to remove the chunk suffix
+    for filename_prefix, chunks in prefix_to_chunks.items():
         if len(set(chunks)) == 1:
             # Remove the chunk suffix (_1.csv)
-            new_name = partition_name + ".csv"
-            file = partition_name_and_file_info[partition_name]
+            new_name = filename_prefix + ".csv"
+            file = prefix_to_file_info[filename_prefix]
             file.destination = file.destination.parent / new_name
             file.temporary = file.temporary.parent / new_name
 
