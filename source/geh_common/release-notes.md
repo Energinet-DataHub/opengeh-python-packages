@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 7.0.1
+
+- Removed count from write_csv_files
+- Modified naming logic to not append the '_x' suffix for files with only one chunk
+
 ## Version 7.0.0
 
 Hide chunk index handling from the callers of `write_csv_files`
