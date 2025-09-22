@@ -106,6 +106,7 @@ def write_csv_files(
     if spark_output_path is None:
         spark_output_path = result_output_path / random_dir
     tmpdir = tmpdir or Path("/tmp") / random_dir
+
     headers = _write_dataframe(
         df=df,
         spark_output_path=spark_output_path,
@@ -119,7 +120,9 @@ def write_csv_files(
         spark_output_path=spark_output_path,
         tmpdir=tmpdir,
         file_name_callback=file_name_callback,
+        rows_per_file=rows_per_file,
     )
+
     files = _merge_content(file_info=file_info, headers=headers)
     return files
 
@@ -153,6 +156,7 @@ def _get_file_info(
     spark_output_path: str | Path,
     tmpdir: str | Path,
     file_name_callback: Callable[[dict[str, str]], str],
+    rows_per_file: int | None = None,
 ) -> list[FileInfo]:
     """Get file information for the files to be zipped.
 
@@ -172,10 +176,12 @@ def _get_file_info(
     for i, f in enumerate(Path(spark_output_path).rglob("*.csv")):
         partitions = _get_partition_information(f)
         filename = file_name_callback(partitions)
-        if CHUNK_INDEX_COLUMN in partitions:
-            file_name = f"{filename}_{partitions[CHUNK_INDEX_COLUMN]}.csv"
-        else:
+
+        chunk_index = partitions.get(CHUNK_INDEX_COLUMN, None)
+        if chunk_index is None:
             file_name = f"{filename}.csv"
+        else:
+            file_name = f"{filename}_{chunk_index}.csv"
 
         file_info.append(
             FileInfo(
@@ -184,6 +190,52 @@ def _get_file_info(
                 temporary=Path(tmpdir) / file_name,
             )
         )
+
+    if rows_per_file is not None and rows_per_file > 0:
+        _rename_single_chunk_filenames(file_info)
+
+    return file_info
+
+
+def _rename_single_chunk_filenames(file_info: list[FileInfo]) -> list[FileInfo]:
+    """Rename files where only one chunk exists in their partition by removing the chunk suffix.
+
+    Args:
+        file_info: A list of FileInfo objects containing file information.
+
+    Returns:
+        The updated list of FileInfo objects with renamed destination and temporary paths
+        for single-chunk partitions.
+    """
+    # Dict for file_name and the number of chunks
+    prefix_to_chunks = {}
+
+    # Dict for filename_prefix and the corresponding FileInfo object
+    prefix_to_file_info = {}
+
+    # Go through all files and find the filename prefixes and their chunks
+    for file in file_info:
+        name = file.destination.name
+        # Extract the filename prefix (everything before the last underscore)
+        filename_prefix = name[: name.rfind("_")]  # rfind() method finds the last occurrence of the specified value
+        chunk = name[name.rfind("_") :]
+
+        if filename_prefix not in prefix_to_chunks:
+            prefix_to_chunks[filename_prefix] = []
+        if filename_prefix not in prefix_to_file_info:
+            prefix_to_file_info[filename_prefix] = file
+
+        prefix_to_chunks[filename_prefix].append(chunk)
+
+    # For files with only one chunk, rename the file to remove the chunk suffix
+    for filename_prefix, chunks in prefix_to_chunks.items():
+        if len(set(chunks)) == 1:
+            # Remove the chunk suffix (_1.csv)
+            new_name = filename_prefix + ".csv"
+            file = prefix_to_file_info[filename_prefix]
+            file.destination = file.destination.parent / new_name
+            file.temporary = file.temporary.parent / new_name
+
     return file_info
 
 
@@ -225,11 +277,7 @@ def _write_dataframe(
             order_by.append(df.columns[0])
         w = Window().partitionBy(partition_columns).orderBy(order_by)
         df = df.select("*", F.ceil((F.row_number().over(w)) / F.lit(rows_per_file)).alias(CHUNK_INDEX_COLUMN))
-        unique_chunk_index = df.select(CHUNK_INDEX_COLUMN).distinct().count()
-        if unique_chunk_index > 1:
-            partition_columns.append(CHUNK_INDEX_COLUMN)
-        else:
-            df = df.drop(CHUNK_INDEX_COLUMN)
+        partition_columns.append(CHUNK_INDEX_COLUMN)
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:
