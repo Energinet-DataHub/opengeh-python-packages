@@ -77,7 +77,7 @@ def test_write_csv_files__with_file_name_callback__returns_expected_content(spar
     shutil.rmtree(tmpdir)
 
 
-def test_write_csv_files__chunks_and_multiple_partitions_return_non_suffixed_file_names(spark, tmp_path_factory):
+def test_write_csv_files__chunks_and_multiple_partitions__returns_non_suffixed_file_names(spark, tmp_path_factory):
     # Arrange
     report_output_dir = Path("test_write_csv_files__chunks_and_multiple_partitions_return_non_suffixed_file_names")
     spark_output_dir = report_output_dir / "spark_output"
