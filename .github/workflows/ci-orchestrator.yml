@@ -33,7 +33,7 @@ jobs:
   #
   ci_unit:
     name: Unit tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v15
     with:
       packages_directory: source
       create_versioned_release: true
@@ -44,7 +44,7 @@ jobs:
   #
   ci_integration:
     name: Integration tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v15
     with:
       packages_directory: source
       environment: AzureAuth
