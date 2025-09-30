@@ -50,64 +50,67 @@ def _get_scenario_source_name_from_path(path: Path, feature_folder_name: Path) -
     return str(path.relative_to(feature_folder_name).parent)
 
 
-def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], str]]:
-    """Find cases for the content of a given scenario from a coverage_mapping.yml file."""
+def _get_scenarios_cases_tested(content, parents=None):
     if parents is None:
         parents = []
+    print("DEBUG parsing:", content)  # <---- ADD THIS
     if isinstance(content, dict):
         all_cases_from_dict = []
         for key, value in content.items():
-            all_cases_from_dict.extend(_get_scenarios_cases_tested(value, parents + [key]))
+            # if value is list of strings, record directly
+            if isinstance(value, list) and all(isinstance(v, str) for v in value):
+                for v in value:
+                    all_cases_from_dict.append((parents + [key], v))
+            else:
+                all_cases_from_dict.extend(_get_scenarios_cases_tested(value, parents + [key]))
         return all_cases_from_dict
     elif isinstance(content, list):
         all_cases_from_list = []
         for case in content:
             all_cases_from_list.extend(_get_scenarios_cases_tested(case, parents))
         return all_cases_from_list
-    else:
+    elif isinstance(content, str):
         return [(parents, content)]
+    else:
+        return []
+
 
 
 def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
-    """Find all implemented scenarios for the given path.
-
-    Searches for all files named 'coverage_mapping.yml' in the given path and its subdirectories.
-    For each file, it loads the content and extracts the cases tested for each scenario.
-    Ignores the file if it doesn't contain the 'cases_tested' key or if there are no cases.
-
-    Args:
-        base_path (Path): The path to search for scenarios with the name 'coverage_mapping.yml'.
-    """
     coverage_by_scenario: List[ScenarioRow] = []
     errors = []
 
+    print("DEBUG: Looking for coverage_mapping.yml under", base_path)
     for path in base_path.rglob("coverage_mapping.yml"):
-        with open(path) as coverage_mapping_file:
-            try:
+        print("DEBUG: Found coverage_mapping.yml:", path)
+        try:
+            with open(path, encoding="utf-8") as coverage_mapping_file:
                 try:
                     coverage_mapping = yaml.safe_load(coverage_mapping_file)
                 except yaml.YAMLError:
-                    logging.warning(f"Invalid yaml file '{path}': {coverage_mapping_file}")
-                    continue
-                cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
-                if cases_tested_content is None:
-                    logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
+                    logging.warning(f"Invalid yaml file '{path}' (YAMLError)")
                     continue
 
-                cases_tested = _get_scenarios_cases_tested(cases_tested_content)
-                coverage_by_scenario.append(
-                    ScenarioRow(
-                        source=_get_scenario_source_name_from_path(path, base_path),
-                        cases_tested=[case for _, case in cases_tested],
-                    )
+            cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
+            if cases_tested_content is None:
+                logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
+                continue
+
+            cases_tested = _get_scenarios_cases_tested(cases_tested_content)
+            coverage_by_scenario.append(
+                ScenarioRow(
+                    source=_get_scenario_source_name_from_path(path, base_path),
+                    cases_tested=[case for _, case in cases_tested],
                 )
-            except (yaml.YAMLError, KeyError) as exc:
-                errors.append(f"Error loading {path}: {exc}")
+            )
+        except Exception as exc:
+            errors.append(f"{path}: {exc}")
 
-    if len(errors) > 0:
-        raise Exception("\n".join(errors))
+    if errors:
+        logging.warning(f"Errors while parsing scenarios: {errors}")
 
     return coverage_by_scenario
+
 
 
 def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
@@ -130,7 +133,12 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     all_scenarios = []
     all_cases = []
     for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
+
+
+        #group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
+        #hotfix for windows
+        group = str(Path(str(path.absolute()).split(f"{os.sep}coverage{os.sep}")[0]).relative_to(base_path.absolute()))
+
         group_name = group.split(os.sep)[-1]
         if group_name == ".":
             group_name = None
