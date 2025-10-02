@@ -53,11 +53,10 @@ def _get_scenario_source_name_from_path(path: Path, feature_folder_name: Path) -
 def _get_scenarios_cases_tested(content, parents=None):
     if parents is None:
         parents = []
-    print("DEBUG parsing:", content)  # <---- ADD THIS
+
     if isinstance(content, dict):
         all_cases_from_dict = []
         for key, value in content.items():
-            # if value is list of strings, record directly
             if isinstance(value, list) and all(isinstance(v, str) for v in value):
                 for v in value:
                     all_cases_from_dict.append((parents + [key], v))
@@ -80,9 +79,7 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
     coverage_by_scenario: List[ScenarioRow] = []
     errors = []
 
-    print("DEBUG: Looking for coverage_mapping.yml under", base_path)
     for path in base_path.rglob("coverage_mapping.yml"):
-        print("DEBUG: Found coverage_mapping.yml:", path)
         try:
             with open(path, encoding="utf-8") as coverage_mapping_file:
                 try:
@@ -114,73 +111,81 @@ def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
 
 
 def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
-    """Generate the coverage files for all scenarios and all cases.
-
-    This is the entrypoint for the covernator command.
-    Yaml files that start with 'all_cases' are expected to be in the 'coverage' folder,
-      containing the summary of all expected scenarios (implemented and not yet implemented ones).
-    The parent folder of the 'coverage' folder is considered to be a group.
-    In the same folder, a folder named 'scenario_tests' is expected to be present,
-      in which the implemented scenarios should be found.
-    The functions saves 2 files ('all_cases.csv' and 'case_coverage.csv') in the specified folder.
-
-    Args:
-        folder_to_save_files_in (Path): The folder where the coverage files will be saved.
-        base_path (Path): The base path to search for scenarios and cases. Defaults to the current directory.
-    """
     folder_to_save_files_in.mkdir(parents=True, exist_ok=True)
 
     all_scenarios = []
     all_cases = []
+
     for path in base_path.rglob("coverage/all_cases*.yml"):
+        group = path.parent.parent.relative_to(base_path)
 
-
-        #group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
-        #hotfix for windows
-        group = str(Path(str(path.absolute()).split(f"{os.sep}coverage{os.sep}")[0]).relative_to(base_path.absolute()))
-
-        group_name = group.split(os.sep)[-1]
-        if group_name == ".":
-            group_name = None
         group_cases = find_all_cases(path)
-        if len(group_cases) == 0:
-            logging.warning(f"No cases found in {path}")
-            continue
-        all_cases.append(pl.DataFrame(group_cases).with_columns(pl.lit(group_name).alias("Group")))
         group_scenarios = find_all_scenarios(base_path / group / "scenario_tests")
-        group_scenarios_df = pl.DataFrame(group_scenarios)
-        if len(group_scenarios_df) > 0:
-            group_scenarios_df = group_scenarios_df.with_columns(pl.lit(group_name).alias("Group"))
-            all_scenarios.append(group_scenarios_df)
 
-    df_all_scenarios = (
-        (
-            pl.concat(all_scenarios)
-            .explode("cases_tested")
-            .select(
-                pl.col("Group"),
-                pl.col("source").alias("Scenario"),
-                pl.col("cases_tested").alias("CaseCoverage"),
-            )
+        all_cases.extend(
+            [
+                {
+                    "Group": str(group),
+                    "TestCase": case_row.case,
+                    "Path": str(case_row.path),
+                    "Implemented": case_row.implemented,
+                }
+                for case_row in group_cases
+            ]
         )
-        if len(all_scenarios) > 0
-        else pl.DataFrame([], schema=["Group", "Scenario", "CaseCoverage"])
-    )
-    df_all_scenarios.write_csv(folder_to_save_files_in / "case_coverage.csv", include_header=True)
+
+        all_scenarios.extend(
+            [
+                {
+                    "Group": str(group),
+                    "Scenario": scenario_row.source,
+                    "CaseCoverage": case,
+                }
+                for scenario_row in group_scenarios
+                for case in scenario_row.cases_tested
+            ]
+        )
 
     df_all_cases = (
-        pl.concat(all_cases, how="vertical_relaxed").select(
-            pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
-        )
-        if len(all_cases) > 0
-        else pl.DataFrame([], schema=["Group", "Path", "TestCase"])
+        pl.DataFrame(all_cases)
+        if all_cases
+        else pl.DataFrame(schema={"Group": str, "TestCase": str, "Path": str, "Implemented": bool})
     )
-    df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
+    df_all_scenarios = (
+        pl.DataFrame(all_scenarios)
+        if all_scenarios
+        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str})
+    )
 
-    statistics = {
-        "total_cases": len(df_all_cases),
-        "total_scenarios": len(df_all_scenarios.select("Scenario").unique()),
-        "total_groups": len(df_all_cases.select("Group").unique()),
+    expected_cases = set(df_all_cases["TestCase"].to_list()) if df_all_cases.height > 0 else set()
+    scenario_cases = set(df_all_scenarios["CaseCoverage"].to_list()) if df_all_scenarios.height > 0 else set()
+
+    # Log cases in all_cases but missing from scenarios
+    for case_row in all_cases:
+        case = case_row["TestCase"]
+        group = case_row["Group"]
+        if case not in scenario_cases:
+            logging.debug(f"[{group}] Case not covered in any scenario: {case}")
+
+    # Log cases found in scenarios but not in all_cases
+    for scenario_row in all_scenarios:
+        case = scenario_row["CaseCoverage"]
+        group = scenario_row["Group"]
+        scenario = scenario_row["Scenario"]
+        if case not in expected_cases:
+            logging.debug(f"[{group}] Case found in scenario [{scenario}] not included in master list: {case}")
+
+    # Write outputs as before
+    df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv")
+    df_all_scenarios.write_csv(folder_to_save_files_in / "case_coverage.csv")
+
+    stats = {
+        "total_cases": df_all_cases.height,
+        "total_scenarios": df_all_scenarios.height,
+        "total_groups": len(df_all_cases["Group"].unique()) if df_all_cases.height > 0 else 0,
     }
-    with open(folder_to_save_files_in / "stats.json", "w") as statistics_file:
-        json.dump(statistics, statistics_file, indent=4)
+    with open(folder_to_save_files_in / "stats.json", "w", encoding="utf-8") as stats_file:
+        json.dump(stats, stats_file, indent=4)
+
+
+
