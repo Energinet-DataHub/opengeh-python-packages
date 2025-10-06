@@ -10,7 +10,6 @@ import yaml
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
-# --- Custom loader to catch duplicate keys in YAML ---
 # --- Custom loader to catch duplicate keys in YAML with context ---
 class DuplicateKeyLoader(yaml.SafeLoader):
     def __init__(self, stream, group=None, scenario=None):
@@ -73,7 +72,8 @@ def find_all_cases(main_yaml_path: Path, group: str | None = None) -> List[CaseR
 
 
 def _get_scenario_source_name_from_path(path: Path, feature_folder_name: Path) -> str:
-    return str(path.relative_to(feature_folder_name).parent)
+    # Extract the folder name directly above the coverage_mapping.yml file (i.e. the scenario folder)
+    return path.parent.name
 
 
 def _get_scenarios_cases_tested(content, parents=None):
@@ -143,7 +143,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         group = path.parent.parent.relative_to(base_path)
 
         group_cases = find_all_cases(path, group=str(group))
-        group_scenarios = find_all_scenarios(base_path / group / "scenario_tests")
+        group_scenarios = find_all_scenarios(base_path / group)
+
 
         all_cases.extend(
             [
