@@ -12,4 +12,5 @@ python -c "import logging, runpy, sys; logging.basicConfig(level=logging.DEBUG, 
   C:\repo\opengeh-python-packages\source\geh_common\src\geh_common\covernator_streamlit\server.py `
   -g `
   -o "$desktop\covernator_out" `
-  -p C:\repo\opengeh-measurements\source\
+  -p C:\repo\opengeh-wholesale\source\
+#  -p C:\repo\opengeh-measurements\source\  
