@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.0.0
+
+- Bumped delta-spark version
+
 ## Version 7.0.1
 
 - Removed count from write_csv_files
