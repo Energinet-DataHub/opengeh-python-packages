@@ -6,7 +6,7 @@ readme = "README.md"
 
 requires-python = ">=3.11"
 dependencies = [
-    "pyspark>=3.5.0",
+    "pyspark>=4.0.0,<5.0.0",
     "delta-spark>=4.0,<5.0",
     "dependency_injector>=4.43.0,<5.0",
     "azure-monitor-opentelemetry>=1.6.7",

@@ -362,15 +362,15 @@ wheels = [
 
 [[package]]
 name = "delta-spark"
-version = "3.3.1"
+version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "importlib-metadata" },
     { name = "pyspark" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b2/0c/aad2e5b1338a71b5613d7b450965bf8b02f77ae2f088e33356be89e84c20/delta-spark-3.3.1.tar.gz", hash = "sha256:e9d829ede06b4c563a33b781a270ae81047658960b87613a59ea75ef6ce56696", size = 18288 }
+sdist = { url = "https://files.pythonhosted.org/packages/22/fd/37a0c2ee6fbf4dcbf034178dcb978ba586d37dc9c95214b90416d1042735/delta-spark-4.0.0.tar.gz", hash = "sha256:39325d76d6e5d8b5fea9d47827c59f5e0674844cb95f97b2cc613bfc5209c7ec", size = 35026 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/fc/72/851963048770354b25e486e7a5807eb06480a17d4594cf49db26ee175158/delta_spark-3.3.1-py3-none-any.whl", hash = "sha256:007dac57b8d92ece52ea9f7260f31834e6588d335aec4afa93e4d918cb8f96a1", size = 21892 },
+    { url = "https://files.pythonhosted.org/packages/3b/d8/265a93d22ae79262cdff701496a6f5676926a342153f3855ae6060430660/delta_spark-4.0.0-py3-none-any.whl", hash = "sha256:4e4ded07bb9ee4f6a0df45606d84395239d4b82001e765a627fecc1e914f3029", size = 39756 },
 ]
 
 [[package]]
@@ -475,12 +475,12 @@ requires-dist = [
     { name = "azure-monitor-opentelemetry", specifier = ">=1.6.7" },
     { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
     { name = "databricks-sdk", specifier = ">=0.42.0" },
-    { name = "delta-spark", specifier = "<=4.0" },
+    { name = "delta-spark", specifier = ">=4.0,<5.0" },
     { name = "dependency-injector", specifier = ">=4.43.0,<5.0" },
     { name = "polars", specifier = ">=1.25.2" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "pydantic-settings", specifier = ">=2.7.1" },
-    { name = "pyspark", specifier = ">=3.5.0" },
+    { name = "pyspark", specifier = ">=4.0.0,<5.0.0" },
     { name = "pyyaml", specifier = ">=6.0.2" },
 ]
 
@@ -877,11 +877,11 @@ wheels = [
 
 [[package]]
 name = "py4j"
-version = "0.10.9.7"
+version = "0.10.9.9"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/1e/f2/b34255180c72c36ff7097f7c2cdca02abcbd89f5eebf7c7c41262a9a0637/py4j-0.10.9.7.tar.gz", hash = "sha256:0b6e5315bb3ada5cf62ac651d107bb2ebc02def3dee9d9548e3baac644ea8dbb", size = 1508234 }
+sdist = { url = "https://files.pythonhosted.org/packages/38/31/0b210511177070c8d5d3059556194352e5753602fa64b85b7ab81ec1a009/py4j-0.10.9.9.tar.gz", hash = "sha256:f694cad19efa5bd1dee4f3e5270eb406613c974394035e5bfc4ec1aba870b879", size = 761089 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/10/30/a58b32568f1623aaad7db22aa9eafc4c6c194b429ff35bdc55ca2726da47/py4j-0.10.9.7-py2.py3-none-any.whl", hash = "sha256:85defdfd2b2376eb3abf5ca6474b51ab7e0de341c75a02f46dc9b5976f5a5c1b", size = 200481 },
+    { url = "https://files.pythonhosted.org/packages/bd/db/ea0203e495be491c85af87b66e37acfd3bf756fd985f87e46fc5e3bf022c/py4j-0.10.9.9-py2.py3-none-any.whl", hash = "sha256:c7c26e4158defb37b0bb124933163641a2ff6e3a3913f7811b0ddbe07ed61533", size = 203008 },
 ]
 
 [[package]]
@@ -1024,12 +1024,12 @@ crypto = [
 
 [[package]]
 name = "pyspark"
-version = "3.5.5"
+version = "4.0.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "py4j" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/5f/8f/b616ef710932ccdbabd8511e08890a677482ab2967b7cf276c09a02bc64c/pyspark-3.5.5.tar.gz", hash = "sha256:6effc9ce98edf231f4d683fd14f7270629bf8458c628d6a2620ded4bb34f3cb9", size = 317214975 }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/40/1414582f16c1d7b051c668c2e19c62d21a18bd181d944cb24f5ddbb2423f/pyspark-4.0.1.tar.gz", hash = "sha256:9d1f22d994f60369228397e3479003ffe2dd736ba79165003246ff7bd48e2c73", size = 434204896 }
 
 [[package]]
 name = "pytest"
