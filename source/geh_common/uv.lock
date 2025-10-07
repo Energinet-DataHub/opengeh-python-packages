@@ -440,7 +440,7 @@ wheels = [
 
 [[package]]
 name = "geh-common"
-version = "7.0.1"
+version = "8.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "azure-core" },
@@ -475,7 +475,7 @@ requires-dist = [
     { name = "azure-monitor-opentelemetry", specifier = ">=1.6.7" },
     { name = "azure-monitor-query", specifier = ">=1.2.0,<2.0.0" },
     { name = "databricks-sdk", specifier = ">=0.42.0" },
-    { name = "delta-spark", specifier = ">=3.1,<4.0" },
+    { name = "delta-spark", specifier = "<=4.0" },
     { name = "dependency-injector", specifier = ">=4.43.0,<5.0" },
     { name = "polars", specifier = ">=1.25.2" },
     { name = "pydantic", specifier = ">=2.10.6" },
