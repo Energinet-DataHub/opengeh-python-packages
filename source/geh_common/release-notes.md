@@ -1,8 +1,16 @@
 # GEH Common Release Notes
 
-## Version 7.0.2
+## Version 7.0.3
 
 - Bumped delta-spark and python version
+
+## Version 7.0.2
+
+Minor changes:
+
+- Added `.stringType` to check
+- Added `raise` keyword to `write_when_files_to_delta` function to make test fails
+- Improved `test_read_csv_with_invalid_date_format`'s assert
 
 ## Version 7.0.1
 
