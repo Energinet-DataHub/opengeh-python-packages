@@ -3,7 +3,8 @@
 ## Version 7.0.2
 
 Minor changes: 
-- Added .stringType to check
+
+- Added `.stringType` to check
 - Added raise keyword to `write_when_files_to_delta` function to make test fails
 - Improved `test_read_csv_with_invalid_date_format`'s assert 
 
