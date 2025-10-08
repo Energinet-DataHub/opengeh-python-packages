@@ -177,4 +177,5 @@ def test_read_csv_with_invalid_date_format(spark: SparkSession) -> None:
         actual.collect()
 
     # Assert
-    assert "CANNOT_PARSE_TIMESTAMP" in str(exc_info.value)
+    print("ERROR msg: ", exc_info.value)
+    assert "DateTimeParseException" in str(exc_info.value)
