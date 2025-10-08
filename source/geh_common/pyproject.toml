@@ -1,13 +1,12 @@
 [project]
 name = "geh_common"
-version = "8.0.0"
+version = "7.0.2"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
-
-requires-python = ">=3.11"
+requires-python = ">=3.12.3"
 dependencies = [
-    "pyspark>=4.0.0,<5.0.0",
-    "delta-spark>=4.0,<5.0",
+    "pyspark>=3.5.0,<4.0",
+    "delta-spark>=3.1,<4.0",
     "dependency_injector>=4.43.0,<5.0",
     "azure-monitor-opentelemetry>=1.6.7",
     "azure-core>=1.30.0,<2.0.0",
