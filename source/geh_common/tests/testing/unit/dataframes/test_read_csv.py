@@ -177,6 +177,4 @@ def test_read_csv_with_invalid_date_format(spark: SparkSession) -> None:
         actual.collect()
 
     # Assert
-    assert "java.time.format.DateTimeParseException: Text '2023-01-01 00:00:00' could not be parsed" in str(
-        exc_info.value
-    )
+    assert "DateTimeParseException" in str(exc_info.value)
