@@ -5,10 +5,10 @@ $env:PYTHONLOGLEVEL = "DEBUG"
 $env:PYTHONPATH = "C:\repo\opengeh-python-packages\source\geh_common\src;$env:PYTHONPATH"
 
 # Choose the repo you want to test
-#$subsystemFolder = "geh_wholesale"
-$subsystemFolder = "geh_calculated_measurements"
-#$repoRoot = "C:\repo\opengeh-wholesale"
-$repoRoot = "C:\repo\opengeh-measurements"
+$subsystemFolder = "geh_wholesale"
+#$subsystemFolder = "geh_calculated_measurements"
+$repoRoot = "C:\repo\opengeh-wholesale"
+#$repoRoot = "C:\repo\opengeh-measurements"
 
 $projectFolder = Join-Path $repoRoot "source\$subsystemFolder"
 
@@ -21,5 +21,3 @@ python -c "import logging, runpy, sys; logging.basicConfig(level=logging.DEBUG, 
   -g `
   -o "$desktop\covernator_out" `
   -p "$projectFolder"
-
-#  -p C:\repo\opengeh-measurements\source\  
