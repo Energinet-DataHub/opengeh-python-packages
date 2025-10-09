@@ -5,7 +5,7 @@ description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 requires-python = ">=3.12.3"
 dependencies = [
-    "pyspark>=3.5.0,<4.0",
+    "pyspark>=3.5.2,<4.0",
     "delta-spark>=3.3.1,<4.0",
     "dependency_injector>=4.43.0,<5.0",
     "azure-monitor-opentelemetry>=1.6.7",
