@@ -153,6 +153,16 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
 
             if not scenarios_path:
                 logging.warning(f"[ERROR][{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.")
+            else:
+                # 💡 NEW: Log missing coverage_mapping.yml in SCENARIO folders
+                for scenario_folder in scenarios_path.rglob("*"):
+                    if not scenario_folder.is_dir():
+                        continue
+                    has_test_file = any(scenario_folder.glob("test_output.py")) or any(scenario_folder.glob("test_scenario.py"))
+                    has_coverage_yaml = (scenario_folder / "coverage_mapping.yml").exists()
+                    if has_test_file and not has_coverage_yaml:
+                        rel_path = scenario_folder.relative_to(scenarios_path)
+                        logging.error(f"[ERROR][{key}] Scenario folder '{rel_path}' is missing coverage_mapping.yml")
 
             all_cases.extend({
                 "Group": key,
