@@ -1,8 +1,8 @@
 # GEH Common Release Notes
 
-## Version 7.0.3
+## Version 7.1.0
 
-- Bumped delta-spark and python version
+- Bumped spark, delta and python version
 
 ## Version 7.0.2
 
