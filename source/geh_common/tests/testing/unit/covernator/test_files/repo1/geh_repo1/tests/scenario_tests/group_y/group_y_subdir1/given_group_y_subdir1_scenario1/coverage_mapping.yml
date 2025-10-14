@@ -1,0 +1,9 @@
+notes: |
+  This is a test scenario
+
+cases_tested:
+  - "Case 2"
+
+  - "Sub heading B":
+      - "Case B1"
+      - "Case B2"
