@@ -2,6 +2,10 @@
 
 ## Version 7.1.0
 
+- Reverted bump, as we found that restricting a utility library does not make much sense. Instead we should allow the different subsystem to use their own specific dependencies.
+
+## Version 7.1.0
+
 - Bumped spark, delta and python version
 
 ## Version 7.0.2
