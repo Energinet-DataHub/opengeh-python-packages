@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 7.1.0
+## Version 7.2.0
 
 - Reverted bump, as we found that restricting a utility library does not make much sense. Instead we should allow the different subsystem to use their own specific dependencies.
 
