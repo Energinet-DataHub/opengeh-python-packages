@@ -19,7 +19,8 @@ on:
     branches:
       - main
 
-
+permissions:
+  contents: read
 
 jobs:
   cd_reusable:
