@@ -35,7 +35,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     # --- all_cases.csv
     df_all_cases = pl.read_csv(output_dir / "all_cases.csv")
 
-    # ✅ FIXED: include 'Repo 1 Tests' prefix in all expected paths
+    # Include 'Repo 1 Tests' prefix in all expected paths
     expected_all_cases_rows = [
         {"Group": "geh_repo1", "TestCase": "Case 1", "Path": "Repo 1 Tests", "Implemented": True},
         {"Group": "geh_repo1", "TestCase": "Case 2", "Path": "Repo 1 Tests", "Implemented": True},
@@ -53,7 +53,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     # --- case_coverage.csv
     df_case_cov = pl.read_csv(output_dir / "case_coverage.csv")
 
-    # ✅ Vectorized normalization (no warning, same effect)
+    # Vectorized normalization 
     df_case_cov = df_case_cov.with_columns(
         pl.col("Scenario").str.replace_all("\\\\", "/")
     )

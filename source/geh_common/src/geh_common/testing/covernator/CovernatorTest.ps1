@@ -5,12 +5,12 @@ $env:PYTHONLOGLEVEL = "DEBUG"
 $env:PYTHONPATH = "C:\repo\opengeh-python-packages\source\geh_common\src;$env:PYTHONPATH"
 
 # Choose the repo you want to test
-#$subsystemFolder = "geh_settlement_report"
-$subsystemFolder = "geh_wholesale"
+$subsystemFolder = "geh_settlement_report"
+#$subsystemFolder = "geh_wholesale"
 #$subsystemFolder = "geh_calculated_measurements"
 
-#$repoRoot = "c:\repo\geh-settlement-report\"
-$repoRoot = "C:\repo\opengeh-wholesale"
+$repoRoot = "c:\repo\geh-settlement-report\"
+#$repoRoot = "C:\repo\opengeh-wholesale"
 #$repoRoot = "C:\repo\opengeh-measurements"
 
 $projectFolder = Join-Path $repoRoot "source\$subsystemFolder"
