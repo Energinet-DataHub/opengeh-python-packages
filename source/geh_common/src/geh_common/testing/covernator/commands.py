@@ -321,7 +321,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
 
     stats = {
         "total_cases": df_all_cases.height,
-        "total_scenarios": df_all_scenarios.height,
+        "total_scenarios": len(df_all_scenarios["Scenario"].unique()) if df_all_scenarios.height > 0 else 0,
         "total_groups": len(df_all_cases["Group"].unique()) if df_all_cases.height > 0 else 0,
     }
+
     output.finalize(stats)

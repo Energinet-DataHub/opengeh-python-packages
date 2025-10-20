@@ -28,7 +28,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     # --- Assert stats
     stats = json.loads((output_dir / "stats.json").read_text(encoding="utf-8"))
     assert stats["total_cases"] == 9
-    assert stats["total_scenarios"] == 10
+    assert stats["total_scenarios"] == 2
     assert stats["total_groups"] == 1
     assert stats.get("logs", {}).get("error", []) == [], "No errors expected"
 
@@ -53,7 +53,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     # --- case_coverage.csv
     df_case_cov = pl.read_csv(output_dir / "case_coverage.csv")
 
-    # Vectorized normalization 
+    # Vectorized normalization
     df_case_cov = df_case_cov.with_columns(
         pl.col("Scenario").str.replace_all("\\\\", "/")
     )

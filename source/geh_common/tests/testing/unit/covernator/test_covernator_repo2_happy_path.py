@@ -27,9 +27,9 @@ def test_happy_path_repo2_generates_expected_outputs(tmp_path: Path):
 
     # --- Assert stats
     stats = json.loads((output_dir / "stats.json").read_text(encoding="utf-8"))
-    assert stats["total_cases"] == 7
-    assert stats["total_scenarios"] == 2
-    assert stats["total_groups"] == 1
+    assert stats["total_cases"] == 11
+    assert stats["total_scenarios"] == 3
+    assert stats["total_groups"] == 2
     assert stats.get("logs", {}).get("error", []) == [], "No errors expected"
 
     # --- all_cases.csv
@@ -44,6 +44,11 @@ def test_happy_path_repo2_generates_expected_outputs(tmp_path: Path):
         {"Group": "geh_repo2/group_x", "TestCase": "Case AA1", "Path": "Repo 2 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo2/group_x", "TestCase": "Case AA2", "Path": "Repo 2 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo2/group_x", "TestCase": "Case AB1", "Path": "Repo 2 group_x Tests / Sub heading A / Sub heading AB", "Implemented": True},
+        {"Group": "geh_repo2/group_y", "TestCase": "Case 1", "Path": "Repo 2 group_y Tests", "Implemented": True},
+        {"Group": "geh_repo2/group_y", "TestCase": "Case 2", "Path": "Repo 2 group_y Tests", "Implemented": True},
+        {"Group": "geh_repo2/group_y", "TestCase": "Case A1", "Path": "Repo 2 group_y Tests / Sub heading A", "Implemented": True},
+        {"Group": "geh_repo2/group_y", "TestCase": "Case A2", "Path": "Repo 2 group_y Tests / Sub heading A", "Implemented": True},
+
     ]
     df_expected_all_cases = pl.DataFrame(expected_all_cases_rows)
     _assert_frames_equal(df_all_cases, df_expected_all_cases, ["Group", "Path", "TestCase"])
@@ -58,6 +63,7 @@ def test_happy_path_repo2_generates_expected_outputs(tmp_path: Path):
 
     scen_x1 = "given_group_x_scenario1"
     scen_x2 = "given_group_x_scenario2"
+    scen_y1 = "group_y_subfolder_1/given_group_y_subfolder_1_scenario1"
 
     expected_cov_rows = [
         {"Group": "geh_repo2/group_x", "Scenario": scen_x1, "CaseCoverage": "Case 1"},
@@ -67,6 +73,12 @@ def test_happy_path_repo2_generates_expected_outputs(tmp_path: Path):
         {"Group": "geh_repo2/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AA1"},
         {"Group": "geh_repo2/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AA2"},
         {"Group": "geh_repo2/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AB1"},
+        {"Group": "geh_repo2/group_y", "Scenario": scen_y1, "CaseCoverage": "Case 1"},
+        {"Group": "geh_repo2/group_y", "Scenario": scen_y1, "CaseCoverage": "Case 2"},
+        {"Group": "geh_repo2/group_y", "Scenario": scen_y1, "CaseCoverage": "Case A1"},
+        {"Group": "geh_repo2/group_y", "Scenario": scen_y1, "CaseCoverage": "Case A2"},
+
+
     ]
     df_expected_cov = pl.DataFrame(expected_cov_rows)
     _assert_frames_equal(df_case_cov, df_expected_cov, ["Group", "Scenario", "CaseCoverage"])
