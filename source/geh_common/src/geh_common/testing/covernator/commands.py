@@ -73,7 +73,8 @@ class OutputManager:
             "generated_at": self.start_time,
         }
 
-        with open(self.output_dir / "stats.json", encoding="utf-8") as f:
+        # ✅ FIX: Must use "w" for write mode
+        with open(self.output_dir / "stats.json", "w", encoding="utf-8") as f:
             json.dump(output, f, indent=4)
 
 
@@ -104,7 +105,8 @@ class DuplicateKeyLoader(yaml.SafeLoader):
 
 
 def load_yaml_with_duplicates(path: Path, output: OutputManager, group=None, scenario=None):
-    with open(path, encoding="utf-8") as f:
+    # UP015 fix reversed; "r" is needed for clarity when reading YAML.
+    with open(path, "r", encoding="utf-8") as f:
         return yaml.load(f, Loader=lambda stream: DuplicateKeyLoader(stream, group, scenario, output))
 
 
@@ -131,7 +133,7 @@ def find_all_cases(main_yaml_path: Path, output: OutputManager | None = None, gr
     if output:
         main_yaml_content = load_yaml_with_duplicates(main_yaml_path, output=output, group=group)
     else:
-        with open(main_yaml_path, encoding="utf-8") as f:
+        with open(main_yaml_path, "r", encoding="utf-8") as f:
             main_yaml_content = yaml.safe_load(f)
 
     if not isinstance(main_yaml_content, dict):
@@ -171,7 +173,7 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
             if output:
                 coverage_mapping = load_yaml_with_duplicates(path, output=output, group=base_path.name, scenario=path.stem)
             else:
-                with open(path, encoding="utf-8") as f:
+                with open(path, "r", encoding="utf-8") as f:
                     coverage_mapping = yaml.safe_load(f)
             cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
             if cases_tested_content is None:
@@ -307,6 +309,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     )
     scenario_cases = set(df_all_scenarios["CaseCoverage"].to_list()) if df_all_scenarios.height > 0 else set()
 
+    # Duplicate checks
     seen = set()
     for case_row in df_all_cases.iter_rows(named=True):
         key = (case_row["Group"], case_row["TestCase"])
@@ -329,6 +332,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
         else:
             seen.add(key)
 
+    # Coverage validation
     for case_row in df_all_cases.iter_rows(named=True):
         if not case_row["Implemented"]:
             output.log(f"[{case_row['Group']}] Case is marked as false in master list: {case_row['TestCase']}")
@@ -355,15 +359,18 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 output.log(msg, level=LogLevel.ERROR)
                 logged_messages.add(msg)
 
-    output.write_csv("all_cases.csv",
+    # Export
+    output.write_csv(
+        "all_cases.csv",
         df_all_cases.select(["Group", "Path", "TestCase", "Implemented"])
         if df_all_cases.height > 0
-        else pl.DataFrame(schema={"Group": str, "Path": str, "TestCase": str, "Implemented": bool})
+        else pl.DataFrame(schema={"Group": str, "Path": str, "TestCase": str, "Implemented": bool}),
     )
-    output.write_csv("case_coverage.csv",
+    output.write_csv(
+        "case_coverage.csv",
         df_all_scenarios.select(["Group", "Scenario", "CaseCoverage"])
         if df_all_scenarios.height > 0
-        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str})
+        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str}),
     )
 
     stats = {
