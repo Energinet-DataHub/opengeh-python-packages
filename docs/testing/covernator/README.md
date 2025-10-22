@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Covernator
-        uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@v14
+        uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@vFILLME
         with:
           project_name: {{ project_name }}
           project_directory: {{ project_directory }}
