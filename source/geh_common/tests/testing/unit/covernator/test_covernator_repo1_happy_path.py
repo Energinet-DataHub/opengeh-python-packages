@@ -58,8 +58,8 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
         pl.col("Scenario").str.replace_all("\\\\", "/")
     )
 
-    scen_x = "group_x/given_group_x_scenario1"
-    scen_y = "group_y/group_y_subdir1/given_group_y_subdir1_scenario1"
+    scen_x = "subfolder_x/given_subfolder_x_scenario1"
+    scen_y = "subfolder_y/subfolder_y_subdir1/given_subfolder_y_subdir1_scenario1"
 
     expected_cov_rows = [
         {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case 1"},
