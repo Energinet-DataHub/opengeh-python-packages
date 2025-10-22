@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -24,8 +23,9 @@ class LogLevel(Enum):
 # === Output Manager (kept, CI-friendly logs + stats.json structure) ==
 # =====================================================================
 class OutputManager:
-    """
-    Centralized output manager for Covernator.
+
+    """Centralized output manager for Covernator.
+
     Handles console output, grouped logging, CSV, and stats.json writing.
     """
 
@@ -40,8 +40,8 @@ class OutputManager:
         logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[logging.StreamHandler()])
 
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
-        """
-        Record a message with a specified log level.
+        """Record a message with a specified log level.
+
         Automatically prepends [INFO]/[ERROR] tags to messages.
         """
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -63,6 +63,7 @@ class OutputManager:
 
     def finalize(self, stats: dict):
         """
+        
         Write final stats.json containing:
           - total counts
           - info/error message groups
