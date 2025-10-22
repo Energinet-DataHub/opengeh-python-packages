@@ -171,15 +171,6 @@ Logged under `stats["logs"]["info"]`.
 
 ---
 
-## ✅ CI Integration Ready
-
-- All output files (`.csv`, `.json`) are CI-compatible
-- Failures are encoded in logs, **not as Python exceptions**
-- CI can parse `stats.json` for:
-  - Warnings
-  - Coverage regressions
-  - Scenario drift---
-
 ## 🧭 run_covernator Logic (Expanded)
 
 The entrypoint to the tool is the function `run_covernator()`:
