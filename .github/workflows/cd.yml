@@ -19,10 +19,13 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   cd_reusable:
     name: Continuous Deployment
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@v15
     with:
       packages_directory: source
       subsystem_name: common
