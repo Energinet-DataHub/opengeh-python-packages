@@ -1,12 +1,11 @@
-import json
 import logging
 from datetime import datetime
+from enum import Enum, auto
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 import polars as pl
 import yaml
-from enum import Enum, auto
 
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
@@ -23,7 +22,6 @@ class LogLevel(Enum):
 # === Output Manager (kept, CI-friendly logs + stats.json structure) ==
 # =====================================================================
 class OutputManager:
-
     """Centralized output manager for Covernator.
 
     Handles console output, grouped logging, CSV, and stats.json writing.
@@ -40,10 +38,7 @@ class OutputManager:
         logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[logging.StreamHandler()])
 
     def log(self, message: str, level: LogLevel = LogLevel.INFO):
-        """Record a message with a specified log level.
-
-        Automatically prepends [INFO]/[ERROR] tags to messages.
-        """
+        """Record a message with a specified log level."""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         level_tag = "[INFO]" if level == LogLevel.INFO else "[ERROR]"
         formatted_message = f"[{timestamp}] {level_tag} {message}"
@@ -56,29 +51,29 @@ class OutputManager:
             self.logs_info.append({"timestamp": timestamp, "message": f"{level_tag} {message}"})
 
     def write_csv(self, filename: str, data: pl.DataFrame):
-        """
-        Write CSV files to the output directory.
-        """
+        """Write CSV files to the output directory."""
         data.write_csv(self.output_dir / filename)
 
     def finalize(self, stats: dict):
+        """Write final stats.json containing:
+
+        - total counts
+        - info/error message groups.
         """
-        
-        Write final stats.json containing:
-          - total counts
-          - info/error message groups
-        """
+        import json
+
         output = {
             "total_cases": stats.get("total_cases", 0),
             "total_scenarios": stats.get("total_scenarios", 0),
             "total_groups": stats.get("total_groups", 0),
             "logs": {
                 "info": self.logs_info,
-                "error": self.logs_error
+                "error": self.logs_error,
             },
             "generated_at": self.start_time,
         }
-        with open(self.output_dir / "stats.json", "w", encoding="utf-8") as f:
+
+        with open(self.output_dir / "stats.json", encoding="utf-8") as f:
             json.dump(output, f, indent=4)
 
 
@@ -109,7 +104,7 @@ class DuplicateKeyLoader(yaml.SafeLoader):
 
 
 def load_yaml_with_duplicates(path: Path, output: OutputManager, group=None, scenario=None):
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.load(f, Loader=lambda stream: DuplicateKeyLoader(stream, group, scenario, output))
 
 
@@ -124,7 +119,7 @@ def _get_case_rows_from_main_yaml(
         if isinstance(content, bool):
             case_rows.append(CaseRow(path=f"{prefix}", case=scenario, implemented=content, group=group))
         elif isinstance(content, dict):
-            new_prefix = f"{prefix} / {scenario}" if len(prefix) > 0 else scenario
+            new_prefix = f"{prefix} / {scenario}" if prefix else scenario
             case_rows.extend(_get_case_rows_from_main_yaml(content, prefix=new_prefix, group=group))
     return case_rows
 
@@ -136,7 +131,7 @@ def find_all_cases(main_yaml_path: Path, output: OutputManager | None = None, gr
     if output:
         main_yaml_content = load_yaml_with_duplicates(main_yaml_path, output=output, group=group)
     else:
-        with open(main_yaml_path, "r", encoding="utf-8") as f:
+        with open(main_yaml_path, encoding="utf-8") as f:
             main_yaml_content = yaml.safe_load(f)
 
     if not isinstance(main_yaml_content, dict):
@@ -164,8 +159,7 @@ def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], 
         for case in content:
             results.extend(_get_scenarios_cases_tested(case, parents))
         return results
-    else:
-        return [(parents, content)]
+    return [(parents, content)]
 
 
 def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> List[ScenarioRow]:
@@ -177,7 +171,7 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
             if output:
                 coverage_mapping = load_yaml_with_duplicates(path, output=output, group=base_path.name, scenario=path.stem)
             else:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     coverage_mapping = yaml.safe_load(f)
             cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
             if cases_tested_content is None:
@@ -205,22 +199,15 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
 
 
 # =====================================================================
-# === Main Runner (Windows-safe, robust group/scenario discovery) =====
+# === Main Runner =====================================================
 # =====================================================================
 def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     output = OutputManager(folder_to_save_files_in)
     output.log("📣 run_covernator() started!", level=LogLevel.INFO)
 
-    stats = {
-        "total_cases": 0,
-        "total_scenarios": 0,
-        "total_groups": 0,
-    }
-
+    stats = {"total_cases": 0, "total_scenarios": 0, "total_groups": 0}
     all_cases, all_scenarios = [], []
-    seen_groups = set()
-    seen_scenarios = set()
-    logged_messages = set()
+    seen_groups, seen_scenarios, logged_messages = set(), set(), set()
 
     def is_subsystem_folder(path: Path) -> bool:
         return (path / "tests").exists()
@@ -232,10 +219,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     for subsystem_dir in subsystems:
         subsystem = subsystem_dir.name
         tests_dir = subsystem_dir / "tests"
-
         excluded_dirs = {"coverage", "scenario_tests"}
         group_dirs = [d for d in tests_dir.iterdir() if d.is_dir() and d.name not in excluded_dirs]
-
         if (tests_dir / "coverage").exists():
             group_dirs.append(tests_dir)
 
@@ -243,12 +228,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
             coverage_dir = group_dir / "coverage"
             group = group_dir.name if group_dir != tests_dir else None
             key = f"{subsystem}/{group}" if group else subsystem
-
             seen_groups.add(key)
-            output.log(
-                f"[{subsystem}]{f'[{group}]' if group else ''} Processing {'group' if group else 'subsystem'}: {group or subsystem}",
-                level=LogLevel.INFO,
-            )
+            output.log(f"[{subsystem}]{f'[{group}]' if group else ''} Processing {'group' if group else 'subsystem'}: {group or subsystem}")
 
             all_cases_path = next((p for p in coverage_dir.glob("all_cases*.yml")), None)
             scenarios_path = next((p for p in group_dir.glob("scenario_test*") if p.is_dir()), None)
@@ -268,10 +249,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
             group_scenarios = []
 
             if not scenarios_path:
-                output.log(
-                    f"[{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.",
-                    level=LogLevel.ERROR,
-                )
+                output.log(f"[{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.", level=LogLevel.ERROR)
             else:
                 for scenario_folder in scenarios_path.rglob("*"):
                     if not scenario_folder.is_dir():
@@ -286,11 +264,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                     if has_test_file:
                         rel = scenario_folder.relative_to(scenarios_path)
                         scenario_root = rel.parts[0] if rel.parts else ""
-
-                        # dedup by group + scenario root name
                         if (key, scenario_root) not in seen_scenarios:
                             seen_scenarios.add((key, scenario_root))
-
                         if not has_coverage_yaml:
                             msg = f"[{key}] Scenario folder '{scenario_folder.name}' is missing coverage_mapping.yml"
                             if msg not in logged_messages:
@@ -302,16 +277,16 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
 
             all_cases.extend({
                 "Group": key,
-                "TestCase": case_row.case,
-                "Path": str(case_row.path),
-                "Implemented": case_row.implemented,
-            } for case_row in group_cases)
+                "TestCase": c.case,
+                "Path": str(c.path),
+                "Implemented": c.implemented,
+            } for c in group_cases)
 
             all_scenarios.extend({
                 "Group": key,
-                "Scenario": scenario_row.source,
+                "Scenario": s.source,
                 "CaseCoverage": case,
-            } for scenario_row in group_scenarios for case in scenario_row.cases_tested)
+            } for s in group_scenarios for case in s.cases_tested)
 
     df_all_cases = (
         pl.DataFrame(all_cases)
@@ -323,11 +298,11 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     )
 
     expected_cases = (
-        set(df_all_cases.filter(pl.col("Implemented") == True)["TestCase"].to_list())
+        set(df_all_cases.filter(pl.col("Implemented"))["TestCase"].to_list())
         if df_all_cases.height > 0 else set()
     )
     false_cases = (
-        set(df_all_cases.filter(pl.col("Implemented") == False)["TestCase"].to_list())
+        set(df_all_cases.filter(~pl.col("Implemented"))["TestCase"].to_list())
         if df_all_cases.height > 0 else set()
     )
     scenario_cases = set(df_all_scenarios["CaseCoverage"].to_list()) if df_all_scenarios.height > 0 else set()
@@ -356,7 +331,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
 
     for case_row in df_all_cases.iter_rows(named=True):
         if not case_row["Implemented"]:
-            output.log(f"[{case_row['Group']}] Case is marked as false in master list: {case_row['TestCase']}", level=LogLevel.INFO)
+            output.log(f"[{case_row['Group']}] Case is marked as false in master list: {case_row['TestCase']}")
             continue
         if case_row["TestCase"] not in scenario_cases:
             msg = f"[{case_row['Group']}] Case not covered in any scenario: {case_row['TestCase']}"
@@ -365,11 +340,8 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 logged_messages.add(msg)
 
     logged_false = set()
-    for scenario_row in df_all_scenarios.iter_rows(named=True):
-        case = scenario_row["CaseCoverage"]
-        group = scenario_row["Group"]
-        scenario = scenario_row["Scenario"]
-
+    for s_row in df_all_scenarios.iter_rows(named=True):
+        case, group, scenario = s_row["CaseCoverage"], s_row["Group"], s_row["Scenario"]
         if case in false_cases:
             if (group, case) not in logged_false:
                 msg = f"[{group}] Case found in scenario [{scenario}] is marked as false in master list: {case}"
@@ -401,4 +373,3 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     }
 
     output.finalize(stats)
-
