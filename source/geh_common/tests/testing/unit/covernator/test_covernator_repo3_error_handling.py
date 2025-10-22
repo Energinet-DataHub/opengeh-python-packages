@@ -27,14 +27,15 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
 
     # --- Assert stats
     stats = json.loads((output_dir / "stats.json").read_text(encoding="utf-8"))
-    assert stats["total_cases"] == 15
+    assert stats["total_cases"] == 16
     assert stats["total_scenarios"] == 5
     assert stats["total_groups"] == 5
     error_logs = stats.get("logs", {}).get("error", [])
-    assert len(error_logs) == 5, f"Expected one error log, got {len(error_logs)}"
+    assert len(error_logs) == 6, f"Expected one error log, got {len(error_logs)}"
     expected_errors = {
         "[ERROR] [group_y] Duplicate items in all cases: Case 2",
         "[ERROR] [geh_repo3/group_x] Duplicate items in scenario [given_group_x_scenario2]: Case AB1",
+        "[ERROR] [geh_repo3/group_x] Case not covered in any scenario: Case AA3",
         "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
         "[ERROR] [geh_repo3/group_zx] Scenario folder 'given_group_zx_scenario1' is missing coverage_mapping.yml",
         "[ERROR] [geh_repo3][group_zy] Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
@@ -53,6 +54,7 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
         {"Group": "geh_repo3/group_x", "TestCase": "Case A2", "Path": "Repo 3 group_x Tests / Sub heading A", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AA1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AA2", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
+        {"Group": "geh_repo3/group_x", "TestCase": "Case AA3", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AB1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AB", "Implemented": True},
         {"Group": "geh_repo3/group_y", "TestCase": "Case 1", "Path": "Repo 3 group_y Tests", "Implemented": True},
         {"Group": "geh_repo3/group_y", "TestCase": "Case 2", "Path": "Repo 3 group_y Tests", "Implemented": True},
