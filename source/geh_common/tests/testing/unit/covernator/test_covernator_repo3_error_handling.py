@@ -1,9 +1,7 @@
-import json
 from pathlib import Path
 from test_utils import run_and_load_stats
 from test_utils import assert_log_messages
 import polars as pl
-from geh_common.testing.covernator.commands import run_covernator
 
 
 def _assert_frames_equal(df1: pl.DataFrame, df2: pl.DataFrame, sort_cols: list[str]):

@@ -55,8 +55,9 @@ class OutputManager:
         data.write_csv(self.output_dir / filename)
 
     def finalize(self, stats: dict):
-        """Write final stats.json containing:
+        """Write final stats.
 
+        stats.json containing:
         - total counts
         - info/error message groups.
         """

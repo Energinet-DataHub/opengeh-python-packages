@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 from test_utils import run_and_load_stats
 import polars as pl
