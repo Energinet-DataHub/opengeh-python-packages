@@ -20,7 +20,7 @@ jobs:
   # License and Markdown Check
   #
   ci_base:
-    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v14
+    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v15
     with:
       skip_license_check: true
     secrets:
