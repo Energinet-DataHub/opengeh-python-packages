@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from test_utils import run_and_load_stats
 import polars as pl
 from geh_common.testing.covernator.commands import run_covernator
 
@@ -20,13 +21,9 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     base_path = Path(__file__).parent / "test_files" / "repo1" / "geh_repo1"
     assert (base_path / "tests" / "coverage").exists(), "Missing coverage folder"
 
-    output_dir = tmp_path / "output"
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    run_covernator(output_dir, base_path)
+    output_dir, stats = run_and_load_stats(base_path, tmp_path)
 
     # --- Assert stats
-    stats = json.loads((output_dir / "stats.json").read_text(encoding="utf-8"))
     assert stats["total_cases"] == 9
     assert stats["total_scenarios"] == 2
     assert stats["total_groups"] == 1
