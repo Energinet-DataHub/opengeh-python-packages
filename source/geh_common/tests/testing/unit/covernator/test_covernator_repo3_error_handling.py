@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from test_utils import run_and_load_stats
+from test_utils import assert_log_messages
 import polars as pl
 from geh_common.testing.covernator.commands import run_covernator
 
@@ -29,36 +30,28 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
     assert stats["total_groups"] == 5
 
     # --- Assert error logs
-    error_logs = stats.get("logs", {}).get("error", [])
-    assert len(error_logs) == 7, f"Expected one error log, got {len(error_logs)}"
-    expected_errors = {
-        "[ERROR] [group_y] Duplicate items in all cases: Case 2",
-        "[ERROR] [geh_repo3/group_x] Duplicate items in scenario [given_group_x_scenario2]: Case AB1",
-        "[ERROR] [geh_repo3/group_x] Case not covered in any scenario: Case AA3",
-        "[ERROR] [geh_repo3/group_x] Case found in scenario [given_group_x_scenario1] is marked as false in master list: Case AA5",
-        "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
-        "[ERROR] [geh_repo3/group_zx] Scenario folder 'given_group_zx_scenario1' is missing coverage_mapping.yml",
-        "[ERROR] [geh_repo3][group_zy] Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
-    }
-    actual_errors = {e["message"] for e in error_logs}
-    assert expected_errors == actual_errors
-
-    # --- Assert info logs
-    info_logs = stats.get("logs", {}).get("info", [])
-    actual_infos = {i["message"] for i in info_logs}
-
-    expected_infos = {
-        "[INFO] 📣 run_covernator() started!",
-        "[INFO] [geh_repo3][group_x] Processing group: group_x",
-        "[INFO] [geh_repo3][group_y] Processing group: group_y",
-        "[INFO] [geh_repo3][group_z] Processing group: group_z",
-        "[INFO] [geh_repo3][group_zx] Processing group: group_zx",
-        "[INFO] [geh_repo3][group_zy] Processing group: group_zy",
-        "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA4",
-        "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA5",
-    }
-
-    assert expected_infos == actual_infos, f"Mismatch in INFO logs.\nExpected:\n{expected_infos}\nActual:\n{actual_infos}"
+    assert_log_messages(
+        logs=stats.get("logs", {}),
+        expected_errors={
+            "[ERROR] [group_y] Duplicate items in all cases: Case 2",
+            "[ERROR] [geh_repo3/group_x] Duplicate items in scenario [given_group_x_scenario2]: Case AB1",
+            "[ERROR] [geh_repo3/group_x] Case not covered in any scenario: Case AA3",
+            "[ERROR] [geh_repo3/group_x] Case found in scenario [given_group_x_scenario1] is marked as false in master list: Case AA5",
+            "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
+            "[ERROR] [geh_repo3/group_zx] Scenario folder 'given_group_zx_scenario1' is missing coverage_mapping.yml",
+            "[ERROR] [geh_repo3][group_zy] Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
+        },
+        expected_infos={
+            "[INFO] 📣 run_covernator() started!",
+            "[INFO] [geh_repo3][group_x] Processing group: group_x",
+            "[INFO] [geh_repo3][group_y] Processing group: group_y",
+            "[INFO] [geh_repo3][group_z] Processing group: group_z",
+            "[INFO] [geh_repo3][group_zx] Processing group: group_zx",
+            "[INFO] [geh_repo3][group_zy] Processing group: group_zy",
+            "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA4",
+            "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA5",
+        }
+    )
 
     # --- all_cases.csv
     df_all_cases = pl.read_csv(output_dir / "all_cases.csv")
