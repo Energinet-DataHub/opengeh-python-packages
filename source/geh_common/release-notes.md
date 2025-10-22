@@ -304,11 +304,11 @@ Example of a valid folder structure:
     - contains all cases that should be implemented
     - (in the future) boolean determines whether pipeline fails if case is not implemented
     - case names have to be unique in a single master file
-    - Example: [all_cases_test.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml)
+    - Example: [all_cases_test.yml] (update 22-10-2025 removed dead link)
 - folder `scenario_tests` next to the coverage folder
     - must contain a key `cases_tested`
     - mapping between master file and scenarios testing specific cases
-    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) & [first_layer_folder2/coverage_mapping.yml](./../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder2/coverage_mapping.yml)
+    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml] (update 22-10-2025 removed dead link) & [first_layer_folder2/coverage_mapping.yml]  (update 22-10-2025 removed dead link)
 
 ## Version 5.7.0
 
