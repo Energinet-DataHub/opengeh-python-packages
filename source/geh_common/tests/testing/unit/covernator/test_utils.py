@@ -1,6 +1,6 @@
-import json
 from pathlib import Path
 from geh_common.testing.covernator.commands import run_covernator
+import json
 
 
 def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[Path, dict]:
