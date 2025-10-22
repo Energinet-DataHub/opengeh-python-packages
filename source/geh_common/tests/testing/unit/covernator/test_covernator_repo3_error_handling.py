@@ -27,21 +27,41 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
 
     # --- Assert stats
     stats = json.loads((output_dir / "stats.json").read_text(encoding="utf-8"))
-    assert stats["total_cases"] == 16
+    assert stats["total_cases"] == 18
     assert stats["total_scenarios"] == 5
     assert stats["total_groups"] == 5
+
+    # --- Assert error logs
     error_logs = stats.get("logs", {}).get("error", [])
-    assert len(error_logs) == 6, f"Expected one error log, got {len(error_logs)}"
+    assert len(error_logs) == 7, f"Expected one error log, got {len(error_logs)}"
     expected_errors = {
         "[ERROR] [group_y] Duplicate items in all cases: Case 2",
         "[ERROR] [geh_repo3/group_x] Duplicate items in scenario [given_group_x_scenario2]: Case AB1",
         "[ERROR] [geh_repo3/group_x] Case not covered in any scenario: Case AA3",
+        "[ERROR] [geh_repo3/group_x] Case found in scenario [given_group_x_scenario1] is marked as false in master list: Case AA5",
         "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
         "[ERROR] [geh_repo3/group_zx] Scenario folder 'given_group_zx_scenario1' is missing coverage_mapping.yml",
         "[ERROR] [geh_repo3][group_zy] Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
     }
     actual_errors = {e["message"] for e in error_logs}
     assert expected_errors == actual_errors
+
+    # --- Assert info logs
+    info_logs = stats.get("logs", {}).get("info", [])
+    actual_infos = {i["message"] for i in info_logs}
+
+    expected_infos = {
+        "[INFO] 📣 run_covernator() started!",
+        "[INFO] [geh_repo3][group_x] Processing group: group_x",
+        "[INFO] [geh_repo3][group_y] Processing group: group_y",
+        "[INFO] [geh_repo3][group_z] Processing group: group_z",
+        "[INFO] [geh_repo3][group_zx] Processing group: group_zx",
+        "[INFO] [geh_repo3][group_zy] Processing group: group_zy",
+        "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA4",
+        "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA5",
+    }
+
+    assert expected_infos == actual_infos, f"Mismatch in INFO logs.\nExpected:\n{expected_infos}\nActual:\n{actual_infos}"
 
     # --- all_cases.csv
     df_all_cases = pl.read_csv(output_dir / "all_cases.csv")
@@ -55,6 +75,8 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
         {"Group": "geh_repo3/group_x", "TestCase": "Case AA1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AA2", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AA3", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
+        {"Group": "geh_repo3/group_x", "TestCase": "Case AA4", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": False},
+        {"Group": "geh_repo3/group_x", "TestCase": "Case AA5", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": False},
         {"Group": "geh_repo3/group_x", "TestCase": "Case AB1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AB", "Implemented": True},
         {"Group": "geh_repo3/group_y", "TestCase": "Case 1", "Path": "Repo 3 group_y Tests", "Implemented": True},
         {"Group": "geh_repo3/group_y", "TestCase": "Case 2", "Path": "Repo 3 group_y Tests", "Implemented": True},
@@ -87,6 +109,7 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
         {"Group": "geh_repo3/group_x", "Scenario": scen_x1, "CaseCoverage": "Case 2"},
         {"Group": "geh_repo3/group_x", "Scenario": scen_x1, "CaseCoverage": "Case A1"},
         {"Group": "geh_repo3/group_x", "Scenario": scen_x1, "CaseCoverage": "Case A2"},
+        {"Group": "geh_repo3/group_x", "Scenario": scen_x1, "CaseCoverage": "Case AA5"},
         {"Group": "geh_repo3/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AA1"},
         {"Group": "geh_repo3/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AA2"},
         {"Group": "geh_repo3/group_x", "Scenario": scen_x2, "CaseCoverage": "Case AB1"},
