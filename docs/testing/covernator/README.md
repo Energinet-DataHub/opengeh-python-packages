@@ -7,7 +7,7 @@
 
 ## 📂 Expected Directory Layout
 
-```
+```plaintext
 <repo_root>/
 ├── tests/
 │   ├── coverage/                         # Optional: single-group mode
@@ -221,6 +221,7 @@ covernator = "geh_common.covernator_streamlit:main"
 ```
 
 CLI flags:
+
 - `--path` (default: `./tests`)
 - `--output-dir` (default: temp dir)
 - `--generate-only`: skip UI
