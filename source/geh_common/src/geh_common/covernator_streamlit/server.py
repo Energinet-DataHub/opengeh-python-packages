@@ -72,7 +72,7 @@ class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=Tr
         dotenv_settings: PydanticBaseSettingsSource,
         file_secret_settings: PydanticBaseSettingsSource,
     ) -> tuple[PydanticBaseSettingsSource, ...]:
-        """Need to overwrite the priority, otherwise path with be overwritten by the env var."""
+        """Need to overwrite the priority, otherwise path with be overwritten by the env variable."""
         return (init_settings,)
 
 
