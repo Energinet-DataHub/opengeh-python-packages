@@ -1,5 +1,7 @@
 from pathlib import Path
+
 import polars as pl
+
 from test_utils import run_and_load_stats
 
 
