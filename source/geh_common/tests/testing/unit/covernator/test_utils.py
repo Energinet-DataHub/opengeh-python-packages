@@ -1,6 +1,7 @@
-from pathlib import Path
-from geh_common.testing.covernator.commands import run_covernator
 import json
+from pathlib import Path
+
+from geh_common.testing.covernator.commands import run_covernator
 
 
 def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[Path, dict]:
@@ -20,6 +21,7 @@ def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[Path, dict]:
     stats = json.loads(stats_path.read_text(encoding="utf-8"))
 
     return output_dir, stats
+
 
 def assert_log_messages(
     logs: dict,

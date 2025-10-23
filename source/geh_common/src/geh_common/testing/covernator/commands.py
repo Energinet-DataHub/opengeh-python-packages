@@ -95,7 +95,9 @@ class DuplicateKeyLoader(yaml.SafeLoader):
             key = self.construct_object(key_node, deep=deep)
             if key in mapping and self.output:
                 if self.group and self.scenario:
-                    self.output.log(f"[{self.group}] Duplicate items in scenario [{self.scenario}]: {key}", level=LogLevel.ERROR)
+                    self.output.log(
+                        f"[{self.group}] Duplicate items in scenario [{self.scenario}]: {key}", level=LogLevel.ERROR
+                    )
                 elif self.group:
                     self.output.log(f"[{self.group}] Duplicate items in all cases: {key}", level=LogLevel.ERROR)
                 else:
@@ -107,7 +109,7 @@ class DuplicateKeyLoader(yaml.SafeLoader):
 
 def load_yaml_with_duplicates(path: Path, output: OutputManager, group=None, scenario=None):
     # UP015 fix reversed; "r" is needed for clarity when reading YAML.
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.load(f, Loader=lambda stream: DuplicateKeyLoader(stream, group, scenario, output))
 
 
@@ -127,14 +129,16 @@ def _get_case_rows_from_main_yaml(
     return case_rows
 
 
-def find_all_cases(main_yaml_path: Path, output: OutputManager | None = None, group: str | None = None) -> List[CaseRow]:
+def find_all_cases(
+    main_yaml_path: Path, output: OutputManager | None = None, group: str | None = None
+) -> List[CaseRow]:
     if not main_yaml_path.exists():
         raise FileNotFoundError(f"File {main_yaml_path} does not exist.")
 
     if output:
         main_yaml_content = load_yaml_with_duplicates(main_yaml_path, output=output, group=group)
     else:
-        with open(main_yaml_path, "r", encoding="utf-8") as f:
+        with open(main_yaml_path, encoding="utf-8") as f:
             main_yaml_content = yaml.safe_load(f)
 
     if not isinstance(main_yaml_content, dict):
@@ -172,14 +176,18 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
     for path in base_path.rglob("coverage_mapping.yml"):
         try:
             if output:
-                coverage_mapping = load_yaml_with_duplicates(path, output=output, group=base_path.name, scenario=path.stem)
+                coverage_mapping = load_yaml_with_duplicates(
+                    path, output=output, group=base_path.name, scenario=path.stem
+                )
             else:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     coverage_mapping = yaml.safe_load(f)
             cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
             if cases_tested_content is None:
                 if output:
-                    output.log(f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.", level=LogLevel.ERROR)
+                    output.log(
+                        f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.", level=LogLevel.ERROR
+                    )
                 continue
 
             cases_tested = _get_scenarios_cases_tested(cases_tested_content)
@@ -215,9 +223,11 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     def is_subsystem_folder(path: Path) -> bool:
         return (path / "tests").exists()
 
-    subsystems = [base_path] if is_subsystem_folder(base_path) else [
-        p for p in base_path.iterdir() if p.is_dir() and is_subsystem_folder(p)
-    ]
+    subsystems = (
+        [base_path]
+        if is_subsystem_folder(base_path)
+        else [p for p in base_path.iterdir() if p.is_dir() and is_subsystem_folder(p)]
+    )
 
     for subsystem_dir in subsystems:
         subsystem = subsystem_dir.name
@@ -232,7 +242,9 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
             group = group_dir.name if group_dir != tests_dir else None
             key = f"{subsystem}/{group}" if group else subsystem
             seen_groups.add(key)
-            output.log(f"[{subsystem}]{f'[{group}]' if group else ''} Processing {'group' if group else 'subsystem'}: {group or subsystem}")
+            output.log(
+                f"[{subsystem}]{f'[{group}]' if group else ''} Processing {'group' if group else 'subsystem'}: {group or subsystem}"
+            )
 
             all_cases_path = next((p for p in coverage_dir.glob("all_cases*.yml")), None)
             scenarios_path = next((p for p in group_dir.glob("scenario_test*") if p.is_dir()), None)
@@ -252,15 +264,17 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
             group_scenarios = []
 
             if not scenarios_path:
-                output.log(f"[{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.", level=LogLevel.ERROR)
+                output.log(
+                    f"[{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.",
+                    level=LogLevel.ERROR,
+                )
             else:
                 for scenario_folder in scenarios_path.rglob("*"):
                     if not scenario_folder.is_dir():
                         continue
 
                     has_test_file = any(
-                        f.name.startswith("test_") and f.suffix == ".py"
-                        for f in scenario_folder.iterdir()
+                        f.name.startswith("test_") and f.suffix == ".py" for f in scenario_folder.iterdir()
                     )
                     has_coverage_yaml = (scenario_folder / "coverage_mapping.yml").exists()
 
@@ -278,35 +292,42 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 found_scenarios = find_all_scenarios(scenarios_path, output=output)
                 group_scenarios.extend(found_scenarios)
 
-            all_cases.extend({
-                "Group": key,
-                "TestCase": c.case,
-                "Path": str(c.path),
-                "Implemented": c.implemented,
-            } for c in group_cases)
+            all_cases.extend(
+                {
+                    "Group": key,
+                    "TestCase": c.case,
+                    "Path": str(c.path),
+                    "Implemented": c.implemented,
+                }
+                for c in group_cases
+            )
 
-            all_scenarios.extend({
-                "Group": key,
-                "Scenario": s.source,
-                "CaseCoverage": case,
-            } for s in group_scenarios for case in s.cases_tested)
+            all_scenarios.extend(
+                {
+                    "Group": key,
+                    "Scenario": s.source,
+                    "CaseCoverage": case,
+                }
+                for s in group_scenarios
+                for case in s.cases_tested
+            )
 
     df_all_cases = (
         pl.DataFrame(all_cases)
-        if all_cases else pl.DataFrame(schema={"Group": str, "TestCase": str, "Path": str, "Implemented": bool})
+        if all_cases
+        else pl.DataFrame(schema={"Group": str, "TestCase": str, "Path": str, "Implemented": bool})
     )
     df_all_scenarios = (
         pl.DataFrame(all_scenarios)
-        if all_scenarios else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str})
+        if all_scenarios
+        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str})
     )
 
     expected_cases = (
-        set(df_all_cases.filter(pl.col("Implemented"))["TestCase"].to_list())
-        if df_all_cases.height > 0 else set()
+        set(df_all_cases.filter(pl.col("Implemented"))["TestCase"].to_list()) if df_all_cases.height > 0 else set()
     )
     false_cases = (
-        set(df_all_cases.filter(~pl.col("Implemented"))["TestCase"].to_list())
-        if df_all_cases.height > 0 else set()
+        set(df_all_cases.filter(~pl.col("Implemented"))["TestCase"].to_list()) if df_all_cases.height > 0 else set()
     )
     scenario_cases = set(df_all_scenarios["CaseCoverage"].to_list()) if df_all_scenarios.height > 0 else set()
 

@@ -1,18 +1,14 @@
 from pathlib import Path
 
 import polars as pl
-
-from test_utils import run_and_load_stats
-from test_utils import assert_log_messages
+from test_utils import assert_log_messages, run_and_load_stats
 
 
 def _assert_frames_equal(df1: pl.DataFrame, df2: pl.DataFrame, sort_cols: list[str]):
     """Fallback assertion for Polars DataFrames without pl.testing."""
     df1_sorted = df1.sort(sort_cols)
     df2_sorted = df2.sort(sort_cols)
-    assert df1_sorted.shape == df2_sorted.shape, (
-        f"Shape mismatch: {df1_sorted.shape} != {df2_sorted.shape}"
-    )
+    assert df1_sorted.shape == df2_sorted.shape, f"Shape mismatch: {df1_sorted.shape} != {df2_sorted.shape}"
     for col in df1_sorted.columns:
         vals1, vals2 = df1_sorted[col].to_list(), df2_sorted[col].to_list()
         assert vals1 == vals2, f"Mismatch in column '{col}':\n{vals1}\nvs\n{vals2}"
@@ -50,7 +46,7 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
             "[INFO] [geh_repo3][group_zy] Processing group: group_zy",
             "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA4",
             "[INFO] [geh_repo3/group_x] Case is marked as false in master list: Case AA5",
-        }
+        },
     )
 
     # --- all_cases.csv
@@ -60,18 +56,68 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
     expected_all_cases_rows = [
         {"Group": "geh_repo3/group_x", "TestCase": "Case 1", "Path": "Repo 3 group_x Tests", "Implemented": True},
         {"Group": "geh_repo3/group_x", "TestCase": "Case 2", "Path": "Repo 3 group_x Tests", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case A1", "Path": "Repo 3 group_x Tests / Sub heading A", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case A2", "Path": "Repo 3 group_x Tests / Sub heading A", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AA1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AA2", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AA3", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": True},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AA4", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": False},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AA5", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA", "Implemented": False},
-        {"Group": "geh_repo3/group_x", "TestCase": "Case AB1", "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AB", "Implemented": True},
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case A1",
+            "Path": "Repo 3 group_x Tests / Sub heading A",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case A2",
+            "Path": "Repo 3 group_x Tests / Sub heading A",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AA1",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AA2",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AA3",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AA4",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA",
+            "Implemented": False,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AA5",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AA",
+            "Implemented": False,
+        },
+        {
+            "Group": "geh_repo3/group_x",
+            "TestCase": "Case AB1",
+            "Path": "Repo 3 group_x Tests / Sub heading A / Sub heading AB",
+            "Implemented": True,
+        },
         {"Group": "geh_repo3/group_y", "TestCase": "Case 1", "Path": "Repo 3 group_y Tests", "Implemented": True},
         {"Group": "geh_repo3/group_y", "TestCase": "Case 2", "Path": "Repo 3 group_y Tests", "Implemented": True},
-        {"Group": "geh_repo3/group_y", "TestCase": "Case A1", "Path": "Repo 3 group_y Tests / Sub heading A", "Implemented": True},
-        {"Group": "geh_repo3/group_y", "TestCase": "Case A2", "Path": "Repo 3 group_y Tests / Sub heading A", "Implemented": True},
+        {
+            "Group": "geh_repo3/group_y",
+            "TestCase": "Case A1",
+            "Path": "Repo 3 group_y Tests / Sub heading A",
+            "Implemented": True,
+        },
+        {
+            "Group": "geh_repo3/group_y",
+            "TestCase": "Case A2",
+            "Path": "Repo 3 group_y Tests / Sub heading A",
+            "Implemented": True,
+        },
         {"Group": "geh_repo3/group_z", "TestCase": "Case 1", "Path": "Repo 3 group_z Tests", "Implemented": True},
         {"Group": "geh_repo3/group_z", "TestCase": "Case 2", "Path": "Repo 3 group_z Tests", "Implemented": True},
         {"Group": "geh_repo3/group_zx", "TestCase": "Case 1", "Path": "Repo 3 group_zx Tests", "Implemented": True},
@@ -80,14 +126,11 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
     df_expected_all_cases = pl.DataFrame(expected_all_cases_rows)
     _assert_frames_equal(df_all_cases, df_expected_all_cases, ["Group", "Path", "TestCase"])
 
-
     # --- case_coverage.csv
     df_case_cov = pl.read_csv(output_dir / "case_coverage.csv")
 
     # Vectorized normalization
-    df_case_cov = df_case_cov.with_columns(
-        pl.col("Scenario").str.replace_all("\\\\", "/")
-    )
+    df_case_cov = df_case_cov.with_columns(pl.col("Scenario").str.replace_all("\\\\", "/"))
 
     scen_x1 = "given_group_x_scenario1"
     scen_x2 = "given_group_x_scenario2"
@@ -110,7 +153,6 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
         {"Group": "geh_repo3/group_y", "Scenario": scen_y1, "CaseCoverage": "Case A2"},
         {"Group": "geh_repo3/group_zy", "Scenario": scen_zy1, "CaseCoverage": "Case 1"},
         {"Group": "geh_repo3/group_zy", "Scenario": scen_zy1, "CaseCoverage": "Case 2"},
-
     ]
     df_expected_cov = pl.DataFrame(expected_cov_rows)
     _assert_frames_equal(df_case_cov, df_expected_cov, ["Group", "Scenario", "CaseCoverage"])
