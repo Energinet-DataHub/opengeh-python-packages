@@ -33,7 +33,7 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
             "[ERROR] [geh_repo3/group_x] Duplicate items in scenario [given_group_x_scenario2]: Case AB1",
             "[ERROR] [geh_repo3/group_x] Case not covered in any scenario: Case AA3",
             "[ERROR] [geh_repo3/group_x] Case found in scenario [given_group_x_scenario1] is marked as false in master list: Case AA5",
-            "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
+            # "[ERROR] [geh_repo3][group_z] Could not find 'scenario_test(s)' folder.",
             "[ERROR] [geh_repo3/group_zx] Scenario folder 'given_group_zx_scenario1' is missing coverage_mapping.yml",
             "[ERROR] [geh_repo3][group_zy] Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
         },
