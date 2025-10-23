@@ -1,7 +1,7 @@
 from pathlib import Path
+import polars as pl
 from test_utils import run_and_load_stats
 from test_utils import assert_log_messages
-import polars as pl
 
 
 def _assert_frames_equal(df1: pl.DataFrame, df2: pl.DataFrame, sort_cols: list[str]):
