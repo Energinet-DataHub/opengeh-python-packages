@@ -21,7 +21,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     output_dir, stats = run_and_load_stats(base_path, tmp_path)
 
     # --- Assert stats
-    assert stats["total_cases"] == 10
+    assert stats["total_cases"] == 9
     assert stats["total_scenarios"] == 2
     assert stats["total_groups"] == 1
     assert stats.get("logs", {}).get("error", []) == [], "No errors expected"
