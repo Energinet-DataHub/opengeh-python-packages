@@ -1,0 +1,17 @@
+"Repo 3 group_x Tests":
+  "Case 1": true
+  "Case 2": true
+
+  "Sub heading A":
+    "Case A1": true
+    "Case A2": true
+
+    "Sub heading AA":
+      "Case AA1": true
+      "Case AA2": true
+      "Case AA3": true
+      "Case AA4": false
+      "Case AA5": false
+
+    "Sub heading AB":
+      "Case AB1": true

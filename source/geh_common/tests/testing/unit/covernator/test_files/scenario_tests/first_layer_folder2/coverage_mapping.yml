@@ -1,7 +1,0 @@
-notes: |
-  ## PURPOSE
-
-cases_tested:
-  "Case Group A":
-    - "Sub Case Group AB":
-        - "Case AB1"

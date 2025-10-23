@@ -1,6 +1,6 @@
-import json
 import logging
-import os
+from datetime import datetime
+from enum import Enum, auto
 from pathlib import Path
 from typing import Dict, List, Tuple
 
@@ -10,169 +10,395 @@ import yaml
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
+# =====================================================================
+# === Log levels ======================================================
+# =====================================================================
+class LogLevel(Enum):
+    INFO = auto()
+    ERROR = auto()
+
+
+# =====================================================================
+# === Output Manager (kept, CI-friendly logs + stats.json structure) ==
+# =====================================================================
+class OutputManager:
+    """Centralized output manager for Covernator.
+
+    Handles console output, grouped logging, CSV, and stats.json writing.
+    """
+
+    def __init__(self, output_dir: Path):
+        self.output_dir = output_dir
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        self.logs_info: list[dict] = []
+        self.logs_error: list[dict] = []
+        self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        logging.basicConfig(level=logging.INFO, format="%(message)s", handlers=[logging.StreamHandler()])
+
+    def log(self, message: str, level: LogLevel = LogLevel.INFO):
+        """Record a message with a specified log level."""
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        level_tag = "[INFO]" if level == LogLevel.INFO else "[ERROR]"
+        formatted_message = f"[{timestamp}] {level_tag} {message}"
+
+        if level == LogLevel.ERROR:
+            logging.error(formatted_message)
+            self.logs_error.append({"timestamp": timestamp, "message": f"{level_tag} {message}"})
+        else:
+            logging.info(formatted_message)
+            self.logs_info.append({"timestamp": timestamp, "message": f"{level_tag} {message}"})
+
+    def write_csv(self, filename: str, data: pl.DataFrame):
+        """Write CSV files to the output directory."""
+        data.write_csv(self.output_dir / filename)
+
+    def finalize(self, stats: dict):
+        """Write final stats.
+
+        stats.json containing:
+        - total counts
+        - info/error message groups.
+        """
+        import json
+
+        output = {
+            "total_cases": stats.get("total_cases", 0),
+            "total_scenarios": stats.get("total_scenarios", 0),
+            "total_groups": stats.get("total_groups", 0),
+            "logs": {
+                "info": self.logs_info,
+                "error": self.logs_error,
+            },
+            "generated_at": self.start_time,
+        }
+
+        # ✅ FIX: Must use "w" for write mode
+        with open(self.output_dir / "stats.json", "w", encoding="utf-8") as f:
+            json.dump(output, f, indent=4)
+
+
+# =====================================================================
+# === DuplicateKeyLoader to detect duplicates =========================
+# =====================================================================
+class DuplicateKeyLoader(yaml.SafeLoader):
+    def __init__(self, stream, group=None, scenario=None, output: OutputManager | None = None):
+        super().__init__(stream)
+        self.group = group
+        self.scenario = scenario
+        self.output = output
+
+    def construct_mapping(self, node, deep=False):
+        mapping = {}
+        for key_node, value_node in node.value:
+            key = self.construct_object(key_node, deep=deep)
+            if key in mapping and self.output:
+                if self.group and self.scenario:
+                    self.output.log(
+                        f"[{self.group}] Duplicate items in scenario [{self.scenario}]: {key}", level=LogLevel.ERROR
+                    )
+                elif self.group:
+                    self.output.log(f"[{self.group}] Duplicate items in all cases: {key}", level=LogLevel.ERROR)
+                else:
+                    self.output.log(f"[ERROR] Duplicate key found in YAML: {key}", level=LogLevel.ERROR)
+            value = self.construct_object(value_node, deep=deep)
+            mapping[key] = value
+        return mapping
+
+
+def load_yaml_with_duplicates(path: Path, output: OutputManager, group=None, scenario=None):
+    # UP015 fix reversed; "r" is needed for clarity when reading YAML.
+    with open(path, encoding="utf-8") as f:
+        return yaml.load(f, Loader=lambda stream: DuplicateKeyLoader(stream, group, scenario, output))
+
+
+# =====================================================================
+# === Case Extraction =================================================
+# =====================================================================
 def _get_case_rows_from_main_yaml(
     main_yaml_content: Dict[str, Dict | bool], prefix: str = "", group: str | None = None
 ) -> List[CaseRow]:
-    """Transform the content of yaml file containing all scenarios from it's hirarchical structure into a list of cases recursively."""
     case_rows: List[CaseRow] = []
     for scenario, content in main_yaml_content.items():
         if isinstance(content, bool):
             case_rows.append(CaseRow(path=f"{prefix}", case=scenario, implemented=content, group=group))
         elif isinstance(content, dict):
-            new_prefix = f"{prefix} / {scenario}" if len(prefix) > 0 else scenario
+            new_prefix = f"{prefix} / {scenario}" if prefix else scenario
             case_rows.extend(_get_case_rows_from_main_yaml(content, prefix=new_prefix, group=group))
     return case_rows
 
 
-def find_all_cases(main_yaml_path: Path, group: str | None = None) -> List[CaseRow]:
-    """Parse a yaml file containing all scenarios and transform it into a list of cases.
-
-    If yaml path is invalid or content in an invalid format, raise an exception.
-
-    Args:
-        main_yaml_path (Path): Path to the yaml file containing all scenarios.
-        group (str | None): Group name to be added to the case rows if present.
-    """
+def find_all_cases(
+    main_yaml_path: Path, output: OutputManager | None = None, group: str | None = None
+) -> List[CaseRow]:
     if not main_yaml_path.exists():
         raise FileNotFoundError(f"File {main_yaml_path} does not exist.")
 
-    with open(main_yaml_path) as main_file:
-        main_yaml_content = yaml.safe_load(main_file)
+    if output:
+        main_yaml_content = load_yaml_with_duplicates(main_yaml_path, output=output, group=group)
+    else:
+        with open(main_yaml_path, encoding="utf-8") as f:
+            main_yaml_content = yaml.safe_load(f)
 
     if not isinstance(main_yaml_content, dict):
         return []
-
-    coverage_by_case: List[CaseRow] = _get_case_rows_from_main_yaml(main_yaml_content, group=group)
-    return coverage_by_case
+    return _get_case_rows_from_main_yaml(main_yaml_content, group=group)
 
 
+# =====================================================================
+# === Scenario Extraction =============================================
+# =====================================================================
 def _get_scenario_source_name_from_path(path: Path, feature_folder_name: Path) -> str:
     return str(path.relative_to(feature_folder_name).parent)
 
 
 def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], str]]:
-    """Find cases for the content of a given scenario from a coverage_mapping.yml file."""
     if parents is None:
         parents = []
     if isinstance(content, dict):
-        all_cases_from_dict = []
+        results = []
         for key, value in content.items():
-            all_cases_from_dict.extend(_get_scenarios_cases_tested(value, parents + [key]))
-        return all_cases_from_dict
+            results.extend(_get_scenarios_cases_tested(value, parents + [key]))
+        return results
     elif isinstance(content, list):
-        all_cases_from_list = []
+        results = []
         for case in content:
-            all_cases_from_list.extend(_get_scenarios_cases_tested(case, parents))
-        return all_cases_from_list
-    else:
-        return [(parents, content)]
+            results.extend(_get_scenarios_cases_tested(case, parents))
+        return results
+    return [(parents, content)]
 
 
-def find_all_scenarios(base_path: Path) -> List[ScenarioRow]:
-    """Find all implemented scenarios for the given path.
-
-    Searches for all files named 'coverage_mapping.yml' in the given path and its subdirectories.
-    For each file, it loads the content and extracts the cases tested for each scenario.
-    Ignores the file if it doesn't contain the 'cases_tested' key or if there are no cases.
-
-    Args:
-        base_path (Path): The path to search for scenarios with the name 'coverage_mapping.yml'.
-    """
+def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> List[ScenarioRow]:
     coverage_by_scenario: List[ScenarioRow] = []
     errors = []
 
     for path in base_path.rglob("coverage_mapping.yml"):
-        with open(path) as coverage_mapping_file:
-            try:
-                try:
-                    coverage_mapping = yaml.safe_load(coverage_mapping_file)
-                except yaml.YAMLError:
-                    logging.warning(f"Invalid yaml file '{path}': {coverage_mapping_file}")
-                    continue
-                cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
-                if cases_tested_content is None:
-                    logging.warning(f"Invalid yaml file '{path}': 'cases_tested' key not found.")
-                    continue
-
-                cases_tested = _get_scenarios_cases_tested(cases_tested_content)
-                coverage_by_scenario.append(
-                    ScenarioRow(
-                        source=_get_scenario_source_name_from_path(path, base_path),
-                        cases_tested=[case for _, case in cases_tested],
-                    )
+        try:
+            if output:
+                coverage_mapping = load_yaml_with_duplicates(
+                    path, output=output, group=base_path.name, scenario=path.stem
                 )
-            except (yaml.YAMLError, KeyError) as exc:
-                errors.append(f"Error loading {path}: {exc}")
+            else:
+                with open(path, encoding="utf-8") as f:
+                    coverage_mapping = yaml.safe_load(f)
+            cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
+            if cases_tested_content is None:
+                if output:
+                    output.log(
+                        f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.", level=LogLevel.ERROR
+                    )
+                continue
 
-    if len(errors) > 0:
-        raise Exception("\n".join(errors))
+            cases_tested = _get_scenarios_cases_tested(cases_tested_content)
+            coverage_by_scenario.append(
+                ScenarioRow(
+                    source=_get_scenario_source_name_from_path(path, base_path),
+                    cases_tested=[case for _, case in cases_tested],
+                )
+            )
+        except yaml.YAMLError:
+            if output:
+                output.log(f"[ERROR] Invalid yaml file '{path}' (YAMLError)", level=LogLevel.ERROR)
+        except Exception as exc:
+            errors.append(f"{path}: {exc}")
+
+    if errors and output:
+        output.log(f"[ERROR] Errors while parsing scenarios: {errors}")
 
     return coverage_by_scenario
 
 
+# =====================================================================
+# === Main Runner =====================================================
+# =====================================================================
 def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
-    """Generate the coverage files for all scenarios and all cases.
+    output = OutputManager(folder_to_save_files_in)
+    output.log("📣 run_covernator() started!", level=LogLevel.INFO)
 
-    This is the entrypoint for the covernator command.
-    Yaml files that start with 'all_cases' are expected to be in the 'coverage' folder,
-      containing the summary of all expected scenarios (implemented and not yet implemented ones).
-    The parent folder of the 'coverage' folder is considered to be a group.
-    In the same folder, a folder named 'scenario_tests' is expected to be present,
-      in which the implemented scenarios should be found.
-    The functions saves 2 files ('all_cases.csv' and 'case_coverage.csv') in the specified folder.
+    stats = {"total_cases": 0, "total_scenarios": 0, "total_groups": 0}
+    all_cases, all_scenarios = [], []
+    seen_groups, seen_scenarios, logged_messages = set(), set(), set()
 
-    Args:
-        folder_to_save_files_in (Path): The folder where the coverage files will be saved.
-        base_path (Path): The base path to search for scenarios and cases. Defaults to the current directory.
-    """
-    folder_to_save_files_in.mkdir(parents=True, exist_ok=True)
+    def is_subsystem_folder(path: Path) -> bool:
+        return (path / "tests").exists()
 
-    all_scenarios = []
-    all_cases = []
-    for path in base_path.rglob("coverage/all_cases*.yml"):
-        group = str(Path(str(path.absolute()).split("/coverage/")[0]).relative_to(base_path.absolute()))
-        group_name = group.split(os.sep)[-1]
-        if group_name == ".":
-            group_name = None
-        group_cases = find_all_cases(path)
-        if len(group_cases) == 0:
-            logging.warning(f"No cases found in {path}")
-            continue
-        all_cases.append(pl.DataFrame(group_cases).with_columns(pl.lit(group_name).alias("Group")))
-        group_scenarios = find_all_scenarios(base_path / group / "scenario_tests")
-        group_scenarios_df = pl.DataFrame(group_scenarios)
-        if len(group_scenarios_df) > 0:
-            group_scenarios_df = group_scenarios_df.with_columns(pl.lit(group_name).alias("Group"))
-            all_scenarios.append(group_scenarios_df)
-
-    df_all_scenarios = (
-        (
-            pl.concat(all_scenarios)
-            .explode("cases_tested")
-            .select(
-                pl.col("Group"),
-                pl.col("source").alias("Scenario"),
-                pl.col("cases_tested").alias("CaseCoverage"),
-            )
-        )
-        if len(all_scenarios) > 0
-        else pl.DataFrame([], schema=["Group", "Scenario", "CaseCoverage"])
+    subsystems = (
+        [base_path]
+        if is_subsystem_folder(base_path)
+        else [p for p in base_path.iterdir() if p.is_dir() and is_subsystem_folder(p)]
     )
-    df_all_scenarios.write_csv(folder_to_save_files_in / "case_coverage.csv", include_header=True)
+
+    for subsystem_dir in subsystems:
+        subsystem = subsystem_dir.name
+        tests_dir = subsystem_dir / "tests"
+        excluded_dirs = {"coverage", "scenario_tests"}
+        group_dirs = [d for d in tests_dir.iterdir() if d.is_dir() and d.name not in excluded_dirs]
+        if (tests_dir / "coverage").exists():
+            group_dirs.append(tests_dir)
+
+        for group_dir in group_dirs:
+            coverage_dir = group_dir / "coverage"
+            group = group_dir.name if group_dir != tests_dir else None
+            key = f"{subsystem}/{group}" if group else subsystem
+            seen_groups.add(key)
+            output.log(
+                f"[{subsystem}]{f'[{group}]' if group else ''} Processing {'group' if group else 'subsystem'}: {group or subsystem}"
+            )
+
+            all_cases_path = next((p for p in coverage_dir.glob("all_cases*.yml")), None)
+            scenarios_path = next((p for p in group_dir.glob("scenario_test*") if p.is_dir()), None)
+
+            if not coverage_dir.exists():
+                output.log(f"[{subsystem}][{group}] Missing coverage folder", level=LogLevel.ERROR)
+
+            if not all_cases_path:
+                output.log(
+                    f"[{subsystem}]{f'[{group}]' if group else ''} Missing all_cases YAML file — scenario_test(s) exist but no all_cases*.yml found.",
+                    level=LogLevel.ERROR,
+                )
+                group_cases = []
+            else:
+                group_cases = find_all_cases(all_cases_path, output=output, group=group)
+
+            group_scenarios = []
+
+            if not scenarios_path:
+                output.log(
+                    f"[{subsystem}]{f'[{group}]' if group else ''} Could not find 'scenario_test(s)' folder.",
+                    level=LogLevel.ERROR,
+                )
+            else:
+                for scenario_folder in scenarios_path.rglob("*"):
+                    if not scenario_folder.is_dir():
+                        continue
+
+                    has_test_file = any(
+                        f.name.startswith("test_") and f.suffix == ".py" for f in scenario_folder.iterdir()
+                    )
+                    has_coverage_yaml = (scenario_folder / "coverage_mapping.yml").exists()
+
+                    if has_test_file:
+                        rel = scenario_folder.relative_to(scenarios_path)
+                        scenario_root = rel.parts[0] if rel.parts else ""
+                        if (key, scenario_root) not in seen_scenarios:
+                            seen_scenarios.add((key, scenario_root))
+                        if not has_coverage_yaml:
+                            msg = f"[{key}] Scenario folder '{scenario_folder.name}' is missing coverage_mapping.yml"
+                            if msg not in logged_messages:
+                                output.log(msg, level=LogLevel.ERROR)
+                                logged_messages.add(msg)
+
+                found_scenarios = find_all_scenarios(scenarios_path, output=output)
+                group_scenarios.extend(found_scenarios)
+
+            all_cases.extend(
+                {
+                    "Group": key,
+                    "TestCase": c.case,
+                    "Path": str(c.path),
+                    "Implemented": c.implemented,
+                }
+                for c in group_cases
+            )
+
+            all_scenarios.extend(
+                {
+                    "Group": key,
+                    "Scenario": s.source,
+                    "CaseCoverage": case,
+                }
+                for s in group_scenarios
+                for case in s.cases_tested
+            )
 
     df_all_cases = (
-        pl.concat(all_cases, how="vertical_relaxed").select(
-            pl.col("Group"), pl.col("path").alias("Path"), pl.col("case").alias("TestCase")
-        )
-        if len(all_cases) > 0
-        else pl.DataFrame([], schema=["Group", "Path", "TestCase"])
+        pl.DataFrame(all_cases)
+        if all_cases
+        else pl.DataFrame(schema={"Group": str, "TestCase": str, "Path": str, "Implemented": bool})
     )
-    df_all_cases.write_csv(folder_to_save_files_in / "all_cases.csv", include_header=True)
+    df_all_scenarios = (
+        pl.DataFrame(all_scenarios)
+        if all_scenarios
+        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str})
+    )
 
-    statistics = {
-        "total_cases": len(df_all_cases),
-        "total_scenarios": len(df_all_scenarios.select("Scenario").unique()),
-        "total_groups": len(df_all_cases.select("Group").unique()),
+    expected_cases = (
+        set(df_all_cases.filter(pl.col("Implemented"))["TestCase"].to_list()) if df_all_cases.height > 0 else set()
+    )
+    false_cases = (
+        set(df_all_cases.filter(~pl.col("Implemented"))["TestCase"].to_list()) if df_all_cases.height > 0 else set()
+    )
+    scenario_cases = set(df_all_scenarios["CaseCoverage"].to_list()) if df_all_scenarios.height > 0 else set()
+
+    # Duplicate checks
+    seen = set()
+    for case_row in df_all_cases.iter_rows(named=True):
+        key = (case_row["Group"], case_row["TestCase"])
+        if key in seen:
+            msg = f"[{case_row['Group']}] Duplicate items in all cases: {case_row['TestCase']}"
+            if msg not in logged_messages:
+                output.log(msg, level=LogLevel.ERROR)
+                logged_messages.add(msg)
+        else:
+            seen.add(key)
+
+    seen = set()
+    for scenario_row in df_all_scenarios.iter_rows(named=True):
+        key = (scenario_row["Group"], scenario_row["Scenario"], scenario_row["CaseCoverage"])
+        if key in seen:
+            msg = f"[{scenario_row['Group']}] Duplicate items in scenario [{scenario_row['Scenario']}]: {scenario_row['CaseCoverage']}"
+            if msg not in logged_messages:
+                output.log(msg, level=LogLevel.ERROR)
+                logged_messages.add(msg)
+        else:
+            seen.add(key)
+
+    # Coverage validation
+    for case_row in df_all_cases.iter_rows(named=True):
+        if not case_row["Implemented"]:
+            output.log(f"[{case_row['Group']}] Case is marked as false in master list: {case_row['TestCase']}")
+            continue
+        if case_row["TestCase"] not in scenario_cases:
+            msg = f"[{case_row['Group']}] Case not covered in any scenario: {case_row['TestCase']}"
+            if msg not in logged_messages:
+                output.log(msg, level=LogLevel.ERROR)
+                logged_messages.add(msg)
+
+    logged_false = set()
+    for s_row in df_all_scenarios.iter_rows(named=True):
+        case, group, scenario = s_row["CaseCoverage"], s_row["Group"], s_row["Scenario"]
+        if case in false_cases:
+            if (group, case) not in logged_false:
+                msg = f"[{group}] Case found in scenario [{scenario}] is marked as false in master list: {case}"
+                if msg not in logged_messages:
+                    output.log(msg, level=LogLevel.ERROR)
+                    logged_messages.add(msg)
+                logged_false.add((group, case))
+        elif case not in expected_cases:
+            msg = f"[{group}] Case found in scenario [{scenario}] not included in master list: {case}"
+            if msg not in logged_messages:
+                output.log(msg, level=LogLevel.ERROR)
+                logged_messages.add(msg)
+
+    # Export
+    output.write_csv(
+        "all_cases.csv",
+        df_all_cases.select(["Group", "Path", "TestCase", "Implemented"])
+        if df_all_cases.height > 0
+        else pl.DataFrame(schema={"Group": str, "Path": str, "TestCase": str, "Implemented": bool}),
+    )
+    output.write_csv(
+        "case_coverage.csv",
+        df_all_scenarios.select(["Group", "Scenario", "CaseCoverage"])
+        if df_all_scenarios.height > 0
+        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str}),
+    )
+
+    stats = {
+        "total_cases": df_all_cases.height,
+        "total_scenarios": len(seen_scenarios),
+        "total_groups": len(seen_groups),
     }
-    with open(folder_to_save_files_in / "stats.json", "w") as statistics_file:
-        json.dump(statistics, statistics_file, indent=4)
+
+    output.finalize(stats)

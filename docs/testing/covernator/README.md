@@ -1,93 +1,236 @@
-# Covernator
+# 🧪 Covernator: Test Coverage Mapping Tool
 
-## Logic
+> **CI Tool** for mapping implemented test scenarios to defined master test cases using YAML-based definitions.
+> Runs in CI and outputs structured test coverage reports as CSV and JSON.
 
-The covernator is used to track which scenarios are covered by test.
-Given a folder to search for scenario tests, the covernator searches for configuration files, that define which scenarios have to be tested
-(see [all_cases_test.yml](../../../source/geh_common/tests/testing/unit/covernator/test_files/coverage/all_cases_test.yml) for an example).
-This file (referred to as `main-file`) has to following this naming pattern in order for it to be discovered: `coverage/all_cases*.yml`. (a yml file in a folder called coverage that starts with `all_cases`)
-Each main-file defines a group of scenarios, where the group name will be the name of the parent folder in which the coverage folder is located in. (In the example of the linked file it is `test_files`)
-The file can also be located in the root folder to search for scenario groups, in this case the group would be None.
+---
 
-In the same folder as the `coverage` folder there needs to be a folder called `scenario_tests`, which will be used to map existing tests to the ones defined in the main-file (see [coverage_mapping.yml](../../../source/geh_common/tests/testing/unit/covernator/test_files/scenario_tests/first_layer_folder1/sub_folder/coverage_mapping.yml) for an example).
-The covernator will look for files called `coverage_mapping.yml` and uses the path relative to the `scenario_tests` folder as the scenario name (e.g. `first_layer_folder1/sub_folder` in the example).
+## 📂 Expected Directory Layout
 
-## Implementation
+```plaintext
+<repo_root>/
+├── tests/
+│   ├── coverage/                         # Optional: single-group mode
+│   │   └── all_cases.yml
+│   ├── group_x/
+│   │   ├── coverage/
+│   │   │   └── all_cases_group_x.yml
+│   │   └── scenario_tests/
+│   │       └── given_group_x_scenario1/
+│   │           └── coverage_mapping.yml
+│   ├── group_y/
+│   └── ...
+```
 
-The implementation of the logic is located in [src/geh_common/testing/covernator](../../../source/geh_common/src/geh_common/testing/covernator), and the cli tool (that can also start a local streamlit application) is located in [src/geh_common/covernator_streamlit](../../../source/geh_common/src/geh_common/covernator_streamlit)
+---
 
-### Logic
+## 🔍 Definitions
 
-The entrypoint to the logic is the function `run_covernator` in [commands.py](../../../source/geh_common/src/geh_common/testing/covernator/commands.py)
+| Term          | Description |
+|---------------|-------------|
+| **Group**     | A logical test subsystem, represented by a subfolder under `tests/`. Can be nested (`group_x/subgroup_z`). |
+| **Case**      | An entry in `all_cases.yml` (or `all_cases_*.yml`) representing a business-relevant test case. |
+| **Scenario**  | A test implementation defined by a folder containing `coverage_mapping.yml`, inside `scenario_test(s)/`. |
+| **Covered Case** | A case explicitly listed with `true` in a scenario’s `coverage_mapping.yml` |
 
-#### run_covernator
+---
 
-- searches all main-files that defines a group of scenarios
-- loops over each group of scenarios
-    - find all cases of that scenario-group that are listed in the main-file
-    - find all scenarios in the `scenario_tests` folder of that group and map them with the content in the main-file
-- save csv files (using polars) with all cases and all scenarios, as well as a json file to have some statistics about the amount of cases, scenarios and groups
+## 📜 Business Rules
 
-#### find_all_cases
+### ✅ Group Identification
 
-- given a path to a main-file
-- reads in the yml-file and recursivly gets all the cases present in the file, including their path, as cases case be structured into hierarchies
-- parses the cases to a list of CaseRows
+- Any subfolder inside `tests/` with a `coverage/` folder containing `all_cases*.yml` files is treated as a **group**.
+- If `tests/coverage/` exists directly, it is treated as a **singleton group**.
+- Group name is recorded as relative to `tests/`, e.g., `geh_repo3/group_x`.
 
-#### find_all_scenarios
+---
 
-- looks for all `coverage_mapping.yml` files in a given path (if run from the `run_covernator` this will be the `scenario_tests` folder in the group)
-- parses all implemented scenarios that are mentioned in the valid files to ScenarioRows
-- in order for a file to be valid it must follow the structure mentioned in [setup/folderstructure](#setup--usage)
+### ✅ Case Collection
 
-### Cli Tool
+- All YAML files matching `all_cases*.yml` are loaded recursively within a group.
+- YAML must use the format:
 
-In order to run the covernator from the cli execute either:
+```yaml
+"Main Heading":
+  "Sub Heading":
+    "Case ID": true
+```
 
-- the file [server.py](../../../source/geh_common/src/geh_common/covernator_streamlit/server.py)
-- a python command that imports the function (this allows to run python from a different code base just by installing geh_common in the current environment)
-- or add the following to the pyproject.toml in the repository to run it from the command line
+- **Flattened path** becomes the case's hierarchical name:
+  e.g., `"Main Heading / Sub Heading"`.
+
+---
+
+### ✅ Scenario Discovery
+
+- Scenario folders must be located under either `scenario_test/` or `scenario_tests/`
+- All nested folders containing a `coverage_mapping.yml` are considered scenarios.
+
+---
+
+### ✅ Coverage Mapping
+
+- Inside each scenario folder, `coverage_mapping.yml` must contain:
+
+```yaml
+"Case 1": true
+"Case 2": false  # allowed, but not counted
+```
+
+- Only `true` entries are considered implemented coverage.
+- Case names are normalized (whitespace stripped).
+
+---
+
+### ✅ Output Files
+
+#### 📄 `all_cases.csv`
+
+| Column        | Description |
+|---------------|-------------|
+| Group         | Group name (e.g., `geh_repo1`) |
+| TestCase      | Case identifier |
+| Path          | Heading hierarchy |
+| Implemented   | `true` if covered in any scenario |
+
+---
+
+#### 📄 `case_coverage.csv`
+
+| Column        | Description |
+|---------------|-------------|
+| Group         | Group name |
+| Scenario      | Scenario folder name |
+| CaseCoverage  | Covered case name |
+
+---
+
+#### 📄 `stats.json`
+
+```json
+{
+  "total_cases": 18,
+  "total_scenarios": 5,
+  "total_groups": 3,
+  "logs": {
+    "error": [...],
+    "info": [...]
+  }
+}
+```
+
+---
+
+## ❌ Error & Validation Rules
+
+All errors are logged in `stats["logs"]["error"]` but **do not halt execution**.
+
+| Rule | Description |
+|------|-------------|
+| ❗ `Duplicate items in all cases` | Duplicate case keys in `all_cases.yml` |
+| ❗ `Duplicate items in scenario` | Duplicate keys in a scenario’s `coverage_mapping.yml` |
+| ❗ `Missing all_cases YAML` | Scenario folder exists, but no `all_cases*.yml` is present |
+| ❗ `Missing scenario_test(s)` | Group has no scenario folder |
+| ❗ `Missing coverage_mapping.yml` | Scenario folder lacks mapping file |
+| ❗ `Case not covered in any scenario` | Master case never marked `true` in any scenario |
+| ❗ `Case marked as false in master list` | Scenario sets a case to `false` that exists in master |
+| ❗ `No scenarios found` | No valid `coverage_mapping.yml` found anywhere under group |
+
+---
+
+## 💬 Informational Logs
+
+Logged under `stats["logs"]["info"]`.
+
+| Message | Trigger |
+|---------|---------|
+| `Case is marked as false in master list` | Indicates test skipped intentionally |
+| `Processing group: <name>` | Marks which group is currently being processed |
+| `run_covernator() started!` | Logged at start |
+
+---
+
+## 🧪 Test Suite Coverage
+
+| Test File | Description |
+|-----------|-------------|
+| `test_covernator_repo1_happy_path.py` | Single group, flat layout |
+| `test_covernator_repo2_happy_path.py` | Multiple groups, separate coverage trees |
+| `test_covernator_repo3_error_handling.py` | Exhaustive failure mode simulation (all errors triggered) |
+
+---
+
+## 🧠 Design Decisions
+
+| Design Choice | Reason |
+|---------------|--------|
+| Use of Polars | Performance, consistent schema |
+| Log-first error reporting | CI pipelines prefer structured logs over exceptions |
+| Flexible folder depth | Accommodates nested and monorepo-style test layouts |
+| `stats.json` output | Enables coverage dashboards and fail-safe assertions |
+
+---
+
+## 🧭 run_covernator Logic (Expanded)
+
+The entrypoint to the tool is the function `run_covernator()`:
+
+1. Recursively searches for all `coverage/all_cases*.yml` files.
+2. Treats each of these as a test **group**.
+3. For each group:
+    - Loads all master cases from the YAML files.
+    - Searches under `scenario_tests/` or `scenario_test/` for scenarios.
+    - Maps coverage for each case found.
+4. Generates:
+    - `all_cases.csv`
+    - `case_coverage.csv`
+    - `stats.json`
+
+---
+
+### 🧪 find_all_cases()
+
+- Parses a `all_cases*.yml` file.
+- Recursively traverses nested sections to flatten all `case: true/false` entries.
+- Captures path hierarchy (e.g. `Heading / Subheading`) along with group name.
+- Returns a list of `CaseRow` objects (used in Polars CSV export).
+
+---
+
+### 🔍 find_all_scenarios()
+
+- Recursively scans for `coverage_mapping.yml` files under `scenario_tests/` or `scenario_test/`.
+- Uses the path **relative to** `scenario_tests/` as the scenario identifier.
+- Skips files not matching YAML structure (i.e. dictionary of case: bool).
+
+---
+
+## 🚀 CLI Usage (Optional)
+
+Run via Python directly:
+
+```bash
+python -c "from geh_common.covernator_streamlit import main; main()" --output-dir ./out --path ./tests
+```
+
+Or define in `pyproject.toml`:
 
 ```toml
 [project.scripts]
 covernator = "geh_common.covernator_streamlit:main"
 ```
 
-Run it with:
+CLI flags:
 
-```sh
-python -c "from geh_common.covernator_streamlit import main; main()" [-o /path/to/save/files/to] [-p /path/to/look/for/scenario_tests] [-g] [-s] [-k github-output-key]
-```
+- `--path` (default: `./tests`)
+- `--output-dir` (default: temp dir)
+- `--generate-only`: skip UI
+- `--serve-only`: skip generation
+- `--github-output-key`: inject stats to GitHub Actions output
 
-```sh
-covernator [-o /path/to/save/files/to] [-p /path/to/look/for/scenario_tests] [-g] [-s] [-k github-output-key]
-```
+---
 
-Optional parameters are:
-
-- -p / --path => this changes the folder to look for files (default `./tests`)
-- -o / --output-dir => set the location where the files are being created that are used to run the streamlit app (default to a temporary folder)
-- -g / --generate-only => used as a boolean flag. If provided, only files are created, but no streamlit app is running (does not make sence without defining the output_dir as the data will otherwise be lost)
-- -s / --serve-only => used as a boolean flag. If provided, only runs the streamlit app without generating files (does not make sence without defining the output_dir as there won't be data to read from in a new temporary folder)
-- -k / --github-output-key => if set, it will write to the github output with the provided key. The output that will be written is the statistic about the current run
-
-## Setup & Usage
-
-Setup the folder structure like the following (scenario_group is optional, this could also be the root-testfolder);
-
-```plaintext
-├── scenario_group
-    ├── coverage/
-        ├── all_cases_scenario_group.yml
-    └── scenario_tests/
-        ├── given_something/
-            └── coverage_mapping.yml
-        └── given_another_thing/
-            └── can_contain_multiple_layers/
-                └── coverage_mapping.yml
-```
-
-run the cli-tool locally, in ci or use the according github-action in the ci like this:
+## 🧪 GitHub Actions Integration
 
 ```yaml
 jobs:
@@ -95,27 +238,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Covernator
-        uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@vFILLME
+        uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@v5.8.11
         with:
-          project_name: {{ project_name }}
-          project_directory: {{ project_directory }}
-          geh_common_version: 5.8.11
+          project_name: your-project
+          project_directory: path/to/project
 ```
 
-The `project_name` and `project_directory` can also be done with a strategy, if the step should run for multiple projects in the same repository
-The default `geh_common_version` of 5.8.11 can be overwritten (although it is not necessary). If there is an update to the covernator in the future, the version either has to be overwritten in the CI that is using the action, or the default value has to be changed in the .github repository.
-
-## Next Steps
-
-### CI Validation
-
-In the main-files, cases are followed by a boolean. This boolean should be true if the scenario is excpected to be implemented, and false if it is not implemented yet.
-In a future update, the CI should fail if there is not a matching implementation for a case that was set to `true` in the main-file.
-
-### Presenting the changes
-
-The covernator generates files that are currently saved as artifacts.
-In the future these files should be saved to a defined location from where it can be read by a running application.
-Currently there is a streamlit app that can do that locally, by downloading the files and linking the folder.
-A next step would be to save the files on successful merge to main to e.g. a storage account.
-The application (e.g. streamlit) can then read from this storage account, so there can be a live application always presenting the state of the current main branch.
+- Replace `project_name` and `project_directory` as needed.
+- You can override the default `geh_common_version` (default = `5.8.11`).
