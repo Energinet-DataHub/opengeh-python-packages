@@ -21,5 +21,8 @@ schema = t.StructType(
         t.StructField("transaction_creation_datetime", t.TimestampType(), not nullable),
         t.StructField("created", t.TimestampType(), not nullable),
         t.StructField("modified", t.TimestampType(), not nullable),
+        t.StructField("partition_metering_point_id", t.IntegerType(), not nullable),
+        t.StructField("partition_year", t.IntegerType(), not nullable),
+        t.StructField("partition_month", t.IntegerType(), not nullable),
     ]
 )
