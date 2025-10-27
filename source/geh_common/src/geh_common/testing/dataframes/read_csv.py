@@ -2,6 +2,8 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
+from geh_common.testing.dataframes import assert_schema
+
 
 def read_csv(
     spark: SparkSession,
@@ -10,6 +12,8 @@ def read_csv(
     sep: str = ";",
     ignored_value="[IGNORED]",
     datetime_format: str | None = None,
+    ignore_extra_columns: bool = False,
+    ignore_nullability: bool = False,
 ) -> DataFrame:
     """Read a CSV file into a Spark DataFrame.
 
@@ -49,4 +53,9 @@ def read_csv(
                 transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
 
     df = raw_df.select(*transforms)
-    return spark.createDataFrame(df.rdd, schema=filtered_schema, verifySchema=True)
+
+    assert_schema(
+        df.schema, filtered_schema, ignore_extra_columns, ignore_nullability
+    )  # TODO HENRIK: what do I get an error when it does not ignore nullability???
+
+    return spark.createDataFrame(df.rdd, schema=filtered_schema)
