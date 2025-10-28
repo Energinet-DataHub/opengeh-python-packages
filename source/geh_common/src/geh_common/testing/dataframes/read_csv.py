@@ -62,13 +62,13 @@ def read_csv(
 
     # Validate schema
     assert_schema(
-        df.schema,
-        filtered_schema,
-        ignore_extra_columns,
-        ignore_nullability,
-        ignore_column_order,
-        ignore_decimal_scale,
-        ignore_decimal_precision,
+        actual=df.schema,
+        expected=filtered_schema,
+        ignore_extra_actual_columns=ignore_extra_columns,
+        ignore_nullability=ignore_nullability,
+        ignore_column_order=ignore_column_order,
+        ignore_decimal_scale=ignore_decimal_scale,
+        ignore_decimal_precision=ignore_decimal_precision,
     )
 
     return df
