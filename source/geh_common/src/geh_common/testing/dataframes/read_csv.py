@@ -12,8 +12,11 @@ def read_csv(
     sep: str = ";",
     ignored_value="[IGNORED]",
     datetime_format: str | None = None,
-    ignore_extra_columns: bool = False,
     ignore_nullability: bool = False,
+    ignore_column_order: bool = False,
+    ignore_decimal_scale: bool = False,
+    ignore_decimal_precision: bool = False,
+    ignore_extra_columns: bool = False,
 ) -> DataFrame:
     """Read a CSV file into a Spark DataFrame.
 
@@ -54,8 +57,18 @@ def read_csv(
 
     df = raw_df.select(*transforms)
 
-    assert_schema(
-        df.schema, filtered_schema, ignore_extra_columns, ignore_nullability
-    )  # TODO HENRIK: what do I get an error when it does not ignore nullability???
+    # Recreate dataframe with the correct schema to ensure nullability is correct
+    df = spark.createDataFrame(df.rdd, schema=filtered_schema)
 
-    return spark.createDataFrame(df.rdd, schema=filtered_schema)
+    # Validate schema
+    assert_schema(
+        df.schema,
+        filtered_schema,
+        ignore_extra_columns,
+        ignore_nullability,
+        ignore_column_order,
+        ignore_decimal_scale,
+        ignore_decimal_precision,
+    )
+
+    return df
