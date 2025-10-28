@@ -2,8 +2,6 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
-from geh_common.testing.dataframes import assert_schema
-
 
 def read_csv(
     spark: SparkSession,
@@ -12,11 +10,7 @@ def read_csv(
     sep: str = ";",
     ignored_value="[IGNORED]",
     datetime_format: str | None = None,
-    ignore_nullability: bool = False,
-    ignore_column_order: bool = False,
-    ignore_decimal_scale: bool = False,
-    ignore_decimal_precision: bool = False,
-    ignore_extra_columns: bool = False,
+    ignore_extra_schema_columns: bool = False,
 ) -> DataFrame:
     """Read a CSV file into a Spark DataFrame.
 
@@ -57,18 +51,12 @@ def read_csv(
 
     df = raw_df.select(*transforms)
 
+    if ignore_extra_schema_columns:
+        # Validate that all .csv column exists in the filtered schema
+        for field in df.schema.fields:
+            if field.name not in filtered_schema.fieldNames():
+                assert False, f"Column {field.name} in CSV file is not present in the schema."
+        return df
+
     # Recreate dataframe with the correct schema to ensure nullability is correct
-    df = spark.createDataFrame(df.rdd, schema=filtered_schema)
-
-    # Validate schema
-    assert_schema(
-        actual=df.schema,
-        expected=filtered_schema,
-        ignore_extra_actual_columns=ignore_extra_columns,
-        ignore_nullability=ignore_nullability,
-        ignore_column_order=ignore_column_order,
-        ignore_decimal_scale=ignore_decimal_scale,
-        ignore_decimal_precision=ignore_decimal_precision,
-    )
-
-    return df
+    return spark.createDataFrame(df.rdd, schema=filtered_schema, verifySchema=True)
