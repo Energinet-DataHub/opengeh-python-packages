@@ -125,18 +125,23 @@ def generate_markdown_from_results(
         errors = []
         for e in results.error_logs:
             tags = extract_bracket_tags(e.message)
+            # 🔧 Debug log for tag inspection
+            if tags:
+                print(f"   [DEBUG] Tags in '{e.message[:60]}...': {tags}")
+
+            # Allow both full + short name matching, and prefix-missing fallback
             if any(
-                t in tags
-                for t in (
-                    group_normalized,
-                    group_key_normalized,
-                    f"geh_calculated_measurements/{group_key_normalized}",
-                )
+                t == group_normalized
+                or t == group_key_normalized
+                or t.endswith(f"/{group_key_normalized}")
+                or t.endswith(f"/{group_normalized}")
+                or t == f"geh_calculated_measurements/{group_key_normalized}"
+                for t in tags
             ):
                 errors.append(e.message)
                 print(f"✅ [DEBUG] Matched error for {group}: {e.message}")
 
-        # ✅ FIX: Append errors to output
+        # ✅ Print group error section
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
             for err in errors:
@@ -165,7 +170,6 @@ def generate_markdown_from_results(
     output.append("")
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
-    # --- Collect errors not matched to any known group ---
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
     known_groups_short = {g.split("/", 1)[-1] for g in known_groups_full}
 
@@ -173,7 +177,9 @@ def generate_markdown_from_results(
     for err in results.error_logs:
         tags = extract_bracket_tags(err.message)
         is_group_tag = any(
-            t in tags or f"geh_calculated_measurements/{t}" in tags for t in (known_groups_full | known_groups_short)
+            t in tags or t.endswith(f"/{g}") or f"geh_calculated_measurements/{g}" in tags
+            for g in (known_groups_full | known_groups_short)
+            for t in tags
         )
         if not is_group_tag:
             other_errors.append(err.message)
@@ -184,8 +190,6 @@ def generate_markdown_from_results(
     else:
         output.append("_No other errors_")
 
-    # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
-
     print("✅ [DEBUG] Markdown generation completed successfully.")
