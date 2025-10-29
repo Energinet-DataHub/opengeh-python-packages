@@ -110,46 +110,47 @@ def generate_markdown_from_results(
                 output.append(f"- {err}")
             output.append("")
 
-        # Global Logs
-        output.extend(
-            [
-                "# 📟 Logs",
-                "",
-                "## 📣 Info Logs",
-            ]
-        )
-        if results.info_logs:
-            for log in results.info_logs:
-                output.append(f"- {log.message}")
-        else:
-            output.append("_No info logs_")
-
-        output.append("")
-        output.append("## ❌ Other Errors (not linked to specific groups)")
-
-        # Build set of known groups
-        known_groups = {case.group.strip() for case in results.all_cases}
-
-        # Compile patterns for all handled groups
-        known_group_patterns = [
-            re.compile(
-                rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group.split('/')[-1])}\]",
-                re.IGNORECASE,
-            )
-            for group in known_groups
+    # Global Logs (only once, after all groups)
+    output.extend(
+        [
+            "# 📟 Logs",
+            "",
+            "## 📣 Info Logs",
         ]
+    )
+    if results.info_logs:
+        for log in results.info_logs:
+            output.append(f"- {log.message}")
+    else:
+        output.append("_No info logs_")
 
-        # Collect unmatched errors
-        other_errors = []
-        for err in results.error_logs:
-            if not any(p.search(err.message) for p in known_group_patterns):
-                other_errors.append(err.message)
+    output.append("")
+    output.append("## ❌ Other Errors (not linked to specific groups)")
 
-        if other_errors:
-            for err in other_errors:
-                output.append(f"- {err}")
-        else:
-            output.append("_No other errors_")
+    # Build set of known groups
+    known_groups = {case.group.strip() for case in results.all_cases}
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text("\n".join(output), encoding="utf-8")
+    # Compile patterns for all handled groups
+    known_group_patterns = [
+        re.compile(
+            rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group.split('/')[-1])}\]",
+            re.IGNORECASE,
+        )
+        for group in known_groups
+    ]
+
+    # Collect unmatched errors
+    other_errors = []
+    for err in results.error_logs:
+        if not any(p.search(err.message) for p in known_group_patterns):
+            other_errors.append(err.message)
+
+    if other_errors:
+        for err in other_errors:
+            output.append(f"- {err}")
+    else:
+        output.append("_No other errors_")
+
+    # Final write
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(output), encoding="utf-8")
