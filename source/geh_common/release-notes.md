@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.2.2
+
+- More covernator
+
 ## Version 7.2.1
 
 - Complete refactoring of Covernator + tests and doc
