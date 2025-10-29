@@ -1,3 +1,5 @@
+import logging
+import os
 import re
 from collections import defaultdict
 from datetime import datetime
@@ -9,6 +11,15 @@ from geh_common.testing.covernator.models import (
     CoverageMapping,
     CovernatorResults,
 )
+
+# ----------------------------------------------------------
+# Debug helper (quiet by default; enable with COVERNATOR_DEBUG=1)
+# ----------------------------------------------------------
+logger = logging.getLogger(__name__)
+if os.getenv("COVERNATOR_DEBUG"):
+    logging.basicConfig(level=logging.DEBUG, format="%(message)s")
+else:
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 # ==========================================================
@@ -22,7 +33,7 @@ def normalize_group_name(raw: str, prefix: str = "geh_") -> str:
 
 
 def group_cases_by_group(cases: List[CaseInfo]) -> Dict[str, List[CaseInfo]]:
-    grouped = {}
+    grouped: Dict[str, List[CaseInfo]] = {}
     for case in cases:
         group = case.group.strip()
         grouped.setdefault(group, []).append(case)
@@ -50,9 +61,9 @@ def generate_markdown_from_results(
     results: CovernatorResults,
     output_path: Path,
     group_prefix: str = "geh_",
-):
-    output = []
-    print("🔧 [DEBUG] Markdown generation started")
+) -> None:
+    output: List[str] = []
+    logger.debug("🔧 [DEBUG] Markdown generation started")
 
     # --- Header ---
     normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
@@ -92,9 +103,9 @@ def generate_markdown_from_results(
         group_normalized = group.strip().lower()
         group_key_normalized = group_key.strip().lower()
 
-        print(f"🧩 [DEBUG] Processing group: {group} ({group_key_normalized})")
+        logger.debug("🧩 [DEBUG] Processing group: %s (%s)", group, group_key_normalized)
 
-        # Determine if group has any errors
+        # Determine if group has any errors (for header emoji)
         header_emoji = "📁"
         for e in results.error_logs:
             tags = extract_bracket_tags(e.message)
@@ -116,68 +127,58 @@ def generate_markdown_from_results(
             covered_icon = "✅" if covered > 0 else "⚠️"
             impl_icon = "🧩" if case.implemented else "⚠️"
             output.append(
-                f"| {case.path.strip()} | {case.case.strip()} | {impl_icon} {str(case.implemented)} | {covered_icon} {covered} |"
+                f"| {case.path.strip()} | {case.case.strip()} | {impl_icon} {case.implemented} | {covered_icon} {covered} |"
             )
 
         output.append("")
 
         # --- Group-specific errors ---
-        errors = []
+        errors: List[str] = []
 
-        # Define equivalent name forms for matching
+        # Define equivalent name forms for matching (full, partial, short)
         all_group_aliases = {
             group_normalized,
             group_key_normalized,
             f"geh_calculated_measurements/{group_key_normalized}",
             f"calculated_measurements/{group_key_normalized}",
-            group_key_normalized.split("/")[-1],  # <— plain short version
+            group_key_normalized.split("/")[-1],
         }
-
-        print(f"   [DEBUG] Alias set for {group}: {all_group_aliases}")
+        logger.debug("   [DEBUG] Alias set for %s: %s", group, all_group_aliases)
 
         for e in results.error_logs:
             tags = extract_bracket_tags(e.message)
             if tags:
-                print(f"   [DEBUG] Tags in '{e.message[:60]}...': {tags}")
-
-            # Check intersection of tags with aliases
+                logger.debug("   [DEBUG] Tags in '%s...': %s", e.message[:60], tags)
             if any(tag in all_group_aliases for tag in tags):
                 errors.append(e.message)
-                print(f"✅ [DEBUG] Matched error for {group}: {e.message}")
+                logger.debug("✅ [DEBUG] Matched error for %s: %s", group, e.message)
 
-        # ✅ Output errors under the group
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
             for err in errors:
                 output.append(f"- {err}")
             output.append("")
         else:
-            print(f"⚠️ [DEBUG] No errors found for {group}")
+            logger.debug("⚠️ [DEBUG] No errors found for %s", group)
 
     # ==========================================================
-    # === Global logs ==========================================
+    # === Global logs (bottom of markdown) =====================
     # ==========================================================
-    output.extend(
-        [
-            "# 📟 Logs",
-            "",
-            "## 📣 Info Logs",
-        ]
-    )
+    output.append("# 📟 Logs\n")
 
+    # --- Info Logs ---
+    output.append("## 📣 Info Logs")
     if results.info_logs:
         for log in results.info_logs:
             output.append(f"- {log.message}")
-        else:
-            output.append("_No info logs_")
+    else:
+        output.append("_No info logs_")
 
     output.append("")
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
-    # --- Prepare alias sets ---
+    # --- Build alias set for all known groups (used to exclude assigned errors) ---
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
-
-    # Flatten all group aliases from earlier
     known_aliases = set()
     for g in known_groups_full:
         short = g.split("/", 1)[-1]
@@ -189,18 +190,11 @@ def generate_markdown_from_results(
         }
 
     # --- Identify unassigned errors ---
-    other_errors = []
-    for err in results.error_logs:
-        tags = extract_bracket_tags(err.message)
-        # Skip if any tag matches a known group alias
-        if any(t in known_aliases for t in tags):
-            continue
-        # Skip the generic 'geh_calculated_measurements' prefix tag
-        if "geh_calculated_measurements" in tags and len(tags) == 2:
-            # means it's something like [geh_calculated_measurements][???]
-            # and ??? wasn't a known alias — still count as "other"
-            pass
-        other_errors.append(err.message)
+    other_errors: List[str] = [
+        err.message
+        for err in results.error_logs
+        if not any(t in known_aliases for t in extract_bracket_tags(err.message))
+    ]
 
     if other_errors:
         for err in other_errors:
@@ -208,6 +202,7 @@ def generate_markdown_from_results(
     else:
         output.append("_No other errors_")
 
+    # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
-    print("✅ [DEBUG] Markdown generation completed successfully.")
+    logger.debug("✅ [DEBUG] Markdown generation completed successfully.")
