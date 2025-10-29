@@ -11,6 +11,9 @@ from geh_common.testing.covernator.models import (
 )
 
 
+# ==========================================================
+# === Helpers ==============================================
+# ==========================================================
 def normalize_group_name(raw: str, prefix: str = "geh_") -> str:
     if prefix and raw.startswith(prefix):
         raw = raw[len(prefix) :]
@@ -40,6 +43,9 @@ def extract_bracket_tags(msg: str) -> list[str]:
     return [m.group(1).strip().lower() for m in re.finditer(r"\[([^\[\]]+)\]", msg)]
 
 
+# ==========================================================
+# === Markdown Generator ===================================
+# ==========================================================
 def generate_markdown_from_results(
     results: CovernatorResults,
     output_path: Path,
@@ -47,14 +53,14 @@ def generate_markdown_from_results(
 ):
     output = []
 
-    # H1 Header
+    # --- Header ---
     normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
     output.append(f"# 🔩 Covernator Coverage Overview for {normalized_prefix}\n")
 
     now = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
     output.append(f"Generated: {now}\n")
 
-    # Summary Section
+    # --- Summary Section ---
     total_cases = len(results.all_cases)
     implemented_cases = sum(1 for case in results.all_cases if case.implemented)
     coverage_pct = f"{(implemented_cases / total_cases * 100):.1f}" if total_cases > 0 else "0.0"
@@ -72,28 +78,26 @@ def generate_markdown_from_results(
         ]
     )
 
-    # Mapping: (group, case) -> scenario count
+    # --- Mapping: (group, case) -> scenario count ---
     coverage_dict = get_coverage_dict(results.coverage_map)
-
-    # Group CaseInfo entries by group
     grouped_cases = group_cases_by_group(results.all_cases)
 
+    # ==========================================================
+    # === Per-group section ====================================
+    # ==========================================================
     for group, cases in grouped_cases.items():
         group_title = normalize_group_name(group, group_prefix)
         group_key = group[len(group_prefix) :] if group.startswith(group_prefix) else group
-
-        # Normalize group identifiers for comparison
         group_normalized = group.strip().lower()
         group_key_normalized = group_key.strip().lower()
 
-        # Emoji based on whether group has errors
+        # Determine if group has any errors
         header_emoji = "📁"
         for e in results.error_logs:
-            msg_lower = e.message.lower()
-            if (
-                f"[{group_normalized}]" in msg_lower
-                or f"[{group_key_normalized}]" in msg_lower
-                or f"/{group_key_normalized}]" in msg_lower
+            tags = extract_bracket_tags(e.message)
+            if any(
+                g in tags
+                for g in [group_normalized, group_key_normalized, f"geh_calculated_measurements/{group_key_normalized}"]
             ):
                 header_emoji = "🚨"
                 break
@@ -114,15 +118,14 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # --- Group-specific errors (robust matching) ---
+        # --- Group-specific errors ---
         errors = []
         for e in results.error_logs:
-            msg_lower = e.message.lower()
-            if (
-                f"[{group_normalized}]" in msg_lower
-                or f"[{group_key_normalized}]" in msg_lower
-                or f"/{group_key_normalized}]" in msg_lower
-                or f"/{group_normalized}]" in msg_lower
+            tags = extract_bracket_tags(e.message)
+            # ✅ Use tag-based detection (handles both [net_consumption_group_6] and [geh_calculated_measurements/net_consumption_group_6])
+            if any(
+                g in tags
+                for g in [group_normalized, group_key_normalized, f"geh_calculated_measurements/{group_key_normalized}"]
             ):
                 errors.append(e.message)
 
@@ -132,7 +135,9 @@ def generate_markdown_from_results(
                 output.append(f"- {err}")
             output.append("")
 
-    # --- Global Logs (only once, after all groups) ---
+    # ==========================================================
+    # === Global logs ==========================================
+    # ==========================================================
     output.extend(
         [
             "# 📟 Logs",
@@ -155,11 +160,9 @@ def generate_markdown_from_results(
     other_errors = []
 
     for err in results.error_logs:
-        msg_lower = err.message.lower()
-        # Skip any error already matched by group-level detection
-        if any(f"[{g}]" in msg_lower or f"/{g}]" in msg_lower for g in known_groups):
-            continue
-        other_errors.append(err.message)
+        tags = extract_bracket_tags(err.message)
+        if not any(g in tags or f"geh_calculated_measurements/{g}" in tags for g in known_groups):
+            other_errors.append(err.message)
 
     if other_errors:
         for err in other_errors:
@@ -167,6 +170,6 @@ def generate_markdown_from_results(
     else:
         output.append("_No other errors_")
 
-    # --- Final write ---
+    # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
