@@ -154,60 +154,60 @@ def generate_markdown_from_results(
         else:
             print(f"⚠️ [DEBUG] No errors found for {group}")
 
-        # ==========================================================
-        # === Global logs ==========================================
-        # ==========================================================
-        output.extend(
-            [
-                "# 📟 Logs",
-                "",
-                "## 📣 Info Logs",
-            ]
-        )
+    # ==========================================================
+    # === Global logs ==========================================
+    # ==========================================================
+    output.extend(
+        [
+            "# 📟 Logs",
+            "",
+            "## 📣 Info Logs",
+        ]
+    )
 
-        if results.info_logs:
-            for log in results.info_logs:
-                output.append(f"- {log.message}")
+    if results.info_logs:
+        for log in results.info_logs:
+            output.append(f"- {log.message}")
         else:
             output.append("_No info logs_")
 
-        output.append("")
-        output.append("## ❌ Other Errors (not linked to specific groups)")
+    output.append("")
+    output.append("## ❌ Other Errors (not linked to specific groups)")
 
-        # --- Prepare alias sets ---
-        known_groups_full = {case.group.strip().lower() for case in results.all_cases}
+    # --- Prepare alias sets ---
+    known_groups_full = {case.group.strip().lower() for case in results.all_cases}
 
-        # Flatten all group aliases from earlier
-        known_aliases = set()
-        for g in known_groups_full:
-            short = g.split("/", 1)[-1]
-            known_aliases |= {
-                g,
-                short,
-                f"geh_calculated_measurements/{short}",
-                f"calculated_measurements/{short}",
-            }
+    # Flatten all group aliases from earlier
+    known_aliases = set()
+    for g in known_groups_full:
+        short = g.split("/", 1)[-1]
+        known_aliases |= {
+            g,
+            short,
+            f"geh_calculated_measurements/{short}",
+            f"calculated_measurements/{short}",
+        }
 
-        # --- Identify unassigned errors ---
-        other_errors = []
-        for err in results.error_logs:
-            tags = extract_bracket_tags(err.message)
-            # Skip if any tag matches a known group alias
-            if any(t in known_aliases for t in tags):
-                continue
-            # Skip the generic 'geh_calculated_measurements' prefix tag
-            if "geh_calculated_measurements" in tags and len(tags) == 2:
-                # means it's something like [geh_calculated_measurements][???]
-                # and ??? wasn't a known alias — still count as "other"
-                pass
-            other_errors.append(err.message)
+    # --- Identify unassigned errors ---
+    other_errors = []
+    for err in results.error_logs:
+        tags = extract_bracket_tags(err.message)
+        # Skip if any tag matches a known group alias
+        if any(t in known_aliases for t in tags):
+            continue
+        # Skip the generic 'geh_calculated_measurements' prefix tag
+        if "geh_calculated_measurements" in tags and len(tags) == 2:
+            # means it's something like [geh_calculated_measurements][???]
+            # and ??? wasn't a known alias — still count as "other"
+            pass
+        other_errors.append(err.message)
 
-        if other_errors:
-            for err in other_errors:
-                output.append(f"- {err}")
-        else:
-            output.append("_No other errors_")
+    if other_errors:
+        for err in other_errors:
+            output.append(f"- {err}")
+    else:
+        output.append("_No other errors_")
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        output_path.write_text("\n".join(output), encoding="utf-8")
-        print("✅ [DEBUG] Markdown generation completed successfully.")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(output), encoding="utf-8")
+    print("✅ [DEBUG] Markdown generation completed successfully.")
