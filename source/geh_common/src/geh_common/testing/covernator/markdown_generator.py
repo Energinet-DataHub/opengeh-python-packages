@@ -6,8 +6,10 @@ from pathlib import Path
 from geh_common.testing.covernator.models import CovernatorResults
 
 
-def normalize_group_name(raw: str, prefix: str) -> str:
-    clean = raw[len(prefix) :] if raw.startswith(prefix) else raw
+def normalize_group_name(raw: str, prefix: str = "") -> str:
+    clean = raw
+    if prefix and raw.startswith(prefix):
+        clean = raw[len(prefix) :]
     clean = clean.replace("_", " ")
     return " ".join(word.capitalize() for word in clean.split())
 
@@ -16,7 +18,7 @@ def generate_markdown_from_results(results: CovernatorResults, output_path: Path
     output_lines = []
     tz = zoneinfo.ZoneInfo("Europe/Copenhagen")
     now_cet = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S %Z")
-    subsystem_display = normalize_group_name(group_prefix.rstrip("/"), "geh_")
+    subsystem_display = normalize_group_name(group_prefix.rstrip("/"), "")
 
     # Header
     output_lines.append(f"# 🧩 Covernator Coverage Overview for {subsystem_display}\n")
