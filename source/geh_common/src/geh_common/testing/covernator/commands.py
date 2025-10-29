@@ -381,33 +381,39 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 output.log(msg, level=LogLevel.ERROR)
                 logged_messages.add(msg)
 
-    results = CovernatorResults(
-        stats=CoverageStats(
-            total_cases=df_all_cases.height,
-            total_scenarios=len(seen_scenarios),
-            total_groups=len(seen_groups),
-        ),
-        info_logs=[LogEntry(timestamp=l["timestamp"], message=l["message"]) for l in output.logs_info],
-        error_logs=[LogEntry(timestamp=l["timestamp"], message=l["message"]) for l in output.logs_error],
-        all_cases=[
-            CaseInfo(
-                group=row["Group"],
-                path=row["Path"],
-                case=row["TestCase"],
-                implemented=row["Implemented"],
-            )
-            for row in df_all_cases.iter_rows(named=True)
-        ],
-        coverage_map=[
-            CoverageMapping(
-                group=row["Group"],
-                case=row["CaseCoverage"],
-                scenario_count=df_all_scenarios.filter(
-                    (pl.col("Group") == row["Group"]) & (pl.col("CaseCoverage") == row["CaseCoverage"])
-                ).height,
-            )
-            for row in df_all_scenarios.iter_rows(named=True)
-        ],
-    )
+        results = CovernatorResults(
+            stats=CoverageStats(
+                total_cases=df_all_cases.height,
+                total_scenarios=len(seen_scenarios),
+                total_groups=len(seen_groups),
+            ),
+            info_logs=[
+                LogEntry(timestamp=log_entry["timestamp"], message=log_entry["message"])
+                for log_entry in output.logs_info
+            ],
+            error_logs=[
+                LogEntry(timestamp=log_entry["timestamp"], message=log_entry["message"])
+                for log_entry in output.logs_error
+            ],
+            all_cases=[
+                CaseInfo(
+                    group=row["Group"],
+                    path=row["Path"],
+                    case=row["TestCase"],
+                    implemented=row["Implemented"],
+                )
+                for row in df_all_cases.iter_rows(named=True)
+            ],
+            coverage_map=[
+                CoverageMapping(
+                    group=row["Group"],
+                    case=row["CaseCoverage"],
+                    scenario_count=df_all_scenarios.filter(
+                        (pl.col("Group") == row["Group"]) & (pl.col("CaseCoverage") == row["CaseCoverage"])
+                    ).height,
+                )
+                for row in df_all_scenarios.iter_rows(named=True)
+            ],
+        )
 
     return results
