@@ -118,22 +118,19 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # --- Group-specific errors ---
+        # --- Group-specific errors (robust, tag-baseret) ---
         errors = []
         for e in results.error_logs:
-            tags = extract_bracket_tags(e.message)
-            # ✅ Use tag-based detection (handles both [net_consumption_group_6] and [geh_calculated_measurements/net_consumption_group_6])
+            tags = extract_bracket_tags(e.message)  # fx ["error", "net_consumption_group_6"]
             if any(
-                g in tags
-                for g in [group_normalized, group_key_normalized, f"geh_calculated_measurements/{group_key_normalized}"]
+                t in tags
+                for t in (
+                    group_normalized,  # "geh_calculated_measurements/net_consumption_group_6"
+                    group_key_normalized,  # "net_consumption_group_6"
+                    f"geh_calculated_measurements/{group_key_normalized}",
+                )
             ):
                 errors.append(e.message)
-
-        if errors:
-            output.append(f"### ❌ {group_title} Coverage Errors")
-            for err in errors:
-                output.append(f"- {err}")
-            output.append("")
 
     # ==========================================================
     # === Global logs ==========================================
@@ -156,12 +153,16 @@ def generate_markdown_from_results(
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
     # --- Collect errors not matched to any known group ---
-    known_groups = {case.group.strip().lower() for case in results.all_cases}
-    other_errors = []
+    known_groups_full = {case.group.strip().lower() for case in results.all_cases}
+    known_groups_short = {g.split("/", 1)[-1] for g in known_groups_full}  # fx "net_consumption_group_6"
 
+    other_errors = []
     for err in results.error_logs:
         tags = extract_bracket_tags(err.message)
-        if not any(g in tags or f"geh_calculated_measurements/{g}" in tags for g in known_groups):
+        is_group_tag = any(
+            t in tags or f"geh_calculated_measurements/{t}" in tags for t in (known_groups_full | known_groups_short)
+        )
+        if not is_group_tag:
             other_errors.append(err.message)
 
     if other_errors:
