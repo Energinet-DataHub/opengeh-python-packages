@@ -217,7 +217,6 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     output = OutputManager(folder_to_save_files_in)
     output.log("📣 run_covernator() started!", level=LogLevel.INFO)
 
-    stats = {"total_cases": 0, "total_scenarios": 0, "total_groups": 0}
     all_cases, all_scenarios = [], []
     seen_groups, seen_scenarios, logged_messages = set(), set(), set()
 
