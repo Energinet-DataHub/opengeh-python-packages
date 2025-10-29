@@ -1,3 +1,4 @@
+from collections.abc import Set
 from pathlib import Path
 
 from geh_common.testing.covernator.commands import run_covernator
@@ -28,9 +29,9 @@ def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[CovernatorResul
 
 def assert_log_messages(
     logs: dict,
-    expected_errors: set[str] = None,
-    expected_infos: set[str] = None,
-):
+    expected_errors: Set[str] | None = None,
+    expected_infos: Set[str] | None = None,
+) -> None:
     """Asserts the correctness of log messages."""
     if expected_errors is not None:
         actual_errors = {entry["message"] for entry in logs.get("error", [])}

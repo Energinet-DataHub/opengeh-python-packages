@@ -8,7 +8,6 @@ import polars as pl
 import yaml
 
 from geh_common.testing.covernator.models import CaseInfo, CoverageMapping, CoverageStats, CovernatorResults, LogEntry
-from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
 # =====================================================================
@@ -108,34 +107,71 @@ class DuplicateKeyLoader(yaml.SafeLoader):
         return mapping
 
 
-def load_yaml_with_duplicates(path: Path, output: OutputManager, group=None, scenario=None):
-    # UP015 fix reversed; "r" is needed for clarity when reading YAML.
+def load_yaml_with_duplicates(path: Path, output: OutputManager, group: str | None = None, scenario: str | None = None):
+    """Load YAML while detecting duplicate keys, logging them via OutputManager."""
+
+    class _DuplicateKeyLoader(DuplicateKeyLoader):  # type: ignore[misc]
+        def __init__(self, stream):
+            super().__init__(stream, group=group, scenario=scenario, output=output)
+
     with open(path, encoding="utf-8") as f:
-        return yaml.load(f, Loader=lambda stream: DuplicateKeyLoader(stream, group, scenario, output))
+        # Pass the Loader *type*, not a callable
+        return yaml.load(f, Loader=_DuplicateKeyLoader)
 
 
 # =====================================================================
 # === Case Extraction =================================================
 # =====================================================================
+
+
 def _get_case_rows_from_main_yaml(
-    main_yaml_content: Dict[str, Dict | bool], prefix: str = "", group: str | None = None
-) -> List[CaseRow]:
-    case_rows: List[CaseRow] = []
+    main_yaml_content: Dict[str, Dict | bool],
+    prefix: str = "",
+    group: str | None = None,
+) -> List[CaseInfo]:
+    """Recursively parse the master all_cases.yml structure and produce a flat list of CaseInfo entries.
+
+    Each CaseInfo represents a single testable case (leaf node).
+    """
+    case_rows: List[CaseInfo] = []
+
+    # Ensure group is always a string (for CaseInfo typing)
+    safe_group = group or ""
+
     for scenario, content in main_yaml_content.items():
+        # If the node value is a boolean, it's a leaf case definition
         if isinstance(content, bool):
-            case_rows.append(CaseRow(path=f"{prefix}", case=scenario, implemented=content, group=group))
+            case_rows.append(
+                CaseInfo(
+                    path=prefix.strip(),
+                    case=scenario.strip(),
+                    implemented=content,
+                    group=safe_group,  # ✅ always a string now
+                )
+            )
         elif isinstance(content, dict):
             new_prefix = f"{prefix} / {scenario}" if prefix else scenario
-            case_rows.extend(_get_case_rows_from_main_yaml(content, prefix=new_prefix, group=group))
+            case_rows.extend(
+                _get_case_rows_from_main_yaml(
+                    main_yaml_content=content,
+                    prefix=new_prefix,
+                    group=group,  # still allowed as None; inner call normalizes too
+                )
+            )
+
     return case_rows
 
 
 def find_all_cases(
-    main_yaml_path: Path, output: OutputManager | None = None, group: str | None = None
-) -> List[CaseRow]:
+    main_yaml_path: Path,
+    output: "OutputManager | None" = None,
+    group: str | None = None,
+) -> List[CaseInfo]:
+    """Load all test case entries from a YAML file into a list of CaseInfo objects."""
     if not main_yaml_path.exists():
         raise FileNotFoundError(f"File {main_yaml_path} does not exist.")
 
+    # Load YAML content (with or without duplicate-handling)
     if output:
         main_yaml_content = load_yaml_with_duplicates(main_yaml_path, output=output, group=group)
     else:
@@ -144,35 +180,52 @@ def find_all_cases(
 
     if not isinstance(main_yaml_content, dict):
         return []
+
     return _get_case_rows_from_main_yaml(main_yaml_content, group=group)
 
 
 # =====================================================================
 # === Scenario Extraction =============================================
 # =====================================================================
+
+
 def _get_scenario_source_name_from_path(path: Path, feature_folder_name: Path) -> str:
+    """Return the relative source name of a scenario file within its feature folder."""
     return str(path.relative_to(feature_folder_name).parent)
 
 
 def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], str]]:
+    """Recursively extract case names from a nested 'cases_tested' structure."""
     if parents is None:
         parents = []
+
     if isinstance(content, dict):
         results = []
         for key, value in content.items():
             results.extend(_get_scenarios_cases_tested(value, parents + [key]))
         return results
-    elif isinstance(content, list):
+
+    if isinstance(content, list):
         results = []
         for case in content:
             results.extend(_get_scenarios_cases_tested(case, parents))
         return results
-    return [(parents, content)]
+
+    # Base case: content is a leaf string
+    return [(parents, str(content))]
 
 
-def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> List[ScenarioRow]:
-    coverage_by_scenario: List[ScenarioRow] = []
-    errors = []
+def find_all_scenarios(
+    base_path: Path,
+    output: "OutputManager | None" = None,
+) -> List[CoverageMapping]:
+    """Find all scenario test coverage mappings recursively under base_path.
+
+    Each 'coverage_mapping.yml' file contributes one or more CoverageMapping entries,
+    linking a test group and a case to a scenario path.
+    """
+    coverage_by_scenario: List[CoverageMapping] = []
+    errors: List[str] = []
 
     for path in base_path.rglob("coverage_mapping.yml"):
         try:
@@ -183,21 +236,30 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
             else:
                 with open(path, encoding="utf-8") as f:
                     coverage_mapping = yaml.safe_load(f)
-            cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping is not None else None
+
+            cases_tested_content = coverage_mapping.get("cases_tested") if coverage_mapping else None
             if cases_tested_content is None:
                 if output:
                     output.log(
-                        f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.", level=LogLevel.ERROR
+                        f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.",
+                        level=LogLevel.ERROR,
                     )
                 continue
 
             cases_tested = _get_scenarios_cases_tested(cases_tested_content)
-            coverage_by_scenario.append(
-                ScenarioRow(
-                    source=_get_scenario_source_name_from_path(path, base_path),
-                    cases_tested=[case for _, case in cases_tested],
+            scenario_source = _get_scenario_source_name_from_path(path, base_path)
+            group_name = base_path.name.strip().lower()
+
+            # Convert cases to CoverageMapping entries
+            for _, case_name in cases_tested:
+                coverage_by_scenario.append(
+                    CoverageMapping(
+                        group=group_name,
+                        case=case_name.strip(),
+                        scenario=scenario_source,
+                    )
                 )
-            )
+
         except yaml.YAMLError:
             if output:
                 output.log(f"[ERROR] Invalid yaml file '{path}' (YAMLError)", level=LogLevel.ERROR)
@@ -205,7 +267,7 @@ def find_all_scenarios(base_path: Path, output: OutputManager | None = None) -> 
             errors.append(f"{path}: {exc}")
 
     if errors and output:
-        output.log(f"[ERROR] Errors while parsing scenarios: {errors}")
+        output.log(f"[ERROR] Errors while parsing scenarios: {errors}", level=LogLevel.ERROR)
 
     return coverage_by_scenario
 
@@ -305,11 +367,10 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
             all_scenarios.extend(
                 {
                     "Group": key,
-                    "Scenario": s.source,
-                    "CaseCoverage": case,
+                    "Scenario": s.scenario,
+                    "CaseCoverage": s.case,
                 }
                 for s in group_scenarios
-                for case in s.cases_tested
             )
 
     df_all_cases = (
