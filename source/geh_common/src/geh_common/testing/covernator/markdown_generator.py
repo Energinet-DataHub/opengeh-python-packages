@@ -105,16 +105,10 @@ def generate_markdown_from_results(
 
         logger.debug("🧩 [DEBUG] Processing group: %s (%s)", group, group_key_normalized)
 
-        # Determine if group has any errors (for header emoji)
-        header_emoji = "📁"
-        for e in results.error_logs:
-            tags = extract_bracket_tags(e.message)
-            if any(
-                g in tags
-                for g in [group_normalized, group_key_normalized, f"geh_calculated_measurements/{group_key_normalized}"]
-            ):
-                header_emoji = "🚨"
-                break
+        # Determine if this specific group has any related errors
+        group_id = group_key_normalized.replace(" ", "_")
+        has_error = any(group_id in e.message for e in results.error_logs)
+        header_emoji = "🚨" if has_error else "📁"
 
         output.append(f"## {header_emoji} {group_title}")
         output.append("### Case overview")
