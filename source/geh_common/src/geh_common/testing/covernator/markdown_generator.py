@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
@@ -89,10 +90,16 @@ def generate_markdown_from_results(
         output.append("")
 
         # Group-specific errors
-        import re
+        # Match logs like:
+        # [geh_calculated_measurements/net_consumption_group_6]
+        # or [net_consumption_group_6]
+        group_pattern = re.compile(
+            rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group_key)}\]",
+            re.IGNORECASE,
+        )
 
-        group_pattern = re.compile(rf"\[(?:geh_[a-z_]+/)?{re.escape(group_key)}\]", re.IGNORECASE)
         errors = [e.message for e in results.error_logs if group_pattern.search(e.message)]
+
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
             for err in errors:
