@@ -27,7 +27,12 @@ def group_cases_by_group(cases: List[CaseInfo]) -> Dict[str, List[CaseInfo]]:
 
 
 def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
-    return {(entry.group.lower().strip(), entry.case.lower().strip()): entry.scenario_count for entry in coverage_map}
+    """Groups CoverageMapping entries by (group, case), and counts unique scenarios."""
+    coverage_dict = defaultdict(set)
+    for entry in coverage_map:
+        key = (entry.group.lower().strip(), entry.case.lower().strip())
+        coverage_dict[key].add(entry.scenario.strip().lower())
+    return {k: len(v) for k, v in coverage_dict.items()}
 
 
 def generate_markdown_from_results(
@@ -70,7 +75,13 @@ def generate_markdown_from_results(
             coverage_dict[key].add(entry.scenario.strip().lower())
         return {k: len(v) for k, v in coverage_dict.items()}
 
-    grouped_cases = group_cases_by_group(results.all_cases)
+    # instantiate the dict before iterating groups
+    coverage_dict = get_coverage_dict(results.coverage_map)
+
+    # Group cases by group only
+    grouped_cases = defaultdict(list)
+    for (group, case), count in coverage_dict.items():
+        grouped_cases[group].append((case, count))
 
     for group, cases in grouped_cases.items():
         group_title = normalize_group_name(group, group_prefix)
