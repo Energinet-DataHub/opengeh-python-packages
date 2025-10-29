@@ -81,7 +81,7 @@ def generate_markdown_from_results(
             case_key = (case.group.strip().lower(), case.case.strip().lower())
             covered = coverage_dict.get(case_key, 0)
             covered_icon = "✅" if covered > 0 else "⚠️"
-            impl_icon = "🧹" if case.implemented else "⚠️"
+            impl_icon = "🧩" if case.implemented else "⚠️"
             output.append(
                 f"| {case.path.strip()} | {case.case.strip()} | {impl_icon} {str(case.implemented)} | {covered_icon} {covered} |"
             )
@@ -89,7 +89,10 @@ def generate_markdown_from_results(
         output.append("")
 
         # Group-specific errors
-        errors = [e.message for e in results.error_logs if f"[{group_key}]" in e.message]
+        import re
+
+        group_pattern = re.compile(rf"\[(?:geh_[a-z_]+/)?{re.escape(group_key)}\]", re.IGNORECASE)
+        errors = [e.message for e in results.error_logs if group_pattern.search(e.message)]
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
             for err in errors:
