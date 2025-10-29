@@ -82,10 +82,23 @@ def generate_markdown_from_results(
         group_title = normalize_group_name(group, group_prefix)
         group_key = group[len(group_prefix) :] if group.startswith(group_prefix) else group
 
-        # Emoji based on errors
-        header_emoji = "🚨" if any(group_key in e.message for e in results.error_logs) else "📁"
-        output.append(f"## {header_emoji} {group_title}")
+        # Normalize group identifiers for comparison
+        group_normalized = group.strip().lower()
+        group_key_normalized = group_key.strip().lower()
 
+        # Emoji based on whether group has errors
+        header_emoji = "📁"
+        for e in results.error_logs:
+            msg_lower = e.message.lower()
+            if (
+                f"[{group_normalized}]" in msg_lower
+                or f"[{group_key_normalized}]" in msg_lower
+                or f"/{group_key_normalized}]" in msg_lower
+            ):
+                header_emoji = "🚨"
+                break
+
+        output.append(f"## {header_emoji} {group_title}")
         output.append("### Case overview")
         output.append("| Path | Case | Implemented | Covered by # scenarios |")
         output.append("|----------|-----------|-------------|-------------|")
@@ -101,19 +114,15 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # Group-specific errors (robust tag matching)
-        group_normalized = group.strip().lower()
-        group_key_normalized = group_key.strip().lower()
-
+        # --- Group-specific errors (robust matching) ---
         errors = []
         for e in results.error_logs:
-            tags = extract_bracket_tags(e.message)
-            if any(
-                tag == group_normalized
-                or tag == group_key_normalized
-                or tag.endswith(f"/{group_key_normalized}")
-                or tag.endswith(f"/{group_normalized}")
-                for tag in tags
+            msg_lower = e.message.lower()
+            if (
+                f"[{group_normalized}]" in msg_lower
+                or f"[{group_key_normalized}]" in msg_lower
+                or f"/{group_key_normalized}]" in msg_lower
+                or f"/{group_normalized}]" in msg_lower
             ):
                 errors.append(e.message)
 
@@ -123,7 +132,7 @@ def generate_markdown_from_results(
                 output.append(f"- {err}")
             output.append("")
 
-    # Global Logs (only once, after all groups)
+    # --- Global Logs (only once, after all groups) ---
     output.extend(
         [
             "# 📟 Logs",
@@ -131,6 +140,7 @@ def generate_markdown_from_results(
             "## 📣 Info Logs",
         ]
     )
+
     if results.info_logs:
         for log in results.info_logs:
             output.append(f"- {log.message}")
@@ -140,23 +150,16 @@ def generate_markdown_from_results(
     output.append("")
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
-    # Build set of known groups
+    # --- Collect errors not matched to any known group ---
     known_groups = {case.group.strip().lower() for case in results.all_cases}
-
-    # Compile patterns for all handled groups
-    known_group_patterns = [
-        re.compile(
-            rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group.split('/')[-1])}\]",
-            re.IGNORECASE,
-        )
-        for group in known_groups
-    ]
-
-    # Collect unmatched errors
     other_errors = []
+
     for err in results.error_logs:
-        if not any(p.search(err.message) for p in known_group_patterns):
-            other_errors.append(err.message)
+        msg_lower = err.message.lower()
+        # Skip any error already matched by group-level detection
+        if any(f"[{g}]" in msg_lower or f"/{g}]" in msg_lower for g in known_groups):
+            continue
+        other_errors.append(err.message)
 
     if other_errors:
         for err in other_errors:
@@ -164,6 +167,6 @@ def generate_markdown_from_results(
     else:
         output.append("_No other errors_")
 
-    # Final write
+    # --- Final write ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
