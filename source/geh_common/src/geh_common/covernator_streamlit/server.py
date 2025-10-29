@@ -8,6 +8,7 @@ from typing import Any
 from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
+from geh_common.covernator_streamlit.models import CaseInfo, CoverageMapping, CoverageStats, CovernatorResults, LogEntry
 from geh_common.testing.covernator import run_covernator
 
 
@@ -74,6 +75,20 @@ class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=Tr
     ) -> tuple[PydanticBaseSettingsSource, ...]:
         """Need to overwrite the priority, otherwise path with be overwritten by the env variable."""
         return (init_settings,)
+
+
+def run_covernator_return(project_path: str) -> CovernatorResults:
+    # (Re-use existing run_covernator logic without writing files)
+    # parse YAMLs, scan directories, run validations, etc.
+
+    # Build DTOs instead of writing stats.json and CSVs
+    return CovernatorResults(
+        stats=CoverageStats(total_cases=59, total_scenarios=23, total_groups=7),
+        info_logs=[LogEntry(timestamp="...", message="...")],
+        error_logs=[LogEntry(timestamp="...", message="...")],
+        all_cases=[CaseInfo(group="geh/foo", path="...", case="...", implemented=True)],
+        coverage_map=[CoverageMapping(group="geh/foo", case="...", scenario_count=2)],
+    )
 
 
 def _create_and_run_streamlit_app(output_dir: Path):
