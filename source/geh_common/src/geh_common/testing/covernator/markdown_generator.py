@@ -123,25 +123,29 @@ def generate_markdown_from_results(
 
         # --- Group-specific errors ---
         errors = []
+
+        # Define equivalent name forms for matching
+        all_group_aliases = {
+            group_normalized,
+            group_key_normalized,
+            f"geh_calculated_measurements/{group_key_normalized}",
+            f"calculated_measurements/{group_key_normalized}",
+            group_key_normalized.split("/")[-1],  # <— plain short version
+        }
+
+        print(f"   [DEBUG] Alias set for {group}: {all_group_aliases}")
+
         for e in results.error_logs:
             tags = extract_bracket_tags(e.message)
-            # 🔧 Debug log for tag inspection
             if tags:
                 print(f"   [DEBUG] Tags in '{e.message[:60]}...': {tags}")
 
-            # Allow both full + short name matching, and prefix-missing fallback
-            if any(
-                t == group_normalized
-                or t == group_key_normalized
-                or t.endswith(f"/{group_key_normalized}")
-                or t.endswith(f"/{group_normalized}")
-                or t == f"geh_calculated_measurements/{group_key_normalized}"
-                for t in tags
-            ):
+            # Check intersection of tags with aliases
+            if any(tag in all_group_aliases for tag in tags):
                 errors.append(e.message)
                 print(f"✅ [DEBUG] Matched error for {group}: {e.message}")
 
-        # ✅ Print group error section
+        # ✅ Output errors under the group
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
             for err in errors:
