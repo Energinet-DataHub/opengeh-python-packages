@@ -52,6 +52,7 @@ def generate_markdown_from_results(
     group_prefix: str = "geh_",
 ):
     output = []
+    print("🔧 [DEBUG] Markdown generation started")
 
     # --- Header ---
     normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
@@ -91,6 +92,8 @@ def generate_markdown_from_results(
         group_normalized = group.strip().lower()
         group_key_normalized = group_key.strip().lower()
 
+        print(f"🧩 [DEBUG] Processing group: {group} ({group_key_normalized})")
+
         # Determine if group has any errors
         header_emoji = "📁"
         for e in results.error_logs:
@@ -118,19 +121,29 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # --- Group-specific errors (robust, tag-baseret) ---
+        # --- Group-specific errors ---
         errors = []
         for e in results.error_logs:
-            tags = extract_bracket_tags(e.message)  # fx ["error", "net_consumption_group_6"]
+            tags = extract_bracket_tags(e.message)
             if any(
                 t in tags
                 for t in (
-                    group_normalized,  # "geh_calculated_measurements/net_consumption_group_6"
-                    group_key_normalized,  # "net_consumption_group_6"
+                    group_normalized,
+                    group_key_normalized,
                     f"geh_calculated_measurements/{group_key_normalized}",
                 )
             ):
                 errors.append(e.message)
+                print(f"✅ [DEBUG] Matched error for {group}: {e.message}")
+
+        # ✅ FIX: Append errors to output
+        if errors:
+            output.append(f"### ❌ {group_title} Coverage Errors")
+            for err in errors:
+                output.append(f"- {err}")
+            output.append("")
+        else:
+            print(f"⚠️ [DEBUG] No errors found for {group}")
 
     # ==========================================================
     # === Global logs ==========================================
@@ -154,7 +167,7 @@ def generate_markdown_from_results(
 
     # --- Collect errors not matched to any known group ---
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
-    known_groups_short = {g.split("/", 1)[-1] for g in known_groups_full}  # fx "net_consumption_group_6"
+    known_groups_short = {g.split("/", 1)[-1] for g in known_groups_full}
 
     other_errors = []
     for err in results.error_logs:
@@ -174,3 +187,5 @@ def generate_markdown_from_results(
     # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
+
+    print("✅ [DEBUG] Markdown generation completed successfully.")
