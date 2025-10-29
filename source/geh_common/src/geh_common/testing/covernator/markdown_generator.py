@@ -109,8 +109,11 @@ def generate_markdown_from_results(
         header_emoji = "📁"
         for e in results.error_logs:
             tags = extract_bracket_tags(e.message)
-            # Normalize tags and candidate group names for robust comparison
             normalized_tags = {t.replace(" ", "_") for t in tags} | {t.replace("_", " ") for t in tags}
+
+            short_name = group_key_normalized.split("/")[-1]
+            short_variants = {short_name, short_name.replace("_", " "), short_name.replace(" ", "_")}
+
             candidate_names = {
                 group_normalized,
                 group_normalized.replace("_", " "),
@@ -120,7 +123,9 @@ def generate_markdown_from_results(
                 group_key_normalized.replace(" ", "_"),
                 f"geh_calculated_measurements/{group_key_normalized}",
                 f"calculated_measurements/{group_key_normalized}",
+                *short_variants,  # <-- vigtig til [electrical_heating]
             }
+
             if normalized_tags & candidate_names:
                 header_emoji = "🚨"
                 break
