@@ -8,8 +8,8 @@ from typing import Any
 from pydantic import AliasChoices, Field, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource
 
-from geh_common.testing.covernator.models import CaseInfo, CoverageMapping, CoverageStats, CovernatorResults, LogEntry
 from geh_common.testing.covernator import run_covernator
+from geh_common.testing.covernator.models import CaseInfo, CoverageMapping, CoverageStats, CovernatorResults, LogEntry
 
 
 class CovernatorCliSettings(BaseSettings, cli_parse_args=True, cli_kebab_case=True, cli_implicit_flags=True):

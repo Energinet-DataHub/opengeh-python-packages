@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 import polars as pl
 import yaml
 
+from geh_common.testing.covernator.models import CaseInfo, CoverageMapping, CoverageStats, CovernatorResults, LogEntry
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
@@ -381,24 +382,33 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 output.log(msg, level=LogLevel.ERROR)
                 logged_messages.add(msg)
 
-    # Export
-    output.write_csv(
-        "all_cases.csv",
-        df_all_cases.select(["Group", "Path", "TestCase", "Implemented"])
-        if df_all_cases.height > 0
-        else pl.DataFrame(schema={"Group": str, "Path": str, "TestCase": str, "Implemented": bool}),
-    )
-    output.write_csv(
-        "case_coverage.csv",
-        df_all_scenarios.select(["Group", "Scenario", "CaseCoverage"])
-        if df_all_scenarios.height > 0
-        else pl.DataFrame(schema={"Group": str, "Scenario": str, "CaseCoverage": str}),
+    results = CovernatorResults(
+        stats=CoverageStats(
+            total_cases=df_all_cases.height,
+            total_scenarios=len(seen_scenarios),
+            total_groups=len(seen_groups),
+        ),
+        info_logs=[LogEntry(timestamp=l["timestamp"], message=l["message"]) for l in output.logs_info],
+        error_logs=[LogEntry(timestamp=l["timestamp"], message=l["message"]) for l in output.logs_error],
+        all_cases=[
+            CaseInfo(
+                group=row["Group"],
+                path=row["Path"],
+                case=row["TestCase"],
+                implemented=row["Implemented"],
+            )
+            for row in df_all_cases.iter_rows(named=True)
+        ],
+        coverage_map=[
+            CoverageMapping(
+                group=row["Group"],
+                case=row["CaseCoverage"],
+                scenario_count=df_all_scenarios.filter(
+                    (pl.col("Group") == row["Group"]) & (pl.col("CaseCoverage") == row["CaseCoverage"])
+                ).height,
+            )
+            for row in df_all_scenarios.iter_rows(named=True)
+        ],
     )
 
-    stats = {
-        "total_cases": df_all_cases.height,
-        "total_scenarios": len(seen_scenarios),
-        "total_groups": len(seen_groups),
-    }
-
-    output.finalize(stats)
+    return results
