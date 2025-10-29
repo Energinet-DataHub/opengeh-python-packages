@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
@@ -62,7 +63,12 @@ def generate_markdown_from_results(
     )
 
     # Mapping: (group, case) -> scenario count
-    coverage_dict = get_coverage_dict(results.coverage_map)
+    def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
+        coverage_dict = defaultdict(set)
+        for entry in coverage_map:
+            key = (entry.group.lower().strip(), entry.case.lower().strip())
+            coverage_dict[key].add(entry.scenario.strip().lower())
+        return {k: len(v) for k, v in coverage_dict.items()}
 
     grouped_cases = group_cases_by_group(results.all_cases)
 
