@@ -27,12 +27,17 @@ def group_cases_by_group(cases: List[CaseInfo]) -> Dict[str, List[CaseInfo]]:
 
 
 def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
-    """Group CoverageMapping entries by (group, case), and counts unique scenarios."""
+    """Group CoverageMapping entries by (group, case), and count unique scenarios."""
     coverage_dict = defaultdict(set)
     for entry in coverage_map:
         key = (entry.group.lower().strip(), entry.case.lower().strip())
         coverage_dict[key].add(entry.scenario.strip().lower())
     return {k: len(v) for k, v in coverage_dict.items()}
+
+
+def extract_bracket_tags(msg: str) -> list[str]:
+    """Extract all bracketed tags from log messages."""
+    return [m.group(1).strip().lower() for m in re.finditer(r"\[([^\[\]]+)\]", msg)]
 
 
 def generate_markdown_from_results(
@@ -96,21 +101,21 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # Group-specific errors using bracket tag extraction
-        def extract_bracket_tags(msg: str) -> list[str]:
-            return [m.group(1).strip().lower() for m in re.finditer(r"\[([^\[\]]+)\]", msg)]
-
+        # Group-specific errors (robust tag matching)
         group_normalized = group.strip().lower()
         group_key_normalized = group_key.strip().lower()
 
-        errors = [
-            e.message
-            for e in results.error_logs
+        errors = []
+        for e in results.error_logs:
+            tags = extract_bracket_tags(e.message)
             if any(
-                tag == group_normalized or tag == group_key_normalized or tag.endswith(f"/{group_key_normalized}")
-                for tag in extract_bracket_tags(e.message)
-            )
-        ]
+                tag == group_normalized
+                or tag == group_key_normalized
+                or tag.endswith(f"/{group_key_normalized}")
+                or tag.endswith(f"/{group_normalized}")
+                for tag in tags
+            ):
+                errors.append(e.message)
 
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
@@ -136,7 +141,7 @@ def generate_markdown_from_results(
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
     # Build set of known groups
-    known_groups = {case.group.strip() for case in results.all_cases}
+    known_groups = {case.group.strip().lower() for case in results.all_cases}
 
     # Compile patterns for all handled groups
     known_group_patterns = [
