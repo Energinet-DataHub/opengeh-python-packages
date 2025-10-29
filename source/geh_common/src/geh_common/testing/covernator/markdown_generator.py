@@ -97,12 +97,13 @@ def generate_markdown_from_results(
         output.append("")
 
         # Group-specific errors
-        group_pattern = re.compile(
-            rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group_key)}\]",
-            re.IGNORECASE,
-        )
+        group_patterns = [
+            re.compile(rf"\[{re.escape(group)}\]", re.IGNORECASE),
+            re.compile(rf"\[{re.escape(group_key)}\]", re.IGNORECASE),
+            re.compile(rf"\[(?:[a-z_]+/)?{re.escape(group_key)}\]", re.IGNORECASE),
+        ]
 
-        errors = [e.message for e in results.error_logs if group_pattern.search(e.message)]
+        errors = [e.message for e in results.error_logs if any(p.search(e.message) for p in group_patterns)]
 
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
