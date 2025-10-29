@@ -1,114 +1,123 @@
-import zoneinfo
-from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
+from typing import Dict, List
 
-from geh_common.testing.covernator.models import CovernatorResults
+from geh_common.testing.covernator.models import (
+    CaseInfo,
+    CoverageMapping,
+    CovernatorResults,
+)
 
 
-def normalize_group_name(raw: str, prefix: str = "") -> str:
-    clean = raw
+def normalize_group_name(raw: str, prefix: str = "geh_") -> str:
     if prefix and raw.startswith(prefix):
-        clean = raw[len(prefix) :]
-    clean = clean.replace("_", " ")
-    return " ".join(word.capitalize() for word in clean.split())
+        raw = raw[len(prefix) :]
+    raw = raw.replace("_", " ").strip()
+    return " ".join(word.capitalize() for word in raw.split())
 
 
-def generate_markdown_from_results(results: CovernatorResults, output_path: Path, group_prefix: str = "geh_"):
-    output_lines = []
-    tz = zoneinfo.ZoneInfo("Europe/Copenhagen")
-    now_cet = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S %Z")
-    subsystem_display = normalize_group_name(group_prefix.rstrip("/"), "")
+def group_cases_by_group(cases: List[CaseInfo]) -> Dict[str, List[CaseInfo]]:
+    grouped = {}
+    for case in cases:
+        group = case.group.strip()
+        grouped.setdefault(group, []).append(case)
+    return grouped
 
-    # Header
-    output_lines.append(f"# 🧩 Covernator Coverage Overview for {subsystem_display}\n")
-    output_lines.append(f"Generated: {now_cet}\n")
 
-    # Summary
-    output_lines.append("## 📊 Summary")
-    output_lines.append("| Metric | Value |")
-    output_lines.append("|--------|--------|")
-    output_lines.append(f"| 🧾 Total Cases | {results.stats.total_cases} |")
-    output_lines.append(f"| 🧠 Total Scenarios | {results.stats.total_scenarios} |")
-    output_lines.append(f"| 🗂️ Total Groups | {results.stats.total_groups} |")
+def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
+    return {(entry.group.lower().strip(), entry.case.lower().strip()): entry.scenario_count for entry in coverage_map}
 
-    implemented = sum(1 for case in results.all_cases if case.implemented)
-    total_csv_cases = len(results.all_cases)
-    if total_csv_cases > 0:
-        coverage_pct = round((implemented / total_csv_cases) * 100, 1)
-    else:
-        coverage_pct = 0.0
-    output_lines.append(f"| ⚙️ Implemented Cases | {implemented} / {total_csv_cases} ({coverage_pct}%) |")
-    output_lines.append("")
 
-    # Coverage mapping: (group, case) -> scenario count
-    coverage_counts = defaultdict(int)
-    for m in results.coverage_map:
-        coverage_counts[(m.group.lower(), m.case.lower())] += m.scenario_count
+def generate_markdown_from_results(
+    results: CovernatorResults,
+    output_path: Path,
+    group_prefix: str = "geh_",
+):
+    output = []
 
-    # Errors per group
-    group_errors = defaultdict(list)
-    other_errors = []
-    known_groups = {case.group for case in results.all_cases}
+    # H1 Header
+    normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
+    output.append(f"# 🔩 Covernator Coverage Overview for {normalized_prefix}\n")
 
-    for err in results.error_logs:
-        matched = False
-        for group in known_groups:
-            if f"[{group}]" in err.message:
-                short_group = group[len(group_prefix) :] if group.startswith(group_prefix) else group
-                group_errors[short_group].append(f"- {err.message}")
-                matched = True
-                break
-        if not matched:
-            other_errors.append(f"- {err.message}")
+    now = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
+    output.append(f"Generated: {now}\n")
 
-    # Sort by group name
-    groups_sorted = sorted({case.group for case in results.all_cases})
-    for grp in groups_sorted:
-        group_display = normalize_group_name(grp, group_prefix)
-        short_group = grp[len(group_prefix) :] if grp.startswith(group_prefix) else grp
+    # Summary Section
+    total_cases = len(results.all_cases)
+    implemented_cases = sum(1 for case in results.all_cases if case.implemented)
+    coverage_pct = f"{(implemented_cases / total_cases * 100):.1f}" if total_cases > 0 else "0.0"
 
-        if group_errors.get(short_group):
-            output_lines.append(f"## 🚨 {group_display}")
-        else:
-            output_lines.append(f"## 📁 {group_display}")
+    output.extend(
+        [
+            "\n## 📊 Summary",
+            "| Metric | Value |",
+            "|--------|--------|",
+            f"| 📟 Total Cases | {results.stats.total_cases} |",
+            f"| 🧠 Total Scenarios | {results.stats.total_scenarios} |",
+            f"| 💂️ Total Groups | {results.stats.total_groups} |",
+            f"| ⚙️ Implemented Cases | {implemented_cases} / {total_cases} ({coverage_pct}%) |",
+            "",
+        ]
+    )
 
-        output_lines.append("### Case overview")
-        output_lines.append("| Path | Case | Implemented | Covered by # scenarios |")
-        output_lines.append("|----------|-----------|-------------|-------------|")
+    # Mapping: (group, case) -> scenario count
+    coverage_dict = get_coverage_dict(results.coverage_map)
 
-        for case in results.all_cases:
-            if case.group != grp:
-                continue
-            key = (case.group.lower(), case.case.lower())
-            covered = coverage_counts.get(key, 0)
+    grouped_cases = group_cases_by_group(results.all_cases)
 
-            emoji = "⚠️" if covered == 0 else "✅"
-            impl_icon = "🧩" if case.implemented else "⚠️"
-            output_lines.append(f"| {case.path} | {case.case} | {impl_icon} {case.implemented} | {emoji} {covered} |")
+    for group, cases in grouped_cases.items():
+        group_title = normalize_group_name(group, group_prefix)
+        group_key = group[len(group_prefix) :] if group.startswith(group_prefix) else group
 
-        output_lines.append("")  # spacing
+        # Emoji based on errors
+        header_emoji = "🚨" if any(group_key in e.message for e in results.error_logs) else "📁"
+        output.append(f"## {header_emoji} {group_title}")
 
-        if group_errors.get(short_group):
-            output_lines.append(f"### ❌ {group_display} Coverage Errors")
-            output_lines.extend(group_errors[short_group])
-            output_lines.append("")
+        output.append("### Case overview")
+        output.append("| Path | Case | Implemented | Covered by # scenarios |")
+        output.append("|----------|-----------|-------------|-------------|")
 
-    # Logs section
-    output_lines.append("# 🧾 Logs")
-    output_lines.append("")
-    output_lines.append("## 📣 Info Logs")
+        for case in cases:
+            case_key = (case.group.strip().lower(), case.case.strip().lower())
+            covered = coverage_dict.get(case_key, 0)
+            covered_icon = "✅" if covered > 0 else "⚠️"
+            impl_icon = "🧹" if case.implemented else "⚠️"
+            output.append(
+                f"| {case.path.strip()} | {case.case.strip()} | {impl_icon} {str(case.implemented)} | {covered_icon} {covered} |"
+            )
+
+        output.append("")
+
+        # Group-specific errors
+        errors = [e.message for e in results.error_logs if f"[{group_key}]" in e.message]
+        if errors:
+            output.append(f"### ❌ {group_title} Coverage Errors")
+            for err in errors:
+                output.append(f"- {err}")
+            output.append("")
+
+    # Global Logs
+    output.extend(
+        [
+            "# 📟 Logs",
+            "",
+            "## 📣 Info Logs",
+        ]
+    )
     if results.info_logs:
-        output_lines.extend(f"- {log.message}" for log in results.info_logs)
+        for log in results.info_logs:
+            output.append(f"- {log.message}")
     else:
-        output_lines.append("_No info logs_")
+        output.append("_No info logs_")
 
-    output_lines.append("")
-    output_lines.append("## ❌ Other Errors (not linked to specific groups)")
+    output.append("")
+    output.append("## ❌ Other Errors (not linked to specific groups)")
+    other_errors = [e.message for e in results.error_logs if "[geh_" not in e.message and "]" not in e.message]
     if other_errors:
-        output_lines.extend(other_errors)
+        for err in other_errors:
+            output.append(f"- {err}")
     else:
-        output_lines.append("_No other errors_")
+        output.append("_No other errors_")
 
-    output_path.write_text("\n".join(output_lines), encoding="utf-8")
-    print(f"✅ Markdown coverage overview written to: {output_path}")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(output), encoding="utf-8")
