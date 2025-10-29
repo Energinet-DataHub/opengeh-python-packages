@@ -27,7 +27,7 @@ def group_cases_by_group(cases: List[CaseInfo]) -> Dict[str, List[CaseInfo]]:
 
 
 def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
-    """Groups CoverageMapping entries by (group, case), and counts unique scenarios."""
+    """Group CoverageMapping entries by (group, case), and counts unique scenarios."""
     coverage_dict = defaultdict(set)
     for entry in coverage_map:
         key = (entry.group.lower().strip(), entry.case.lower().strip())
@@ -68,20 +68,10 @@ def generate_markdown_from_results(
     )
 
     # Mapping: (group, case) -> scenario count
-    def get_coverage_dict(coverage_map: List[CoverageMapping]) -> Dict[tuple, int]:
-        coverage_dict = defaultdict(set)
-        for entry in coverage_map:
-            key = (entry.group.lower().strip(), entry.case.lower().strip())
-            coverage_dict[key].add(entry.scenario.strip().lower())
-        return {k: len(v) for k, v in coverage_dict.items()}
-
-    # instantiate the dict before iterating groups
     coverage_dict = get_coverage_dict(results.coverage_map)
 
-    # Group cases by group only
-    grouped_cases = defaultdict(list)
-    for (group, case), count in coverage_dict.items():
-        grouped_cases[group].append((case, count))
+    # Group CaseInfo entries by group
+    grouped_cases = group_cases_by_group(results.all_cases)
 
     for group, cases in grouped_cases.items():
         group_title = normalize_group_name(group, group_prefix)
@@ -107,9 +97,6 @@ def generate_markdown_from_results(
         output.append("")
 
         # Group-specific errors
-        # Match logs like:
-        # [geh_calculated_measurements/net_consumption_group_6]
-        # or [net_consumption_group_6]
         group_pattern = re.compile(
             rf"\[(?:[a-z_]+/)?{re.escape(group)}\]|\[{re.escape(group_key)}\]",
             re.IGNORECASE,
