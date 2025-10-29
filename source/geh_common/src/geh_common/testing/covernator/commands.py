@@ -1,4 +1,5 @@
 import logging
+import os
 from datetime import datetime
 from enum import Enum, auto
 from pathlib import Path
@@ -7,6 +8,8 @@ from typing import Dict, List, Tuple
 import polars as pl
 import yaml
 
+from geh_common.covernator_streamlit.server import run_covernator_return
+from geh_common.testing.covernator.markdown_generator import generate_markdown_from_results
 from geh_common.testing.covernator.row_types import CaseRow, ScenarioRow
 
 
@@ -402,3 +405,24 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
     }
 
     output.finalize(stats)
+
+
+def run_and_generate_markdown(project_path: str, output_folder: str = "docs/covernator") -> None:
+    """Runs Covernator and writes the markdown summary to disk.
+    - project_path: where the source code/tests live (e.g. source/geh_calculated_measurements)
+    - output_folder: where output markdown should be written (default: docs/covernator)
+    """
+    print(f"🔍 Running Covernator analysis on: {project_path}")
+    results = run_covernator_return(project_path)
+
+    print(f"📁 Ensuring output folder exists: {output_folder}")
+    os.makedirs(output_folder, exist_ok=True)
+
+    output_path = os.path.join(output_folder, "coverage_overview.md")
+
+    print(f"🧾 Writing markdown to: {output_path}")
+    markdown = generate_markdown_from_results(results)
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(markdown)
+
+    print("✅ Done.")
