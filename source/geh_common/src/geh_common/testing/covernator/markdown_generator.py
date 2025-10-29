@@ -126,12 +126,20 @@ def generate_markdown_from_results(
 
     output.append("")
     output.append("## ❌ Other Errors (not linked to specific groups)")
-    other_errors = [e.message for e in results.error_logs if "[geh_" not in e.message and "]" not in e.message]
-    if other_errors:
-        for err in other_errors:
-            output.append(f"- {err}")
-    else:
-        output.append("_No other errors_")
+
+    # Build set of known groups
+    known_groups = {case.group for case in results.all_cases}
+
+    # Match bracketed group in error messages
+    other_errors = []
+    for err in results.error_logs:
+        match = re.search(r"\[([^\[\]]+)\]", err.message)
+        if match:
+            bracketed_group = match.group(1).strip()
+            if bracketed_group not in known_groups:
+                other_errors.append(err.message)
+        else:
+            other_errors.append(err.message)  # keep truly ungrouped errors
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text("\n".join(output), encoding="utf-8")
