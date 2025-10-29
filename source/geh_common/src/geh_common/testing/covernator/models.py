@@ -27,7 +27,7 @@ class CaseInfo:
 class CoverageMapping:
     group: str
     case: str
-    scenario_count: int
+    scenario: str
 
 
 @dataclass

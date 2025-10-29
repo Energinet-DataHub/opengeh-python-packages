@@ -408,9 +408,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 CoverageMapping(
                     group=row["Group"],
                     case=row["CaseCoverage"],
-                    scenario_count=df_all_scenarios.filter(
-                        (pl.col("Group") == row["Group"]) & (pl.col("CaseCoverage") == row["CaseCoverage"])
-                    ).height,
+                    scenario=row["Scenario"],  # ✅ Add per-scenario
                 )
                 for row in df_all_scenarios.iter_rows(named=True)
             ],

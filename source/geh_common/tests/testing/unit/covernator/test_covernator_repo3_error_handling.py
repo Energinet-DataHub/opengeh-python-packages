@@ -18,7 +18,7 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
     base_path = Path(__file__).parent / "test_files" / "repo3" / "geh_repo3"
     assert (base_path / "tests" / "group_x" / "coverage").exists(), "Missing coverage folder"
 
-    output_dir, stats = run_and_load_stats(base_path, tmp_path)
+    results, stats = run_and_load_stats(base_path, tmp_path)
 
     # --- Assert stats
     assert stats["total_cases"] == 18
@@ -49,8 +49,15 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
         },
     )
 
-    # --- all_cases.csv
-    df_all_cases = pl.read_csv(output_dir / "all_cases.csv")
+    # --- all cases dataframe
+    df_all_cases = pl.DataFrame([case.__dict__ for case in results.all_cases]).rename(
+        {
+            "group": "Group",
+            "path": "Path",
+            "case": "TestCase",
+            "implemented": "Implemented",
+        }
+    )
 
     # Include 'Repo 3 Tests' prefix in all expected paths
     expected_all_cases_rows = [
@@ -126,8 +133,14 @@ def test_happy_path_repo3_error_handling(tmp_path: Path):
     df_expected_all_cases = pl.DataFrame(expected_all_cases_rows)
     _assert_frames_equal(df_all_cases, df_expected_all_cases, ["Group", "Path", "TestCase"])
 
-    # --- case_coverage.csv
-    df_case_cov = pl.read_csv(output_dir / "case_coverage.csv")
+    # --- case coverage dataframe
+    df_case_cov = pl.DataFrame([cov.__dict__ for cov in results.coverage_map]).rename(
+        {
+            "group": "Group",
+            "case": "CaseCoverage",
+            "scenario": "Scenario",
+        }
+    )
 
     # Vectorized normalization
     df_case_cov = df_case_cov.with_columns(pl.col("Scenario").str.replace_all("\\\\", "/"))
