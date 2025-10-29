@@ -96,14 +96,21 @@ def generate_markdown_from_results(
 
         output.append("")
 
-        # Group-specific errors
-        group_patterns = [
-            re.compile(rf"\[{re.escape(group)}\]", re.IGNORECASE),
-            re.compile(rf"\[{re.escape(group_key)}\]", re.IGNORECASE),
-            re.compile(rf"\[(?:[a-z_]+/)?{re.escape(group_key)}\]", re.IGNORECASE),
-        ]
+        # Group-specific errors using bracket tag extraction
+        def extract_bracket_tags(msg: str) -> list[str]:
+            return [m.group(1).strip().lower() for m in re.finditer(r"\[([^\[\]]+)\]", msg)]
 
-        errors = [e.message for e in results.error_logs if any(p.search(e.message) for p in group_patterns)]
+        group_normalized = group.strip().lower()
+        group_key_normalized = group_key.strip().lower()
+
+        errors = [
+            e.message
+            for e in results.error_logs
+            if any(
+                tag == group_normalized or tag == group_key_normalized or tag.endswith(f"/{group_key_normalized}")
+                for tag in extract_bracket_tags(e.message)
+            )
+        ]
 
         if errors:
             output.append(f"### ❌ {group_title} Coverage Errors")
