@@ -94,6 +94,10 @@ def generate_markdown_from_results(
     coverage_dict = get_coverage_dict(results.coverage_map)
     grouped_cases = group_cases_by_group(results.all_cases)
 
+    # Derive domain name dynamically (e.g. "geh_wholesale" or "geh_calculated_measurements")
+    domain_name = Path(group_prefix).name if "/" in group_prefix else group_prefix.strip("_")
+    domain_short = domain_name.replace("geh_", "")
+
     # ==========================================================
     # === Per-group section ====================================
     # ==========================================================
@@ -121,9 +125,9 @@ def generate_markdown_from_results(
                 group_key_normalized,
                 group_key_normalized.replace("_", " "),
                 group_key_normalized.replace(" ", "_"),
-                f"geh_calculated_measurements/{group_key_normalized}",
-                f"calculated_measurements/{group_key_normalized}",
-                *short_variants,  # <-- vigtig til [electrical_heating]
+                f"{domain_name}/{group_key_normalized}",
+                f"{domain_short}/{group_key_normalized}",
+                *short_variants,
             }
 
             if normalized_tags & candidate_names:
@@ -149,12 +153,11 @@ def generate_markdown_from_results(
         # --- Group-specific errors ---
         errors: List[str] = []
 
-        # Define equivalent name forms for matching (full, partial, short)
         all_group_aliases = {
             group_normalized,
             group_key_normalized,
-            f"geh_calculated_measurements/{group_key_normalized}",
-            f"calculated_measurements/{group_key_normalized}",
+            f"{domain_name}/{group_key_normalized}",
+            f"{domain_short}/{group_key_normalized}",
             group_key_normalized.split("/")[-1],
         }
         logger.debug("   [DEBUG] Alias set for %s: %s", group, all_group_aliases)
@@ -191,7 +194,6 @@ def generate_markdown_from_results(
     output.append("")
     output.append("## ❌ Other Errors (not linked to specific groups)")
 
-    # --- Build alias set for all known groups (used to exclude assigned errors) ---
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
     known_aliases = set()
     for g in known_groups_full:
@@ -199,11 +201,10 @@ def generate_markdown_from_results(
         known_aliases |= {
             g,
             short,
-            f"geh_calculated_measurements/{short}",
-            f"calculated_measurements/{short}",
+            f"{domain_name}/{short}",
+            f"{domain_short}/{short}",
         }
 
-    # --- Identify unassigned errors ---
     other_errors: List[str] = [
         err.message
         for err in results.error_logs
