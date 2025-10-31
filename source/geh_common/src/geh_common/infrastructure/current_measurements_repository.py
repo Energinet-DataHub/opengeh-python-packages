@@ -76,7 +76,7 @@ class CurrentMeasurementsRepository:
             CurrentMeasurementsColumnNames.metering_point_type,
         )
 
-        # assert_contract(df.schema, current_measurements_data_product.schema)
+        # assert_contract(df.schema, current_measurements_data_product.schema) TODO HENRIK: find ud af om vi skal lave asserts.
         return CurrentMeasurements(current_measurements_filtered)
 
     def _read(self) -> DataFrame:
