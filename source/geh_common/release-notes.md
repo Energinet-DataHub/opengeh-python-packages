@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 7.2.2
+
+- Revert changes in 7.0.1
+- Revert: Removed count from write_csv_files
+- Revert: Modified naming logic to not append the '_x' suffix for files with only one chunk
+
 ## Version 7.2.1
 
 - Complete refactoring of Covernator + tests and doc
