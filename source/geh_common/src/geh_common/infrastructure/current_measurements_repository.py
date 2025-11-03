@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
@@ -29,24 +30,23 @@ class CurrentMeasurementsRepository:
         metering_point_ids: list[str] | None = None,
     ) -> CurrentMeasurements:
         current_measurements = self._read()
+        period_start_local_time = period_start_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
+        period_end_local_time = period_end_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
 
         # Filtering by z-order's partition_year and partition_month columns
         current_measurements_filtered = current_measurements.filter(
-            (
-                # period_start
-                (F.col(CurrentMeasurementsColumnNames.partition_year) > period_start_utc.year)
-                | (
-                    (F.col(CurrentMeasurementsColumnNames.partition_year) == period_start_utc.year)
-                    & (F.col(CurrentMeasurementsColumnNames.partition_month) >= period_start_utc.month)
-                )
+            # period_start
+            (F.col(CurrentMeasurementsColumnNames.partition_year) > period_start_local_time.year)
+            | (
+                (F.col(CurrentMeasurementsColumnNames.partition_year) == period_start_local_time.year)
+                & (F.col(CurrentMeasurementsColumnNames.partition_month) >= period_start_local_time.month)
             )
-            & (
-                # period_end
-                (F.col(CurrentMeasurementsColumnNames.partition_year) < period_end_utc.year)
-                | (
-                    (F.col(CurrentMeasurementsColumnNames.partition_year) == period_end_utc.year)
-                    & (F.col(CurrentMeasurementsColumnNames.partition_month) <= period_end_utc.month)
-                )
+            &
+            # period_end
+            (F.col(CurrentMeasurementsColumnNames.partition_year) < period_end_local_time.year)
+            | (
+                (F.col(CurrentMeasurementsColumnNames.partition_year) == period_end_local_time.year)
+                & (F.col(CurrentMeasurementsColumnNames.partition_month) <= period_end_local_time.month)
             )
         )
 
@@ -65,7 +65,7 @@ class CurrentMeasurementsRepository:
         # Filter observation_time by period start and end
         current_measurements_filtered = current_measurements_filtered.filter(
             (F.col(CurrentMeasurementsColumnNames.observation_time) >= period_start_utc)
-            & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
+            & (F.col(CurrentMeasurementsColumnNames.observation_time) <= period_end_utc)
         )
 
         current_measurements_filtered = current_measurements_filtered.select(
@@ -74,6 +74,9 @@ class CurrentMeasurementsRepository:
             CurrentMeasurementsColumnNames.quantity,
             CurrentMeasurementsColumnNames.quality,
             CurrentMeasurementsColumnNames.metering_point_type,
+            CurrentMeasurementsColumnNames.partition_metering_point_id,
+            CurrentMeasurementsColumnNames.partition_year,
+            CurrentMeasurementsColumnNames.partition_month,
         )
 
         # assert_contract(df.schema, current_measurements_data_product.schema) TODO HENRIK: find ud af om vi skal lave asserts.
