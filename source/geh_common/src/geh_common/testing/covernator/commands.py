@@ -342,9 +342,9 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
 
                     if has_test_file:
                         rel = scenario_folder.relative_to(scenarios_path)
-                        scenario_root = rel.parts[0] if rel.parts else ""
-                        if (key, scenario_root) not in seen_scenarios:
-                            seen_scenarios.add((key, scenario_root))
+                        scenario_rel_path = str(rel)
+                        if (key, scenario_rel_path) not in seen_scenarios:
+                            seen_scenarios.add((key, scenario_rel_path))
                         if not has_coverage_yaml:
                             msg = f"[{key}] Scenario folder '{scenario_folder.name}' is missing coverage_mapping.yml"
                             if msg not in logged_messages:

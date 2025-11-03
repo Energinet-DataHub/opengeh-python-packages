@@ -22,7 +22,7 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
 
     # --- Assert stats
     assert stats["total_cases"] == 9
-    assert stats["total_scenarios"] == 2
+    assert stats["total_scenarios"] == 4
     assert stats["total_groups"] == 1
     assert stats.get("logs", {}).get("error", []) == [], "No errors expected"
 
@@ -78,20 +78,25 @@ def test_happy_path_repo1_generates_expected_outputs(tmp_path: Path):
     # Vectorized normalization
     df_case_cov = df_case_cov.with_columns(pl.col("Scenario").str.replace_all("\\\\", "/"))
 
-    scen_x = "subfolder_x/given_subfolder_x_scenario1"
-    scen_y = "subfolder_y/subfolder_y_subdir1/given_subfolder_y_subdir1_scenario1"
+    scen_x1 = "subfolder_x/given_subfolder_x_scenario1"
+    scen_x2 = "subfolder_x/given_subfolder_x_scenario2"
+    scen_y1 = "subfolder_y/subfolder_y_subdir1/given_subfolder_y_subdir1_scenario1"
+    scen_y2 = "subfolder_y/subfolder_y_subdir1/given_subfolder_y_subdir1_scenario2"
 
     expected_cov_rows = [
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case 1"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case 2"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case A1"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case A2"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case AA1"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case AA2"},
-        {"Group": "geh_repo1", "Scenario": scen_x, "CaseCoverage": "Case AB1"},
-        {"Group": "geh_repo1", "Scenario": scen_y, "CaseCoverage": "Case 2"},
-        {"Group": "geh_repo1", "Scenario": scen_y, "CaseCoverage": "Case B1"},
-        {"Group": "geh_repo1", "Scenario": scen_y, "CaseCoverage": "Case B2"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case 1"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case 2"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case A1"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case A2"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case AA1"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case AA2"},
+        {"Group": "geh_repo1", "Scenario": scen_x1, "CaseCoverage": "Case AB1"},
+        {"Group": "geh_repo1", "Scenario": scen_x2, "CaseCoverage": "Case 1"},
+        {"Group": "geh_repo1", "Scenario": scen_x2, "CaseCoverage": "Case 2"},
+        {"Group": "geh_repo1", "Scenario": scen_y1, "CaseCoverage": "Case 2"},
+        {"Group": "geh_repo1", "Scenario": scen_y1, "CaseCoverage": "Case B1"},
+        {"Group": "geh_repo1", "Scenario": scen_y1, "CaseCoverage": "Case B2"},
+        {"Group": "geh_repo1", "Scenario": scen_y2, "CaseCoverage": "Case 2"},
     ]
     df_expected_cov = pl.DataFrame(expected_cov_rows)
     _assert_frames_equal(df_case_cov, df_expected_cov, ["Group", "Scenario", "CaseCoverage"])
