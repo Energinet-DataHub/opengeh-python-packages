@@ -73,7 +73,7 @@ def generate_markdown_from_results(
     domain_short = domain_name.replace("geh_", "")
 
     # --- Header ---
-    output.append(f"# 🔩 Covernator Coverage Overview for {domain_name}\n")
+    output.append(f"# 🔩 Covernator Coverage Overview for {domain_short}\n")
 
     # --- Summary Section ---
     total_cases = len(results.all_cases)
@@ -182,7 +182,7 @@ def generate_markdown_from_results(
     output.append("### 📣 Info Logs\n")
     if results.info_logs:
         for log in results.info_logs:
-            output.append(f"- {log.message}")
+            output.append(f" - {log.message}")
     else:
         output.append("_No info logs_")
 
