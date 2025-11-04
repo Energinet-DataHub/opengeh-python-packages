@@ -79,7 +79,7 @@ class CurrentMeasurementsRepository:
         # Filter observation_time by period start and end
         current_measurements_filtered = current_measurements_filtered.filter(
             (F.col(CurrentMeasurementsColumnNames.observation_time) >= period_start_utc)
-            & (F.col(CurrentMeasurementsColumnNames.observation_time) <= period_end_utc)
+            & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
         )
 
         current_measurements_filtered = current_measurements_filtered.select(

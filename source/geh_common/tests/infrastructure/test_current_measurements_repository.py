@@ -102,58 +102,74 @@ def test__data_is_contained_within_the_period(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
-    execution_start_datetime_utc = datetime(
-        year=2024, month=12, day=31, hour=23, minute=0, second=0, tzinfo=ZoneInfo("UTC")
-    )
-    execution_start_datetime_local_time = execution_start_datetime_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
-    execution_start_date_local_time_midnight = execution_start_datetime_local_time.replace(
-        hour=0, minute=0, second=0, microsecond=0
-    )
-    period_end_local_time = execution_start_date_local_time_midnight
-    period_start_local_time = execution_start_date_local_time_midnight - relativedelta(years=4)
+    period_end_utc = datetime(2024, 12, 31, 23, 0, 0, tzinfo=UTC)
+    period_end_local_time = period_end_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
+
+    period_start_local_time = period_end_local_time - relativedelta(years=4)
+    period_start_utc = period_start_local_time.astimezone(UTC)
 
     def mock_read_table(*args, **kwargs):
         return spark.createDataFrame(
             data=[
-                (  # Outside period: A day after start time
+                (  # Outside period: One second before start time
                     "100000000000000001",
-                    execution_start_datetime_utc + relativedelta(days=1),
+                    period_start_utc - relativedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
                     1,
-                    execution_start_datetime_local_time.year,
-                    execution_start_datetime_local_time.month,
+                    (period_start_local_time - relativedelta(seconds=1)).year,
+                    (period_start_local_time - relativedelta(seconds=1)).month,
                 ),
                 (  # Inside period: Exactly at start time
                     "100000000000000002",
-                    execution_start_datetime_utc,
+                    period_start_utc,
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
                     2,
-                    execution_start_datetime_local_time.year,
-                    execution_start_datetime_local_time.month,
+                    period_start_local_time.year,
+                    period_start_local_time.month,
                 ),
-                (  # Inside period: Exactly at end time
+                (  # Inside period: One second after start time
                     "100000000000000003",
-                    period_start_local_time,
+                    period_start_utc + relativedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
                     3,
-                    execution_start_datetime_local_time.year,
-                    execution_start_datetime_local_time.month,
+                    (period_start_local_time + relativedelta(seconds=1)).year,
+                    (period_start_local_time + relativedelta(seconds=1)).month,
                 ),
-                (  # Ouside period: A day after end time
+                (  # Inside period: One second before end time
                     "100000000000000004",
-                    period_start_local_time - relativedelta(days=1),
+                    period_end_utc - relativedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
                     4,
-                    execution_start_datetime_local_time.year,
-                    execution_start_datetime_local_time.month,
+                    (period_end_local_time - relativedelta(seconds=1)).year,
+                    (period_end_local_time - relativedelta(seconds=1)).month,
+                ),
+                (  # Outside period: Exactly at end time
+                    "100000000000000005",
+                    period_end_utc,
+                    Decimal("1.123"),
+                    QuantityQuality.MEASURED.value,
+                    MeteringPointType.CONSUMPTION.value,
+                    5,
+                    period_end_local_time.year,
+                    period_end_local_time.month,
+                ),
+                (  # Ouside period: One second after end time
+                    "100000000000000006",
+                    period_end_utc + relativedelta(seconds=1),
+                    Decimal("1.123"),
+                    QuantityQuality.MEASURED.value,
+                    MeteringPointType.CONSUMPTION.value,
+                    6,
+                    (period_end_local_time + relativedelta(seconds=1)).year,
+                    (period_end_local_time + relativedelta(seconds=1)).month,
                 ),
             ],
             schema=CURRENT_MEASUREMENTS_SCHEMA,
@@ -169,7 +185,7 @@ def test__data_is_contained_within_the_period(
 
     # Assert
     actual_ids = [row.metering_point_id for row in actual.df.collect()]
-    assert actual_ids == ["100000000000000002", "100000000000000003"]
+    assert actual_ids == ["100000000000000002", "100000000000000003", "100000000000000004"]
 
 
 def test__providing_list_of_metering_point_ids_limits_read(
