@@ -30,6 +30,20 @@ class CurrentMeasurementsRepository:
         metering_point_ids: list[str] | None = None,
     ) -> CurrentMeasurements:
         current_measurements = self._read()
+
+        current_measurements_filtered = self._filter_current_measurements(
+            current_measurements, period_start_utc, period_end_utc, metering_point_ids
+        )
+        # assert_contract(df.schema, current_measurements_data_product.schema) TODO HENRIK: find ud af om vi skal lave asserts.
+        return CurrentMeasurements(current_measurements_filtered)
+
+    def _filter_current_measurements(
+        self,
+        current_measurements: DataFrame,
+        period_start_utc: datetime,
+        period_end_utc: datetime,
+        metering_point_ids: list[str] | None = None,
+    ) -> DataFrame:
         period_start_local_time = period_start_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
         period_end_local_time = period_end_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
 
@@ -79,8 +93,7 @@ class CurrentMeasurementsRepository:
             CurrentMeasurementsColumnNames.partition_month,
         )
 
-        # assert_contract(df.schema, current_measurements_data_product.schema) TODO HENRIK: find ud af om vi skal lave asserts.
-        return CurrentMeasurements(current_measurements_filtered)
+        return current_measurements_filtered
 
     def _read(self) -> DataFrame:
         """Read table or view. The function is introduced to allow mocking in tests."""
