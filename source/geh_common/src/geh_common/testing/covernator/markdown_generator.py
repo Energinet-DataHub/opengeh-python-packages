@@ -184,7 +184,7 @@ def generate_markdown_from_results(
         for log in results.info_logs:
             output.append(f"- {log.message}")
     else:
-        output.append("_No info logs_")
+        output.append("- No info logs")
 
     output.append("")  # blank line separator
     output.append("### ❌ Other Errors (not linked to specific groups)\n")
@@ -210,7 +210,7 @@ def generate_markdown_from_results(
         for err in other_errors:
             output.append(f"- {err}")
     else:
-        output.append("_No other errors_")
+        output.append("- No other errors")
 
     # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
