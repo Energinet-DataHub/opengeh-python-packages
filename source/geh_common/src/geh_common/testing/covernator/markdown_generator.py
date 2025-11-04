@@ -72,6 +72,9 @@ def generate_markdown_from_results(
     domain_name = Path(group_prefix).name if "/" in group_prefix else group_prefix.strip("_")
     domain_short = domain_name.replace("geh_", "")
 
+    logger.debug(f"This is domain_name: {domain_name}")
+    logger.debug(f"This is domain_short: {domain_short}")
+
     # --- Header ---
     output.append(f"# 🔩 Covernator Coverage Overview for {domain_short}\n")
 
