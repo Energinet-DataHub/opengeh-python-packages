@@ -69,9 +69,6 @@ def generate_markdown_from_results(
     normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
     output.append(f"# 🔩 Covernator Coverage Overview for {normalized_prefix}\n")
 
-    now = datetime.now().astimezone().strftime("%Y-%m-%d %H:%M:%S %Z")
-    output.append(f"Generated: {now}\n")
-
     # --- Summary Section ---
     total_cases = len(results.all_cases)
     implemented_cases = sum(1 for case in results.all_cases if case.implemented)
@@ -79,7 +76,7 @@ def generate_markdown_from_results(
 
     output.extend(
         [
-            "\n## 📊 Summary",
+            "## 📊 Summary\n",
             "| Metric | Value |",
             "|--------|--------|",
             f"| 📟 Total Cases | {results.stats.total_cases} |",
@@ -134,8 +131,8 @@ def generate_markdown_from_results(
                 header_emoji = "🚨"
                 break
 
-        output.append(f"## {header_emoji} {group_title}")
-        output.append("### Case overview")
+        output.append(f"## {header_emoji} {group_title}\n")
+        output.append("### Case overview\n")
         output.append("| Path | Case | Implemented | Covered by # scenarios |")
         output.append("|----------|-----------|-------------|-------------|")
 
@@ -192,7 +189,7 @@ def generate_markdown_from_results(
         output.append("_No info logs_")
 
     output.append("")
-    output.append("## ❌ Other Errors (not linked to specific groups)")
+    output.append("## ❌ Other Errors (not linked to specific groups)\n")
 
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
     known_aliases = set()
