@@ -166,7 +166,7 @@ def generate_markdown_from_results(
                 logger.debug("✅ [DEBUG] Matched error for %s: %s", group, e.message)
 
         if errors:
-            output.append(f"### ❌ {group_title} Coverage Errors")
+            output.append(f"### ❌ {group_title} Coverage Errors\n")
             for err in errors:
                 output.append(f"- {err}")
             output.append("")
@@ -182,7 +182,7 @@ def generate_markdown_from_results(
     output.append("### 📣 Info Logs\n")
     if results.info_logs:
         for log in results.info_logs:
-            output.append(f" - {log.message}")
+            output.append(f"- {log.message}")
     else:
         output.append("_No info logs_")
 
