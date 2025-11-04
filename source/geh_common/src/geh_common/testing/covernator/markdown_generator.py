@@ -2,7 +2,6 @@ import logging
 import os
 import re
 from collections import defaultdict
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
@@ -65,9 +64,16 @@ def generate_markdown_from_results(
     output: List[str] = []
     logger.debug("🔧 [DEBUG] Markdown generation started")
 
+    # --- Mapping: (group, case) -> scenario count ---
+    coverage_dict = get_coverage_dict(results.coverage_map)
+    grouped_cases = group_cases_by_group(results.all_cases)
+
+    # Derive domain name dynamically (e.g. "geh_wholesale" or "geh_calculated_measurements")
+    domain_name = Path(group_prefix).name if "/" in group_prefix else group_prefix.strip("_")
+    domain_short = domain_name.replace("geh_", "")
+
     # --- Header ---
-    normalized_prefix = normalize_group_name(group_prefix.rstrip("/"))
-    output.append(f"# 🔩 Covernator Coverage Overview for {normalized_prefix}\n")
+    output.append(f"# 🔩 Covernator Coverage Overview for {domain_name}\n")
 
     # --- Summary Section ---
     total_cases = len(results.all_cases)
@@ -86,14 +92,6 @@ def generate_markdown_from_results(
             "",
         ]
     )
-
-    # --- Mapping: (group, case) -> scenario count ---
-    coverage_dict = get_coverage_dict(results.coverage_map)
-    grouped_cases = group_cases_by_group(results.all_cases)
-
-    # Derive domain name dynamically (e.g. "geh_wholesale" or "geh_calculated_measurements")
-    domain_name = Path(group_prefix).name if "/" in group_prefix else group_prefix.strip("_")
-    domain_short = domain_name.replace("geh_", "")
 
     # ==========================================================
     # === Per-group section ====================================
@@ -178,10 +176,10 @@ def generate_markdown_from_results(
     # ==========================================================
     # === Global logs (bottom of markdown) =====================
     # ==========================================================
-    output.append("# 📟 Logs\n")
+    output.append("## 📟 Logs\n")
 
     # --- Info Logs ---
-    output.append("## 📣 Info Logs")
+    output.append("### 📣 Info Logs\n")
     if results.info_logs:
         for log in results.info_logs:
             output.append(f"- {log.message}")
@@ -189,7 +187,7 @@ def generate_markdown_from_results(
         output.append("_No info logs_")
 
     output.append("")
-    output.append("## ❌ Other Errors (not linked to specific groups)\n")
+    output.append("### ❌ Other Errors (not linked to specific groups)\n")
 
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
     known_aliases = set()
