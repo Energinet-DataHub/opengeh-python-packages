@@ -186,7 +186,7 @@ def generate_markdown_from_results(
     else:
         output.append("_No info logs_")
 
-    output.append("")
+    output.append("")  # blank line separator
     output.append("### ❌ Other Errors (not linked to specific groups)\n")
 
     known_groups_full = {case.group.strip().lower() for case in results.all_cases}
@@ -206,6 +206,9 @@ def generate_markdown_from_results(
         if not any(t in known_aliases for t in extract_bracket_tags(err.message))
     ]
 
+    # Add a blank line under the header to prevent MD036
+    output.append("")
+
     if other_errors:
         for err in other_errors:
             output.append(f"- {err}")
@@ -214,5 +217,7 @@ def generate_markdown_from_results(
 
     # --- Write file ---
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text("\n".join(output), encoding="utf-8")
+    # Add trailing newline to satisfy MD047
+    output_path.write_text("\n".join(output).rstrip() + "\n", encoding="utf-8")
+
     logger.debug("✅ [DEBUG] Markdown generation completed successfully.")
