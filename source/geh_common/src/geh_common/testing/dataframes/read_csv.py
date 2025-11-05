@@ -10,7 +10,6 @@ def read_csv(
     sep: str = ";",
     ignored_value="[IGNORED]",
     datetime_format: str | None = None,
-    ignore_extra_schema_columns: bool = False,
 ) -> DataFrame:
     """Read a CSV file into a Spark DataFrame.
 
@@ -50,13 +49,6 @@ def read_csv(
                 transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
 
     df = raw_df.select(*transforms)
-
-    if ignore_extra_schema_columns:
-        # Validate that all .csv columns exist in the filtered schema
-        for field in df.schema.fields:
-            if field.name not in filtered_schema.fieldNames():
-                assert False, f"Column {field.name} in CSV file is not present in the schema."
-        return df
 
     # Recreate dataframe with the correct schema to ensure nullability is correct
     return spark.createDataFrame(df.rdd, schema=filtered_schema, verifySchema=True)
