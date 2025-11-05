@@ -8,7 +8,7 @@ from geh_common.data_products.measurements_core.measurements_gold import (
     measurements_zorder as current_measurements_data_product,
 )
 from geh_common.infrastructure.model.current_measurements import CurrentMeasurements
-from geh_common.infrastructure.model.current_measurements_column_names import CurrentMeasurementsColumnNames
+from geh_common.infrastructure.model.measurements_zorder_column_names import MeasurementsZOrderColumnNames
 from geh_common.testing.dataframes import assert_contract
 
 
@@ -52,17 +52,17 @@ class CurrentMeasurementsRepository:
         # Filtering by z-order's partition_year and partition_month columns
         current_measurements_filtered = current_measurements.filter(
             # period_start
-            (F.col(CurrentMeasurementsColumnNames.partition_year) > period_start_local_time.year)
+            (F.col(MeasurementsZOrderColumnNames.partition_year) > period_start_local_time.year)
             | (
-                (F.col(CurrentMeasurementsColumnNames.partition_year) == period_start_local_time.year)
-                & (F.col(CurrentMeasurementsColumnNames.partition_month) >= period_start_local_time.month)
+                (F.col(MeasurementsZOrderColumnNames.partition_year) == period_start_local_time.year)
+                & (F.col(MeasurementsZOrderColumnNames.partition_month) >= period_start_local_time.month)
             )
             &
             # period_end
-            (F.col(CurrentMeasurementsColumnNames.partition_year) < period_end_local_time.year)
+            (F.col(MeasurementsZOrderColumnNames.partition_year) < period_end_local_time.year)
             | (
-                (F.col(CurrentMeasurementsColumnNames.partition_year) == period_end_local_time.year)
-                & (F.col(CurrentMeasurementsColumnNames.partition_month) <= period_end_local_time.month)
+                (F.col(MeasurementsZOrderColumnNames.partition_year) == period_end_local_time.year)
+                & (F.col(MeasurementsZOrderColumnNames.partition_month) <= period_end_local_time.month)
             )
         )
 
@@ -72,16 +72,16 @@ class CurrentMeasurementsRepository:
             metering_point_ids_last_3_digits = set(int(mp_id[-3:]) for mp_id in metering_point_ids)
             # Filter by z-order's partition_metering_point_id using the constructed set
             current_measurements_filtered = current_measurements_filtered.where(
-                F.col(CurrentMeasurementsColumnNames.partition_metering_point_id).isin(metering_point_ids_last_3_digits)
+                F.col(MeasurementsZOrderColumnNames.partition_metering_point_id).isin(metering_point_ids_last_3_digits)
             )
             current_measurements_filtered = current_measurements_filtered.where(
-                F.col(CurrentMeasurementsColumnNames.metering_point_id).isin(metering_point_ids)
+                F.col(MeasurementsZOrderColumnNames.metering_point_id).isin(metering_point_ids)
             )
 
         # Filter observation_time by period start and end
         current_measurements_filtered = current_measurements_filtered.filter(
-            (F.col(CurrentMeasurementsColumnNames.observation_time) >= period_start_utc)
-            & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
+            (F.col(MeasurementsZOrderColumnNames.observation_time) >= period_start_utc)
+            & (F.col(MeasurementsZOrderColumnNames.observation_time) < period_end_utc)
         )
 
         return current_measurements_filtered
