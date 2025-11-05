@@ -330,7 +330,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                 )
                 group_cases = []
             else:
-                group_cases = find_all_cases(all_cases_path, output=output, group=group)
+                group_cases = find_all_cases(all_cases_path, output=output, group=group or subsystem)
 
             group_scenarios = []
 
