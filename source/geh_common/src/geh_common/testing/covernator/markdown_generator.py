@@ -77,6 +77,7 @@ def generate_markdown_from_results(
     output.append(f"# 🔩 Covernator Coverage Overview for {Path(group_prefix).name}\n")
     output.append(f"# 🔩 Covernator Coverage Overview for {Path}\n")
     output.append(f"# 🔩 Covernator Coverage Overview for {output_path}\n")
+    output.append(f"# 🔩 Covernator Coverage Overview for {grouped_cases}\n")
 
     # --- Summary Section ---
     total_cases = len(results.all_cases)
