@@ -68,16 +68,23 @@ def generate_markdown_from_results(
     coverage_dict = get_coverage_dict(results.coverage_map)
     grouped_cases = group_cases_by_group(results.all_cases)
 
-    # Derive domain name dynamically (e.g. "geh_wholesale" or "geh_calculated_measurements")
+    # --- Derive domain name (for internal logic) ---
     domain_name = Path(group_prefix).name if "/" in group_prefix else group_prefix.strip("_")
     domain_short = domain_name.replace("geh_", "")
 
+    # --- Derive display name dynamically based on grouped_cases ---
+    first_group = next(iter(grouped_cases.keys()), "")
+    domain_segment = first_group.split("/")[0] if first_group else ""
+
+    # Clean up: remove geh_ prefix, underscores, and title-case words
+    if domain_segment.startswith("geh_"):
+        domain_segment = domain_segment[len("geh_") :]
+    domain_display = domain_segment.replace("_", " ").strip().title() if domain_segment else domain_short.title()
+
+    logger.debug(f"Derived domain display name: {domain_display}")
+
     # --- Header ---
-    output.append(f"# 🔩 Covernator Coverage Overview for {domain_short}\n")
-    output.append(f"# 🔩 Covernator Coverage Overview for {Path(group_prefix).name}\n")
-    output.append(f"# 🔩 Covernator Coverage Overview for {Path}\n")
-    output.append(f"# 🔩 Covernator Coverage Overview for {output_path}\n")
-    output.append(f"# 🔩 Covernator Coverage Overview for {grouped_cases}\n")
+    output.append(f"# 🔩 Covernator Coverage Overview for {domain_display}\n")
 
     # --- Summary Section ---
     total_cases = len(results.all_cases)
