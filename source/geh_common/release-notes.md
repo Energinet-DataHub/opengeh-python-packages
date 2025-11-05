@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 7.2.3
+
+- Added `measurements_zorder` schema
+- Added `current_measurements` repository
+
 ## Version 7.2.2
 
 - Revert changes in 7.0.1
