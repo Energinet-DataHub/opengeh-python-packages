@@ -96,12 +96,21 @@ class DuplicateKeyLoader(yaml.SafeLoader):
             if key in mapping and self.output:
                 if self.group and self.scenario:
                     self.output.log(
-                        f"[{self.group}] Duplicate items in scenario [{self.scenario}]: {key}", level=LogLevel.ERROR
+                        f"[{self.group}] Duplicate items in scenario [{self.scenario}]: {key}",
+                        level=LogLevel.ERROR,
                     )
                 elif self.group:
-                    self.output.log(f"[{self.group}] Duplicate items in all cases: {key}", level=LogLevel.ERROR)
+                    self.output.log(
+                        f"[{self.group}] Duplicate items in all cases: {key}",
+                        level=LogLevel.ERROR,
+                    )
                 else:
-                    self.output.log(f"[ERROR] Duplicate key found in YAML: {key}", level=LogLevel.ERROR)
+                    # 🔧 FIX: Include domain/group name even for root-level YAML duplicates
+                    domain = self.group or "unknown_domain"
+                    self.output.log(
+                        f"[{domain}] Duplicate key found in YAML: {key}",
+                        level=LogLevel.ERROR,
+                    )
             value = self.construct_object(value_node, deep=deep)
             mapping[key] = value
         return mapping
