@@ -1,9 +1,8 @@
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
 import pytest
-from dateutil.relativedelta import relativedelta
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.dataframe import DataFrame
@@ -136,7 +135,7 @@ def test__data_is_contained_within_the_period(
     period_end_utc = datetime(2024, 12, 31, 23, 0, 0, tzinfo=UTC)
     period_end_local_time = period_end_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
 
-    period_start_local_time = period_end_local_time - relativedelta(years=4)
+    period_start_local_time = datetime(2021, 1, 1, 0, 0, 0, tzinfo=ZoneInfo("Europe/Copenhagen"))
     period_start_utc = period_start_local_time.astimezone(UTC)
 
     def mock_read_table(*args, **kwargs) -> DataFrame:
@@ -146,7 +145,7 @@ def test__data_is_contained_within_the_period(
                     "100000000000000001",
                     "",
                     "",
-                    period_start_utc - relativedelta(seconds=1),
+                    period_start_utc - timedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
@@ -157,8 +156,8 @@ def test__data_is_contained_within_the_period(
                     period_start_utc,
                     period_start_utc,
                     1,
-                    (period_start_local_time - relativedelta(seconds=1)).year,
-                    (period_start_local_time - relativedelta(seconds=1)).month,
+                    (period_start_local_time - timedelta(seconds=1)).year,
+                    (period_start_local_time - timedelta(seconds=1)).month,
                 ),
                 (  # Inside period: Exactly at start time
                     "100000000000000002",
@@ -182,7 +181,7 @@ def test__data_is_contained_within_the_period(
                     "100000000000000003",
                     "",
                     "",
-                    period_start_utc + relativedelta(seconds=1),
+                    period_start_utc + timedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
@@ -193,14 +192,14 @@ def test__data_is_contained_within_the_period(
                     period_start_utc,
                     period_start_utc,
                     3,
-                    (period_start_local_time + relativedelta(seconds=1)).year,
-                    (period_start_local_time + relativedelta(seconds=1)).month,
+                    (period_start_local_time + timedelta(seconds=1)).year,
+                    (period_start_local_time + timedelta(seconds=1)).month,
                 ),
                 (  # Inside period: One second before end time
                     "100000000000000004",
                     "",
                     "",
-                    period_end_utc - relativedelta(seconds=1),
+                    period_end_utc - timedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
@@ -211,8 +210,8 @@ def test__data_is_contained_within_the_period(
                     period_start_utc,
                     period_start_utc,
                     4,
-                    (period_end_local_time - relativedelta(seconds=1)).year,
-                    (period_end_local_time - relativedelta(seconds=1)).month,
+                    (period_end_local_time - timedelta(seconds=1)).year,
+                    (period_end_local_time - timedelta(seconds=1)).month,
                 ),
                 (  # Outside period: Exactly at end time
                     "100000000000000005",
@@ -236,7 +235,7 @@ def test__data_is_contained_within_the_period(
                     "100000000000000006",
                     "",
                     "",
-                    period_end_utc + relativedelta(seconds=1),
+                    period_end_utc + timedelta(seconds=1),
                     Decimal("1.123"),
                     QuantityQuality.MEASURED.value,
                     MeteringPointType.CONSUMPTION.value,
@@ -247,8 +246,8 @@ def test__data_is_contained_within_the_period(
                     period_start_utc,
                     period_start_utc,
                     6,
-                    (period_end_local_time + relativedelta(seconds=1)).year,
-                    (period_end_local_time + relativedelta(seconds=1)).month,
+                    (period_end_local_time + timedelta(seconds=1)).year,
+                    (period_end_local_time + timedelta(seconds=1)).month,
                 ),
             ],
             schema=measurements_zorder.schema,
