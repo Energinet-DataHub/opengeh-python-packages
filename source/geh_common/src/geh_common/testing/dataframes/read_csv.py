@@ -49,6 +49,4 @@ def read_csv(
                 transforms.append(F.col(field.name).cast(field.dataType).alias(field.name))
 
     df = raw_df.select(*transforms)
-
-    # Recreate dataframe with the correct schema to ensure nullability is correct
     return spark.createDataFrame(df.rdd, schema=filtered_schema, verifySchema=True)
