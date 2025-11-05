@@ -52,7 +52,7 @@ def read_csv(
     df = raw_df.select(*transforms)
 
     if ignore_extra_schema_columns:
-        # Validate that all .csv column exists in the filtered schema
+        # Validate that all .csv columns exist in the filtered schema
         for field in df.schema.fields:
             if field.name not in filtered_schema.fieldNames():
                 assert False, f"Column {field.name} in CSV file is not present in the schema."

@@ -9,6 +9,7 @@ from geh_common.data_products.measurements_core.measurements_gold import (
 )
 from geh_common.infrastructure.model.current_measurements import CurrentMeasurements
 from geh_common.infrastructure.model.current_measurements_column_names import CurrentMeasurementsColumnNames
+from geh_common.testing.dataframes import assert_contract
 
 
 class CurrentMeasurementsRepository:
@@ -34,7 +35,8 @@ class CurrentMeasurementsRepository:
         current_measurements_filtered = self._filter_current_measurements(
             current_measurements, period_start_utc, period_end_utc, metering_point_ids
         )
-        # assert_contract(df.schema, current_measurements_data_product.schema) TODO HENRIK: find ud af om vi skal lave asserts.
+
+        assert_contract(current_measurements_filtered.schema, current_measurements_data_product.schema)
         return CurrentMeasurements(current_measurements_filtered)
 
     def _filter_current_measurements(
@@ -80,17 +82,6 @@ class CurrentMeasurementsRepository:
         current_measurements_filtered = current_measurements_filtered.filter(
             (F.col(CurrentMeasurementsColumnNames.observation_time) >= period_start_utc)
             & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
-        )
-
-        current_measurements_filtered = current_measurements_filtered.select(
-            CurrentMeasurementsColumnNames.metering_point_id,
-            CurrentMeasurementsColumnNames.observation_time,
-            CurrentMeasurementsColumnNames.quantity,
-            CurrentMeasurementsColumnNames.quality,
-            CurrentMeasurementsColumnNames.metering_point_type,
-            CurrentMeasurementsColumnNames.partition_metering_point_id,
-            CurrentMeasurementsColumnNames.partition_year,
-            CurrentMeasurementsColumnNames.partition_month,
         )
 
         return current_measurements_filtered

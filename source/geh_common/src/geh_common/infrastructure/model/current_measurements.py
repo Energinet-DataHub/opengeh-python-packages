@@ -12,9 +12,6 @@ CURRENT_MEASUREMENTS_SCHEMA = t.StructType(
         t.StructField("quantity", t.DecimalType(18, 3), nullable),
         t.StructField("quality", t.StringType(), not nullable),
         t.StructField("metering_point_type", t.StringType(), not nullable),
-        t.StructField("partition_metering_point_id", t.IntegerType(), not nullable),
-        t.StructField("partition_year", t.IntegerType(), not nullable),
-        t.StructField("partition_month", t.IntegerType(), not nullable),
     ]
 )
 
