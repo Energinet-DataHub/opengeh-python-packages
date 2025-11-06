@@ -20,8 +20,6 @@ dependencies = [
     "polars>=1.25.2",
 ]
 
-[project.scripts]
-covernator = "geh_common.covernator_streamlit:main"
 
 [build-system]
 requires = ["hatchling"]
