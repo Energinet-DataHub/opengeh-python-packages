@@ -10,7 +10,7 @@
 This process automatically runs on every **push to a pull request** within a **domain repository** (for example, _Measurements_ or _Wholesale_).
 It ensures that the `coverage_overview.md` file is always up to date.
 
-#### 🔁 Overview
+### 🔁 Overview
 
 | Step | Description |
 |------|--------------|
