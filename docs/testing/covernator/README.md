@@ -5,7 +5,81 @@
 
 ---
 
-## 📂 Expected Directory Layout
+### 🧩 CI Automation: Coverage Markdown Generation
+
+This process automatically runs on every **push to a pull request** within a **domain repository** (for example, _Measurements_ or _Wholesale_).
+It ensures that the `coverage_overview.md` file is always up to date.
+
+#### 🔁 Overview
+
+| Step | Description |
+|------|--------------|
+| 1️⃣ | The **CI workflow** in the domain repo (defined in `.github/workflows/ci-orchestrator.yml`) triggers when code is pushed to a pull request. |
+| 2️⃣ | The workflow invokes the composite GitHub Action located at `.github/actions/python-covernator-generate-files/action.yml`. |
+| 3️⃣ | That action installs and imports the **`geh_common`** package. It then runs the script `geh_common/testing/covernator/commands.py`. |
+| 4️⃣ | `commands.py` scans all test definitions (`all_cases.yml`, `coverage_mapping.yml`, etc.), performs validation, and generates structured results. These results are then passed into the **Markdown generator** (`markdown_generator.py`). |
+| 5️⃣ | The Markdown generator creates the file `docs/covernator/coverage_overview.md`, summarizing test coverage, scenarios, and errors. |
+| 6️⃣ | The CI compares this generated Markdown against the latest version in the feature branch. If differences are found, it automatically commits and pushes the updated file to the same branch. |
+
+---
+
+### ⚙️ Enabling Covernator on a Feature Branch (e.g. "Wholesale" or "Measurements")
+
+Covernator can be enabled on any feature branch to automatically generate and commit an updated test coverage summary.
+This process integrates with the CI orchestrator and detects relevant changes to test or YAML definition files.
+
+---
+
+#### 🧩 1. CI Orchestration
+
+The workflow file `.github/workflows/ci-orchestrator.yml` defines the job `covernator_commit`.
+This job runs **only when the change-detection step sets the `covernator` flag to true**:
+
+```yaml
+covernator_commit:
+  name: Generate & Commit Covernator Results (Test)
+  needs: changes
+  if: ${{ needs.changes.outputs.covernator == 'true' }}
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Run shared Covernator Commit action
+      uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@claus/covernator_action
+      with:
+        project_directory: source/geh_wholesale
+        geh_common_version: claus/covernator_final
+```
+This step installs dependencies, runs the Covernator engine, generates the coverage markdown,
+and commits the update if the content differs from the previous version on the branch.
+
+#### 🧩 2. Change Detection Logic
+
+The .github/workflows/detect-changes.yml file determines when to trigger Covernator.
+It outputs a covernator flag when files matching these patterns are modified:
+
+```yaml
+covernator:
+  - 'source/geh_wholesale/tests/**/*.yml'
+  - 'source/geh_wholesale/tests/**/test_*.py'
+```
+
+#### 🧩 3. Shared GitHub Action
+
+The reusable action .github/actions/python-covernator-generate-files/action.yml performs the following sequence:
+1. Checks out the repository.
+2. Sets up a Python 3.11 environment using uv.
+3. Installs the appropriate geh_common package version.
+4. Executes:
+
+```bash
+geh_common/testing/covernator/commands.py
+```
+
+— which scans test definitions and generates structured coverage data.
+5. Calls the Markdown generator to produce or update docs/covernator/coverage_overview.md
+6. If the file content differs from the current HEAD of the feature branch, the workflow commits and pushes the update automatically.
+
+## 📂 Expected Directory Layout in Domain Repo
 
 ```plaintext
 <repo_root>/
