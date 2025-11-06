@@ -5,7 +5,7 @@
 
 ---
 
-### 🧩 CI Automation: Coverage Markdown Generation
+## 🧩 CI Automation: Coverage Markdown Generation
 
 This process automatically runs on every **push to a pull request** within a **domain repository** (for example, _Measurements_ or _Wholesale_).
 It ensures that the `coverage_overview.md` file is always up to date.
@@ -49,6 +49,7 @@ covernator_commit:
         project_directory: source/geh_wholesale
         geh_common_version: claus/covernator_final
 ```
+
 This step installs dependencies, runs the Covernator engine, generates the coverage markdown,
 and commits the update if the content differs from the previous version on the branch.
 
@@ -66,6 +67,7 @@ covernator:
 #### 🧩 3. Shared GitHub Action
 
 The reusable action .github/actions/python-covernator-generate-files/action.yml performs the following sequence:
+
 1. Checks out the repository.
 2. Sets up a Python 3.11 environment using uv.
 3. Installs the appropriate geh_common package version.

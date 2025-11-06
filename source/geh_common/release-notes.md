@@ -1,6 +1,7 @@
 # GEH Common Release Notes
 
 ## Version 7.2.3
+
 - Update covernator to generate markdown-overview
 
 ## Version 7.2.2
