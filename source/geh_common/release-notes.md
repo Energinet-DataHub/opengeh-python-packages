@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.2.3
+
+- Feat: Added z-order schema
+
 ## Version 7.2.2
 
 - Revert changes in 7.0.1
