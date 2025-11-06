@@ -227,6 +227,7 @@ def _get_scenarios_cases_tested(content, parents=None) -> List[Tuple[List[str], 
 def find_all_scenarios(
     base_path: Path,
     output: "OutputManager | None" = None,
+    tag: str | None = None,
 ) -> List[CoverageMapping]:
     """Find all scenario test coverage mappings recursively under base_path.
 
@@ -236,12 +237,13 @@ def find_all_scenarios(
     coverage_by_scenario: List[CoverageMapping] = []
     errors: List[str] = []
 
+    # Use the caller-provided full group key when available; fallback to folder name
+    tag_key = (tag or base_path.name).strip()
+
     for path in base_path.rglob("coverage_mapping.yml"):
         try:
             if output:
-                coverage_mapping = load_yaml_with_duplicates(
-                    path, output=output, group=base_path.name, scenario=path.stem
-                )
+                coverage_mapping = load_yaml_with_duplicates(path, output=output, group=tag_key, scenario=path.stem)
             else:
                 with open(path, encoding="utf-8") as f:
                     coverage_mapping = yaml.safe_load(f)
@@ -250,7 +252,7 @@ def find_all_scenarios(
             if cases_tested_content is None:
                 if output:
                     output.log(
-                        f"[{base_path.name}] Invalid yaml file '{path}': 'cases_tested' key not found.",
+                        f"[{tag_key}] Invalid yaml file '{path}': 'cases_tested' key not found.",
                         level=LogLevel.ERROR,
                     )
                 continue
@@ -259,7 +261,7 @@ def find_all_scenarios(
             scenario_source = _get_scenario_source_name_from_path(path, base_path)
             group_name = base_path.name.strip().lower()
 
-            # Convert cases to CoverageMapping entries
+            # Convert cases to CoverageMapping entries (group on mapping is unused when exporting)
             for _, case_name in cases_tested:
                 coverage_by_scenario.append(
                     CoverageMapping(
@@ -271,24 +273,21 @@ def find_all_scenarios(
 
         except yaml.YAMLError:
             if output:
-                # 🔧 FIX: Include domain/group tag so Markdown generator links correctly
                 output.log(
-                    f"[{base_path.name}] Invalid yaml file '{path}' (YAMLError)",
+                    f"[{tag_key}] Invalid yaml file '{path}' (YAMLError)",
                     level=LogLevel.ERROR,
                 )
         except Exception as exc:
-            # 🔧 FIX: Also include tag for general parsing errors
             if output:
                 output.log(
-                    f"[{base_path.name}] Error while parsing scenario '{path}': {exc}",
+                    f"[{tag_key}] Error while parsing scenario '{path}': {exc}",
                     level=LogLevel.ERROR,
                 )
             errors.append(f"{path}: {exc}")
 
     if errors and output:
-        # 🔧 FIX: Include domain/group tag for batch summary log
         output.log(
-            f"[{base_path.name}] Errors while parsing scenarios: {errors}",
+            f"[{tag_key}] Errors while parsing scenarios: {errors}",
             level=LogLevel.ERROR,
         )
 
@@ -374,7 +373,7 @@ def run_covernator(folder_to_save_files_in: Path, base_path: Path = Path(".")):
                                 output.log(msg, level=LogLevel.ERROR)
                                 logged_messages.add(msg)
 
-                found_scenarios = find_all_scenarios(scenarios_path, output=output)
+                found_scenarios = find_all_scenarios(scenarios_path, output=output, tag=key)
                 group_scenarios.extend(found_scenarios)
 
             all_cases.extend(
