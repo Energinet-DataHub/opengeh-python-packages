@@ -3,6 +3,7 @@
 ## Version 7.2.3
 
 - Update covernator to generate markdown-overview
+- Delete half-finished streamlit prototype
 
 ## Version 7.2.2
 
