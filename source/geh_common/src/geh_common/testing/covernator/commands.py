@@ -250,7 +250,7 @@ def find_all_scenarios(
             if cases_tested_content is None:
                 if output:
                     output.log(
-                        f"[ERROR] Invalid yaml file '{path}': 'cases_tested' key not found.",
+                        f"[{base_path.name}] Invalid yaml file '{path}': 'cases_tested' key not found.",
                         level=LogLevel.ERROR,
                     )
                 continue
@@ -271,12 +271,26 @@ def find_all_scenarios(
 
         except yaml.YAMLError:
             if output:
-                output.log(f"[ERROR] Invalid yaml file '{path}' (YAMLError)", level=LogLevel.ERROR)
+                # 🔧 FIX: Include domain/group tag so Markdown generator links correctly
+                output.log(
+                    f"[{base_path.name}] Invalid yaml file '{path}' (YAMLError)",
+                    level=LogLevel.ERROR,
+                )
         except Exception as exc:
+            # 🔧 FIX: Also include tag for general parsing errors
+            if output:
+                output.log(
+                    f"[{base_path.name}] Error while parsing scenario '{path}': {exc}",
+                    level=LogLevel.ERROR,
+                )
             errors.append(f"{path}: {exc}")
 
     if errors and output:
-        output.log(f"[ERROR] Errors while parsing scenarios: {errors}", level=LogLevel.ERROR)
+        # 🔧 FIX: Include domain/group tag for batch summary log
+        output.log(
+            f"[{base_path.name}] Errors while parsing scenarios: {errors}",
+            level=LogLevel.ERROR,
+        )
 
     return coverage_by_scenario
 
