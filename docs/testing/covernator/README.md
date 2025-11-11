@@ -89,10 +89,8 @@ geh_common/testing/covernator/entrypoints.py
 ## 📂 Expected Directory Layout in Domain Repo
 
 ```plaintext
-<repo_root>/
+<source>/
 ├── tests/
-│   ├── coverage/                         # Optional: single-group mode
-│   │   └── all_cases.yml
 │   ├── group_x/
 │   │   ├── coverage/
 │   │   │   └── all_cases_group_x.yml
