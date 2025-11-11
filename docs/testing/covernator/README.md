@@ -7,47 +7,51 @@
 
 ## 🧩 CI Automation: Coverage Markdown Generation
 
-This process automatically runs on every **push to a pull request** within a **domain repository** (for example, _Measurements_ or _Wholesale_).
-It ensures that the `coverage_overview.md` file is always up to date.
+This process automatically runs on every **push to a pull request** within a **domain repository** (for example, _Wholesale_ or _Measurements_).
+It ensures that the `docs/covernator/coverage_overview.md` file stays up to date and consistent across all branches.
+
+---
 
 ### 🔁 Overview
 
 | Step | Description |
 |------|--------------|
-| 1️⃣ | The **CI workflow** in the domain repo (defined in `.github/workflows/ci-orchestrator.yml`) triggers when code is pushed to a pull request. |
-| 2️⃣ | The workflow invokes the composite GitHub Action located at `.github/actions/python-covernator-generate-files/action.yml`. |
-| 3️⃣ | That action installs and imports the **`geh_common`** package. It then runs the script `geh_common/testing/covernator/commands.py`. |
-| 4️⃣ | `commands.py` scans all test definitions (`all_cases.yml`, `coverage_mapping.yml`, etc.), performs validation, and generates structured results. These results are then passed into the **Markdown generator** (`markdown_generator.py`). |
-| 5️⃣ | The Markdown generator creates the file `docs/covernator/coverage_overview.md`, summarizing test coverage, scenarios, and errors. |
-| 6️⃣ | The CI compares this generated Markdown against the latest version in the feature branch. If differences are found, it automatically commits and pushes the updated file to the same branch. |
+| 1️⃣ | A **CI workflow** (`.github/workflows/ci-orchestrator.yml`) in the domain repo triggers when code is pushed to a pull request. |
+| 2️⃣ | The workflow checks for changes via `detect-changes.yml` — if test or YAML files are modified, it sets the `covernator` flag to `true`. |
+| 3️⃣ | When that flag is set, the job `covernator_commit` executes. It runs a shared GitHub Action from the central `.github` repo: `.github/actions/python-covernator-generate-files/action.yml`. |
+| 4️⃣ | The action installs the correct version of the **`geh_common`** package (defined by `geh_common_version`), runs `geh_common/testing/covernator/commands.py`, and generates structured coverage results. |
+| 5️⃣ | These results are fed into the **Markdown generator**, which writes `docs/covernator/coverage_overview.md`. |
+| 6️⃣ | If the generated Markdown differs from what’s currently in the feature branch, it’s automatically committed back to that branch using the `stefanzweifel/git-auto-commit-action@v5` action. |
 
 ---
 
-### ⚙️ Enabling Covernator on a Feature Branch (e.g. "Wholesale" or "Measurements")
+### ⚙️ Implementation Details
 
-Covernator can be enabled on any feature branch to automatically generate and commit an updated test coverage summary.
-This process integrates with the CI orchestrator and detects relevant changes to test or YAML definition files.
+#### 🧩 CI Orchestrator (in domain repository)
 
----
-
-#### 🧩 1. CI Orchestration
-
-The workflow file `.github/workflows/ci-orchestrator.yml` defines the job `covernator_commit`.
-This job runs **only when the change-detection step sets the `covernator` flag to true**:
+Example from **`ci-orchestrator.yml`** in the _Wholesale_ domain:
 
 ```yaml
 covernator_commit:
-  name: Generate & Commit Covernator Results (Test)
+  name: Generate & Commit Covernator Results
   needs: changes
   if: ${{ needs.changes.outputs.covernator == 'true' }}
   runs-on: ubuntu-latest
 
   steps:
+    - uses: actions/create-github-app-token@v2
+      name: Generate Github token
+      id: generate_token
+      with:
+        app-id: ${{ vars.dh3serviceaccount_appid }}
+        private-key: ${{ secrets.dh3serviceaccount_privatekey }}
+
     - name: Run shared Covernator Commit action
-      uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@claus/covernator_action
+      uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@v15
       with:
         project_directory: source/geh_wholesale
-        geh_common_version: claus/covernator_final
+        geh_common_version: 7.2.4
+        github_token: ${{ steps.generate_token.outputs.token }}
 ```
 
 This step installs dependencies, runs the Covernator engine, generates the coverage markdown,
@@ -66,20 +70,21 @@ covernator:
 
 #### 🧩 3. Shared GitHub Action
 
-The reusable action .github/actions/python-covernator-generate-files/action.yml performs the following sequence:
+The reusable action `.github/actions/python-covernator-generate-files/action.yml` performs the following sequence:
 
-1. Checks out the repository.
-2. Sets up a Python 3.11 environment using uv.
-3. Installs the appropriate geh_common package version.
-4. Executes:
+- Checks out the domain repository.
+- Sets up a **Python 3.x** environment and installs **uv**.
+- Installs the specified **geh_common** package version from GitHub.
+- Runs the Covernator analysis and Markdown generation via:
 
 ```bash
-geh_common/testing/covernator/commands.py
+geh_common/testing/covernator/entrypoints.py
 ```
 
-— which scans test definitions and generates structured coverage data.
-5. Calls the Markdown generator to produce or update docs/covernator/coverage_overview.md
-6. If the file content differs from the current HEAD of the feature branch, the workflow commits and pushes the update automatically.
+- The process scans test definitions and generates structured coverage data.
+- The Markdown generator produces or updates docs/covernator/coverage_overview.md.
+- Any updated file is automatically committed using stefanzweifel/git-auto-commit-action@v5
+- The commit occurs only if the generated Markdown differs from the feature branch HEAD.
 
 ## 📂 Expected Directory Layout in Domain Repo
 
