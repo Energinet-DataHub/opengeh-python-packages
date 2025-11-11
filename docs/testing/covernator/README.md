@@ -76,14 +76,15 @@ The reusable action `.github/actions/python-covernator-generate-files/action.yml
 2. Sets up a **Python 3.x** environment and installs **uv**.
 3. Installs the specified **geh_common** package version from GitHub.
 4. Runs the Covernator analysis and Markdown generation via:
+
 ```bash
 geh_common/testing/covernator/entrypoints.py
 ```
+
 5. The process scans test definitions and generates structured coverage data.
 6. The Markdown generator produces or updates docs/covernator/coverage_overview.md.
 7. Any updated file is automatically committed using stefanzweifel/git-auto-commit-action@v5
 8. The commit occurs only if the generated Markdown differs from the feature branch HEAD.
-
 
 ## 📂 Expected Directory Layout in Domain Repo
 
