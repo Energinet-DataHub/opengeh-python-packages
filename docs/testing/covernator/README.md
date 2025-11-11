@@ -89,10 +89,8 @@ geh_common/testing/covernator/entrypoints.py
 ## 📂 Expected Directory Layout in Domain Repo
 
 ```plaintext
-<repo_root>/
+<source>/
 ├── tests/
-│   ├── coverage/                         # Optional: single-group mode
-│   │   └── all_cases.yml
 │   ├── group_x/
 │   │   ├── coverage/
 │   │   │   └── all_cases_group_x.yml
@@ -160,45 +158,6 @@ geh_common/testing/covernator/entrypoints.py
 
 - Only `true` entries are considered implemented coverage.
 - Case names are normalized (whitespace stripped).
-
----
-
-### ✅ Output Files
-
-#### 📄 `all_cases.csv`
-
-| Column        | Description |
-|---------------|-------------|
-| Group         | Group name (e.g., `geh_repo1`) |
-| TestCase      | Case identifier |
-| Path          | Heading hierarchy |
-| Implemented   | `true` if covered in any scenario |
-
----
-
-#### 📄 `case_coverage.csv`
-
-| Column        | Description |
-|---------------|-------------|
-| Group         | Group name |
-| Scenario      | Scenario folder name |
-| CaseCoverage  | Covered case name |
-
----
-
-#### 📄 `stats.json`
-
-```json
-{
-  "total_cases": 18,
-  "total_scenarios": 5,
-  "total_groups": 3,
-  "logs": {
-    "error": [...],
-    "info": [...]
-  }
-}
-```
 
 ---
 
@@ -285,45 +244,3 @@ The entrypoint to the tool is the function `run_covernator()`:
 - Skips files not matching YAML structure (i.e. dictionary of case: bool).
 
 ---
-
-## 🚀 CLI Usage (Optional)
-
-Run via Python directly:
-
-```bash
-python -c "from geh_common.covernator_streamlit import main; main()" --output-dir ./out --path ./tests
-```
-
-Or define in `pyproject.toml`:
-
-```toml
-[project.scripts]
-covernator = "geh_common.covernator_streamlit:main"
-```
-
-CLI flags:
-
-- `--path` (default: `./tests`)
-- `--output-dir` (default: temp dir)
-- `--generate-only`: skip UI
-- `--serve-only`: skip generation
-- `--github-output-key`: inject stats to GitHub Actions output
-
----
-
-## 🧪 GitHub Actions Integration
-
-```yaml
-jobs:
-  covernator:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Covernator
-        uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@v5.8.11
-        with:
-          project_name: your-project
-          project_directory: path/to/project
-```
-
-- Replace `project_name` and `project_directory` as needed.
-- You can override the default `geh_common_version` (default = `5.8.11`).
