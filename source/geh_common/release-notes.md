@@ -1,9 +1,18 @@
 # GEH Common Release Notes
 
-## Version 7.2.3
+## Version 7.2.5
 
 - Added `measurements_zorder` schema
 - Added `current_measurements` repository
+
+## Version 7.2.4
+
+- Covernator documentation update only
+
+## Version 7.2.3
+
+- Update covernator to generate markdown-overview
+- Delete half-finished streamlit prototype
 
 ## Version 7.2.2
 

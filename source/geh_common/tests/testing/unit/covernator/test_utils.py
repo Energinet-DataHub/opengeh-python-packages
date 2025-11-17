@@ -1,41 +1,38 @@
-import json
+from collections.abc import Set
 from pathlib import Path
 
 from geh_common.testing.covernator.commands import run_covernator
+from geh_common.testing.covernator.models import CovernatorResults
 
 
-def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[Path, dict]:
+def run_and_load_stats(base_path: Path, tmp_path: Path) -> tuple[CovernatorResults, dict]:
     """
-    Runs the covernator process and loads the resulting stats.json file.
-
-    Returns:
-        - output_dir (Path): Path to output directory (for checking generated CSVs)
-        - stats (dict): Parsed stats.json containing total_cases, total_scenarios, etc.
+    Runs covernator and returns the in-memory results and stats summary.
+    Replaces legacy file-based JSON and CSV loading.
     """
-    output_dir = tmp_path / "output"
-    output_dir.mkdir(parents=True, exist_ok=True)
+    results: CovernatorResults = run_covernator(
+        base_path=base_path,
+        folder_to_save_files_in=tmp_path,
+    )
 
-    run_covernator(output_dir, base_path)
-
-    stats_path = output_dir / "stats.json"
-    stats = json.loads(stats_path.read_text(encoding="utf-8"))
-
-    return output_dir, stats
+    stats = {
+        "total_cases": results.stats.total_cases,
+        "total_scenarios": results.stats.total_scenarios,
+        "total_groups": results.stats.total_groups,
+        "logs": {
+            "error": [{"message": e.message} for e in results.error_logs],
+            "info": [{"message": i.message} for i in results.info_logs],
+        },
+    }
+    return results, stats
 
 
 def assert_log_messages(
     logs: dict,
-    expected_errors: set[str] = None,
-    expected_infos: set[str] = None,
-):
-    """
-    Asserts the presence and correctness of error and info log messages.
-
-    Args:
-        logs (dict): The logs section from stats.json (i.e., stats["logs"])
-        expected_errors (set[str]): Set of expected error message strings
-        expected_infos (set[str]): Set of expected info message strings
-    """
+    expected_errors: Set[str] | None = None,
+    expected_infos: Set[str] | None = None,
+) -> None:
+    """Asserts the correctness of log messages."""
     if expected_errors is not None:
         actual_errors = {entry["message"] for entry in logs.get("error", [])}
         assert actual_errors == expected_errors, (

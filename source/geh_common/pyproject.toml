@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "7.2.3"
+version = "7.2.5"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -20,8 +20,6 @@ dependencies = [
     "polars>=1.25.2",
 ]
 
-[project.scripts]
-covernator = "geh_common.covernator_streamlit:main"
 
 [build-system]
 requires = ["hatchling"]
