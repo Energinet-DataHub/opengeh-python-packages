@@ -1,5 +1,4 @@
 from datetime import datetime
-from zoneinfo import ZoneInfo
 
 from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
@@ -46,45 +45,19 @@ class CurrentMeasurementsRepository:
         period_end_utc: datetime,
         metering_point_ids: list[str] | None = None,
     ) -> DataFrame:
-        period_start_local_time = period_start_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
-        period_end_local_time = period_end_utc.astimezone(ZoneInfo("Europe/Copenhagen"))
-
-        # Filtering by z-order's partition_year and partition_month columns
-        current_measurements_filtered = current_measurements.filter(
-            # period_start
-            (F.col(MeasurementsZOrderColumnNames.partition_year) > period_start_local_time.year)
-            | (
-                (F.col(MeasurementsZOrderColumnNames.partition_year) == period_start_local_time.year)
-                & (F.col(MeasurementsZOrderColumnNames.partition_month) >= period_start_local_time.month)
-            )
-            &
-            # period_end
-            (F.col(MeasurementsZOrderColumnNames.partition_year) < period_end_local_time.year)
-            | (
-                (F.col(MeasurementsZOrderColumnNames.partition_year) == period_end_local_time.year)
-                & (F.col(MeasurementsZOrderColumnNames.partition_month) <= period_end_local_time.month)
-            )
-        )
-
         # If metering_point_ids is provided, filter by metering_point_ids
         if metering_point_ids is not None:
-            # Construct a set containing the last 3 digits of each metering_point_id
-            metering_point_ids_last_3_digits = set(int(mp_id[-3:]) for mp_id in metering_point_ids)
-            # Filter by z-order's partition_metering_point_id using the constructed set
-            current_measurements_filtered = current_measurements_filtered.where(
-                F.col(MeasurementsZOrderColumnNames.partition_metering_point_id).isin(metering_point_ids_last_3_digits)
-            )
-            current_measurements_filtered = current_measurements_filtered.where(
+            current_measurements = current_measurements.where(
                 F.col(MeasurementsZOrderColumnNames.metering_point_id).isin(metering_point_ids)
             )
 
         # Filter observation_time by period start and end
-        current_measurements_filtered = current_measurements_filtered.filter(
+        current_measurements = current_measurements.filter(
             (F.col(MeasurementsZOrderColumnNames.observation_time) >= period_start_utc)
             & (F.col(MeasurementsZOrderColumnNames.observation_time) < period_end_utc)
         )
 
-        return current_measurements_filtered
+        return current_measurements
 
     def _read(self) -> DataFrame:
         """Read table or view. The function is introduced to allow mocking in tests."""
