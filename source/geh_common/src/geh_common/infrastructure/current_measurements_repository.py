@@ -7,7 +7,7 @@ from geh_common.data_products.measurements_core.measurements_gold import (
     measurements_zorder as current_measurements_data_product,
 )
 from geh_common.infrastructure.model.current_measurements import CurrentMeasurements
-from geh_common.infrastructure.model.measurements_zorder_column_names import MeasurementsZOrderColumnNames
+from geh_common.infrastructure.model.current_measurements_column_names import CurrentMeasurementsColumnNames
 from geh_common.testing.dataframes import assert_contract
 
 
@@ -48,13 +48,13 @@ class CurrentMeasurementsRepository:
         # If metering_point_ids is provided, filter by metering_point_ids
         if metering_point_ids is not None:
             current_measurements = current_measurements.where(
-                F.col(MeasurementsZOrderColumnNames.metering_point_id).isin(metering_point_ids)
+                F.col(CurrentMeasurementsColumnNames.metering_point_id).isin(metering_point_ids)
             )
 
         # Filter observation_time by period start and end
         current_measurements = current_measurements.filter(
-            (F.col(MeasurementsZOrderColumnNames.observation_time) >= period_start_utc)
-            & (F.col(MeasurementsZOrderColumnNames.observation_time) < period_end_utc)
+            (F.col(CurrentMeasurementsColumnNames.observation_time) >= period_start_utc)
+            & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
         )
 
         return current_measurements
