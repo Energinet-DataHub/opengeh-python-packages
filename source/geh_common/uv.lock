@@ -440,7 +440,7 @@ wheels = [
 
 [[package]]
 name = "geh-common"
-version = "7.2.2"
+version = "7.2.5"
 source = { editable = "." }
 dependencies = [
     { name = "azure-core" },

@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 7.2.5
+
+- Added `measurements_zorder` schema
+- Added `current_measurements` repository
+
 ## Version 7.2.4
 
 - Covernator documentation update only
