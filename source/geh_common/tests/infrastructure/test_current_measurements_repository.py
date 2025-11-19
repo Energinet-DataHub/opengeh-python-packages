@@ -67,18 +67,13 @@ def test__when_valid_contract__return_required_columns(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
-    period_start_utc = datetime(2022, 1, 1)
-    period_end_utc = datetime(2023, 1, 31)
-
     def mock_read_table(*args, **kwargs) -> DataFrame:
         return valid_df
 
     monkeypatch.setattr(CurrentMeasurementsRepository, "_read", mock_read_table)
 
     # Act
-    actual = current_measurements_repository.read_current_measurements(
-        period_start_utc=period_start_utc, period_end_utc=period_end_utc
-    )
+    actual = current_measurements_repository.read()
 
     # Assert
     assert actual.df.schema == CURRENT_MEASUREMENTS_SCHEMA
@@ -91,8 +86,6 @@ def test__when_invalid_contract__raises_with_useful_message(
 ) -> None:
     # Arrange
     invalid_df = valid_df.drop(F.col("quantity"))
-    period_start_utc = datetime(2022, 1, 1)
-    period_end_utc = datetime(2023, 1, 31)
 
     def mock_read_table(*args, **kwargs) -> DataFrame:
         return invalid_df
@@ -105,9 +98,7 @@ def test__when_invalid_contract__raises_with_useful_message(
         match=r"The data source does not comply with the contract.*",
     ):
         # Act
-        current_measurements_repository.read_current_measurements(
-            period_start_utc=period_start_utc, period_end_utc=period_end_utc
-        )
+        current_measurements_repository.read()
 
 
 def test__when_source_contains_unexpected_columns__returns_data_without_unexpected_column(
@@ -118,9 +109,6 @@ def test__when_source_contains_unexpected_columns__returns_data_without_unexpect
     """Test that the repository can handle columns being added as it is defined to NOT be a breaking change.
     The repository should return the data without the unexpected column."""
     # Arrange
-    period_start_utc = datetime(2022, 1, 1)
-    period_end_utc = datetime(2023, 1, 31)
-
     valid_df_with_extra_col = valid_df.withColumn("extra_col", F.lit("extra_value"))
 
     def mock_read_table(*args, **kwargs) -> DataFrame:
@@ -129,9 +117,7 @@ def test__when_source_contains_unexpected_columns__returns_data_without_unexpect
     monkeypatch.setattr(CurrentMeasurementsRepository, "_read", mock_read_table)
 
     # Act
-    actual = current_measurements_repository.read_current_measurements(
-        period_end_utc=period_end_utc, period_start_utc=period_start_utc
-    )
+    actual = current_measurements_repository.read()
 
     # Assert
     assert actual.df.schema == CURRENT_MEASUREMENTS_SCHEMA
@@ -164,7 +150,7 @@ def test__data_is_contained_within_the_period(
     monkeypatch.setattr(CurrentMeasurementsRepository, "_read", mock_read_table)
 
     # Act
-    actual = current_measurements_repository.read_current_measurements(
+    actual = current_measurements_repository.read_and_filter(
         period_start_utc=period_start_utc,
         period_end_utc=period_end_utc,
     )
@@ -198,7 +184,7 @@ def test__providing_list_of_metering_point_ids_limits_read(
     monkeypatch.setattr(CurrentMeasurementsRepository, "_read", mock_read_table)
 
     # Act
-    actual = current_measurements_repository.read_current_measurements(
+    actual = current_measurements_repository.read_and_filter(
         period_start_utc=period_start_utc,
         period_end_utc=period_end_utc,
         metering_point_ids=metering_point_ids,
@@ -243,7 +229,7 @@ def test__period_filtering_during_dst_change(
     monkeypatch.setattr(CurrentMeasurementsRepository, "_read", mock_read_table)
 
     # Act
-    actual = current_measurements_repository.read_current_measurements(
+    actual = current_measurements_repository.read_and_filter(
         period_start_utc=period_start_utc, period_end_utc=period_end_utc
     )
 
