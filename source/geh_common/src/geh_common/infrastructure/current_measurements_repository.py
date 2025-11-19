@@ -23,7 +23,15 @@ class CurrentMeasurementsRepository:
     table_name = current_measurements_data_product.view_name
     database_name = current_measurements_data_product.database_name
 
-    def read_current_measurements(
+    def read(
+        self,
+    ) -> CurrentMeasurements:
+        current_measurements = self._read()
+
+        assert_contract(current_measurements.schema, current_measurements_data_product.schema)
+        return CurrentMeasurements(current_measurements)
+
+    def read_and_filter(
         self,
         period_start_utc: datetime,
         period_end_utc: datetime,
@@ -31,20 +39,6 @@ class CurrentMeasurementsRepository:
     ) -> CurrentMeasurements:
         current_measurements = self._read()
 
-        current_measurements_filtered = self._filter_current_measurements(
-            current_measurements, period_start_utc, period_end_utc, metering_point_ids
-        )
-
-        assert_contract(current_measurements_filtered.schema, current_measurements_data_product.schema)
-        return CurrentMeasurements(current_measurements_filtered)
-
-    def _filter_current_measurements(
-        self,
-        current_measurements: DataFrame,
-        period_start_utc: datetime,
-        period_end_utc: datetime,
-        metering_point_ids: list[str] | None = None,
-    ) -> DataFrame:
         # If metering_point_ids is provided, filter by metering_point_ids
         if metering_point_ids is not None:
             current_measurements = current_measurements.where(
@@ -57,7 +51,8 @@ class CurrentMeasurementsRepository:
             & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
         )
 
-        return current_measurements
+        assert_contract(current_measurements.schema, current_measurements_data_product.schema)
+        return CurrentMeasurements(current_measurements)
 
     def _read(self) -> DataFrame:
         """Read table or view. The function is introduced to allow mocking in tests."""
