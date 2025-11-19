@@ -5,7 +5,7 @@
 - Split `read_current_measurements` into two function.
     - read()
     - read_and_filter()
- 
+
 ## Version 7.2.5
 
 - Added `measurements_zorder` schema
