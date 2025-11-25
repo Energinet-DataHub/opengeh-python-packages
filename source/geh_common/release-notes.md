@@ -2,7 +2,7 @@
 
 ## Version 7.2.7
 
-- Removed assert_contract from `current_measurements_repository`.   
+- Removed assert_contract from `current_measurements_repository`.
 
 ## Version 7.2.6
 
