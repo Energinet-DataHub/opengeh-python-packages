@@ -2,6 +2,10 @@
 
 ## Version 7.2.6
 
+- Removed assert_contract from `current_measurements_repository`.   
+
+## Version 7.2.6
+
 - Split `read_current_measurements` into two function.
     - read()
     - read_and_filter()

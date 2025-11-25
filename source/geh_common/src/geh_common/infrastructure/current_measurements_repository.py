@@ -26,7 +26,6 @@ class CurrentMeasurementsRepository:
         self,
     ) -> CurrentMeasurements:
         current_measurements = self._read()
-
         return CurrentMeasurements(current_measurements)
 
     def read_and_filter(
