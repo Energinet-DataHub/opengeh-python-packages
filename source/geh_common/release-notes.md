@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.2.7
+
+- Changed schema in `current_measurements_repository` to assert on the consumers expected schema.
+
 ## Version 7.2.6
 
 - Split `read_current_measurements` into two function.
