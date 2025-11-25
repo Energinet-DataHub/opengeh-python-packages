@@ -2,7 +2,7 @@
 
 ## Version 7.2.7
 
-- Changed schema in `current_measurements_repository` to use the consumers expected schema.
+- Changed schema in `current_measurements_repository` to assert on the consumers expected schema.
 
 ## Version 7.2.6
 
