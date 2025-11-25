@@ -6,8 +6,9 @@ from pyspark.sql import functions as F
 from geh_common.data_products.measurements_core.measurements_gold import (
     measurements_zorder as current_measurements_data_product,
 )
-from geh_common.infrastructure.model.current_measurements import CurrentMeasurements
+from geh_common.infrastructure.model.current_measurements import CURRENT_MEASUREMENTS_SCHEMA, CurrentMeasurements
 from geh_common.infrastructure.model.current_measurements_column_names import CurrentMeasurementsColumnNames
+from geh_common.testing.dataframes import assert_contract
 
 
 class CurrentMeasurementsRepository:
@@ -26,6 +27,7 @@ class CurrentMeasurementsRepository:
         self,
     ) -> CurrentMeasurements:
         current_measurements = self._read()
+        assert_contract(current_measurements.schema, CURRENT_MEASUREMENTS_SCHEMA)
         return CurrentMeasurements(current_measurements)
 
     def read_and_filter(

@@ -85,7 +85,7 @@ def test__when_invalid_contract__raises_with_useful_message(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Arrange
-    invalid_df = valid_df.drop(F.col("quantity"))
+    invalid_df = valid_df.drop(F.col("quality"))
 
     def mock_read_table(*args, **kwargs) -> DataFrame:
         return invalid_df
