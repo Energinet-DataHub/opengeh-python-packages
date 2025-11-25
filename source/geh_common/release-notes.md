@@ -2,7 +2,7 @@
 
 ## Version 7.2.7
 
-- Removed assert_contract from `current_measurements_repository`.
+- Changed schema in `current_measurements_repository` to use the consumers expected schema.
 
 ## Version 7.2.6
 
