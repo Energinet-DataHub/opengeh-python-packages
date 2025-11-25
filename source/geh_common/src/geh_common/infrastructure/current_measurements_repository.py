@@ -8,7 +8,6 @@ from geh_common.data_products.measurements_core.measurements_gold import (
 )
 from geh_common.infrastructure.model.current_measurements import CurrentMeasurements
 from geh_common.infrastructure.model.current_measurements_column_names import CurrentMeasurementsColumnNames
-from geh_common.testing.dataframes import assert_contract
 
 
 class CurrentMeasurementsRepository:
@@ -28,7 +27,6 @@ class CurrentMeasurementsRepository:
     ) -> CurrentMeasurements:
         current_measurements = self._read()
 
-        assert_contract(current_measurements.schema, current_measurements_data_product.schema)
         return CurrentMeasurements(current_measurements)
 
     def read_and_filter(
@@ -51,7 +49,6 @@ class CurrentMeasurementsRepository:
             & (F.col(CurrentMeasurementsColumnNames.observation_time) < period_end_utc)
         )
 
-        assert_contract(current_measurements.schema, current_measurements_data_product.schema)
         return CurrentMeasurements(current_measurements)
 
     def _read(self) -> DataFrame:
