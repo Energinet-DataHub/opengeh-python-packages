@@ -8,14 +8,14 @@ view_name = "capacity_settlement_metering_point_periods_v1"
 
 schema = T.StructType(
     [
-        # ID of the consumption metering point (parent)
+        # ID of the consumption metering point (parent) OR D22 child metering point
         T.StructField("metering_point_id", T.StringType(), not nullable),
         #
-        # Date when the consumption metering is either (a) entering 'connected'/'disconnected' first time or (b) move-in has occurred.
+        # Date when the consumption metering or D22 child metering point is either (a) entering 'connected'/'disconnected' first time or (b) move-in has occurred. on E17 metering point
         # UTC time
         T.StructField("period_from_date", T.TimestampType(), not nullable),
         #
-        # Date when the consumption metering point is closed down or a move-in has occurred.
+        # Date when the consumption metering point or D22 child metering point is closed down or a move-in has occurred.
         # UTC time
         T.StructField("period_to_date", T.TimestampType(), nullable),
         #
