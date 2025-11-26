@@ -1,6 +1,6 @@
 [project]
 name = "geh_common"
-version = "7.2.7"
+version = "7.2.8"
 description = "Functionality common to DataHub3 subsystems"
 readme = "README.md"
 requires-python = ">=3.11"

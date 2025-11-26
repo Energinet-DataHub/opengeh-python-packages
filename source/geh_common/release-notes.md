@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.2.8
+
+- Update comments in capacity_settlement_metering_point_periods_v1
+
 ## Version 7.2.7
 
 - Changed schema in `current_measurements_repository` to assert on the consumers expected schema.
