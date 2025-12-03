@@ -1,6 +1,8 @@
 import time
 
 from databricks.sdk import WorkspaceClient
+from azure.identity import ManagedIdentityCredential, DefaultAzureCredential
+from databricks.sdk.credentials_provider import CredentialsStrategy, credentials_strategy
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
 from databricks.sdk.service.sql import (
@@ -14,22 +16,62 @@ from geh_common.telemetry.logger import Logger
 
 logger = Logger(__name__)
 
+class ManagedIdentityCredentialsStrategy(CredentialsStrategy):
+    """Credentials strategy using Azure Managed Identity."""
+
+    def __init__(self, client_id: str | None = None):
+        """
+        Args:
+            client_id: The client ID of the user-assigned managed identity.
+                       If None, uses system-assigned managed identity.
+        """
+        self._client_id = client_id
+
+    def auth_type(self) -> str:
+        return "azure-managed-identity"
+
+    def __call__(self, cfg):
+        if self._client_id:
+            credential = ManagedIdentityCredential(client_id=self._client_id)
+        else:
+            credential = DefaultAzureCredential()
+
+        def token_provider():
+            token = credential.get_token(f"2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default")
+            return token.token
+
+        return token_provider
+
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
 
     @classmethod
-    def from_default_auth(cls) -> "DatabricksApiClient":
-        """Create client using SDK default authentication.
+    def from_managed_identity(
+            cls,
+            databricks_host: str,
+            managed_identity_client_id: str | None = None,
+    ) -> "DatabricksApiClient":
+        """Create client using Azure Managed Identity authentication.
 
-        Uses the Databricks SDK's default auth chain (run_as identity,
-        environment variables, config file, etc.)
+        Args:
+            databricks_host: The Databricks workspace URL.
+            managed_identity_client_id: Client ID of user-assigned managed identity.
+                                        If None, uses system-assigned identity.
 
         Returns:
             DatabricksApiClient instance.
         """
         instance = object.__new__(cls)
-        instance.client = WorkspaceClient()
+
+        credentials_strategy = ManagedIdentityCredentialsStrategy(
+            client_id=managed_identity_client_id
+        )
+
+        instance.client = WorkspaceClient(
+            host=databricks_host,
+            credentials_strategy=credentials_strategy,
+        )
         return instance
 
     def get_job_id(self, job_name: str) -> int | None:
