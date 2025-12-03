@@ -16,32 +16,6 @@ from geh_common.telemetry.logger import Logger
 
 logger = Logger(__name__)
 
-class ManagedIdentityCredentialsStrategy(CredentialsStrategy):
-    """Credentials strategy using Azure Managed Identity."""
-
-    def __init__(self, client_id: str | None = None):
-        """
-        Args:
-            client_id: The client ID of the user-assigned managed identity.
-                       If None, uses system-assigned managed identity.
-        """
-        self._client_id = client_id
-
-    def auth_type(self) -> str:
-        return "azure-managed-identity"
-
-    def __call__(self, cfg):
-        if self._client_id:
-            credential = ManagedIdentityCredential(client_id=self._client_id)
-        else:
-            credential = DefaultAzureCredential()
-
-        def token_provider():
-            token = credential.get_token(f"2ff814a6-3304-4ab8-85cb-cd0e6f879c1d/.default")
-            return token.token
-
-        return token_provider
-
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
@@ -49,13 +23,16 @@ class DatabricksApiClient:
     @classmethod
     def from_managed_identity(
             cls,
-            databricks_host: str,
+            azure_workspace_resource_id: str,
             managed_identity_client_id: str | None = None,
     ) -> "DatabricksApiClient":
         """Create client using Azure Managed Identity authentication.
 
+        Uses the SDK's built-in MSI support (azure_use_msi=True).
+
         Args:
-            databricks_host: The Databricks workspace URL.
+            azure_workspace_resource_id: The Azure Resource Manager ID for the workspace
+                (e.g., /subscriptions/.../resourceGroups/.../providers/Microsoft.Databricks/workspaces/...)
             managed_identity_client_id: Client ID of user-assigned managed identity.
                                         If None, uses system-assigned identity.
 
@@ -63,14 +40,10 @@ class DatabricksApiClient:
             DatabricksApiClient instance.
         """
         instance = object.__new__(cls)
-
-        credentials_strategy = ManagedIdentityCredentialsStrategy(
-            client_id=managed_identity_client_id
-        )
-
         instance.client = WorkspaceClient(
-            host=databricks_host,
-            credentials_strategy=credentials_strategy,
+            azure_workspace_resource_id=azure_workspace_resource_id,
+            azure_use_msi=True,
+            azure_client_id=managed_identity_client_id,
         )
         return instance
 
