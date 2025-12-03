@@ -1,8 +1,6 @@
 import time
 
 from databricks.sdk import WorkspaceClient
-from azure.identity import ManagedIdentityCredential, DefaultAzureCredential
-from databricks.sdk.credentials_provider import CredentialsStrategy, credentials_strategy
 from databricks.sdk.service.apps import Wait
 from databricks.sdk.service.jobs import BaseRun, Run, RunLifeCycleState, RunResultState
 from databricks.sdk.service.sql import (
@@ -24,7 +22,6 @@ class DatabricksApiClient:
     def from_managed_identity(
             cls,
             azure_workspace_resource_id: str,
-            managed_identity_client_id: str | None = None,
     ) -> "DatabricksApiClient":
         """Create client using Azure Managed Identity authentication.
 
@@ -33,8 +30,6 @@ class DatabricksApiClient:
         Args:
             azure_workspace_resource_id: The Azure Resource Manager ID for the workspace
                 (e.g., /subscriptions/.../resourceGroups/.../providers/Microsoft.Databricks/workspaces/...)
-            managed_identity_client_id: Client ID of user-assigned managed identity.
-                                        If None, uses system-assigned identity.
 
         Returns:
             DatabricksApiClient instance.
@@ -43,7 +38,6 @@ class DatabricksApiClient:
         instance.client = WorkspaceClient(
             azure_workspace_resource_id=azure_workspace_resource_id,
             azure_use_msi=True,
-            azure_client_id=managed_identity_client_id,
         )
         return instance
 
