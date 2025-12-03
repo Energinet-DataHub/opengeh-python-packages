@@ -14,14 +14,15 @@ from geh_common.telemetry.logger import Logger
 
 logger = Logger(__name__)
 
+
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
 
     @classmethod
     def from_managed_identity(
-            cls,
-            azure_workspace_resource_id: str,
+        cls,
+        azure_workspace_resource_id: str,
     ) -> "DatabricksApiClient":
         """Create client using Azure Managed Identity authentication.
 
