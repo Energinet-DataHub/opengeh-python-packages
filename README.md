@@ -48,7 +48,7 @@ Skeleton for dispatch of event to dh3-environments after a PR has been merged
 
 ### .github/CODEOWNERS
 
-The Outlaws platform team should be codeowners in .github folder to allow The Outlaws to do maintenance on product team's CI and CD pipelines without interrupting product teams unnecessarily
+Team Fusion should be codeowners in .github folder to be able to do maintenance on product team's CI and CD pipelines without interrupting product teams unnecessarily
 
 ## Folders in root
 

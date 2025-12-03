@@ -1,5 +1,28 @@
 # GEH Common Release Notes
 
+## Version 7.3.0
+
+**Subpackage**: `geh_common.databricks`
+
+Added `from_default_auth()` factory method to `DatabricksApiClient` for creating clients using the Databricks SDK's default authentication chain.
+
+This enables service principal authentication when running Databricks jobs with `run_as` configuration, eliminating the need for explicit token management.
+
+Example usage:
+
+```python
+from geh_common.databricks import DatabricksApiClient
+
+# Using SDK default authentication (recommended for jobs with run_as)
+client = DatabricksApiClient.from_default_auth()
+
+# Existing token-based authentication still supported
+client = DatabricksApiClient(
+    databricks_host="https://adb-xxx.azuredatabricks.net",
+    databricks_token="dapi..."
+)
+```
+
 ## Version 7.2.8
 
 - Update comments in capacity_settlement_metering_point_periods_v1

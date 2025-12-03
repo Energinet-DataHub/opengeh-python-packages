@@ -14,10 +14,23 @@ from geh_common.telemetry.logger import Logger
 
 logger = Logger(__name__)
 
-
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
+
+    @classmethod
+    def from_default_auth(cls) -> "DatabricksApiClient":
+        """Create client using SDK default authentication.
+
+        Uses the Databricks SDK's default auth chain (run_as identity,
+        environment variables, config file, etc.)
+
+        Returns:
+            DatabricksApiClient instance.
+        """
+        instance = object.__new__(cls)
+        instance.client = WorkspaceClient()
+        return instance
 
     def get_job_id(self, job_name: str) -> int | None:
         """Get the job id form a Databricks job name.
