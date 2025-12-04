@@ -17,7 +17,55 @@ logger = Logger(__name__)
 
 class DatabricksApiClient:
     def __init__(self, databricks_token: str, databricks_host: str) -> None:
+        """Create client using PAT token authentication (legacy/backwards compatible)."""
         self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
+
+    @classmethod
+    def from_azure_service_principal(
+        cls,
+        azure_workspace_resource_id: str,
+        tenant_id: str,
+        client_id: str,
+        client_secret: str,
+    ) -> "DatabricksApiClient":
+        """Create client using Azure AD service principal with client secret.
+
+        Args:
+            azure_workspace_resource_id: The Azure Resource Manager ID for the workspace
+                (e.g., /subscriptions/.../resourceGroups/.../providers/Microsoft.Databricks/workspaces/...)
+            tenant_id: The Azure AD tenant ID.
+            client_id: The Azure AD service principal's application/client ID.
+            client_secret: The Azure AD service principal's client secret.
+
+        Returns:
+            DatabricksApiClient instance.
+        """
+        instance = object.__new__(cls)
+        instance.client = WorkspaceClient(
+            azure_workspace_resource_id=azure_workspace_resource_id,
+            azure_tenant_id=tenant_id,
+            azure_client_id=client_id,
+            azure_client_secret=client_secret,
+        )
+        return instance
+
+    @classmethod
+    def from_default_auth(cls) -> "DatabricksApiClient":
+        """Create client using SDK's default authentication chain.
+
+        The SDK will try authentication methods in order based on available
+        environment variables. For Azure service principal, set:
+        - DATABRICKS_HOST or DATABRICKS_AZURE_RESOURCE_ID
+        - ARM_TENANT_ID
+        - ARM_CLIENT_ID
+        - ARM_CLIENT_SECRET
+
+        Returns:
+            DatabricksApiClient instance.
+        """
+        instance = object.__new__(cls)
+        instance.client = WorkspaceClient()
+        return instance
 
     def get_job_id(self, job_name: str) -> int | None:
         """Get the job id form a Databricks job name.
