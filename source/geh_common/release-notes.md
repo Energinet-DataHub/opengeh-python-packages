@@ -1,5 +1,11 @@
 # GEH Common Release Notes
 
+## Version 7.3.0
+
+**Subpackage**: `geh_common.databricks`
+
+Added factory methods to `DatabricksApiClient` for creating clients using the Databricks SDK's other authentication methods.
+
 ## Version 7.2.8
 
 - Update comments in capacity_settlement_metering_point_periods_v1
