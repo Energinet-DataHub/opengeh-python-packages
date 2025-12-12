@@ -238,12 +238,13 @@ def _write_dataframe(
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:
-        # change the date column to specified format
+        # order the dataframe by the specified columns
+        df = df.orderBy(*order_by)
+
+        # change the date column to specified format (this needs to be done after ordering to avoid issues with ordering on formatted strings)
         if date_format:
             for column, date_fmt in date_format.items():
                 df = df.withColumn(column, F.date_format(F.col(column), date_fmt))
-
-        df = df.orderBy(*order_by)
 
     if partition_columns:
         df.write.mode("overwrite").options(**csv_options).partitionBy(partition_columns).csv(str(spark_output_path))
