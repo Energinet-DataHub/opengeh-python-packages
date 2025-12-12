@@ -48,6 +48,7 @@ def write_csv_files(
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
     csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
+    date_format: dict[str, str] | None = None,
 ) -> list[Path]:
     """Write a DataFrame to multiple files.
 
@@ -61,6 +62,7 @@ def write_csv_files(
         order_by (list[str], optional): The columns to order by. Defaults to [].
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
+        date_format (dict[str, str] | None, optional): Dictionary containing a column name and the date format for that column. Defaults to None.
 
     Returns:
         list[Path]: The list of file paths created.
@@ -113,6 +115,7 @@ def write_csv_files(
         order_by=order_by,
         rows_per_file=rows_per_file,
         csv_options=csv_options,
+        date_format=date_format,
     )
     file_info = _get_file_info(
         result_output_path=result_output_path,
@@ -194,6 +197,7 @@ def _write_dataframe(
     order_by: list[str] | None = None,
     rows_per_file: int | None = None,
     csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
+    date_format: dict[str, str] | None = None,
 ) -> list[str]:
     """Write a DataFrame to multiple files.
 
@@ -204,6 +208,7 @@ def _write_dataframe(
         order_by (list[str], optional): The columns to order by. Defaults to [].
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
+        date_format (dict[str, str] | None, optional): Dictionary containing a column name and the date format for that column. Defaults to None.
 
     Returns:
         list[str]: Headers for the csv file.
@@ -233,6 +238,11 @@ def _write_dataframe(
         log.info(f"Writing {rows_per_file} rows per file")
 
     if len(order_by) > 0:
+        # change the date column to specified format
+        if date_format:
+            for column, date_fmt in date_format.items():
+                df = df.withColumn(column, F.date_format(F.col(column), date_fmt))
+
         df = df.orderBy(*order_by)
 
     if partition_columns:
