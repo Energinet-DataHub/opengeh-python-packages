@@ -2,7 +2,7 @@
 
 ## Version 7.3.1
 
-- Added a `date_format` option to `write_csv_file`, so it can order the column correctly before we change to a desired date format. 
+- Added a `date_format` option to `write_csv_file`, so it can order the column correctly before we change to a desired date format.
 
 ## Version 7.3.0
 
