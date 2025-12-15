@@ -388,7 +388,7 @@ def test_write_dataframe__with_date_format__applies_format(
     for p in Path(csv_path).iterdir():
         if p.is_file() and p.suffix == ".csv":
             with p.open("r") as f:
-                all_lines_written = f.readlines()
+                all_lines_written = f.read()
                 for expected in expected_lines:
                     assert expected in all_lines_written
     assert columns == ["key", "dt"]
