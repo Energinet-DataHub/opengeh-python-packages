@@ -425,7 +425,6 @@ def test_write_dataframe__with_multiple_date_formats(spark, tmp_path_factory):
         if p.is_file() and p.suffix == ".csv":
             with p.open("r") as f:
                 all_lines_written = f.readlines()
-                print("All lines", all_lines_written)
                 expected_substrings = ["2024-01-02", "2024-02-03", "2023/12/31", "2023/11/30"]
                 for expected in expected_substrings:
                     assert any(expected in line for line in all_lines_written), f"Missing {expected} in output"
