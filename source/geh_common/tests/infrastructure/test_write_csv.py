@@ -343,3 +343,90 @@ def test_write_files__when_df_includes_timestamps__creates_csv_without_milliseco
 
     # Clean up
     shutil.rmtree(tmp_dir)
+
+
+@pytest.mark.parametrize(
+    "rows, date_format, expected_lines",
+    [
+        (
+            [("a", datetime(2024, 1, 2, 15, 30, 45)), ("b", datetime(2024, 2, 3, 16, 31, 46))],
+            {"dt": "dd-MM-yyy HH:mm"},
+            ["a,02-01-2024 15:30", "b,03-02-2024 16:31"],
+        ),
+        (
+            [("a", datetime(2019, 12, 31, 15, 30, 45)), ("b", datetime(2020, 11, 30, 16, 31, 46))],
+            {"dt": "dd-MM-yyyy"},
+            ["a,31-12-2019", "b,30-11-2020"],
+        ),
+    ],
+)
+def test_write_dataframe__with_date_format__applies_format(
+    spark: SparkSession,
+    tmp_path_factory,
+    rows,
+    date_format,
+    expected_lines,
+):
+    # Arrange
+    df = spark.createDataFrame(rows, ["key", "dt"])
+    tmp_dir = tmp_path_factory.mktemp("test_write_dataframe_date_format")
+    csv_path = f"{tmp_dir}/csv_file"
+
+    # Act
+    columns = _write_dataframe(
+        df,
+        csv_path,
+        partition_columns=[],
+        order_by=["dt"],
+        rows_per_file=1000,
+        date_format=date_format,
+    )
+
+    # Assert
+    assert Path(csv_path).exists()
+
+    for p in Path(csv_path).iterdir():
+        if p.is_file() and p.suffix == ".csv":
+            with p.open("r") as f:
+                all_lines_written = f.readlines()
+                for expected in expected_lines:
+                    assert expected in all_lines_written
+    assert columns == ["key", "dt"]
+
+
+def test_write_dataframe__with_multiple_date_formats(spark, tmp_path_factory):
+    # Arrange
+    from datetime import datetime
+
+    df = spark.createDataFrame(
+        [
+            ("a", datetime(2024, 1, 2, 15, 30, 45), datetime(2023, 12, 31, 10, 0, 0)),
+            ("b", datetime(2024, 2, 3, 16, 31, 46), datetime(2023, 11, 30, 11, 1, 1)),
+        ],
+        ["key", "dt1", "dt2"],
+    )
+    tmp_dir = tmp_path_factory.mktemp("test_write_dataframe_multiple_date_formats")
+    csv_path = f"{tmp_dir}/csv_file"
+    date_format = {"dt1": "yyyy-MM-dd", "dt2": "yyyy/MM/dd"}
+
+    # Act
+    columns = _write_dataframe(
+        df,
+        csv_path,
+        partition_columns=[],
+        order_by=["dt1", "dt2"],
+        rows_per_file=None,
+        date_format=date_format,
+    )
+
+    # Assert
+    assert Path(csv_path).exists()
+    for p in Path(csv_path).iterdir():
+        if p.is_file() and p.suffix == ".csv":
+            with p.open("r") as f:
+                all_lines_written = f.readlines()
+                print("All lines", all_lines_written)
+                expected_substrings = ["2024-01-02", "2024-02-03", "2023/12/31", "2023/11/30"]
+                for expected in expected_substrings:
+                    assert any(expected in line for line in all_lines_written), f"Missing {expected} in output"
+    assert columns == ["key", "dt1", "dt2"]
