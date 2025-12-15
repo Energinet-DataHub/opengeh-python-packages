@@ -20,7 +20,7 @@ jobs:
   # License and Markdown Check
   #
   ci_base:
-    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v15
+    uses: Energinet-DataHub/.github/.github/workflows/ci-base.yml@v16
     with:
       skip_license_check: true
     secrets:
@@ -41,7 +41,7 @@ jobs:
   #
   ci_unit:
     name: Unit tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v15
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v16
     with:
       packages_directory: source
       create_versioned_release: true
@@ -52,7 +52,7 @@ jobs:
   #
   ci_integration:
     name: Integration tests
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v15
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-ci.yml@v16
     with:
       packages_directory: source
       environment: AzureAuth
