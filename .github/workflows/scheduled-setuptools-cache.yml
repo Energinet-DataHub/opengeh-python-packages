@@ -16,4 +16,4 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Install tools
-        uses: Energinet-DataHub/.github/.github/actions/asdf-install-tools@v15
+        uses: Energinet-DataHub/.github/.github/actions/asdf-install-tools@actions/v1

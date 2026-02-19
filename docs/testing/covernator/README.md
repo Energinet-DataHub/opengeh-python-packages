@@ -47,7 +47,7 @@ covernator_commit:
         private-key: ${{ secrets.dh3serviceaccount_privatekey }}
 
     - name: Run shared Covernator Commit action
-      uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@v15
+      uses: Energinet-DataHub/.github/.github/actions/python-covernator-generate-files@actions/v1
       with:
         project_directory: source/geh_wholesale
         geh_common_version: 7.2.4
