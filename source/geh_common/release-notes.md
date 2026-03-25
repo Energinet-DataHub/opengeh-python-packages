@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.3.3
+
+- Rename timestamps in data products for Wholesale related to Charges
+
 ## Version 7.3.2
 
 - Added three new data products for Wholesale related to Charges
