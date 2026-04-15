@@ -3,7 +3,7 @@
 # Note: we cannot assume we're running bash and use the set -euo pipefail approach.
 set -e
 
-VERSION=${1:-0.16.0}
+VERSION=${1:-0.18.1}
 FILE="asdf-v$VERSION"
 
 # Include operating system in file name.

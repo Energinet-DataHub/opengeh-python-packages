@@ -3,7 +3,7 @@ ARG UBUNTU_VERSION=24.04
 # Base image
 FROM mcr.microsoft.com/devcontainers/base:ubuntu-${UBUNTU_VERSION}
 
-ARG ASDF_VERSION=0.16.0
+ARG ASDF_VERSION=0.18.1
 
 # Install System Dependencies
 RUN apt-get update \
@@ -19,13 +19,13 @@ RUN apt-get update \
 
 # Change to non-root user
 ENV USER=vscode \
-    HOME=/home/vscode \
-    UV_PROJECT_ENVIRONMENT=/home/vscode/.venv \
-    ASDF_DATA_DIR=/home/vscode/.asdf \
-    UV_CACHE_DIR=/home/vscode/.cache/uv \
-    MYPY_CACHE_DIR=/home/vscode/.cache/mypy \
-    RUFF_CACHE_DIR=/home/vscode/.cache/ruff \
-    PYTHONPYCACHEPREFIX=/home/vscode/.cache/pycache
+  HOME=/home/vscode \
+  UV_PROJECT_ENVIRONMENT=/home/vscode/.venv \
+  ASDF_DATA_DIR=/home/vscode/.asdf \
+  UV_CACHE_DIR=/home/vscode/.cache/uv \
+  MYPY_CACHE_DIR=/home/vscode/.cache/mypy \
+  RUFF_CACHE_DIR=/home/vscode/.cache/ruff \
+  PYTHONPYCACHEPREFIX=/home/vscode/.cache/pycache
 
 # Add tool-versions and startup script
 COPY --chown=${USER}:${USER} .tool-versions $HOME/.tool-versions

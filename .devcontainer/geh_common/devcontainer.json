@@ -5,7 +5,7 @@
     "dockerfile": "../Dockerfile",
     "args": {
       "UBUNTU_VERSION": "24.04",
-      "ASDF_VERSION": "0.16.2"
+      "ASDF_VERSION": "0.18.1"
     }
   },
   "runArgs": [
