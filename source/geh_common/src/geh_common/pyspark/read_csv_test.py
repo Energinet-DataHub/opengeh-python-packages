@@ -11,7 +11,7 @@ def _remove_ignored_columns(df, schema, ignored_value="[IGNORED]") -> DataFrame:
         *[F.every(F.col(c).cast(T.StringType()) == F.lit(ignored_value)).alias(c) for c in df.columns]
     ).collect()
 
-    # Get the columns that should be ignored
+    # Get the columns that should be ignored.
     ignored_cols = [c for c, v in ignore_check[0].asDict().items() if v and c in schema.fieldNames()]
 
     df = df.drop(*ignored_cols)
