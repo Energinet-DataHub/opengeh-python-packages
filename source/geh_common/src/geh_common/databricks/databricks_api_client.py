@@ -16,9 +16,24 @@ logger = Logger(__name__)
 
 
 class DatabricksApiClient:
-    def __init__(self, databricks_token: str, databricks_host: str) -> None:
-        """Create client using PAT token authentication (legacy/backwards compatible)."""
-        self.client = WorkspaceClient(host=databricks_host, token=databricks_token)
+    """Client for interacting with Databricks APIs.
+
+    Authentication is handled by the Databricks SDK's default auth chain.
+    The SDK automatically detects the environment and uses the appropriate method:
+      - Inside a Databricks job: uses the job's identity (no config needed)
+      - Locally: uses `az login` credentials + DATABRICKS_HOST env var
+      - CI/CD: uses service principal via ARM_TENANT_ID, ARM_CLIENT_ID, ARM_CLIENT_SECRET
+
+    DATABRICKS_HOST must be set as an environment variable when running outside
+    of a Databricks workspace (e.g. local dev, CI). It should be the workspace URL,
+    e.g. https://adb-123456.azuredatabricks.net
+
+    See: https://docs.databricks.com/dev-tools/auth/unified-auth.html
+    """
+
+    def __init__(self) -> None:
+        """Create client using SDK's default authentication chain."""
+        self.client = WorkspaceClient()
 
     @classmethod
     def from_azure_service_principal(
@@ -53,19 +68,9 @@ class DatabricksApiClient:
     def from_default_auth(cls) -> "DatabricksApiClient":
         """Create client using SDK's default authentication chain.
 
-        The SDK will try authentication methods in order based on available
-        environment variables. For Azure service principal, set:
-        - DATABRICKS_HOST or DATABRICKS_AZURE_RESOURCE_ID
-        - ARM_TENANT_ID
-        - ARM_CLIENT_ID
-        - ARM_CLIENT_SECRET
-
-        Returns:
-            DatabricksApiClient instance.
+        Deprecated: Use DatabricksApiClient() directly instead.
         """
-        instance = object.__new__(cls)
-        instance.client = WorkspaceClient()
-        return instance
+        return cls()
 
     def get_job_id(self, job_name: str) -> int | None:
         """Get the job id form a Databricks job name.

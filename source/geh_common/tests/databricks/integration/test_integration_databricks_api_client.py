@@ -13,15 +13,11 @@ def test__execute_statement_returns_correct_state_and_data():
     """
 
     # Arrange
-    databricks_token = os.getenv("DATABRICKS_TOKEN")
-    databricks_host = os.getenv("DATABRICKS_HOST")
     databricks_warehouse_id = os.getenv("DATABRICKS_WAREHOUSE_ID")
 
-    assert databricks_token is not None, "DATABRICKS_TOKEN environment variable is not set"
-    assert databricks_host is not None, "DATABRICKS_HOST environment variable is not set"
     assert databricks_warehouse_id is not None, "DATABRICKS_WAREHOUSE_ID environment variable is not set"
 
-    client = DatabricksApiClient(databricks_host=databricks_host, databricks_token=databricks_token)
+    client = DatabricksApiClient()
 
     statement = "SELECT * FROM system.information_schema.catalogs"
 

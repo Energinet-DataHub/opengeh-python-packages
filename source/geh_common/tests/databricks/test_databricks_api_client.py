@@ -7,9 +7,7 @@ from geh_common.databricks.databricks_api_client import DatabricksApiClient, Run
 
 
 def create_sut():
-    databricks_token = "fake_token"
-    databricks_host = "https://fake-host"
-    return DatabricksApiClient(databricks_token, databricks_host)
+    return DatabricksApiClient()
 
 
 @patch("geh_common.databricks.databricks_api_client.WorkspaceClient")
