@@ -7,7 +7,7 @@
 - Removed PAT token authentication from `__init__`. The constructor now uses the Databricks SDK's default authentication chain (no parameters required).
 - `from_default_auth()` is deprecated — use `DatabricksApiClient()` directly instead.
 - `from_azure_service_principal()` remains unchanged.
-- Callers must migrate from `DatabricksApiClient(token, url)` to `DatabricksApiClient()` and set `DATABRICKS_HOST` as an environment variable.
+- Callers must migrate from `DatabricksApiClient(token, url)` to `DatabricksApiClient()`. Authentication is handled automatically by the Databricks SDK (e.g. managed identity in Databricks, `az login` locally).
 
 ## Version 7.3.4
 
