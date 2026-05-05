@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.4.0
+
+- Add more types
+
 ## Version 7.3.4
 
 - Upgrade versions
