@@ -2,7 +2,7 @@ from .charge_quality import ChargeQuality
 from .charge_resolution import ChargeResolution
 from .charge_type import ChargeType
 from .charge_unit import ChargeUnit
-from .metering_point_resolution import MeteringPointResolution
+from .metering_point_resolution import MeteringPointResolutionLegacy
 from .metering_point_sub_type import MeteringPointSubType
 from .metering_point_type import MeteringPointType
 from .net_settlement_group import NetSettlementGroup
@@ -21,7 +21,7 @@ __all__ = [
     "QuantityQuality",
     "QuantityUnit",
     "SettlementMethod",
-    "MeteringPointResolution",
+    "MeteringPointResolutionLegacy",
     "ChargeQuality",
     "ChargeType",
     "ChargeUnit",
