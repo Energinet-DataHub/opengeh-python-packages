@@ -2,7 +2,6 @@ from enum import Enum
 
 
 class AssetType(Enum):
-    UNKNOWN = "unknown"
     STEAM_TURBINE_WITH_BACK_PRESSURE_MODE = "steam_turbine_with_back_pressure_mode"
     GAS_TURBINE = "gas_turbine"
     COMBINED_CYCLE = "combined_cycle"
