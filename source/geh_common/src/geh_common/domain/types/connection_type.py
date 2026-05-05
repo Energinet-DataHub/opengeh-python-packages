@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class SilverConnectionType(Enum):
+class ConnectionType(Enum):
     UNKNOWN = "unknown"
     DIRECT = "direct"
     INSTALLATION = "installation"
