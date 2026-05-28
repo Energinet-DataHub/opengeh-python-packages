@@ -91,7 +91,7 @@ jobs:
           fi
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
         if: ${{ steps.changes.outputs.is_changed == 'true' }}
 
       - name: Set up Docker Buildx
