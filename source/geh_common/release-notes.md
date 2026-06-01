@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 7.5.1
+
+- Add electricity_market_gold data_products
+
 ## Version 7.5.0
 
 - Add `optimize_table_zorder` method.
