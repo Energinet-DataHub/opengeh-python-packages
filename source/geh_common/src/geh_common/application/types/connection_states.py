@@ -7,7 +7,7 @@ from geh_common.application.converters.str_to_list import str_to_list
 from geh_common.domain.types import ConnectionState
 
 
-def _validate_connection_states(v: list[str]) -> list[str]:
+def _validate_connection_states(v: list[str] | None) -> list[str] | None:
     """Validate the list of connection states."""
     if v is None:
         return v
@@ -39,4 +39,6 @@ Validators:
 - NoDecode: Prevents decoding of the input value.
 
 Example:
+    >>> ConnectionStates(["connected", "disconnected"])
+    ["connected", "disconnected"]
 """
