@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 7.6.0
+## Version 8.0.0
 
 - Rename type `GridAreaCode` to `GridAreaIds`.
 - Added type `ConnectionStates`.
