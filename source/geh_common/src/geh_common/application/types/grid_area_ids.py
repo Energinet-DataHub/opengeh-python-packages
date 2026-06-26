@@ -24,9 +24,7 @@ def _validate_grid_area_ids(v: list[str] | None) -> list[str] | None:
         if not isinstance(code, str):
             raise TypeError(f"Grid area ids must be strings, not {type(code)}")
         if len(code) != 3 or not code.isdigit():
-            raise ValueError(
-                f"Unexpected grid area id: '{code}'. Grid area ids must consist of 3 digits (000-999)."
-            )
+            raise ValueError(f"Unexpected grid area id: '{code}'. Grid area ids must consist of 3 digits (000-999).")
     return v
 
 
