@@ -2,7 +2,7 @@
 
 ## Version 8.0.0
 
-- Rename type `GridAreaCode` to `GridAreaIds`.
+- Rename type `GridAreaCodes` to `GridAreaIds`.
 - Added type `ConnectionStates`.
 
 ## Version 7.5.1

@@ -23,7 +23,7 @@ def test__when_valid_grid_area_ids__returns_expected() -> None:
     valid_ids = ["123", "456", "789"]
 
     # Act
-    model = ModelWithGridAreaIds(grid_area_ids=valid_ids)  # type: ignore
+    model = ModelWithGridAreaIds(grid_area_ids=valid_ids)
 
     # Assert
     assert model.grid_area_ids == valid_ids
