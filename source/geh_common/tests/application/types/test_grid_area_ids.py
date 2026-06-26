@@ -117,9 +117,7 @@ def test__when_invalid_int__raise_exception(invalid_id: Any) -> None:
     with pytest.raises(ValidationError) as exc_info:
         ModelWithGridAreaIds(grid_area_ids=[invalid_id])
 
-    assert "Unexpected grid area id" in str(exc_info.value) or "Grid area ids must be strings" in str(
-        exc_info.value
-    )
+    assert "Unexpected grid area id" in str(exc_info.value) or "Grid area ids must be strings" in str(exc_info.value)
 
 
 def test__when_not_gridareaids_type___returns_expected() -> None:
