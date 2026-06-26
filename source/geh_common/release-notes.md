@@ -1,5 +1,10 @@
 # GEH Common Release Notes
 
+## Version 8.0.0
+
+- Rename type `GridAreaCodes` to `GridAreaIds`.
+- Added type `ConnectionStates`.
+
 ## Version 7.5.1
 
 - Add electricity_market_gold data_products
