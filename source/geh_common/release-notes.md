@@ -2,7 +2,7 @@
 
 ## Version 8.0.1
 
-- Removed ´ElectricalHeatingActive`from commercial_relations_v1 data product.
+- Removed `electrical_heating_active` from `commercial_relations_v1` data product.
 
 ## Version 8.0.0
 
