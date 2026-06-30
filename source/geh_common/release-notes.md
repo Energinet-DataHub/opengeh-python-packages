@@ -2,6 +2,10 @@
 
 ## Version 8.0.0
 
+- Removed ´ElectricalHeatingActive`from commercial_relations_v1 data product.
+
+## Version 8.0.0
+
 - Rename type `GridAreaCodes` to `GridAreaIds`.
 - Added type `ConnectionStates`.
 
