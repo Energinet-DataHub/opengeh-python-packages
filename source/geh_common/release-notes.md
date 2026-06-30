@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 8.0.0
+## Version 8.0.1
 
 - Removed ´ElectricalHeatingActive`from commercial_relations_v1 data product.
 
