@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.0.1
+
+- Removed `electrical_heating_active` from `commercial_relations_v1` data product.
+
 ## Version 8.0.0
 
 - Rename type `GridAreaCodes` to `GridAreaIds`.

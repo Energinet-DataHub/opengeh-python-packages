@@ -25,7 +25,6 @@ schema = T.StructType(
             ),
             not nullable,
         ),
-        T.StructField("electrical_heating_active", T.BooleanType(), not nullable),
         T.StructField("is_current", T.BooleanType(), not nullable),
         T.StructField(
             "energy_supplier_periods",
