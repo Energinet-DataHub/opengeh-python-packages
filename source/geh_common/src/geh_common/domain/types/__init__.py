@@ -12,6 +12,7 @@ from .product import Product
 from .quantity_quality import QuantityQuality
 from .quantity_unit import QuantityUnit
 from .settlement_method import SettlementMethod
+from .time_resolution import TimeResolution
 
 __all__ = [
     "ConnectionState",
@@ -28,4 +29,5 @@ __all__ = [
     "ChargeType",
     "ChargeUnit",
     "ChargeResolution",
+    "TimeResolution",
 ]
