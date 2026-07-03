@@ -10,7 +10,7 @@ from .net_settlement_group import NetSettlementGroup
 from .orchestration_type import OrchestrationType
 from .product import Product
 from .quantity_quality import QuantityQuality
-from .quantity_unit import QuantityUnit
+from .energy_unit import QuantityUnit
 from .settlement_method import SettlementMethod
 from .time_resolution import TimeResolution
 

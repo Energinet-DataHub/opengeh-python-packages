@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class QuantityUnit(Enum):
+class EnergyUnit(Enum):
     AMPERE = "ampere"
     STK = "stk"
     KWH = "kWh"
