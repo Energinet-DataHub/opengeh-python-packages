@@ -3,7 +3,7 @@
 ## Version 8.1.0
 
 - Add `contacts_v1` schema to data products.
-- Updated `commerical_relations_v1` schema in data products.
+- Updated `commercial_relations_v1` schema in data products.
 - Cleaned up domain types.
 
 ## Version 8.0.1
