@@ -31,7 +31,7 @@ schema = T.StructType(
             T.ArrayType(
                 T.StructType(
                     [
-                        T.StructField("energy_supplier_period_id", T.StringType(), nullable),
+                        T.StructField("energy_supplier_period_id", T.StringType(), not nullable),
                         T.StructField("valid_from", T.TimestampType(), not nullable),
                         T.StructField("valid_to", T.TimestampType(), not nullable),
                         T.StructField("energy_supplier_id", T.StringType(), nullable),
