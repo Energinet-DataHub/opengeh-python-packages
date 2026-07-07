@@ -1,9 +1,8 @@
 # GEH Common Release Notes
 
-
 ## Version 8.1.3
 
-- Log exceptions/errors in addition to just span record.
+- Log exceptions/errors in addition to just recording spans.
 
 ## Version 8.1.2
 
