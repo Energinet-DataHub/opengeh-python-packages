@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.4
+
+- Fix broken decorator
+
 ## Version 8.1.3
 
 - Log exceptions/errors in addition to just recording spans.

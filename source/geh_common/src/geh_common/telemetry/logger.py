@@ -30,3 +30,7 @@ class Logger:
     def error(self, message: str, extras: dict[str, Any] | None = None) -> None:
         extras = (extras or {}) | self._extras
         self._logger.error(message, extra=extras)
+
+    def exception(self, message: str, extras: dict[str, Any] | None = None) -> None:
+        extras = (extras or {}) | self._extras
+        self._logger.exception(message, extra=extras)
