@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.2
+
+- Fix contract bug in `metering_point_periods_v1` data product schema (`settlement_date` should be StringType).
+
 ## Version 8.1.1
 
 - Fix contract bug in `metering_point_periods_v1` data product schema.

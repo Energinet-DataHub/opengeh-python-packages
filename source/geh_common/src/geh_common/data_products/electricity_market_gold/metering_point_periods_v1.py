@@ -36,7 +36,7 @@ schema = T.StructType(
         T.StructField("production_obligation", T.BooleanType(), nullable),
         T.StructField("settlement_method", T.StringType(), nullable),
         T.StructField("settlement_month", T.IntegerType(), nullable),
-        T.StructField("settlement_date", T.TimestampType(), nullable),
+        T.StructField("settlement_date", T.StringType(), nullable),
         T.StructField("remarks", T.StringType(), nullable),
         T.StructField("street_name", T.StringType(), nullable),
         T.StructField("street_code", T.StringType(), nullable),
