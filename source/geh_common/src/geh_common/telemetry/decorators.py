@@ -74,7 +74,7 @@ def start_trace() -> Callable[..., Any]:
 
                 except Exception as e:
                     span_record_exception(e, initial_span)
-                    log.exception(f"Unhandled exception in {name_to_use}")
+                    log.error(f"Unhandled exception in {name_to_use}")
                     sys.exit(4)
 
         return wrapper
