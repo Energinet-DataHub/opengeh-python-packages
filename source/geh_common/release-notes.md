@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.4
+
+- Fix error in `power_limit_kw` in `metering_point_periods_v1` data product.
+
 ## Version 8.1.3
 
 - Log exceptions/errors in addition to just recording spans.
