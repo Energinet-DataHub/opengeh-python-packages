@@ -2,7 +2,7 @@
 
 ## Version 8.1.5
 
-- Fix error in `power_limit_kw` in `metering_point_periods_v1` data product.
+- Fix an error in `power_limit_kw` precision in `metering_point_periods_v1` (`DecimalType(29, 7)` → `DecimalType(29, 1)`).
 
 ## Version 8.1.4
 
