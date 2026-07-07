@@ -1,8 +1,12 @@
 # GEH Common Release Notes
 
-## Version 8.1.4
+## Version 8.1.5
 
 - Fix error in `power_limit_kw` in `metering_point_periods_v1` data product.
+
+## Version 8.1.4
+
+- Fix broken decorator
 
 ## Version 8.1.3
 

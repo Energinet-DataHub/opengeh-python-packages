@@ -155,3 +155,26 @@ def test_logging_is_configured_error_thrown_span_records_exception(
         mock_span_record_exception.assert_called_once()
 
     cleanup_logging()
+
+
+def test_start_trace__when_unhandled_exception__exits_with_code_4(
+    unit_logging_configuration_with_connection_string,
+    caplog: pytest.LogCaptureFixture,
+):
+    """When a decorated function raises an unhandled exception, start_trace should
+    log it (with traceback) and exit with code 4. This test uses the real Logger
+    to catch missing methods (e.g. Logger.exception not existing)."""
+    import logging
+
+    @start_trace()
+    def app_sample_function():
+        raise RuntimeError("boom")
+
+    with caplog.at_level(logging.ERROR):
+        with pytest.raises(SystemExit) as exc_info:
+            app_sample_function()
+
+    assert exc_info.value.code == 4
+    assert any(
+        "Unhandled exception in app_sample_function" in r.message and r.exc_info is not None for r in caplog.records
+    )
