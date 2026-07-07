@@ -69,7 +69,7 @@ def start_trace() -> Callable[..., Any]:
                     if e.code != 0:
                         span_record_exception(e, initial_span)
                         log.error(f"SystemExit with code {e.code} in {name_to_use}")
-                    
+
                     sys.exit(e.code)
 
                 except Exception as e:
