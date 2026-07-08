@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.6
+
+- Fixed typo in database name `market_participants_gold` -> `market_participant_gold`
+
 ## Version 8.1.5
 
 - Fix an error in `power_limit_kw` precision in `metering_point_periods_v1` (`DecimalType(29, 7)` → `DecimalType(29, 1)`).
