@@ -2,7 +2,7 @@ import pyspark.sql.types as T
 
 nullable = True
 
-database_name = "market_participants_gold"
+database_name = "market_participant_gold"
 
 view_name = "grid_access_providers_v1"
 
