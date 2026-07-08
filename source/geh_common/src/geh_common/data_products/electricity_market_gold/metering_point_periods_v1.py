@@ -30,7 +30,7 @@ schema = T.StructType(
         T.StructField("settlement_group", T.StringType(), nullable),
         T.StructField("parent_metering_point_id", T.StringType(), nullable),
         T.StructField("power_limit_amperes", T.IntegerType(), nullable),
-        T.StructField("power_limit_kw", T.DecimalType(29, 7), nullable),
+        T.StructField("power_limit_kw", T.DecimalType(29, 1), nullable),
         T.StructField("power_plant_gsrn", T.StringType(), nullable),
         T.StructField("product", T.StringType(), nullable),
         T.StructField("production_obligation", T.BooleanType(), nullable),
