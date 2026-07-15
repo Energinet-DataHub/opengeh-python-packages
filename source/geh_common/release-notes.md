@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.7
+
+- Add schemas for `charge_price_information_periods_v1`, `charge_price_points_v1` and `charge_series_v1`.
+
 ## Version 8.1.6
 
 - Fixed typo in database name `market_participants_gold` -> `market_participant_gold`
