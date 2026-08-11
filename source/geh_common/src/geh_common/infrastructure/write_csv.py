@@ -272,7 +272,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     for tmp, sources in tmp_destinations.items():
         log.info(f"Creating {tmp}")
         tmp.parent.mkdir(parents=True, exist_ok=True)
-        with tmp.open("w+", encoding=FILE_ENCODING) as fh_temporary:
+        with tmp.open("w+", encoding=FILE_ENCODING, newline="\n") as fh_temporary:
             fh_temporary.write(",".join(headers) + "\n")
             for source in sources:
                 log.info(f"Appending {source} to {tmp}")
