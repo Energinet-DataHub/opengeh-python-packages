@@ -11,8 +11,8 @@ from pyspark.sql import types as T
 from geh_common.telemetry import Logger
 
 log = Logger(__name__)
-FILE_ENCODING = "utf-8"
-DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "encoding": "UTF-8"}
+FILE_ENCODING = "UTF-8"
+DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "encoding": FILE_ENCODING}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
 
 
