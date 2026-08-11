@@ -394,6 +394,35 @@ def test_write_dataframe__with_date_format__applies_format(
     assert columns == ["key", "dt"]
 
 
+def test_write_csv_files__with_danish_letters__returns_utf8_encoded_content(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_danish_letters")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    rows = [(1, "æøå"), (2, "ÆØÅ"), (3, "Blåbærgrød")]
+    expected_content = ["id,value", "1,æøå", "2,ÆØÅ", "3,Blåbærgrød"]
+    df = spark.createDataFrame(rows, ["id", "value"])
+
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        tmpdir=tmpdir,
+        order_by=["id"],
+        file_name_callback=lambda partitions: "danish_letters",
+    )
+
+    # Assert
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    raw_bytes = new_files[0].read_bytes()
+    expected_bytes = ("\n".join(expected_content) + "\n").encode("utf-8")
+    assert raw_bytes == expected_bytes, "Expected the file to be written as UTF-8"
+    assert raw_bytes.decode("utf-8").splitlines() == expected_content
+
+    # Clean up
+    shutil.rmtree(tmpdir)
+    shutil.rmtree(report_output_dir)
+
+
 def test_write_dataframe__with_multiple_date_formats(spark, tmp_path_factory):
     # Arrange
     from datetime import datetime

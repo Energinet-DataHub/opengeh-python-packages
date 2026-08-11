@@ -11,7 +11,8 @@ from pyspark.sql import types as T
 from geh_common.telemetry import Logger
 
 log = Logger(__name__)
-DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'"}
+FILE_ENCODING = "utf-8"
+DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "encoding": "UTF-8"}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
 
 
@@ -271,11 +272,11 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
     for tmp, sources in tmp_destinations.items():
         log.info(f"Creating {tmp}")
         tmp.parent.mkdir(parents=True, exist_ok=True)
-        with tmp.open("w+") as fh_temporary:
+        with tmp.open("w+", encoding=FILE_ENCODING) as fh_temporary:
             fh_temporary.write(",".join(headers) + "\n")
             for source in sources:
                 log.info(f"Appending {source} to {tmp}")
-                with source.open("r") as fh_source:
+                with source.open("r", encoding=FILE_ENCODING) as fh_source:
                     fh_temporary.write(fh_source.read())
 
     destinations = {info.destination: set() for info in file_info}
@@ -284,10 +285,10 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
 
     for dst, tmp_files in destinations.items():
         log.info(f"Creating {dst}")
-        with dst.open("a") as fh_destination:
+        with dst.open("a", encoding=FILE_ENCODING) as fh_destination:
             for tmp_file in tmp_files:
                 log.info(f"Appending {tmp_file} to {dst}")
-                with tmp_file.open("r") as fh_temporary:
+                with tmp_file.open("r", encoding=FILE_ENCODING) as fh_temporary:
                     fh_destination.write(fh_temporary.read())
 
     return list(destinations.keys())
