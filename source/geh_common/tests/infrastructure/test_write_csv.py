@@ -1,3 +1,4 @@
+import codecs
 import shutil
 import string
 from datetime import datetime, timezone
@@ -394,7 +395,7 @@ def test_write_dataframe__with_date_format__applies_format(
     assert columns == ["key", "dt"]
 
 
-def test_write_csv_files__with_danish_letters__returns_utf8_encoded_content(spark, tmp_path_factory):
+def test_write_csv_files__with_danish_letters__returns_utf8_bom_encoded_content(spark, tmp_path_factory):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_danish_letters")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
@@ -414,9 +415,9 @@ def test_write_csv_files__with_danish_letters__returns_utf8_encoded_content(spar
     # Assert
     assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
     raw_bytes = new_files[0].read_bytes()
-    expected_bytes = ("\n".join(expected_content) + "\n").encode("utf-8")
-    assert raw_bytes == expected_bytes, "Expected the file to be written as UTF-8"
-    assert raw_bytes.decode("utf-8").splitlines() == expected_content
+    expected_bytes = codecs.BOM_UTF8 + ("\n".join(expected_content) + "\n").encode("utf-8")
+    assert raw_bytes == expected_bytes, "Expected the file to be written as UTF-8 with BOM"
+    assert raw_bytes.decode("utf-8-sig").splitlines() == expected_content
 
     # Clean up
     shutil.rmtree(tmpdir)
