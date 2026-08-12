@@ -12,6 +12,8 @@ from geh_common.telemetry import Logger
 
 log = Logger(__name__)
 FILE_ENCODING = "UTF-8"
+# BOM prefixed encoding, so Excel recognizes the result files as UTF-8
+RESULT_FILE_ENCODING = "utf-8-sig"
 DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "encoding": FILE_ENCODING}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
 
@@ -285,7 +287,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
 
     for dst, tmp_files in destinations.items():
         log.info(f"Creating {dst}")
-        with dst.open("a", encoding=FILE_ENCODING) as fh_destination:
+        with dst.open("a", encoding=RESULT_FILE_ENCODING, newline="\n") as fh_destination:
             for tmp_file in tmp_files:
                 log.info(f"Appending {tmp_file} to {dst}")
                 with tmp_file.open("r", encoding=FILE_ENCODING) as fh_temporary:
