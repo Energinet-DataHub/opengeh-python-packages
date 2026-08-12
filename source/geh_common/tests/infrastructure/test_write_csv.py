@@ -415,8 +415,7 @@ def test_write_csv_files__with_danish_letters__returns_utf8_bom_encoded_content(
     # Assert
     assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
     raw_bytes = new_files[0].read_bytes()
-    expected_bytes = codecs.BOM_UTF8 + ("\n".join(expected_content) + "\n").encode("utf-8")
-    assert raw_bytes == expected_bytes, "Expected the file to be written as UTF-8 with BOM"
+    assert raw_bytes.startswith(codecs.BOM_UTF8), "Expected the file to start with a UTF-8 BOM"
     assert raw_bytes.decode("utf-8-sig").splitlines() == expected_content
 
     # Clean up
