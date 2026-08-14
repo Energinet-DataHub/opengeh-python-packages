@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.8
+
+- Force utf-8 in write_csv.py
+
 ## Version 8.1.7
 
 - Add schemas for `charge_price_information_periods_v1`, `charge_links_v1` and `charge_series_v1`.
