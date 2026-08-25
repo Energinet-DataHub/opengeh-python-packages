@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.1.9
+
+- Add `workflow_instances_v1` and `workflow_step_instances_v1` contracts for `process_manager_gold`.
+
 ## Version 8.1.8
 
 - Force utf-8 in write_csv.py
