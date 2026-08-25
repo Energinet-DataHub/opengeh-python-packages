@@ -281,7 +281,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str], delimiter: Del
         delimiter (str, optional): The delimiter used to separate the header values. Must be one of "," (comma), ";" (semicolon), tab, "|" (pipe), " " (space), "^" (caret) or the ASCII unit separator (0x1F). Defaults to ",".
 
     Returns:
-        list[Path]: The headers for the CSV file.
+        list[Path]: The list of output file paths created.
     """
     tmp_destinations = {info.temporary: set() for info in file_info}
     for info in file_info:
