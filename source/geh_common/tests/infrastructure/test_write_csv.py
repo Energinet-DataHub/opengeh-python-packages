@@ -8,6 +8,7 @@ import pytest
 from pyspark.sql import SparkSession
 
 from geh_common.infrastructure.write_csv import (
+    Delimiter,
     _get_partition_information,
     _write_dataframe,
     write_csv_files,
@@ -477,34 +478,13 @@ def test_write_csv_files__with_pipe_delimiter__returns_pipe_separated_content(sp
         tmpdir=tmpdir,
         order_by=["id"],
         file_name_callback=lambda partitions: "pipe_delimited",
-        delimiter="|",
+        delimiter=Delimiter.PIPE,
     )
 
     # Assert
     assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
     with open(new_files[0], "r", encoding="utf-8-sig") as f:
         assert f.read().splitlines() == expected_content
-
-    # Clean up
-    shutil.rmtree(tmpdir)
-    shutil.rmtree(report_output_dir)
-
-
-@pytest.mark.parametrize("delimiter", ["::", "", "a", "\n"])
-def test_write_csv_files__with_disallowed_delimiter__raises_value_error(spark, tmp_path_factory, delimiter):
-    # Arrange
-    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_disallowed_delimiter")
-    tmpdir = tmp_path_factory.mktemp("tmp_dir")
-    df = spark.createDataFrame([(1, "a")], ["id", "value"])
-
-    # Act & Assert
-    with pytest.raises(ValueError, match="Invalid delimiter"):
-        write_csv_files(
-            df,
-            output_path=report_output_dir,
-            tmpdir=tmpdir,
-            delimiter=delimiter,  # type: ignore[arg-type]
-        )
 
     # Clean up
     shutil.rmtree(tmpdir)

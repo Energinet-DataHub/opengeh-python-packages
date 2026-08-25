@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.2.1
+
+- Changed the `delimiter` parameter of `write_csv_files` to take a `Delimiter` enum member (`Delimiter.COMMA`, `Delimiter.SEMICOLON`, `Delimiter.TAB`, `Delimiter.PIPE`, `Delimiter.SPACE`, `Delimiter.CARET` and `Delimiter.UNIT_SEPARATOR`) instead of a string literal. The default is still `Delimiter.COMMA`, and passing a raw string is no longer supported.
+
 ## Version 8.2.0
 
 - Added a `delimiter` parameter to `write_csv_files`, so the value separator of the written CSV files can be controlled. It defaults to `,` and is limited to `,` (comma), `;` (semicolon), tab, `|` (pipe), space, `^` (caret) and the ASCII unit separator (0x1F). Any other value raises a `ValueError`.
