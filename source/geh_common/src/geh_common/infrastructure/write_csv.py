@@ -121,11 +121,6 @@ def write_csv_files(
     print("CSV files written with custom filenames:", output_files)
     ```
     """
-    if not isinstance(delimiter, Delimiter):
-        raise TypeError(
-            f"delimiter must be a Delimiter (e.g. Delimiter.COMMA), got {type(delimiter).__name__}"
-        )
-
     random_dir = "".join(random.choices(string.ascii_lowercase, k=10))
     result_output_path = Path(output_path)
     if spark_output_path is None:
