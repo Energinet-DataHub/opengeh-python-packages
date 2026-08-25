@@ -16,7 +16,7 @@ from geh_common.infrastructure.write_csv import (
 
 def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_write_csv_files__when_empty_dataframe__returns_empty_list")
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__when_empty_dataframe__returns_empty_list")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([], schema="id INT, value STRING")
 
@@ -36,7 +36,9 @@ def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_pa
 
 def test_write_csv_files__with_file_name_callback__returns_expected_content(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_write_csv_files__with_file_name_callback__returns_expected_content")
+    report_output_dir = tmp_path_factory.mktemp(
+        "test_write_csv_files__with_file_name_callback__returns_expected_content"
+    )
     spark_output_dir = report_output_dir / "spark_output"
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     expected_rows = 1_000
@@ -80,7 +82,7 @@ def test_write_csv_files__with_file_name_callback__returns_expected_content(spar
 
 def test_write_csv_files__with_defaults__returns_expected(spark, tmp_path_factory):
     # Arrange
-    report_output_dir = Path("test_write_csv_files__with_defaults__returns_expected")
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_defaults__returns_expected")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
     df = spark.createDataFrame([(i, "a") for i in range(100_000)], ["id", "value"])
 
@@ -458,3 +460,52 @@ def test_write_dataframe__with_multiple_date_formats(spark, tmp_path_factory):
                 for expected in expected_substrings:
                     assert any(expected in line for line in all_lines_written), f"Missing {expected} in output"
     assert columns == ["key", "dt1", "dt2"]
+
+
+def test_write_csv_files__with_pipe_delimiter__returns_pipe_separated_content(spark, tmp_path_factory):
+    # Arrange
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_pipe_delimiter")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    rows = [(1, "a"), (2, "b"), (3, "c")]
+    expected_content = ["id|value", "1|a", "2|b", "3|c"]
+    df = spark.createDataFrame(rows, ["id", "value"])
+
+    # Act
+    new_files = write_csv_files(
+        df,
+        output_path=report_output_dir,
+        tmpdir=tmpdir,
+        order_by=["id"],
+        file_name_callback=lambda partitions: "pipe_delimited",
+        delimiter="|",
+    )
+
+    # Assert
+    assert len(new_files) == 1, f"Expected 1 new file to be created, but got {len(new_files)}"
+    with open(new_files[0], "r", encoding="utf-8-sig") as f:
+        assert f.read().splitlines() == expected_content
+
+    # Clean up
+    shutil.rmtree(tmpdir)
+    shutil.rmtree(report_output_dir)
+
+
+@pytest.mark.parametrize("delimiter", ["::", "", "a", "\n"])
+def test_write_csv_files__with_disallowed_delimiter__raises_value_error(spark, tmp_path_factory, delimiter):
+    # Arrange
+    report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__with_disallowed_delimiter")
+    tmpdir = tmp_path_factory.mktemp("tmp_dir")
+    df = spark.createDataFrame([(1, "a")], ["id", "value"])
+
+    # Act & Assert
+    with pytest.raises(ValueError, match="Invalid delimiter"):
+        write_csv_files(
+            df,
+            output_path=report_output_dir,
+            tmpdir=tmpdir,
+            delimiter=delimiter,  # type: ignore[arg-type]
+        )
+
+    # Clean up
+    shutil.rmtree(tmpdir)
+    shutil.rmtree(report_output_dir)
