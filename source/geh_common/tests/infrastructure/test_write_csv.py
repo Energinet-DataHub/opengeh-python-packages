@@ -14,7 +14,7 @@ from geh_common.infrastructure.write_csv import (
 )
 
 
-def test_write_csv_files__when_empty_dataframe__returns_empty_list(spark, tmp_path_factory):
+def test_write_csv_files__when_empty_dataframe__creates_single_header_only_file(spark, tmp_path_factory):
     # Arrange
     report_output_dir = tmp_path_factory.mktemp("test_write_csv_files__when_empty_dataframe__returns_empty_list")
     tmpdir = tmp_path_factory.mktemp("tmp_dir")
