@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.2.0
+
+- Added a `delimiter` parameter to `write_csv_files`, so the value separator of the written CSV files can be controlled. It defaults to `,` and is limited to `,` (comma), `;` (semicolon), tab, `|` (pipe), space, `^` (caret) and the ASCII unit separator (0x1F). Any other value raises a `ValueError`.
+
 ## Version 8.1.9
 
 - Add `workflow_instances_v1` and `workflow_step_instances_v1` contracts for `process_manager_gold`.
