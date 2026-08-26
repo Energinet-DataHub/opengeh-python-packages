@@ -1,6 +1,6 @@
 # GEH Common Release Notes
 
-## Version 8.2.1
+## Version 8.2.2
 
 - Remove `workflow_instances_v1` and `workflow_step_instances_v1`  and add `processes_v1`
 
