@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.2.3
+
+- Change `processes_v1` `state` column type from `IntegerType` to `StringType`
+
 ## Version 8.2.2
 
 - Remove `workflow_instances_v1` and `workflow_step_instances_v1`  and add `processes_v1`
