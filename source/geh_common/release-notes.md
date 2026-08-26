@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.2.2
+
+- Remove `workflow_instances_v1` and `workflow_step_instances_v1`  and add `processes_v1`
+
 ## Version 8.2.1
 
 - Changed the `delimiter` parameter of `write_csv_files` to take a `Delimiter` enum member (`Delimiter.COMMA`, `Delimiter.SEMICOLON`, `Delimiter.TAB`, `Delimiter.PIPE`, `Delimiter.SPACE`, `Delimiter.CARET` and `Delimiter.UNIT_SEPARATOR`) instead of a string literal. The default is still `Delimiter.COMMA`, and passing a raw string is no longer supported.
