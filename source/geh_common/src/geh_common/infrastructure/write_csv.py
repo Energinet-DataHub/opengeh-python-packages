@@ -1,6 +1,7 @@
 import random
 import string
 from dataclasses import dataclass
+from enum import StrEnum
 from pathlib import Path
 from typing import Callable
 
@@ -16,6 +17,18 @@ FILE_ENCODING = "UTF-8"
 RESULT_FILE_ENCODING = "utf-8-sig"
 DEFAULT_CSV_OPTIONS = {"timestampFormat": "yyyy-MM-dd'T'HH:mm:ss'Z'", "encoding": FILE_ENCODING}
 CHUNK_INDEX_COLUMN = "chunk_index_partition"
+
+
+class Delimiter(StrEnum):
+    """The value separators supported by `write_csv_files`."""
+
+    COMMA = ","
+    SEMICOLON = ";"
+    TAB = "\t"
+    PIPE = "|"
+    SPACE = " "
+    CARET = "^"
+    UNIT_SEPARATOR = "\x1f"
 
 
 def _default_file_name_callback(partitions: dict[str, str]) -> str:
@@ -52,6 +65,7 @@ def write_csv_files(
     rows_per_file: int | None = None,
     csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
     date_format: dict[str, str] | None = None,
+    delimiter: Delimiter = Delimiter.COMMA,
 ) -> list[Path]:
     """Write a DataFrame to multiple files.
 
@@ -66,6 +80,7 @@ def write_csv_files(
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
         date_format (dict[str, str] | None, optional): Dictionary containing a column name and the date format for that column. Defaults to None.
+        delimiter (Delimiter, optional): The delimiter used to separate values in the CSV files. Defaults to `Delimiter.COMMA`.
 
     Returns:
         list[Path]: The list of file paths created.
@@ -119,6 +134,7 @@ def write_csv_files(
         rows_per_file=rows_per_file,
         csv_options=csv_options,
         date_format=date_format,
+        delimiter=delimiter,
     )
     file_info = _get_file_info(
         result_output_path=result_output_path,
@@ -126,7 +142,7 @@ def write_csv_files(
         tmpdir=tmpdir,
         file_name_callback=file_name_callback,
     )
-    files = _merge_content(file_info=file_info, headers=headers)
+    files = _merge_content(file_info=file_info, headers=headers, delimiter=delimiter)
     return files
 
 
@@ -201,6 +217,7 @@ def _write_dataframe(
     rows_per_file: int | None = None,
     csv_options: dict[str, str] = DEFAULT_CSV_OPTIONS,
     date_format: dict[str, str] | None = None,
+    delimiter: Delimiter = Delimiter.COMMA,
 ) -> list[str]:
     """Write a DataFrame to multiple files.
 
@@ -212,6 +229,7 @@ def _write_dataframe(
         rows_per_file (int | None, optional): The number of rows per file. Defaults to None.
         csv_options (dict[str, str], optional): The options for the CSV writer. Defaults to DEFAULT_CSV_OPTIONS.
         date_format (dict[str, str] | None, optional): Dictionary containing a column name and the date format for that column. Defaults to None.
+        delimiter (Delimiter, optional): The delimiter used to separate values in the CSV files. Defaults to `Delimiter.COMMA`.
 
     Returns:
         list[str]: Headers for the csv file.
@@ -223,6 +241,7 @@ def _write_dataframe(
     partition_columns = partition_columns.copy()
     order_by = order_by.copy()
     csv_options = csv_options.copy()
+    csv_options["delimiter"] = delimiter.value
 
     if rows_per_file is not None and rows_per_file > 0:
         if len(order_by) == 0:
@@ -257,15 +276,16 @@ def _write_dataframe(
     return [c for c in df.columns if c not in partition_columns]
 
 
-def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
+def _merge_content(file_info: list[FileInfo], headers: list[str], delimiter: Delimiter = Delimiter.COMMA) -> list[Path]:
     """Merge the content of the files into a single file.
 
     Args:
         file_info (list[FileInfo]): The list of file information.
         headers (list[str]): The headers for the CSV file.
+        delimiter (Delimiter, optional): The delimiter used to separate the header values. Defaults to `Delimiter.COMMA`.
 
     Returns:
-        list[Path]: The headers for the CSV file.
+        list[Path]: The list of output file paths created.
     """
     tmp_destinations = {info.temporary: set() for info in file_info}
     for info in file_info:
@@ -275,7 +295,7 @@ def _merge_content(file_info: list[FileInfo], headers: list[str]) -> list[Path]:
         log.info(f"Creating {tmp}")
         tmp.parent.mkdir(parents=True, exist_ok=True)
         with tmp.open("w+", encoding=FILE_ENCODING) as fh_temporary:
-            fh_temporary.write(",".join(headers) + "\n")
+            fh_temporary.write(delimiter.value.join(headers) + "\n")
             for source in sources:
                 log.info(f"Appending {source} to {tmp}")
                 with source.open("r", encoding=FILE_ENCODING) as fh_source:

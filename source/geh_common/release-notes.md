@@ -1,5 +1,17 @@
 # GEH Common Release Notes
 
+## Version 8.2.1
+
+- Remove `workflow_instances_v1` and `workflow_step_instances_v1`  and add `processes_v1`
+
+## Version 8.2.1
+
+- Changed the `delimiter` parameter of `write_csv_files` to take a `Delimiter` enum member (`Delimiter.COMMA`, `Delimiter.SEMICOLON`, `Delimiter.TAB`, `Delimiter.PIPE`, `Delimiter.SPACE`, `Delimiter.CARET` and `Delimiter.UNIT_SEPARATOR`) instead of a string literal. The default is still `Delimiter.COMMA`, and passing a raw string is no longer supported.
+
+## Version 8.2.0
+
+- Added a `delimiter` parameter to `write_csv_files`, so the value separator of the written CSV files can be controlled. It defaults to `,` and is limited to `,` (comma), `;` (semicolon), tab, `|` (pipe), space, `^` (caret) and the ASCII unit separator (0x1F). Any other value raises a `ValueError`.
+
 ## Version 8.1.9
 
 - Add `workflow_instances_v1` and `workflow_step_instances_v1` contracts for `process_manager_gold`.
@@ -96,8 +108,8 @@ Added factory methods to `DatabricksApiClient` for creating clients using the Da
 ## Version 7.2.6
 
 - Split `read_current_measurements` into two function.
-    - read()
-    - read_and_filter()
+  - read()
+  - read_and_filter()
 
 ## Version 7.2.5
 
@@ -290,7 +302,7 @@ Example:
 ## Version 5.10.0
 
 - Implements a generalized version of the `ZipTask` from `geh_settlement_report`.
-    - This involves two functions: `create_zip_file` and `write_csv_files`.
+  - This involves two functions: `create_zip_file` and `write_csv_files`.
 
 ## Version 5.9.4
 
@@ -419,15 +431,15 @@ Example of a valid folder structure:
 ```
 
 - scenario group should have folder called `coverage` containing a yaml file following this pattern: `all_cases*.yml`
-    - the `master file`
-    - contains all cases that should be implemented
-    - (in the future) boolean determines whether pipeline fails if case is not implemented
-    - case names have to be unique in a single master file
-    - Example: [all_cases_test.yml] (update 22-10-2025 removed dead link)
+  - the `master file`
+  - contains all cases that should be implemented
+  - (in the future) boolean determines whether pipeline fails if case is not implemented
+  - case names have to be unique in a single master file
+  - Example: [all_cases_test.yml] (update 22-10-2025 removed dead link)
 - folder `scenario_tests` next to the coverage folder
-    - must contain a key `cases_tested`
-    - mapping between master file and scenarios testing specific cases
-    - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml] (update 22-10-2025 removed dead link) & [first_layer_folder2/coverage_mapping.yml] (update 22-10-2025 removed dead link)
+  - must contain a key `cases_tested`
+  - mapping between master file and scenarios testing specific cases
+  - Examples: [first_layer_folder1/sub_folder/coverage_mapping.yml] (update 22-10-2025 removed dead link) & [first_layer_folder2/coverage_mapping.yml] (update 22-10-2025 removed dead link)
 
 ## Version 5.7.0
 
