@@ -12,7 +12,7 @@ schema = T.StructType(
         T.StructField("business_reason", T.StringType(), nullable),
         T.StructField("validity_date", T.TimestampType(), nullable),
         T.StructField("metering_point_id", T.StringType(), nullable),
-        T.StructField("state", T.IntegerType(), not nullable),
+        T.StructField("state", T.StringType(), not nullable),
         T.StructField("created_at", T.TimestampType(), not nullable),
         T.StructField("started_at", T.TimestampType(), nullable),
         T.StructField("terminated_at", T.TimestampType(), nullable),
