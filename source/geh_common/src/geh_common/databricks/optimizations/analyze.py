@@ -1,7 +1,7 @@
 from pyspark.sql.session import SparkSession
 
 
-def analyze_table(spark: SparkSession, database: str, table: str, analyze_columns: str | None = None) -> None:
+def analyze_table(spark: SparkSession, database: str, table: str, analyze_columns: str | None = None, analyze_delta: bool = False) -> None:
     """Analyze the specified table in the given database.
 
     Analyze helps query performance by collecting statistics on the table.
@@ -12,7 +12,10 @@ def analyze_table(spark: SparkSession, database: str, table: str, analyze_column
       table: The name of the table to analyze.
       analyze_columns (optional): The columns to analyze (preferably cluster keys).
     """
-    if analyze_columns:
+    if analyze_delta:
+        print(f"Analyzing delta statistics")  # noqa: T201
+        sql = f"ANALYZE TABLE {database}.{table} COMPUTE DELTA STATISTICS" 
+    elif analyze_columns:
         print(f"Analyzing columns: {analyze_columns}")  # noqa: T201
         sql = f"ANALYZE TABLE {database}.{table} COMPUTE STATISTICS FOR COLUMNS {analyze_columns}"
     else:
