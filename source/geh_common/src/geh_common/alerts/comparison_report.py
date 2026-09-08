@@ -36,8 +36,12 @@ def compare_and_report(
     *,
     print_results: bool = True,
     send_email: bool = True,
+    max_displayed_rows: int = 20,
 ) -> None:
     """Run comparisons and print or email a summary of non-empty results."""
+    if max_displayed_rows < 1:
+        raise ValueError("max_displayed_rows must be at least 1")
+
     result_counts = []
     for comparison in comparisons:
         dataframe = _compare(comparison)
@@ -49,10 +53,9 @@ def compare_and_report(
                 continue
 
             if print_results:
-                print("\n" + "=" * 80)  # noqa: T201
-                print(comparison.heading)  # noqa: T201
-                print("=" * 80)  # noqa: T201
-                dataframe.show(truncate=False)
+                print(f"\n{comparison.heading}")  # noqa: T201
+                print(f"{count} {comparison.summary}")  # noqa: T201
+                dataframe.show(n=max_displayed_rows, truncate=50)
         finally:
             dataframe.unpersist()
 

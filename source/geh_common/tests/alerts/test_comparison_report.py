@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import pytest
 from pyspark.sql import DataFrame
@@ -25,7 +25,7 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
         comparison_type=ComparisonType.VALUES,
         comparison_columns=(("source_value", "target_value"),),
         heading="Mismatched records",
-        summary="records have mismatched values",
+        summary="field values differ",
     )
 
     compare_and_report("Comparison failed", [comparison], print_results=False)
@@ -40,7 +40,7 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
     dataframe.persist.assert_called_once_with()
     dataframe.show.assert_not_called()
     dataframe.unpersist.assert_called_once_with()
-    send_alert.assert_called_once_with("Comparison failed", "2 records have mismatched values")
+    send_alert.assert_called_once_with("Comparison failed", "2 field values differ")
 
 
 @patch("geh_common.alerts.comparison_report.send_comparison_alert")
@@ -112,6 +112,42 @@ def test_compare_and_report__with_empty_results__does_not_send_alert(
     send_alert.assert_not_called()
 
 
+@patch("builtins.print")
+@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
+def test_compare_and_report__when_printing__shows_bounded_preview(
+    find_missing: MagicMock,
+    send_alert: MagicMock,
+    print_output: MagicMock,
+) -> None:
+    dataframe = MagicMock(spec=DataFrame)
+    dataframe.count.return_value = 25
+    find_missing.return_value = dataframe
+    comparison = ComparisonResult(
+        MagicMock(spec=DataFrame),
+        "id",
+        MagicMock(spec=DataFrame),
+        "id",
+        ComparisonType.MISSING_RECORDS,
+        "Missing records",
+        "records are missing",
+    )
+
+    compare_and_report(
+        "Comparison failed",
+        [comparison],
+        send_email=False,
+        max_displayed_rows=10,
+    )
+
+    assert print_output.call_args_list == [
+        call("\nMissing records"),
+        call("25 records are missing"),
+    ]
+    dataframe.show.assert_called_once_with(n=10, truncate=50)
+    send_alert.assert_not_called()
+
+
 def test_comparison_result__with_values_and_no_comparison_columns__raises_error() -> None:
     with pytest.raises(ValueError, match="comparison_columns must be provided"):
         ComparisonResult(
@@ -123,3 +159,8 @@ def test_comparison_result__with_values_and_no_comparison_columns__raises_error(
             "Mismatched records",
             "records have mismatched values",
         )
+
+
+def test_compare_and_report__with_invalid_display_limit__raises_error() -> None:
+    with pytest.raises(ValueError, match="max_displayed_rows must be at least 1"):
+        compare_and_report("Comparison failed", [], max_displayed_rows=0)

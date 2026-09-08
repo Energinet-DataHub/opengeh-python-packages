@@ -38,7 +38,9 @@ compare_and_report("Wholesale comparison failed", comparisons)
 
 By default, non-empty results are printed and an email summary is sent. Use
 `send_email=False` for printing only or `print_results=False` for email only.
-No output or email is produced when every comparison is empty.
+Console output shows at most 20 rows per comparison and truncates long values.
+Set `max_displayed_rows` to change the preview size. No output or email is
+produced when every comparison is empty.
 
 Email delivery reads these environment variables:
 
@@ -64,7 +66,12 @@ comparisons.append(
             ("quality", "quality"),
         ),
         heading="Records with mismatched values",
-        summary="records have mismatched values",
+        summary="field values differ",
     ),
 )
 ```
+
+Value comparisons produce one row per differing field instead of returning the
+entire source record. The compact result contains `record_key`, `source_column`,
+`target_column`, `source_value`, and `target_value`. Values are represented as
+strings so columns with different Spark types can be included in one result.

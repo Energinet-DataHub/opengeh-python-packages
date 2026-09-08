@@ -3,7 +3,7 @@
 ## Version 8.3.0
 
 - Added Spark JDBC connectors and environment-based connection settings for reading from and appending to Azure SQL Server and Azure Database for PostgreSQL using Microsoft Entra service-principal authentication.
-- Added `geh_common.alerts` with a declarative `ComparisonResult` API and a single `compare_and_report` entry point for finding missing or mismatched Spark records and reporting non-empty results through console output and/or email.
+- Added `geh_common.alerts` with a declarative `ComparisonResult` API and a single `compare_and_report` entry point for finding missing records or field-level value differences and reporting non-empty results through bounded console previews and/or email.
 
 ## Version 8.2.3
 
