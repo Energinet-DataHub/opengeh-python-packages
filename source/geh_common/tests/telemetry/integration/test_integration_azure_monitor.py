@@ -263,7 +263,7 @@ def test__add_log_records_to_azure_monitor_keeps_correct_count(
     )
 
 
-@pytest.skip("Skipping integration test for decorators")
+@pytest.mark.skip
 def test__decorators_integration_test(
     integration_test_configuration: IntegrationTestConfiguration,
     integration_logging_configuration_setup_with_extras,

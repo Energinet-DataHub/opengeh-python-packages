@@ -88,6 +88,46 @@ def test_compare_and_report__with_multiple_missing_record_comparisons__combines_
 
 @patch("geh_common.alerts.comparison_report.send_comparison_alert")
 @patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
+def test_compare_and_report__with_mixed_results__omits_empty_results_from_summary(
+    find_missing: MagicMock,
+    send_alert: MagicMock,
+) -> None:
+    empty_dataframe = MagicMock(spec=DataFrame)
+    empty_dataframe.count.return_value = 0
+    non_empty_dataframe = MagicMock(spec=DataFrame)
+    non_empty_dataframe.count.return_value = 2
+    find_missing.side_effect = [empty_dataframe, non_empty_dataframe]
+    comparisons = [
+        ComparisonResult(
+            MagicMock(spec=DataFrame),
+            "id",
+            MagicMock(spec=DataFrame),
+            "id",
+            ComparisonType.MISSING_RECORDS,
+            "Missing from target",
+            "records are missing from target",
+        ),
+        ComparisonResult(
+            MagicMock(spec=DataFrame),
+            "id",
+            MagicMock(spec=DataFrame),
+            "id",
+            ComparisonType.MISSING_RECORDS,
+            "Missing from source",
+            "records are missing from source",
+        ),
+    ]
+
+    compare_and_report("Completeness check failed", comparisons, print_results=False)
+
+    send_alert.assert_called_once_with(
+        "Completeness check failed",
+        "2 records are missing from source",
+    )
+
+
+@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
 def test_compare_and_report__with_empty_results__does_not_send_alert(
     find_missing: MagicMock,
     send_alert: MagicMock,

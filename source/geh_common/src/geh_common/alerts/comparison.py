@@ -25,6 +25,9 @@ def find_records_with_mismatched_values(
     comparison_columns: tuple[tuple[str, str], ...],
 ) -> DataFrame:
     """Return one compact row for each value that differs between matching records."""
+    if not comparison_columns:
+        raise ValueError("comparison_columns must contain at least one (source_column, target_column) pair")
+
     source = source_dataframe.alias("source")
     target = target_dataframe.alias("target")
     matching_key = F.col(f"source.{source_key_column}") == F.col(f"target.{target_key_column}")

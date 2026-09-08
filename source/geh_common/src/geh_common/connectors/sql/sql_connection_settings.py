@@ -9,4 +9,4 @@ class SqlConnectionSettings(BaseSettings):
     database_name: str = Field(init=False)
     tenant_id: str = Field(init=False)
     spn_app_id: str = Field(init=False)
-    spn_app_secret: str = Field(init=False)
+    spn_app_secret: str = Field(init=False, repr=False)

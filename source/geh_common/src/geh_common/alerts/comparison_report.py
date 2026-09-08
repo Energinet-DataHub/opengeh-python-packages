@@ -63,7 +63,9 @@ def compare_and_report(
         return
 
     body = "\n".join(
-        f"{count} {comparison.summary}" for comparison, count in zip(comparisons, result_counts, strict=True)
+        f"{count} {comparison.summary}"
+        for comparison, count in zip(comparisons, result_counts, strict=True)
+        if count > 0
     )
     if send_email:
         send_comparison_alert(subject, body)
