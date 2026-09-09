@@ -53,17 +53,24 @@ composite_key_comparison = ComparisonResult(
 )
 ```
 
-By default, non-empty results are printed and an email summary is sent. Use
-`send_email=False` for printing only or `print_results=False` for email only.
-Console output shows at most 20 rows per comparison and truncates long values.
-Set `max_displayed_rows` to change the preview size. No output or email is
-produced when every comparison is empty.
+By default, non-empty results are printed and no email is sent. Console output
+shows at most 20 rows per comparison and truncates long values. Set
+`max_displayed_rows` to change the preview size. No output or email is produced
+when every comparison is empty.
 
-Email delivery reads these environment variables:
+To send an email summary, enable it explicitly:
 
-- `SENDGRID_API_KEY`
-- `ALERT_EMAIL_FROM`
-- `ALERT_EMAIL_TO`
+```python
+compare_and_report("Wholesale comparison failed", comparisons, send_email=True)
+```
+
+Email delivery requires these environment variables:
+
+- `SENDGRID_API_KEY`: SendGrid API key.
+- `ALERT_EMAIL_FROM`: Sender email address.
+- `ALERT_EMAIL_TO`: Recipient email address.
+
+The shared [email sender](../email_sender/README.md) documents direct usage.
 
 ## Value comparisons
 

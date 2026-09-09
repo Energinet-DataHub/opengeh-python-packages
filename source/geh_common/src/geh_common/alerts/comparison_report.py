@@ -4,8 +4,9 @@ from typing import Sequence
 
 from pyspark.sql import DataFrame
 
+from geh_common.email_sender import send_email as _send_email
+
 from .comparison import find_records_missing_from_target, find_records_with_mismatched_values
-from .email_sender import send_comparison_alert
 
 
 class ComparisonType(StrEnum):
@@ -35,7 +36,7 @@ def compare_and_report(
     comparisons: Sequence[ComparisonResult],
     *,
     print_results: bool = True,
-    send_email: bool = True,
+    send_email: bool = False,
     max_displayed_rows: int = 20,
 ) -> None:
     """Run comparisons and print or email a summary of non-empty results."""
@@ -68,7 +69,7 @@ def compare_and_report(
         if count > 0
     )
     if send_email:
-        send_comparison_alert(subject, body)
+        _send_email(subject, body)
 
 
 def _compare(comparison: ComparisonResult) -> DataFrame:

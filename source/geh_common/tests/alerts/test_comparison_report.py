@@ -6,7 +6,7 @@ from pyspark.sql import DataFrame
 from geh_common.alerts import ComparisonResult, ComparisonType, compare_and_report
 
 
-@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report._send_email")
 @patch("geh_common.alerts.comparison_report.find_records_with_mismatched_values")
 def test_compare_and_report__with_values__compares_and_sends_summary_without_printing(
     find_mismatched: MagicMock,
@@ -28,7 +28,7 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
         summary="field values differ",
     )
 
-    compare_and_report("Comparison failed", [comparison], print_results=False)
+    compare_and_report("Comparison failed", [comparison], print_results=False, send_email=True)
 
     find_mismatched.assert_called_once_with(
         source,
@@ -43,7 +43,7 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
     send_alert.assert_called_once_with("Comparison failed", "2 field values differ")
 
 
-@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report._send_email")
 @patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
 def test_compare_and_report__with_multiple_missing_record_comparisons__combines_summaries(
     find_missing: MagicMock,
@@ -77,7 +77,7 @@ def test_compare_and_report__with_multiple_missing_record_comparisons__combines_
         ),
     ]
 
-    compare_and_report("Completeness check failed", comparisons, print_results=False)
+    compare_and_report("Completeness check failed", comparisons, print_results=False, send_email=True)
 
     assert find_missing.call_count == 2
     send_alert.assert_called_once_with(
@@ -86,7 +86,7 @@ def test_compare_and_report__with_multiple_missing_record_comparisons__combines_
     )
 
 
-@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report._send_email")
 @patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
 def test_compare_and_report__with_mixed_results__omits_empty_results_from_summary(
     find_missing: MagicMock,
@@ -118,7 +118,7 @@ def test_compare_and_report__with_mixed_results__omits_empty_results_from_summar
         ),
     ]
 
-    compare_and_report("Completeness check failed", comparisons, print_results=False)
+    compare_and_report("Completeness check failed", comparisons, print_results=False, send_email=True)
 
     send_alert.assert_called_once_with(
         "Completeness check failed",
@@ -126,7 +126,7 @@ def test_compare_and_report__with_mixed_results__omits_empty_results_from_summar
     )
 
 
-@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report._send_email")
 @patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
 def test_compare_and_report__with_empty_results__does_not_send_alert(
     find_missing: MagicMock,
@@ -153,9 +153,9 @@ def test_compare_and_report__with_empty_results__does_not_send_alert(
 
 
 @patch("builtins.print")
-@patch("geh_common.alerts.comparison_report.send_comparison_alert")
+@patch("geh_common.alerts.comparison_report._send_email")
 @patch("geh_common.alerts.comparison_report.find_records_missing_from_target")
-def test_compare_and_report__when_printing__shows_bounded_preview(
+def test_compare_and_report__by_default__prints_bounded_preview_without_sending_email(
     find_missing: MagicMock,
     send_alert: MagicMock,
     print_output: MagicMock,
@@ -176,7 +176,6 @@ def test_compare_and_report__when_printing__shows_bounded_preview(
     compare_and_report(
         "Comparison failed",
         [comparison],
-        send_email=False,
         max_displayed_rows=10,
     )
 
