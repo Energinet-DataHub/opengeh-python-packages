@@ -15,18 +15,18 @@ from geh_common.alerts import (
 comparisons = [
     ComparisonResult(
         source_dataframe=calculated_dataframe,
-        source_key_column="calculation_id",
+        source_key_columns=["calculation_id"],
         target_dataframe=published_dataframe,
-        target_key_column="calculation_id",
+        target_key_columns=["calculation_id"],
         comparison_type=ComparisonType.MISSING_RECORDS,
         heading="Calculated records missing from published results",
         summary="calculated records are missing from published results",
     ),
     ComparisonResult(
         source_dataframe=published_dataframe,
-        source_key_column="calculation_id",
+        source_key_columns=["calculation_id"],
         target_dataframe=calculated_dataframe,
-        target_key_column="calculation_id",
+        target_key_columns=["calculation_id"],
         comparison_type=ComparisonType.MISSING_RECORDS,
         heading="Published records missing from calculated results",
         summary="published records are missing from calculated results",
@@ -34,6 +34,23 @@ comparisons = [
 ]
 
 compare_and_report("Wholesale comparison failed", comparisons)
+```
+
+`source_key_columns` and `target_key_columns` must be non-empty lists of the
+same length. Columns are matched by position. The example above uses a single
+key column. A comparison with multiple key columns can use different source and
+target names:
+
+```python
+composite_key_comparison = ComparisonResult(
+    source_dataframe=calculated_dataframe,
+    source_key_columns=["calculation_id", "calculation_day"],
+    target_dataframe=published_dataframe,
+    target_key_columns=["published_calculation_id", "published_day"],
+    comparison_type=ComparisonType.MISSING_RECORDS,
+    heading="Calculated records missing from published results",
+    summary="calculated records are missing from published results",
+)
 ```
 
 By default, non-empty results are printed and an email summary is sent. Use
@@ -57,9 +74,9 @@ The same list can include value comparisons. These require
 comparisons.append(
     ComparisonResult(
         source_dataframe=calculated_dataframe,
-        source_key_column="calculation_id",
+        source_key_columns=["calculation_id", "calculation_day"],
         target_dataframe=published_dataframe,
-        target_key_column="calculation_id",
+        target_key_columns=["published_calculation_id", "published_day"],
         comparison_type=ComparisonType.VALUES,
         comparison_columns=(
             ("quantity", "quantity"),
@@ -74,4 +91,6 @@ comparisons.append(
 Value comparisons produce one row per differing field instead of returning the
 entire source record. The compact result contains `record_key`, `source_column`,
 `target_column`, `source_value`, and `target_value`. Values are represented as
-strings so columns with different Spark types can be included in one result.
+strings so columns with different Spark types can be included in one result. A
+single-column `record_key` is that key's string value; a multiple-column
+`record_key` is a JSON object containing the source key names and values.

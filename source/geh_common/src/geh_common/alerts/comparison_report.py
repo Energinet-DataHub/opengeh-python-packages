@@ -16,9 +16,9 @@ class ComparisonType(StrEnum):
 @dataclass(frozen=True)
 class ComparisonResult:
     source_dataframe: DataFrame
-    source_key_column: str
+    source_key_columns: list[str]
     target_dataframe: DataFrame
-    target_key_column: str
+    target_key_columns: list[str]
     comparison_type: ComparisonType
     heading: str
     summary: str
@@ -76,8 +76,8 @@ def _compare(comparison: ComparisonResult) -> DataFrame:
         return find_records_missing_from_target(
             comparison.source_dataframe,
             comparison.target_dataframe,
-            comparison.source_key_column,
-            comparison.target_key_column,
+            comparison.source_key_columns,
+            comparison.target_key_columns,
         )
 
     if comparison.comparison_type == ComparisonType.VALUES:
@@ -85,8 +85,8 @@ def _compare(comparison: ComparisonResult) -> DataFrame:
         return find_records_with_mismatched_values(
             comparison.source_dataframe,
             comparison.target_dataframe,
-            comparison.source_key_column,
-            comparison.target_key_column,
+            comparison.source_key_columns,
+            comparison.target_key_columns,
             comparison.comparison_columns,
         )
 

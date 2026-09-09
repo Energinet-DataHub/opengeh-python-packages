@@ -19,9 +19,9 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
     find_mismatched.return_value = dataframe
     comparison = ComparisonResult(
         source_dataframe=source,
-        source_key_column="source_id",
+        source_key_columns=["source_id"],
         target_dataframe=target,
-        target_key_column="target_id",
+        target_key_columns=["target_id"],
         comparison_type=ComparisonType.VALUES,
         comparison_columns=(("source_value", "target_value"),),
         heading="Mismatched records",
@@ -33,8 +33,8 @@ def test_compare_and_report__with_values__compares_and_sends_summary_without_pri
     find_mismatched.assert_called_once_with(
         source,
         target,
-        "source_id",
-        "target_id",
+        ["source_id"],
+        ["target_id"],
         (("source_value", "target_value"),),
     )
     dataframe.persist.assert_called_once_with()
@@ -59,18 +59,18 @@ def test_compare_and_report__with_multiple_missing_record_comparisons__combines_
     comparisons = [
         ComparisonResult(
             first_source,
-            "id",
+            ["id"],
             first_target,
-            "id",
+            ["id"],
             ComparisonType.MISSING_RECORDS,
             "Missing from target",
             "records are missing from target",
         ),
         ComparisonResult(
             first_target,
-            "id",
+            ["id"],
             first_source,
-            "id",
+            ["id"],
             ComparisonType.MISSING_RECORDS,
             "Missing from source",
             "records are missing from source",
@@ -100,18 +100,18 @@ def test_compare_and_report__with_mixed_results__omits_empty_results_from_summar
     comparisons = [
         ComparisonResult(
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             ComparisonType.MISSING_RECORDS,
             "Missing from target",
             "records are missing from target",
         ),
         ComparisonResult(
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             ComparisonType.MISSING_RECORDS,
             "Missing from source",
             "records are missing from source",
@@ -137,9 +137,9 @@ def test_compare_and_report__with_empty_results__does_not_send_alert(
     find_missing.return_value = dataframe
     comparison = ComparisonResult(
         MagicMock(spec=DataFrame),
-        "id",
+        ["id"],
         MagicMock(spec=DataFrame),
-        "id",
+        ["id"],
         ComparisonType.MISSING_RECORDS,
         "Missing records",
         "records are missing",
@@ -165,9 +165,9 @@ def test_compare_and_report__when_printing__shows_bounded_preview(
     find_missing.return_value = dataframe
     comparison = ComparisonResult(
         MagicMock(spec=DataFrame),
-        "id",
+        ["id"],
         MagicMock(spec=DataFrame),
-        "id",
+        ["id"],
         ComparisonType.MISSING_RECORDS,
         "Missing records",
         "records are missing",
@@ -192,9 +192,9 @@ def test_comparison_result__with_values_and_no_comparison_columns__raises_error(
     with pytest.raises(ValueError, match="comparison_columns must be provided"):
         ComparisonResult(
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             MagicMock(spec=DataFrame),
-            "id",
+            ["id"],
             ComparisonType.VALUES,
             "Mismatched records",
             "records have mismatched values",
