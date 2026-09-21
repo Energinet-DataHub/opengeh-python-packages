@@ -30,3 +30,17 @@ def test__analyze_table__when_analyze_columns_parsed__executes_expected_sql() ->
     # Assert
     expected_sql = f"ANALYZE TABLE {database}.{table} COMPUTE STATISTICS FOR COLUMNS {analyze_columns}"
     mocked_spark.sql.assert_called_once_with(expected_sql)
+
+
+def test__analyze_table__when_analyze_delta_is_true__executes_expected_sql() -> None:
+    # Arrange
+    mocked_spark = mock.Mock()
+    database = "test_database"
+    table = "test_table"
+
+    # Act
+    sut.analyze_table(mocked_spark, database, table, analyze_delta=True)
+
+    # Assert
+    expected_sql = f"ANALYZE TABLE {database}.{table} COMPUTE DELTA STATISTICS"
+    mocked_spark.sql.assert_called_once_with(expected_sql)
