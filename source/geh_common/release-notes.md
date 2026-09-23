@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.3.1
+
+- Reuse previously computed row counts when comparing DataFrames to avoid redundant Spark actions.
+
 ## Version 8.3.0
 
 - Added Spark JDBC connectors and environment-based connection settings for reading from and appending to Azure SQL Server and Azure Database for PostgreSQL using Microsoft Entra service-principal authentication.
