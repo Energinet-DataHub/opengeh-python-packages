@@ -2,6 +2,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from pyspark.sql import DataFrame
+from pyspark.storagelevel import StorageLevel
 
 from geh_common.testing.dataframes.assert_dataframes import (
     AssertDataframesConfiguration,
@@ -58,8 +59,49 @@ def test_assert_dataframes_and_schemas_reuses_computed_counts(assert_schema, ass
 
     actual.count.assert_called_once_with()
     expected.count.assert_called_once_with()
+    actual.persist.assert_called_once_with(StorageLevel.MEMORY_AND_DISK)
+    expected.persist.assert_called_once_with(StorageLevel.MEMORY_AND_DISK)
+    actual.unpersist.assert_called_once_with()
+    expected.unpersist.assert_called_once_with()
     assert_schema.assert_called_once()
     assert_equal.assert_called_once_with(actual, expected, actual_count=3, expected_count=3)
+
+
+@patch("geh_common.testing.dataframes.assert_dataframes.assert_dataframes_equal")
+@patch("geh_common.testing.dataframes.assert_dataframes.assert_schema")
+def test_assert_dataframes_and_schemas_unpersists_dataframes_on_assertion_failure(assert_schema, assert_equal):
+    actual = MagicMock(spec=DataFrame)
+    expected = MagicMock(spec=DataFrame)
+    actual.count.return_value = 3
+    expected.count.return_value = 3
+    assert_equal.side_effect = AssertionError("Dataframes data are not equal")
+    configuration = AssertDataframesConfiguration(
+        show_columns_when_actual_and_expected_are_equal=True,
+        ignore_extra_columns_in_actual=False,
+        ignore_duplicated_rows=True,
+    )
+
+    with pytest.raises(AssertionError, match="Dataframes data are not equal"):
+        assert_dataframes_and_schemas(actual, expected, configuration)
+
+    actual.unpersist.assert_called_once_with()
+    expected.unpersist.assert_called_once_with()
+
+
+@patch("geh_common.testing.dataframes.assert_dataframes.assert_dataframes_equal")
+@patch("geh_common.testing.dataframes.assert_dataframes.assert_schema")
+def test_assert_dataframes_and_schemas_persists_same_dataframe_once(assert_schema, assert_equal):
+    dataframe = MagicMock(spec=DataFrame)
+    dataframe.count.return_value = 3
+    configuration = AssertDataframesConfiguration(
+        ignore_extra_columns_in_actual=False,
+        ignore_duplicated_rows=True,
+    )
+
+    assert_dataframes_and_schemas(dataframe, dataframe, configuration)
+
+    dataframe.persist.assert_called_once_with(StorageLevel.MEMORY_AND_DISK)
+    dataframe.unpersist.assert_called_once_with()
 
 
 def test_when_supplied_counts_differ_then_raises_assertion_error():

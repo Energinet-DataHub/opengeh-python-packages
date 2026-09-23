@@ -3,6 +3,7 @@ from typing import Tuple
 
 import pyspark.sql.functions as f
 from pyspark.sql import DataFrame
+from pyspark.storagelevel import StorageLevel
 
 from geh_common.testing.dataframes.assert_schemas import assert_schema
 
@@ -31,6 +32,26 @@ def assert_dataframes_and_schemas(
 ) -> None:
     assert actual is not None, "Actual data frame is None"
     assert expected is not None, "Expected data frame is None"
+
+    actual.persist(StorageLevel.MEMORY_AND_DISK)
+    try:
+        if expected is actual:
+            _assert_dataframes_and_schemas(actual, expected, configuration)
+        else:
+            expected.persist(StorageLevel.MEMORY_AND_DISK)
+            try:
+                _assert_dataframes_and_schemas(actual, expected, configuration)
+            finally:
+                expected.unpersist()
+    finally:
+        actual.unpersist()
+
+
+def _assert_dataframes_and_schemas(
+    actual: DataFrame,
+    expected: DataFrame,
+    configuration: AssertDataframesConfiguration | None,
+) -> None:
     actual_rows = actual.count()
     expected_rows = expected.count()
 
