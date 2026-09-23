@@ -100,7 +100,12 @@ def assert_dataframes_and_schemas(
             raise
 
     try:
-        assert_dataframes_equal(actual, expected)
+        assert_dataframes_equal(
+            actual,
+            expected,
+            actual_count=actual_rows,
+            expected_count=expected_rows,
+        )
     except AssertionError:
         if not configuration.show_columns_when_actual_and_expected_are_equal:
             actual, expected = _drop_columns_if_the_same(actual, expected)
@@ -163,12 +168,19 @@ def assert_row_order(actual: DataFrame, expected: DataFrame) -> None:
             assert False, f"Row mismatch at position {i}: \nActual: {a_row}\nExpected: {e_row}"
 
 
-def assert_dataframes_equal(actual: DataFrame, expected: DataFrame) -> None:
+def assert_dataframes_equal(
+    actual: DataFrame,
+    expected: DataFrame,
+    actual_count: int | None = None,
+    expected_count: int | None = None,
+) -> None:
     actual_excess = actual.subtract(expected)
     expected_excess = expected.subtract(actual)
 
     actual_excess_count = actual_excess.count()
     expected_excess_count = expected_excess.count()
+    actual_count = actual.count() if actual_count is None else actual_count
+    expected_count = expected.count() if expected_count is None else expected_count
 
     if actual_excess_count > 0:
         print("Actual excess:")  # noqa
@@ -178,7 +190,7 @@ def assert_dataframes_equal(actual: DataFrame, expected: DataFrame) -> None:
         print("Expected excess:")  # noqa
         expected_excess.show(3000, False)
 
-    assert actual.count() == expected.count() and actual_excess_count == 0 and expected_excess_count == 0, (
+    assert actual_count == expected_count and actual_excess_count == 0 and expected_excess_count == 0, (
         "Dataframes data are not equal"
     )
 
