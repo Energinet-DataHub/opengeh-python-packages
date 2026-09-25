@@ -4,6 +4,7 @@
 
 - Added the `process_steps_v1` contract and the `termination_state` field to the `processes_v1` contract for
   `process_manager_gold`.
+- Exported the `BusinessReason` and `RelationType` domain types.
 
 ## Version 8.3.0
 
