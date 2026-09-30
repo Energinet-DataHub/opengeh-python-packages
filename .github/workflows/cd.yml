@@ -27,7 +27,7 @@ permissions:
 jobs:
   cd_reusable:
     name: Continuous Deployment
-    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@workflows/v3
+    uses: Energinet-DataHub/.github/.github/workflows/python-uv-cd.yml@47ecc2efc63d178deba3474792d4f21c51f13ee2 # workflows/v3
     with:
       packages_directory: source
       subsystem_name: common
