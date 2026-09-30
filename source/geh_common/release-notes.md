@@ -1,6 +1,7 @@
 # GEH Common Release Notes
 
 ## Version 8.3.2
+
 - Added `other` type to `time_resolution`. 
 
 ## Version 8.3.1
