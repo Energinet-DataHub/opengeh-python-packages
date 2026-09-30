@@ -1,5 +1,9 @@
 # GEH Common Release Notes
 
+## Version 8.3.2
+
+- Added `other` type to `time_resolution`.
+
 ## Version 8.3.1
 
 - Added the `process_steps_v1` contract and the `termination_state` field to the `processes_v1` contract for
