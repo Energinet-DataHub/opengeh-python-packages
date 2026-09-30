@@ -5,3 +5,4 @@ class TimeResolution(Enum):
     QUARTER_HOURLY = "quarter_hourly"
     HOURLY = "hourly"
     MONTHLY = "monthly"
+    OTHER = "other"
